@@ -183,7 +183,7 @@ const MyBookings = () => {
 
     // Add event listener for notificationReceived event
     const handleNotification = () => {
-      fetchBookings();
+        fetchBookings();
     };
     window.addEventListener('notificationReceived', handleNotification);
 
@@ -1165,26 +1165,29 @@ const BookingSkeleton = () => {
       <div key={booking.BookingID} className="card shadow-sm mb-3">
         <div className="p-3" style={{ borderBottom: "1px solid #eee" }}>
           <div className="row align-items-center">
-            <div className="col-12 col-md-8">
-              <div className="d-flex align-items-center gap-3">
+            <div className="col-12 col-md-5">
+              <div className="d-flex align-items-center gap-2">
                 <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center bg-radial" style={{ width: 40, height: 40, color: '#fff'  }}>
                   <i className="bi bi-receipt"></i>
             </div>
-          <div>
+              <div>
                   <div className="small text-muted">BID : <span className="fw-bold">#{booking.BookingTrackID} ( {(booking.BookingDate ? new Date(booking.BookingDate).toLocaleDateString('en-GB') : 'N/A')})</span></div>
-                  <div className="small text-muted">
-                    
+                  <div className="small text-muted"></div>
             </div>
-                </div>
-              </div>
             </div>
-            <div className="col-12 col-md-4">
+            </div>
+            <div className="col-12 col-md-7">
               <div className="d-flex align-items-center gap-2 justify-content-md-end mt-2 mt-md-0">
                 {/* Status chip */}
                 {booking.Status !== "Completed" && booking.Status !== 'Cancelled' && booking.Status !== 'Failed' ? (
+                  <>
+                  <div className="text-start me-2">
+                    <div className="small text-muted">Payment : <span className={`px-2 py-1 rounded fw-semibold ${booking.Payments?.[0]?.PaymentStatus === 'Success' ? 'bg-success text-white' : 'bg-danger text-white'}`}>{booking.Payments?.[0]?.PaymentStatus || 'Pending'}</span></div>
+                  </div>
                   <div className="text-end me-2">
                     <div className="small text-muted">{booking.CompletedOTP ? "Completion" : "Start"} OTP : <span className="bg-warning px-2 py-1 rounded text-dark fw-semibold">{booking.CompletedOTP ? booking.CompletedOTP : booking.BookingOTP}</span></div>
                   </div>
+                  </>
                 ) : null}
                 <button className="btn btn-warning px-4 py-2" onClick={() => setSelectedBooking(booking)}>
                   <i className="bi bi-arrows-fullscreen"></i>  view
@@ -1901,7 +1904,7 @@ const BookingSkeleton = () => {
         </div>
           {selectedBooking?.BookingStatus === 'Completed' &&
            selectedBooking?.Payments?.[0]?.PaymentStatus === 'Success' &&
-           selectedBooking?.Payments?.[0]?.isRefunded !== true && (
+           selectedBooking?.Payments?.[0]?.IsRefunded !== true && (
              <button
                className="btn btn-outline-danger px-3 py-2"
                onClick={handleRequestRefund}

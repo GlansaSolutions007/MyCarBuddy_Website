@@ -7,6 +7,7 @@ import { useAlert } from "../context/AlertContext";
 const AddressTab = ({ custID = 0 }) => {
       const [addresses, setAddresses] = useState([]);
       const [selectedAddress, setSelectedAddress] = useState(null);
+      const [loading, setLoading] = useState(true);
       const { showAlert } = useAlert();
       const user = JSON.parse(localStorage.getItem("user")) || {};
       const token = user?.token || "";
@@ -16,8 +17,9 @@ const AddressTab = ({ custID = 0 }) => {
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
   useEffect(() => {
-  
+
     const fetchAddresses = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           `${BaseURL}CustomerAddresses/custid?custid=${decryptedCustId || ''}`,
@@ -42,6 +44,8 @@ const AddressTab = ({ custID = 0 }) => {
         setAddresses(formatted);
       } catch (error) {
         console.error("Error fetching addresses:", error);
+       } finally {
+        setLoading(false);
       }
     };
 
@@ -117,7 +121,15 @@ const AddressTab = ({ custID = 0 }) => {
         <h5 className="fw-bold mb-0">📍 Your Addresses</h5>
       </div>
 
-      {!selectedAddress ? (
+    {loading ? (
+      // loader (same as InvoicesTab)
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-2">Loading addresses...</p>
+      </div>
+    ) : !selectedAddress ? (
         <div className="row">
           {addresses.length === 0 && (
             <div className="text-center py-5">

@@ -9,6 +9,12 @@ import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import { v4 as uuidv4 } from "uuid";
 
+const validateVehicleNumber = (number) => {
+    const cleaned = (number || "").toUpperCase().trim();
+    const regex = /^(?=.*[A-Z])(?=.*\d)[A-Z0-9]{6,15}$/;
+    return regex.test(cleaned);
+};
+
 const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	// Alert API (optional)
 	const { showAlert } = useAlert();
@@ -359,26 +365,12 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
         setFormData((p) => ({ ...p, registrationNumber: upperValue }));
 
          // Validate registration number
-		 const regRegex = /^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/;
-		 let error = false;
-		 let message = "";
- 
-		 if (upperValue.length === 0) {
-			message = "";
-		 } else if (upperValue.length < 10) {
-			 message = "";
-		 } else if (upperValue.length > 10) {
-			 message = "Must be exactly 10 characters.";
-			 error = true;
-		 } else if (upperValue.length === 10) {
-			 if (!regRegex.test(upperValue)) {
-				 error = true;
-				 message = "Invalid format. Use like TS08AB1234.";
-			 }
-		 }
- 
-		 setRegError(error);
-		 setRegMessage(message);
+         const isValid = validateVehicleNumber(upperValue);
+         const error = !isValid && upperValue.length > 0;
+         const message = error ? "Invalid registration number format." : "";
+
+         setRegError(error);
+         setRegMessage(message);
  
 		 // Trigger API verification immediately when exactly 10 digits are entered
 		 if (upperValue.length === 10) {
@@ -597,19 +589,11 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-
-		// Validate registration number length
-		if (formData.registrationNumber.length !== 10) {
-			showAlert("Registration number must be exactly 10 characters.", "error");
-			return;
-		}
-
 		// Required fields validation for registration number and year of purchase
 		if (!formData.registrationNumber || !formData.transmissionType) {
 			showAlert("Please enter registration number and transmission type.");
 			return;
 		}
-
 
 		// Validate registration number
 		if (regError) {
@@ -703,6 +687,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
                     saved.kilometerDriven = formData.kilometerDriven;
                     saved.transmissionType = formData.transmissionType;
                     localStorage.setItem("selectedCarDetails", JSON.stringify(saved));
+					fetchSavedVehicles();
                 }
 			} else {
 				showAlert && showAlert("Please sign in to save your vehicle.", "warning");
@@ -860,9 +845,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 						</div>
 					</div>
 				)}
-
-				<h6>or add new car</h6>
-
+				<h6>Or Add New Car</h6>
 				<form onSubmit={handleSubmit}>
 					{selectionMethod === "registration" ? (
 						<div className="mb-4">
@@ -944,16 +927,17 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 										type="text"
 										className="form-control"
 										value={formData.kilometerDriven}
-										onChange={(e) => setFormData((p) => ({ ...p, kilometerDriven: e.target.value }))}
+                                        onChange={(e) => setFormData((p) => ({ ...p, kilometerDriven: e.target.value.replace(/\D/g, '') }))}
 										placeholder="e.g., 25000"
 									/>
 								</div>
 								<div className="col-12 col-md-6">
-									<label className="form-label small">Transmission Type</label>
+                                    <label className="form-label small">Transmission Type<span className="text-danger">*</span></label>
 									<select
 										className="form-select"
 										value={formData.transmissionType}
 										onChange={(e) => setFormData((p) => ({ ...p, transmissionType: e.target.value }))}
+										required
 									>
 										<option value="">Select</option>
 										<option value="Manual">Manual</option>

@@ -133,7 +133,7 @@ const BookingVehicleDetails = ({
         errorMsg =
           "Registration number must be 5–15 characters (letters, numbers, dashes).";
       }
-    }
+    } 
 
     if (name === "yearOfPurchase") {
       const currentYear = new Date().getFullYear();

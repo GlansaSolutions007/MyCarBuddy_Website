@@ -11,6 +11,7 @@ const NotificationDropdown = ({  }) => {
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+  const lastUnreadCountRef = useRef(0);
   const navigate = useNavigate();
   // Handle notification click: mark as read then navigate to bookings tab with target booking
   const handleNotificationClick = async (notification, isRead) => {
@@ -61,18 +62,21 @@ const NotificationDropdown = ({  }) => {
       const response = await notificationService.getUserNotifications(decryptedUserId);
       console.log('Notifications response:', response);
       if (response && Array.isArray(response)) {
-        const previousUnreadCount = unreadCount;
-        const newUnreadCount = response.filter(n => !n.isRead).length;
-        
-        setNotifications(response);
+        // Deduplicate notifications by message to prevent duplicates for the same event
+        const uniqueNotifications = response.filter((item, index, self) =>
+          index === self.findIndex((t) => t.message === item.message)
+        );
+        const newUnreadCount = uniqueNotifications.filter(n => !n.isRead).length;
+
+        setNotifications(uniqueNotifications);
         setUnreadCount(newUnreadCount);
-        console.log('Notifications loaded:', response.length, 'Unread:', newUnreadCount);
-        
-        // If new unread notifications are detected, dispatch event to reload bookings
-        if (newUnreadCount > previousUnreadCount) {
-          console.log('New notifications detected, dispatching notificationReceived event');
+         if (newUnreadCount > lastUnreadCountRef.current) {
+          // console.log('🔔 New notifications detected, dispatching notificationReceived event');
           window.dispatchEvent(new CustomEvent('notificationReceived'));
         }
+        // Update stored unread count for next time
+        lastUnreadCountRef.current = newUnreadCount;
+
       } else {
         console.log('Invalid response format:', response);
         setNotifications([]);

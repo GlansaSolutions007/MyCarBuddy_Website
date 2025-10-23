@@ -17,6 +17,7 @@ const MyCarList = () => {
   const [primaryCarId, setPrimaryCarId] = useState(1);
   const [showAddForm, setShowAddForm] = useState(false);
   const [viewCar, setViewCar] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const IMAGE_BASE_URL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
@@ -52,6 +53,7 @@ const MyCarList = () => {
 
   const fetchMYCars = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `${baseUrl}CustomerVehicles/CustId?CustId=${decryptedCustId}`,
         {
@@ -64,6 +66,8 @@ const MyCarList = () => {
     } catch (error) {
       console.error("Error fetching cars:", error);
       // alert("Failed to load cars. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -540,7 +544,15 @@ const MyCarList = () => {
         })}
       </div>
 
-      {carList.length === 0 && (
+    {loading ? (
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-2">Loading cars...</p>
+      </div>
+    ) : (
+      carList.length === 0 && (
         <div className="text-center py-5">
           <img
             src="/assets/img/no-cars.png"
@@ -550,7 +562,8 @@ const MyCarList = () => {
           <h4>No cars yet</h4>
           <p>Looks like you haven't added any cars yet. Add your first car!</p>
         </div>
-      )}
+      )
+    )}
 
       {showBrandPopup && (
         <BrandPopup

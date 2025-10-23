@@ -114,7 +114,6 @@ const [paymentMessage, setPaymentMessage] = useState("");
 const [paymentStatus, setPaymentStatus] = useState(""); // "success" or "failed"
 const [isCheckingNextDate, setIsCheckingNextDate] = useState(false);
   const [gstError, setGstError] = useState("");
-
   const [emailError, setEmailError] = useState("");
   const [fullNameError, setFullNameError] = useState("");
   const [othersNameError, setOthersNameError] = useState("");
@@ -412,10 +411,14 @@ const [isCheckingNextDate, setIsCheckingNextDate] = useState(false);
       modelID: parsedCar.model?.id,
       fuelTypeID: parsedCar.fuel?.id,
       VehicleID: "",
+      registrationNumber: parsedCar.registrationNumber || "",
+      yearOfPurchase: parsedCar.yearOfPurchase || "",
+      engineType: parsedCar.engineType || "",
+      kilometerDriven: parsedCar.kilometerDriven || "",
+      transmissionType: parsedCar.transmissionType || "",
     }));
   }
 }, []);
-
 
   const handleMapClick = async (lat, lng , placeName = '') => {
     if (!serviceAvailable) return; // Skip when service not available
@@ -1448,7 +1451,7 @@ const getGST = () => {
 															{selectedDate && `${selectedDate.toDateString()} - ${selectedTimes.join(", ")}`}
 														</div>
 													</div>
-                      <button 
+                      <button
                         className="btn btn-outline-danger px-3 py-1"
                         onClick={() => setSelectedTimes([])}
                       >
@@ -1464,6 +1467,12 @@ const getGST = () => {
                     </div>
                   </div>
                 )}
+                {selectedTimes.length > 1 && (
+                      <div className="mt-3 alert alert-info">
+                        <i className="bi bi-info-circle me-2"></i>
+                        Our team will call you to confirm one time slot from your selected options.
+                      </div>
+                    )}
               </>
               {/* )} */}
             </>
@@ -1648,17 +1657,6 @@ const getGST = () => {
                 {formData.hasGSTNumber && (
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label fw-semibold">Organization Name <span className="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        name="organizationName"
-                        className="form-control"
-                        placeholder="Organization Name"
-                        value={formData.organizationName}
-                        onChange={handlereInputChange}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
                       <label className="form-label fw-semibold">GST Number <span className="text-danger">*</span></label>
                       <input
                         type="text"
@@ -1669,6 +1667,17 @@ const getGST = () => {
                         onChange={handlereInputChange}
                       />
                       <div className="invalid-feedback" style={{ color: "black" }}>{gstError}</div>
+                    </div>
+                      <div className="col-md-6 mb-3">
+                      <label className="form-label fw-semibold">Organization Name <span className="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        name="organizationName"
+                        className="form-control"
+                        placeholder="Organization Name"
+                        value={formData.organizationName}
+                        onChange={handlereInputChange}
+                      />
                     </div>
                   </div>
                 )}
@@ -1816,7 +1825,7 @@ const getGST = () => {
                         <div>CGST (9%): ₹{(getGST() / 2).toFixed(2)}</div>
                         {couponApplied && paymentMethod === "razorpay" && (
                           <div className="text-muted">
-                            (Coupon Saved ₹{(getOriginalTotal() - getDiscountedTotal()).toFixed(2)})
+                            (Coupon savings ₹{(getOriginalTotal() - getDiscountedTotal()).toFixed(2)})
                           </div>
                         )}
                       </div>

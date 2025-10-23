@@ -75,7 +75,7 @@ const FooterAreaOne = () => {
           <div className="row gy-3 justify-content-md-between justify-content-center">
             <div className="col-auto align-self-center">
               <p className="copyright-text text-center">
-                © <Link to="#">MyCarBuddy</Link> 2025 | All Rights Reserved
+                © <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> 2025 | All Rights Reserved
               </p>
             </div>
             <div className="col-auto">

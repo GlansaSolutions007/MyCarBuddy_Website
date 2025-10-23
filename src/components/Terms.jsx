@@ -4,6 +4,7 @@ const Terms = () => {
   return (
     <div className="container py-5">
       <h2 className="mb-4">Terms & Conditions</h2>
+      <h4>Mycarbuddy.in is a subsidiary of Glansa Solution Private Limited</h4>
       <p>
         These Terms and Conditions (“Terms”) govern your use of the{" "}
         <strong>MyCarBuddy</strong> mobile application, website, and services
@@ -15,7 +16,8 @@ const Terms = () => {
         <strong>Glansa Solutions Private Limited</strong>, a company incorporated
         under the Companies Act, 2013, with its registered/operational office at{" "}
         Flat No. 102, Mahalaxmi Paradise, Aswini Colony, West Maredpally,
-        Secunderabad, Hyderabad, Telangana – 500026, India. The terms{" "}
+        Secunderabad, Hyderabad, Telangana – 500026, Floor No.: B1,2 floor, Building No./Flat No.: 1-89/A/B/C2&3, Name Of Premises/Building: A1,
+         Road/Street: Vittal Nagar Road, Locality/Sub Locality: Madhapur,City/Town/Village: Hyderabad,District: Hyderabad ,State: Telangana, PIN Code: 500081 India. The terms{" "}
         <strong>"you"</strong>, <strong>"your"</strong>, <strong>"user"</strong>,
         or <strong>"customer"</strong> shall mean any person accessing or using
         the Platform. <strong>MyCarBuddy</strong> is a registered product and

@@ -210,17 +210,15 @@ const RaisedTicketsTab = () => {
                 <div className="accordion-body">
                   <div className="row">
                     <div className="col-md-8">
-                      <h6 className="text-primary">Description</h6>
-                      <p className="mb-3">{ticket.Description || "No description provided."}</p>
-                      
                       {ticket.BookingTrackID && (
                         <>
-                          <h6 className="text-primary">Related Booking</h6>
                           <p className="mb-3">
-                            <span className="badge1 bg-info">Booking ID: {ticket.BookingTrackID}</span>
+                            <span className="badge1 fw-bold">Booking ID: {ticket.BookingTrackID}</span>
                           </p>
                         </>
                       )}
+                      <h6 className="text-primary">Description</h6>
+                      <p className="mb-3">{ticket.Description || "No description provided."}</p>
                     </div>
                     <div className="col-md-4">
                       <h6 className="text-primary">Ticket Details</h6>
