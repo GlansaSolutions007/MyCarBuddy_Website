@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -14,10 +14,27 @@ const ContactArea = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [companyInfo, setCompanyInfo] = useState({ address: '', phones: [], email: '' });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}CompanyInfo`);
+        const data = response.data.data;
+        const address = data.find(item => item.Type === 'Address')?.Description || '';
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
+        setCompanyInfo({ address, phones, email });
+      } catch (err) {
+        console.error('Failed to fetch company info:', err);
+      }
+    };
+    fetchCompanyInfo();
+  }, [BASE_URL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +79,7 @@ const ContactArea = () => {
                   <div className="col-md-10 pl-3">
                       <h6 className="contact-info_title">Address</h6>
                       <p className="contact-info_text">
-                        Unit # B1, Second Floor Spaces & More Business Park, Madhapur #3 D.No# 1-89/A/8, C/2, Vittal Rao Nagar Rd, Madhapur, Telangana 500081 
+                        {companyInfo.address}
                       </p>
                       {/* <p className="contact-info_text"> </p> */}
                   </div>
@@ -81,7 +98,12 @@ const ContactArea = () => {
                   <div className="col-md-10 pl-3">
                       <h6 className="contact-info_title">Phone Number</h6>
                       <p className="contact-info_text">
-                        <Link to="tel:7075243939">+91 70752 43939</Link><br /> <Link to="tel:9885653865"> +91 98856 53865</Link>
+                        {companyInfo.phones.map((phone, index) => (
+                          <React.Fragment key={index}>
+                            <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link>
+                            {index < companyInfo.phones.length - 1 && <br />}
+                          </React.Fragment>
+                        ))}
                       </p>
                   </div>
                 </div>
@@ -108,8 +130,8 @@ const ContactArea = () => {
                   <div className="col-md-10 pl-3">
                       <h6 className="contact-info_title">E-mail</h6>
                         <p className="contact-info_text">
-                          <a href="mailto:info@mycarbuddy.in">
-                            info@mycarbuddy.in
+                          <a href={`mailto:${companyInfo.email}`}>
+                            {companyInfo.email}
                           </a>
                         </p>
                         <p className="contact-info_text">

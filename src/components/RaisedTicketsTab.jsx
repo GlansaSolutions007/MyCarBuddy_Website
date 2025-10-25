@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
+import NewTicket from "./NewTicket";
 
 const RaisedTicketsTab = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedTicket, setExpandedTicket] = useState(null);
+  const [showNewTicket, setShowNewTicket] = useState(false);
   const { showAlert } = useAlert();
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -161,9 +163,12 @@ const RaisedTicketsTab = () => {
           <i className="fas fa-sync-alt me-1"></i>
           Refresh
         </button> */}
+        <button className="btn btn-outline-primary px-3 py-2" onClick={() => setShowNewTicket(true)}>New Ticket</button>
       </div>
 
-      {tickets.length === 0 ? (
+      {showNewTicket ? (
+        <NewTicket onClose={() => setShowNewTicket(false)} onTicketCreated={fetchTickets} />
+      ) : tickets.length === 0 ? (
         <div className="text-center py-5">
           <div className="mb-3">
             <i className="fas fa-ticket-alt text-muted" style={{ fontSize: "3rem" }}></i>
