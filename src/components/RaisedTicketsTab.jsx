@@ -10,6 +10,8 @@ const RaisedTicketsTab = () => {
   const [expandedTicket, setExpandedTicket] = useState(null);
   const [showNewTicket, setShowNewTicket] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState({});
+  const [showCancelForm, setShowCancelForm] = useState({});
+  const [cancelReason, setCancelReason] = useState({});
   const { showAlert } = useAlert();
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -65,6 +67,46 @@ const RaisedTicketsTab = () => {
       ...prev,
       [ticketId]: !prev[ticketId],
     }));
+  };
+
+  const handleCancelTicket = (ticketId) => {
+    setShowCancelForm((prev) => ({
+      ...prev,
+      [ticketId]: !prev[ticketId],
+    }));
+  };
+
+  const confirmCancelTicket = async (ticketId) => {
+    const reason = cancelReason[ticketId] || "";
+    if (!reason.trim()) {
+      showAlert("Please enter a cancellation reason.", "warning");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      // Placeholder for cancel ticket API call - replace with actual endpoint
+      const response = await axios.post(
+        `${baseUrl}CancelTicket`, // Replace with actual endpoint
+        {
+          ticketId: ticketId,
+          reason: reason,
+        },
+        {
+          headers: { Authorization: `Bearer ${user?.token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        showAlert("Ticket cancelled successfully.", "success");
+        setShowCancelForm((prev) => ({ ...prev, [ticketId]: false }));
+        setCancelReason((prev) => ({ ...prev, [ticketId]: "" }));
+        fetchTickets(); // Refresh tickets
+      }
+    } catch (error) {
+      console.error("Error cancelling ticket:", error);
+      showAlert("Failed to cancel ticket. Please try again.", "error");
+    }
   };
 
   const formatDate = (dateString) => {
@@ -413,12 +455,43 @@ const RaisedTicketsTab = () => {
                   </div>
 
                   {/* Cancel Ticket */}
-                <div style={{ minWidth: "120px", display: "flex" }}>
-                  <button className="btn btn-danger w-100 mt-2" style={{height: "100%", padding: "10px 10px"}}>
+                <div style={{ minWidth: "120px", display: "flex", flexDirection: "column" }}>
+                  <button
+                    className="btn btn-danger w-100 mt-2"
+                    style={{ height: "100%", padding: "10px 10px" }}
+                    onClick={() => handleCancelTicket(ticket.Id || ticket.id || index)}
+                  >
                     Cancel Ticket
                   </button>
                 </div>
                 </div>
+
+                {showCancelForm[ticket.Id || ticket.id || index] && (
+                  <div className="mt-2 p-3 border rounded bg-light">
+                    <h6 className="text-danger mb-3">Please enter cancellation reason</h6>
+                    <textarea
+                      className="form-control mb-3"
+                      rows="2"
+                      placeholder="Enter reason for cancellation..."
+                      value={cancelReason[ticket.Id || ticket.id || index] || ""}
+                      onChange={(e) =>
+                        setCancelReason((prev) => ({
+                          ...prev,
+                          [ticket.Id || ticket.id || index]: e.target.value,
+                        }))
+                      }
+                    />
+                    <div className="text-center mt-2">
+                      <button
+                        className="btn btn-danger"
+                        style={{ padding: "12px 15px", fontSize: "14px" }}
+                        onClick={() => confirmCancelTicket(ticket.Id || ticket.id || index)}
+                      >
+                        Confirm Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
                   {ticket.response && (
                     <div className="mt-3 p-3 bg-light rounded">
                       <h6 className="text-success">Response from Support</h6>
