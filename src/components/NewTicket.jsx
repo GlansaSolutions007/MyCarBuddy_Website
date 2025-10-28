@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { useAlert } from '../context/AlertContext';
+import Swal from "sweetalert2";
 
 const chatStyles = `
   .new-ticket-card {
@@ -49,7 +50,7 @@ const chatStyles = `
     line-height: 0.8;
     font-weight: bold;
   }
-  .card-body {
+  .card-body-ticket {
     display: flex;
     flex-direction: column;
     height: 500px;
@@ -231,7 +232,16 @@ function NewTicket({ onClose, onTicketCreated }) {
       );
 
       if (response.status === 200 || response.status === 201) {
-        showAlert('Ticket created successfully!', 'success');
+        // showAlert('Ticket created successfully!', 'success');
+         await Swal.fire({
+                title: "created",
+                text: "Ticket created successfully!.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+              });
         onTicketCreated(); // Refresh tickets
         onClose(); // Close the form
       } else {
@@ -312,7 +322,7 @@ function NewTicket({ onClose, onTicketCreated }) {
           aria-label="Close"
         ></button>
       </div>
-      <div className="card-body">
+      <div className="card-body-ticket">
         <form onSubmit={handleSubmit} className="d-flex flex-column h-100">
           <div className="chat-container d-flex flex-column" ref={chatContainerRef}>
             {/* Step 1: System: Select Booking */}
@@ -485,7 +495,7 @@ function NewTicket({ onClose, onTicketCreated }) {
             {step > 1 && (
               <button
                 type="button"
-                className="btn btn-secondary btn-sm"
+                className="btn btn-secondary px-4 py-3"
                 onClick={handleBack}
                 disabled={loading}
               >
@@ -494,7 +504,7 @@ function NewTicket({ onClose, onTicketCreated }) {
             )}
             <button
               type="submit"
-              className="btn btn-primary btn-sm"
+              className="btn btn-primary px-4 py-3"
               disabled={loading || (selectedReasonType !== 'Others' && step < 4) || (bookingRequiredCategories.includes(selectedReasonType) && !bookingId && !skippedBooking)}
             >
               {loading ? (
@@ -508,7 +518,7 @@ function NewTicket({ onClose, onTicketCreated }) {
             </button>
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
+              className="btn btn-secondary px-4 py-3"
               onClick={onClose}
               disabled={loading}
             >
