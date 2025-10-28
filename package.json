@@ -44,6 +44,7 @@
     "readability-score": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "sweetalert2": "^11.26.3",
     "swiper": "^9.1.1",
     "tesseract.js": "^6.0.1",
     "url": "^0.11.4",
