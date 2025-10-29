@@ -76,38 +76,50 @@ const RaisedTicketsTab = () => {
     }));
   };
 
-  const confirmCancelTicket = async (ticketId) => {
-    const reason = cancelReason[ticketId] || "";
-    if (!reason.trim()) {
-      showAlert("Please enter a cancellation reason.", "warning");
+const confirmCancelTicket = async (ticketId) => {
+  const reason = cancelReason[ticketId] || "";
+  if (!reason.trim()) {
+    showAlert("Please enter a cancellation reason.", "warning");
+    return;
+  }
+
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const ticket = tickets.find(
+      (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
+    );
+
+    if (!ticket?.TicketTrackId) {
+      showAlert("Unable to find ticket track ID.", "error");
       return;
     }
 
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      // Placeholder for cancel ticket API call - replace with actual endpoint
-      const response = await axios.post(
-        `${baseUrl}CancelTicket`, // Replace with actual endpoint
-        {
-          ticketId: ticketId,
-          reason: reason,
-        },
-        {
-          headers: { Authorization: `Bearer ${user?.token}` },
-        }
-      );
+    // ✅ Prepare payload as per your API
+    const payload = {
+      ticketTrackId: ticket.TicketTrackId,
+      status: 3, // assuming 0 represents "Cancelled"
+      description: reason,
+    };
 
-      if (response.status === 200) {
-        showAlert("Ticket cancelled successfully.", "success");
-        setShowCancelForm((prev) => ({ ...prev, [ticketId]: false }));
-        setCancelReason((prev) => ({ ...prev, [ticketId]: "" }));
-        fetchTickets(); // Refresh tickets
-      }
-    } catch (error) {
-      console.error("Error cancelling ticket:", error);
+    // ✅ API call (endpoint confirmed)
+    const response = await axios.put(`${baseUrl}Tickets`, payload, {
+      headers: { Authorization: `Bearer ${user?.token}` },
+    });
+
+    if (response.status === 200) {
+      showAlert("Ticket cancelled successfully.", "success");
+      setShowCancelForm((prev) => ({ ...prev, [ticketId]: false }));
+      setCancelReason((prev) => ({ ...prev, [ticketId]: "" }));
+      fetchTickets(); // refresh list
+    } else {
       showAlert("Failed to cancel ticket. Please try again.", "error");
     }
-  };
+  } catch (error) {
+    console.error("Error cancelling ticket:", error);
+    showAlert("Failed to cancel ticket. Please try again.", "error");
+  }
+};
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";

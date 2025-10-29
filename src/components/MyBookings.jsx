@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAlert } from "../context/AlertContext";
 import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
+import NewTicket from "./NewTicket";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -23,6 +24,7 @@ const MyBookings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedBookingIds, setExpandedBookingIds] = useState(new Set());
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showNewTicket, setShowNewTicket] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
     const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
@@ -322,6 +324,8 @@ useEffect(() => {
                       {
                         ...prev.Payments[0],
                         isRefunded: true,
+                        IsRefunded1: true,
+                        RefundStatus: null
                       },
                       ...prev.Payments.slice(1),
                     ]
@@ -1009,7 +1013,7 @@ const BookingSkeleton = () => {
 
   return (
     <div className="container ">
-      <style>
+<style>
         {`
           @keyframes pulse {
             0% { opacity: 1; }
@@ -1468,14 +1472,12 @@ const BookingSkeleton = () => {
                     </a>
                   ) : null;
                 })()}
-        
-
         {(selectedBooking.BookingStatus === 'Pending' 
         || selectedBooking.BookingStatus === 'Confirmed' 
         || selectedBooking.BookingStatus === 'JourneyStarted') && (
           <>
           <button
-                  className="btn btn-warning px-3 py-1"
+          className="btn btn-warning px-3 py-1"
           onClick={() => openCancelModal()}
         >
           Cancel
@@ -1483,9 +1485,6 @@ const BookingSkeleton = () => {
 
           </>
         ) }
-
-
-
       </div>
           ) : null
           ) : (
@@ -1501,25 +1500,60 @@ const BookingSkeleton = () => {
           Resume booking
         </button>
             ) : null
-  )}
-
-{(selectedBooking.BookingStatus !== 'Cancelled') && (
+      )}
+        {(selectedBooking.BookingStatus !== 'Cancelled') && (
           <>
-
-        <button
-                  className="btn btn-warning px-3 py-1"
-          onClick={handleRaisedTicket}
-        >
-          Raise A Ticket
-        </button>
-          </>
-        ) }
-        </div>
-
-
-       
+            {selectedBooking?.BookingStatus === 'Completed' &&
+              selectedBooking?.Payments?.length > 0 &&
+              selectedBooking?.Payments?.[0]?.PaymentStatus === 'Success' && (
+                <>
+                  {/* 🟡 Refund raised but RefundStatus is null */}
+                  {selectedBooking?.Payments?.[0]?.IsRefunded === true &&
+                    selectedBooking?.RefundStatus === null ? (
+                    <button className="btn btn-warning px-3 py-1 text-decoration-none" disabled>
+                      Refund Raised
+                    </button>
+                  ) :
+                  /* 🟠 Refund raised and RefundStatus has a value */
+                  selectedBooking?.Payments?.[0]?.IsRefunded === true &&
+                  selectedBooking?.RefundStatus !== null ? (
+                    <button className="btn btn-warning px-3 py-1 text-decoration-none" disabled>
+                      {selectedBooking?.RefundStatus}
+                    </button>
+                  ) :
+                  /* 🔴 No refund yet */
+                  selectedBooking?.Payments?.[0]?.IsRefunded !== true && (
+                    <button
+                      className="btn btn-warning px-3 py-1 text-decoration-none"
+                      onClick={handleRequestRefund}
+                    >
+                      Request Refund
+                    </button>
+                  )}
+                </>
+              )}
+          <button
+            className="btn btn-warning px-3 py-1"
+              onClick={() => setShowNewTicket(true)}
+            >
+            Raise A Ticket
+          </button>
+        </>
+        )}
+      </div>
       </div>
 </div>
+
+{/* NewTicket Component */}
+{showNewTicket && (
+  <NewTicket
+    onClose={() => setShowNewTicket(false)}
+    onTicketCreated={() => {
+      setShowNewTicket(false);
+    }}
+    selectedTicketBookingId={selectedBooking?.BookingID}
+  />
+)}
 
     {/* Resume Booking Form or Details */}
     {showResumeForm ? (
@@ -1902,19 +1936,7 @@ const BookingSkeleton = () => {
               return `₹${Number(backendFinal).toFixed(2)}`;
             })()}
         </div>
-          {selectedBooking?.BookingStatus === 'Completed' &&
-           selectedBooking?.Payments?.[0]?.PaymentStatus === 'Success' &&
-           selectedBooking?.Payments?.[0]?.IsRefunded !== true && (
-             <button
-               className="btn btn-outline-danger px-3 py-2"
-               onClick={handleRequestRefund}
-             >
-               Request Refund
-             </button>
-           )}
       </div>
-
-      
       </div>
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">  
 
@@ -2197,8 +2219,7 @@ const BookingSkeleton = () => {
      </div>
    )}
 
-{/* Raised Ticket Modal */}
-{showRaisedTicketModal && (
+{/* {showRaisedTicketModal && (
   <div
     style={{
       position: "fixed",
@@ -2283,15 +2304,9 @@ const BookingSkeleton = () => {
       </div>
     </div>
   </div>
-)}
-
+)} */}
     </div>
   );
-
-
-
-
-
 };
 
 export default MyBookings;

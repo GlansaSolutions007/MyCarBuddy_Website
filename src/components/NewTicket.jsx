@@ -69,10 +69,11 @@ styleSheet.type = "text/css";
 styleSheet.innerText = chatStyles;
 document.head.appendChild(styleSheet);
 
-function NewTicket({ onClose, onTicketCreated }) {
+const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const [step, setStep] = useState(1);
   const [selectedReasonType, setSelectedReasonType] = useState('');
   const [selectedSubReason, setSelectedSubReason] = useState('');
+  const [selectedSubReasonId,setSelectedSubReasonId] = useState('');
   const [description, setDescription] = useState('');
   const [bookingId, setBookingId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -125,60 +126,79 @@ function NewTicket({ onClose, onTicketCreated }) {
     }
   };
 
-  const fetchReasonTypes = async () => {
-    try {
-      setReasonTypesLoading(true);
-      const response = await axios.get(`${baseUrl}AfterServiceLeads`, {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem("user"))?.token}`,
-          "Content-Type": "application/json",
-        },
+const fetchReasonTypes = async () => {
+  try {
+    setReasonTypesLoading(true);
+    const response = await axios.get(`${baseUrl}AfterServiceLeads`, {
+      headers: {
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("user"))?.token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.data && Array.isArray(response.data)) {
+      // Group by ReasonType and keep reason + ID
+      const grouped = response.data.reduce((acc, item) => {
+        const reasonType = item.ReasonType || "Others";   // handle null or empty
+        if (!acc[reasonType]) {
+          acc[reasonType] = { Reasons: [] };
+        }
+        acc[reasonType].Reasons.push({
+          id: item.ID,
+          label: item.Reason
+        });
+        return acc;
+      }, {});
+
+      const allowedTypes = ['Booking', 'Payment', 'Service', 'App'];
+
+      const formattedReasonTypes = Object.keys(grouped)
+        .filter(reasonType => allowedTypes.some(type => reasonType?.includes(type)))
+        .map(reasonType => ({
+          value: reasonType,
+          label: reasonType,
+          Reasons: grouped[reasonType].Reasons
+        }));
+
+      // Add Others separately (or all null/"" will already go in from default above)
+      formattedReasonTypes.push({
+        value: 'Others',
+        label: 'Others',
+        Reasons: grouped['Others']?.Reasons || []
       });
 
-      if (response.data && Array.isArray(response.data)) {
-        // Group by ReasonType to deduplicate and combine Reasons
-        const grouped = response.data.reduce((acc, item) => {
-          const reasonType = item.ReasonType;
-          if (!acc[reasonType]) {
-            acc[reasonType] = { Reasons: [] };
-          }
-          acc[reasonType].Reasons.push(item.Reason);
-          return acc;
-        }, {});
-
-        // Convert to array and filter to only include Booking, Payment, Service, App
-        const allowedTypes = ['Booking', 'Payment', 'Service', 'App'];
-        const formattedReasonTypes = Object.keys(grouped)
-          .filter(reasonType => allowedTypes.some(type => reasonType.includes(type)))
-          .map(reasonType => ({
-            value: reasonType,
-            label: reasonType,
-            Reasons: [...new Set(grouped[reasonType].Reasons)] // Remove duplicates in Reasons
-          }));
-
-        // Add "Others" manually as it's not in the API
-        formattedReasonTypes.push({
-          value: 'Others',
-          label: 'Others',
-          Reasons: []
-        });
-
-        setReasonTypes(formattedReasonTypes);
-      } else {
-        setReasonTypes([]);
-      }
-    } catch (error) {
-      console.error("Error fetching reason types:", error);
+      setReasonTypes(formattedReasonTypes);
+    } else {
       setReasonTypes([]);
-    } finally {
-      setReasonTypesLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching reason types:", error);
+    setReasonTypes([]);
+  } finally {
+    setReasonTypesLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchReasonTypes();
     fetchBookings();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pre-select booking if selectedTicketBookingId is provided
+  useEffect(() => {
+    if (selectedTicketBookingId && bookings.length > 0) {
+      const booking = bookings.find(b => b.BookingID.toString() === selectedTicketBookingId.toString());
+      if (booking) {
+        setBookingId(booking.BookingID.toString());
+        setStep(2);
+        setTimeout(() => {
+          if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+          }
+        }, 100);
+      }
+    }
+  }, [selectedTicketBookingId, bookings]);
 
   const getReasonId = (reason) => {
     const reasonMap = {
@@ -216,7 +236,6 @@ function NewTicket({ onClose, onTicketCreated }) {
         custID: custId,
         bookingID: bookingId,
         reasonId: getReasonId(selectedReasonType),
-        // SubReason: selectedSubReason || "N/A",
         description: description.trim(),
       };
 
@@ -281,13 +300,15 @@ function NewTicket({ onClose, onTicketCreated }) {
   };
 
   const handleSubReasonChange = (subReason) => {
-    setSelectedSubReason(subReason);
+   setSelectedSubReasonId(subReason.id);
+     setSelectedSubReason(subReason.label); 
     setStep(4);
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
     }, 100);
+
   };
 
   const handleBack = () => {
@@ -392,9 +413,19 @@ function NewTicket({ onClose, onTicketCreated }) {
             {/* User: Selected Booking */}
             {bookingId && (
               <div className="mb-3 d-flex justify-content-end">
-                <div className="chat-bubble user mb-2">Booking ID: {bookingId}</div>
+                <div className="chat-bubble user mb-2">
+                  {(() => {
+                    const booking = bookings.find(b => b.BookingID.toString() === bookingId);
+                    return booking ? booking.BookingTrackID : '';
+                  })()}
+                </div>
               </div>
             )}
+            {/* {bookingId && (
+              <div className="mb-3 d-flex justify-content-end">
+                <div className="chat-bubble user mb-2">Booking ID: {bookingId}</div>
+              </div>
+            )} */}
 
             {/* Step 2: System: Select Reason */}
             {step >= 2 && (
@@ -443,30 +474,31 @@ function NewTicket({ onClose, onTicketCreated }) {
             )}
             {/* Step 3: System: Select Sub-Reason */}
             {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
-              <div className="mb-3">
+            <div className="mb-3">
                 <div className="chat-bubble system mb-2">
                   <h6>Select One Option</h6>
                   <div className="options">
-                    {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
-                      <div key={subReason} className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="subReason"
-                          id={`subReason-${subReason}`}
-                          value={subReason}
-                          checked={selectedSubReason === subReason}
-                          onChange={(e) => handleSubReasonChange(e.target.value)}
-                          disabled={step > 3}
-                        />
-                        <label className="form-check-label" htmlFor={`subReason-${subReason}`}>
-                          {subReason}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+
+              {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
+                <div key={subReason.id} className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="subReason"
+                    id={`subReason-${subReason.id}`}
+                    value={subReason.id}
+                    checked={selectedSubReasonId === subReason.id}
+                    onChange={() => handleSubReasonChange(subReason)}
+                    disabled={step > 3}
+                  />
+                  <label className="form-check-label" htmlFor={`subReason-${subReason.id}`}>
+                    {subReason.label}
+                  </label>
                 </div>
-              </div>
+                ))}
+                    </div>
+               </div>
+               </div>
             )}
 
             {/* User: Selected Sub-Reason */}
@@ -495,7 +527,7 @@ function NewTicket({ onClose, onTicketCreated }) {
             {step > 1 && (
               <button
                 type="button"
-                className="btn btn-secondary px-4 py-3"
+                className="btn btn-secondary px-4 py-3 text-decoration-none"
                 onClick={handleBack}
                 disabled={loading}
               >
@@ -504,12 +536,12 @@ function NewTicket({ onClose, onTicketCreated }) {
             )}
             <button
               type="submit"
-              className="btn btn-primary px-4 py-3"
+              className="btn btn-primary px-4 py-3 text-decoration-none"
               disabled={loading || (selectedReasonType !== 'Others' && step < 4) || (bookingRequiredCategories.includes(selectedReasonType) && !bookingId && !skippedBooking)}
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  <span className="spinner-border spinner-border-sm me-2 text-decoration-none" role="status" aria-hidden="true"></span>
                   Creating...
                 </>
               ) : (
@@ -518,7 +550,7 @@ function NewTicket({ onClose, onTicketCreated }) {
             </button>
             <button
               type="button"
-              className="btn btn-secondary px-4 py-3"
+              className="btn btn-secondary px-4 py-3 text-decoration-none"
               onClick={onClose}
               disabled={loading}
             >

@@ -76,7 +76,7 @@ const FooterAreaOne = () => {
           </div>
           </div>
           <div className="col-md-2 pt-4">
-            <div className="widget widget_nav_menu footer-widget ">
+            <div className="widget widget_nav_menu footer-widget mb-30px ">
               <h3 className="widget_title">Quick Links</h3>
               <div className="menu-all-pages-container">
                 <ul className="menu d-inline-block">
@@ -100,7 +100,7 @@ const FooterAreaOne = () => {
             </div>
           </div>
           <div className="col-md-2 pt-4">
-            <div className="widget widget_nav_menu footer-widget">
+            <div className="widget widget_nav_menu footer-widget mb-30px">
               <h3 className="widget_title" style={{ textAlign: 'left' }}>Our Services</h3>
               <div className="menu-all-pages-container">
                 <ul
@@ -137,7 +137,7 @@ const FooterAreaOne = () => {
           </div> */}
 
           <div className="col-md-3 pt-4">
-            <div className="widget footer-widget ">
+            <div className="widget footer-widget mb-30px">
               <h3 className="widget_title">Reach Us</h3>
               <div className="widget-contact">
                 <p>
@@ -147,16 +147,16 @@ const FooterAreaOne = () => {
                 <Link to="tel:7075243939">Phone: +91 70752 43939</Link><br /> <Link to="tel:9885653865">Phone: +91 98856 53865</Link>
                 </p>
                 <p>
-                  <Link to="mailto:info@mycarbuddy.in">Email: info@mycarbuddy.in</Link>
+                  <Link toe="mailto:info@mycarbuddy.in">Email: info@mycarbuddy.in</Link>
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="copyright-wrap">
+      <div className="copyright-wrap py-2">
         <div className="container">
-        <div className="row gy-3 justify-content-md-between justify-content-center">
+        <div className="row gy-2 justify-content-md-between justify-content-center p-2">
           <div className="col-auto align-self-center">
             <p className="copyright-text text-center">
               © <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> 2025 | All Rights Reserved

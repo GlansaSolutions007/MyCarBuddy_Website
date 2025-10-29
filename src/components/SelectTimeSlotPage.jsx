@@ -261,8 +261,8 @@ const [isCheckingNextDate, setIsCheckingNextDate] = useState(false);
         showAlert("Please enter car registration number and year of purchase.");
         return;
       }
-      const saved = await ensureVehicleSaved();
-      if (!saved) return;
+      // const saved = await ensureVehicleSaved();
+      // if (!saved) return;
     }
 
     setStep((prev) => prev + 1);
