@@ -67,6 +67,7 @@ const RaisedTicketsTab = () => {
       ...prev,
       [ticketId]: !prev[ticketId],
     }));
+    setShowCancelForm({});
   };
 
   const handleCancelTicket = (ticketId) => {
@@ -74,6 +75,7 @@ const RaisedTicketsTab = () => {
       ...prev,
       [ticketId]: !prev[ticketId],
     }));
+    setTimelineExpanded({});
   };
 
   const confirmCancelTicket = async (ticketId) => {
@@ -119,7 +121,6 @@ const RaisedTicketsTab = () => {
       showAlert("Failed to cancel ticket. Please try again.", "error");
     }
   };
-
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -311,7 +312,18 @@ const RaisedTicketsTab = () => {
                       <h6 className="text-primary">Ticket Details</h6>
                       <div className="mb-2">
                         <strong>Status:</strong>{" "}
-                        {getStatusDisplay(ticket.Status, ticket.StatusName)}
+                        {getStatusDisplay(
+                          (ticket.TrackingHistory?.[
+                            ticket.TrackingHistory.length - 1
+                          ]?.StatusName === "Pending"
+                            ? "Created"
+                            : ticket.TrackingHistory?.[
+                                ticket.TrackingHistory.length - 1
+                              ]?.StatusName) ||
+                            (ticket.StatusName === "Pending"
+                              ? "Created"
+                              : ticket.StatusName)
+                        )}
                       </div>
                     </div>
                   </div>
@@ -356,18 +368,24 @@ const RaisedTicketsTab = () => {
                                 left: "31px",
                                 top: "20px",
                                 width: "2px",
-                                height: "calc(100% - 40px)",
+                                height: "calc(100% - 120px)",
                                 background: `linear-gradient(
                                 to bottom,
                                 #198754 ${Math.min(
-                                  (ticket.TrackingHistory?.filter((s) => s.Status !== 0).length /
-                                    ticket.TrackingHistory?.length) *
+                                  (ticket.TrackingHistory?.filter(
+                                    (s) => s.Status !== 0
+                                  ).length -
+                                    1 / ticket.TrackingHistory?.length -
+                                    1) *
                                     100,
                                   100
                                 )}%,
                                 #dee2e6 ${Math.min(
-                                  (ticket.TrackingHistory?.filter((s) => s.Status !== 0).length /
-                                    ticket.TrackingHistory?.length) *
+                                  (ticket.TrackingHistory?.filter(
+                                    (s) => s.Status !== 0
+                                  ).length -
+                                    1 / ticket.TrackingHistory?.length -
+                                    1) *
                                     100,
                                   100
                                 )}%
@@ -407,12 +425,7 @@ const RaisedTicketsTab = () => {
                                         width: "12px",
                                         height: "12px",
                                         borderRadius: "50%",
-                                        backgroundColor:
-                                          step.StatusName === "Resolved" ||
-                                          step.StatusName === "Cancelled" ||
-                                          step.StatusName === "UnderReview"
-                                            ? "#198754"
-                                            : "#dee2e6",
+                                        backgroundColor: "#198754",
                                         border: "2px solid white",
                                         boxShadow: "0 0 0 2px #dee2e6",
                                         zIndex: 2,
@@ -431,7 +444,9 @@ const RaisedTicketsTab = () => {
                                         fontWeight: "600",
                                       }}
                                     >
-                                      {step.StatusName}
+                                      {step.StatusName === "Pending"
+                                        ? "Created"
+                                        : step.StatusName}
                                     </h6>
                                     <p
                                       className="mb-1 text-muted"
