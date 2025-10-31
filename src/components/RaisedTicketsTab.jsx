@@ -76,49 +76,49 @@ const RaisedTicketsTab = () => {
     }));
   };
 
-const confirmCancelTicket = async (ticketId) => {
-  const reason = cancelReason[ticketId] || "";
-  if (!reason.trim()) {
-    showAlert("Please enter a cancellation reason.", "warning");
-    return;
-  }
-
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const ticket = tickets.find(
-      (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
-    );
-
-    if (!ticket?.TicketTrackId) {
-      showAlert("Unable to find ticket track ID.", "error");
+  const confirmCancelTicket = async (ticketId) => {
+    const reason = cancelReason[ticketId] || "";
+    if (!reason.trim()) {
+      showAlert("Please enter a cancellation reason.", "warning");
       return;
     }
 
-    // ✅ Prepare payload as per your API
-    const payload = {
-      ticketTrackId: ticket.TicketTrackId,
-      status: 3, // assuming 0 represents "Cancelled"
-      description: reason,
-    };
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const ticket = tickets.find(
+        (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
+      );
 
-    // ✅ API call (endpoint confirmed)
-    const response = await axios.put(`${baseUrl}Tickets`, payload, {
-      headers: { Authorization: `Bearer ${user?.token}` },
-    });
+      if (!ticket?.TicketTrackId) {
+        showAlert("Unable to find ticket track ID.", "error");
+        return;
+      }
 
-    if (response.status === 200) {
-      showAlert("Ticket cancelled successfully.", "success");
-      setShowCancelForm((prev) => ({ ...prev, [ticketId]: false }));
-      setCancelReason((prev) => ({ ...prev, [ticketId]: "" }));
-      fetchTickets(); // refresh list
-    } else {
+      // ✅ Prepare payload as per your API
+      const payload = {
+        ticketTrackId: ticket.TicketTrackId,
+        status: 3, // assuming 0 represents "Cancelled"
+        description: reason,
+      };
+
+      // ✅ API call (endpoint confirmed)
+      const response = await axios.put(`${baseUrl}Tickets`, payload, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+
+      if (response.status === 200) {
+        showAlert("Ticket cancelled successfully.", "success");
+        setShowCancelForm((prev) => ({ ...prev, [ticketId]: false }));
+        setCancelReason((prev) => ({ ...prev, [ticketId]: "" }));
+        fetchTickets(); // refresh list
+      } else {
+        showAlert("Failed to cancel ticket. Please try again.", "error");
+      }
+    } catch (error) {
+      console.error("Error cancelling ticket:", error);
       showAlert("Failed to cancel ticket. Please try again.", "error");
     }
-  } catch (error) {
-    console.error("Error cancelling ticket:", error);
-    showAlert("Failed to cancel ticket. Please try again.", "error");
-  }
-};
+  };
 
 
   const formatDate = (dateString) => {
@@ -193,48 +193,6 @@ const confirmCancelTicket = async (ticketId) => {
         <span>{statusText || "Unknown"}</span>
       </div>
     );
-  };
-
-  const getTicketTimeline = (ticket) => {
-    return [
-      {
-        id: 1,
-        status: "Created",
-        description: "Ticket created and submitted",
-        timestamp: ticket.CreatedDate || new Date().toISOString(),
-        isCompleted: true,
-      },
-      {
-        id: 2,
-        status: "Under Review",
-        description: "Ticket is being reviewed by our support team",
-        timestamp: ticket.StatusDate || new Date().toISOString(),
-        isCompleted:
-          ticket.StatusName === "Under Review" ||
-          ticket.StatusName === "Resolved",
-      },
-      {
-        id: 3,
-        status: "In Progress",
-        description: "Our team is working on resolving your issue",
-        timestamp: null,
-        isCompleted: false,
-      },
-      {
-        id: 4,
-        status: "Awaiting User Response",
-        description: "Our team is waiting for your confirmation",
-        timestamp: null,
-        isCompleted: false,
-      },
-      {
-        id: 5,
-        status: "Resolved",
-        description: "Issue has been resolved",
-        timestamp: null,
-        isCompleted: ticket.StatusName === "Resolved",
-      },
-    ];
   };
 
   if (loading) {
@@ -334,6 +292,15 @@ const confirmCancelTicket = async (ticketId) => {
                           </span>
                         </p>
                       )}
+                      <p className="mb-3">
+                        <h6 className="text-primary">
+                          Reason:
+                          <span className="badge1 fw-bold color-black">
+                            {" "}
+                            {ticket.Reason}
+                          </span>{" "}
+                        </h6>
+                      </p>
                       <h6 className="text-primary">Description</h6>
                       <p className="mb-3">
                         {ticket.Description || "No description provided."}
@@ -350,160 +317,200 @@ const confirmCancelTicket = async (ticketId) => {
                   </div>
 
                   {/* ✅ Updated Timeline Structure */}
-                <div className="d-flex justify-content-between align-items-start gap-3 mt-3">
-                  {/* View Ticket Progress (left, grows) */}
-                  <div className="flex-grow-1">
-                    <div
-                      className="mt-2 mb-2"
-                      style={{
-                        border: "1px solid #dee2e6",
-                        borderRadius: "8px",
-                        padding: "5px 10px",
-                        backgroundColor: "rgba(25, 135, 84, 0.125)",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => toggleTimeline(ticket.Id || ticket.id || index)}
-                    >
-                      <strong>View Ticket Progress</strong>
-                      <span style={{ float: "right", fontSize: "12px" }}>
-                        {timelineExpanded[ticket.Id || ticket.id || index] ? "▼" : "▶"}
-                      </span>
+                  <div className="d-flex justify-content-between align-items-start gap-3 mt-3">
+                    {/* View Ticket Progress (left, grows) */}
+                    <div className="flex-grow-1">
+                      <div
+                        className="mt-2 mb-2"
+                        style={{
+                          border: "1px solid #dee2e6",
+                          borderRadius: "8px",
+                          padding: "5px 10px",
+                          backgroundColor: "rgba(25, 135, 84, 0.125)",
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          toggleTimeline(ticket.Id || ticket.id || index)
+                        }
+                      >
+                        <strong>View Ticket Progress</strong>
+                        <span style={{ float: "right", fontSize: "12px" }}>
+                          {timelineExpanded[ticket.Id || ticket.id || index]
+                            ? "▼"
+                            : "▶"}
+                        </span>
 
-                      {timelineExpanded[ticket.Id || ticket.id || index] && (
-                        <div
-                          className="timeline"
-                          style={{
-                            padding: "8px",
-                            position: "relative",
-                          }}
-                        >
-                          {/* timeline connector */}
+                        {timelineExpanded[ticket.Id || ticket.id || index] && (
                           <div
-                            className="timeline-connector"
+                            className="timeline"
                             style={{
-                              position: "absolute",
-                              left: "31px",
-                              top: "20px",
-                              width: "2px",
-                              height: "calc(100% - 80px)",
-                              background: `linear-gradient(
+                              padding: "8px",
+                              position: "relative",
+                            }}
+                          >
+                            {/* timeline connector */}
+                            <div
+                              className="timeline-connector"
+                              style={{
+                                position: "absolute",
+                                left: "31px",
+                                top: "20px",
+                                width: "2px",
+                                height: "calc(100% - 40px)",
+                                background: `linear-gradient(
                                 to bottom,
                                 #198754 ${Math.min(
-                                  (getTicketTimeline(ticket).filter((s) => s.isCompleted).length /
-                                    getTicketTimeline(ticket).length) *
+                                  (ticket.TrackingHistory?.filter((s) => s.Status !== 0).length /
+                                    ticket.TrackingHistory?.length) *
                                     100,
                                   100
                                 )}%,
                                 #dee2e6 ${Math.min(
-                                  (getTicketTimeline(ticket).filter((s) => s.isCompleted).length /
-                                    getTicketTimeline(ticket).length) *
+                                  (ticket.TrackingHistory?.filter((s) => s.Status !== 0).length /
+                                    ticket.TrackingHistory?.length) *
                                     100,
                                   100
                                 )}%
                               )`,
-                              borderRadius: "2px",
-                              zIndex: 0,
-                            }}
-                          ></div>
-
-                          {getTicketTimeline(ticket).map((step) => (
-                            <div
-                              key={step.id}
-                              className="timeline-item mb-3"
-                              style={{
-                                position: "relative",
-                                display: "flex",
-                                alignItems: "flex-start",
-                                zIndex: 1,
+                                borderRadius: "2px",
+                                zIndex: 0,
                               }}
-                            >
-                              <div
-                                className="timeline-marker"
-                                style={{
-                                  position: "relative",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  marginRight: "10px",
-                                  width: "30px",
-                                }}
-                              >
+                            ></div>
+
+                            {ticket.TrackingHistory?.length > 0 ? (
+                              ticket.TrackingHistory.map((step, i) => (
                                 <div
-                                  className={`timeline-dot ${
-                                    step.isCompleted ? "completed" : "pending"
-                                  }`}
+                                  key={i}
+                                  className="timeline-item mb-3"
                                   style={{
-                                    width: "12px",
-                                    height: "12px",
-                                    borderRadius: "50%",
-                                    backgroundColor: step.isCompleted ? "#198754" : "#dee2e6",
-                                    border: "2px solid white",
-                                    boxShadow: "0 0 0 2px #dee2e6",
-                                    zIndex: 2,
                                     position: "relative",
-                                    left: "9px",
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    zIndex: 1,
                                   }}
-                                ></div>
-                              </div>
+                                >
+                                  {/* dot */}
+                                  <div
+                                    className="timeline-marker"
+                                    style={{
+                                      position: "relative",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      marginRight: "10px",
+                                      width: "30px",
+                                    }}
+                                  >
+                                    <div
+                                      className="timeline-dot"
+                                      style={{
+                                        width: "12px",
+                                        height: "12px",
+                                        borderRadius: "50%",
+                                        backgroundColor:
+                                          step.StatusName === "Resolved" ||
+                                          step.StatusName === "Cancelled" ||
+                                          step.StatusName === "UnderReview"
+                                            ? "#198754"
+                                            : "#dee2e6",
+                                        border: "2px solid white",
+                                        boxShadow: "0 0 0 2px #dee2e6",
+                                        zIndex: 2,
+                                        position: "relative",
+                                        left: "9px",
+                                      }}
+                                    ></div>
+                                  </div>
 
-                              <div className="timeline-content">
-                                <h6 className="mb-1" style={{ fontSize: "14px", fontWeight: "600" }}>
-                                  {step.status}
-                                </h6>
-                                <p className="mb-1 text-muted" style={{ fontSize: "12px" }}>
-                                  {step.description}
-                                </p>
-                                {step.timestamp && (
-                                  <small className="text-muted" style={{ fontSize: "11px" }}>
-                                    {formatDate(step.timestamp)}
-                                  </small>
-                                )}
+                                  {/* details */}
+                                  <div className="timeline-content">
+                                    <h6
+                                      className="mb-1"
+                                      style={{
+                                        fontSize: "14px",
+                                        fontWeight: "600",
+                                      }}
+                                    >
+                                      {step.StatusName}
+                                    </h6>
+                                    <p
+                                      className="mb-1 text-muted"
+                                      style={{ fontSize: "12px" }}
+                                    >
+                                      {step.StatusDescription ||
+                                        "No description provided."}
+                                    </p>
+                                    <small
+                                      className="text-muted"
+                                      style={{ fontSize: "11px" }}
+                                    >
+                                      {formatDate(step.StatusDate)}
+                                    </small>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-muted small mt-2">
+                                No tracking history available
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Cancel Ticket */}
-                <div style={{ minWidth: "120px", display: "flex", flexDirection: "column" }}>
-                  <button
-                    className="btn btn-danger w-100 mt-2"
-                    style={{ height: "100%", padding: "10px 10px" }}
-                    onClick={() => handleCancelTicket(ticket.Id || ticket.id || index)}
-                  >
-                    Cancel Ticket
-                  </button>
-                </div>
-                </div>
-
-                {showCancelForm[ticket.Id || ticket.id || index] && (
-                  <div className="mt-2 p-3 border rounded bg-light">
-                    <h6 className="text-danger mb-3">Please enter cancellation reason</h6>
-                    <textarea
-                      className="form-control mb-3"
-                      rows="2"
-                      placeholder="Enter reason for cancellation..."
-                      value={cancelReason[ticket.Id || ticket.id || index] || ""}
-                      onChange={(e) =>
-                        setCancelReason((prev) => ({
-                          ...prev,
-                          [ticket.Id || ticket.id || index]: e.target.value,
-                        }))
-                      }
-                    />
-                    <div className="text-center mt-2">
+                    {/* Cancel Ticket */}
+                    <div
+                      style={{
+                        minWidth: "120px",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
                       <button
-                        className="btn btn-danger"
-                        style={{ padding: "12px 15px", fontSize: "14px" }}
-                        onClick={() => confirmCancelTicket(ticket.Id || ticket.id || index)}
+                        className="btn btn-danger w-100 mt-2"
+                        style={{ height: "100%", padding: "10px 10px" }}
+                        onClick={() =>
+                          handleCancelTicket(ticket.Id || ticket.id || index)
+                        }
                       >
-                        Confirm Cancel
+                        Cancel Ticket
                       </button>
                     </div>
                   </div>
-                )}
+
+                  {showCancelForm[ticket.Id || ticket.id || index] && (
+                    <div className="mt-2 p-3 border rounded bg-light">
+                      <h6 className="text-danger mb-3">
+                        Please enter cancellation reason
+                      </h6>
+                      <textarea
+                        className="form-control mb-3"
+                        rows="2"
+                        placeholder="Enter reason for cancellation..."
+                        value={
+                          cancelReason[ticket.Id || ticket.id || index] || ""
+                        }
+                        onChange={(e) =>
+                          setCancelReason((prev) => ({
+                            ...prev,
+                            [ticket.Id || ticket.id || index]: e.target.value,
+                          }))
+                        }
+                      />
+                      <div className="text-center mt-2">
+                        <button
+                          className="btn btn-danger"
+                          style={{ padding: "12px 15px", fontSize: "14px" }}
+                          onClick={() =>
+                            confirmCancelTicket(ticket.Id || ticket.id || index)
+                          }
+                        >
+                          Confirm Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {ticket.response && (
                     <div className="mt-3 p-3 bg-light rounded">
                       <h6 className="text-success">Response from Support</h6>
