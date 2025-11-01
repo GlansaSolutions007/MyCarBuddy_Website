@@ -369,34 +369,35 @@ const RaisedTicketsTab = () => {
                                 top: "20px",
                                 width: "2px",
                                 height: "calc(100% - 120px)",
-                                background: `linear-gradient(
-                                to bottom,
-                                #198754 ${Math.min(
-                                  (ticket.TrackingHistory?.filter(
-                                    (s) => s.Status !== 0
-                                  ).length -
-                                    1 / ticket.TrackingHistory?.length -
-                                    1) *
-                                    100,
-                                  100
-                                )}%,
-                                #dee2e6 ${Math.min(
-                                  (ticket.TrackingHistory?.filter(
-                                    (s) => s.Status !== 0
-                                  ).length -
-                                    1 / ticket.TrackingHistory?.length -
-                                    1) *
-                                    100,
-                                  100
-                                )}%
-                              )`,
+                                backgroundColor: "#198754",
+                              //   background: `linear-gradient(
+                              //   to bottom,
+                              //   #198754 ${Math.min(
+                              //     (ticket.TrackingHistory?.filter(
+                              //       (s) => s.Status !== 0
+                              //     ).length -
+                              //       1 / ticket.TrackingHistory?.length -
+                              //       1) *
+                              //       100,
+                              //     100
+                              //   )}%,
+                              //   #dee2e6 ${Math.min(
+                              //     (ticket.TrackingHistory?.filter(
+                              //       (s) => s.Status !== 0
+                              //     ).length -
+                              //       1 / ticket.TrackingHistory?.length -
+                              //       1) *
+                              //       100,
+                              //     100
+                              //   )}%
+                              // )`,
                                 borderRadius: "2px",
                                 zIndex: 0,
                               }}
                             ></div>
 
                             {ticket.TrackingHistory?.length > 0 ? (
-                              ticket.TrackingHistory.map((step, i) => (
+                              ticket.TrackingHistory.slice().reverse().map((step, i) => (
                                 <div
                                   key={i}
                                   className="timeline-item mb-3"
