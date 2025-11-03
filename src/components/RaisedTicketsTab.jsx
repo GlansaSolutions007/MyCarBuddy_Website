@@ -311,20 +311,16 @@ const RaisedTicketsTab = () => {
                     <div className="col-md-4">
                       <h6 className="text-primary">Ticket Details</h6>
                       <div className="mb-2">
-                        <strong>Status:</strong>{" "}
-                        {getStatusDisplay(
-                          (ticket.TrackingHistory?.[
-                            ticket.TrackingHistory.length - 1
-                          ]?.StatusName === "Pending"
+                      <strong>Status:</strong>{" "}
+                      {getStatusDisplay(
+                        (ticket.TrackingHistory?.[0]?.StatusName === "Pending"
+                          ? "Created"
+                          : ticket.TrackingHistory?.[0]?.StatusName) ||
+                          (ticket.StatusName === "Pending"
                             ? "Created"
-                            : ticket.TrackingHistory?.[
-                                ticket.TrackingHistory.length - 1
-                              ]?.StatusName) ||
-                            (ticket.StatusName === "Pending"
-                              ? "Created"
-                              : ticket.StatusName)
-                        )}
-                      </div>
+                            : ticket.StatusName)
+                      )}
+                    </div>
                     </div>
                   </div>
 
@@ -370,27 +366,6 @@ const RaisedTicketsTab = () => {
                                 width: "2px",
                                 height: "calc(100% - 120px)",
                                 backgroundColor: "#198754",
-                              //   background: `linear-gradient(
-                              //   to bottom,
-                              //   #198754 ${Math.min(
-                              //     (ticket.TrackingHistory?.filter(
-                              //       (s) => s.Status !== 0
-                              //     ).length -
-                              //       1 / ticket.TrackingHistory?.length -
-                              //       1) *
-                              //       100,
-                              //     100
-                              //   )}%,
-                              //   #dee2e6 ${Math.min(
-                              //     (ticket.TrackingHistory?.filter(
-                              //       (s) => s.Status !== 0
-                              //     ).length -
-                              //       1 / ticket.TrackingHistory?.length -
-                              //       1) *
-                              //       100,
-                              //     100
-                              //   )}%
-                              // )`,
                                 borderRadius: "2px",
                                 zIndex: 0,
                               }}
