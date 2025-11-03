@@ -237,67 +237,69 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!description.trim()) {
-      showAlert('Please enter a description for the ticket.', 'error');
-      return;
+  e.preventDefault();
+
+  if (!description.trim()) {
+    showAlert("Please enter a description for the ticket.", "error");
+    return;
+  }
+
+  const custId = getDecryptedCustId();
+  if (!custId) {
+    showAlert("Unable to identify user. Please log in again.", "error");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const formData = new FormData();
+
+    // 🔹 These keys must match your Swagger names exactly
+    formData.append("CustID", parseInt(custId));
+    formData.append("BookingID", bookingId ? parseInt(bookingId) : 0);
+    formData.append("Description", description.trim());
+    formData.append("ReasonId", getReasonId(selectedReasonType));
+
+    // 🔹 Append each file as "Files"
+    previewFiles.forEach((fileObj) => {
+      formData.append("Files", fileObj.file);
+    });
+
+    // ✅ Post it as multipart/form-data
+    const response = await axios.post(`${baseUrl}Tickets`, formData, {
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      await Swal.fire({
+        title: "Created",
+        text: "Ticket created successfully!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: "top-end",
+      });
+
+      onTicketCreated();
+      onClose();
+    } else {
+      showAlert("Failed to create ticket. Please try again.", "error");
     }
+  } catch (error) {
+    console.error("Error creating ticket:", error);
+    showAlert("Failed to create ticket. Please try again.", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    if (selectedReasonType === 'Booking' && !bookingId.trim() && !skippedBooking) {
-      showAlert('Please select a booking or skip selection to continue.', 'error');
-      return;
-    }
 
-    const custId = getDecryptedCustId();
-    if (!custId) {
-      showAlert('Unable to identify user. Please log in again.', 'error');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      const ticketData = {
-        custID: custId,
-        bookingID: bookingId ? Number(bookingId) : null,
-        reasonId: getReasonId(selectedReasonType),
-        description: description.trim(),
-      };
-
-      const response = await axios.post(
-        `${baseUrl}Tickets`,
-        ticketData,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-            'Content-Type': 'application/json'
-          },
-        }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        // showAlert('Ticket created successfully!', 'success');
-        await Swal.fire({
-          title: "created",
-          text: "Ticket created successfully!.",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
-        });
-        onTicketCreated(); // Refresh tickets
-        onClose(); // Close the form
-      } else {
-        showAlert('Failed to create ticket. Please try again.', 'error');
-      }
-    } catch (error) {
-      console.error('Error creating ticket:', error);
-      showAlert('Failed to create ticket. Please try again.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
   const handleBookingChange = (booking) => {
@@ -565,7 +567,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
 
           {/* Always visible: Description */}
           <div className="description-section mb-3 mt-20">
-            <label htmlFor="description" className="form-label">
+            <label htmlFor="description" className="form-label fw-bold">
               Description<span className="text-danger">*</span>
             </label>
 
