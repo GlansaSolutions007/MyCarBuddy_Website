@@ -16,7 +16,7 @@ const chatStyles = `
     padding: 3px 6px;
     border-radius: 10px;
     margin-bottom: 4px;
-    max-width: 70%;
+    max-width: 60%;
     word-wrap: break-word;
   }
   .chat-bubble.system {
@@ -28,7 +28,7 @@ const chatStyles = `
   .chat-bubble.user {
     background-color: #007bff;
     color: white;
-    min-width: 15%;
+    min-width: 20%;
     align-self: flex-end;
     text-align: start;
     margin-left: auto;
@@ -41,6 +41,7 @@ const chatStyles = `
   .chat-bubble.system h6 {
     margin-left: 20px;
     margin-bottom: 2px;
+    font-weight: bold;
   }
   .options .form-check {
     margin-bottom: 1px;
@@ -48,7 +49,7 @@ const chatStyles = `
   .options .form-check-label {
     font-size: 0.8rem;
     line-height: 0.8;
-    font-weight: bold;
+    font-weight: normal;
   }
   .card-body-ticket {
     display: flex;
@@ -73,7 +74,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const [step, setStep] = useState(1);
   const [selectedReasonType, setSelectedReasonType] = useState('');
   const [selectedSubReason, setSelectedSubReason] = useState('');
-  const [selectedSubReasonId,setSelectedSubReasonId] = useState('');
+  const [selectedSubReasonId, setSelectedSubReasonId] = useState('');
   const [description, setDescription] = useState('');
   const [bookingId, setBookingId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -87,8 +88,32 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const chatContainerRef = useRef(null);
-
+  const [isHovered, setIsHovered] = useState(false);
   const bookingRequiredCategories = ['Booking', 'Payment', 'Service'];
+
+  const [previewFiles, setPreviewFiles] = useState([]);
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    const filePreviews = files.map((file) => ({
+      file,
+      type: file.type,
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+    }));
+
+    setPreviewFiles((prev) => [...prev, ...filePreviews]);
+  };
+
+  const removeFile = (index) => {
+    setPreviewFiles((prev) => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
+    });
+  };
+
+
 
   // Get decrypted customer ID
   const getDecryptedCustId = () => {
@@ -126,58 +151,58 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
     }
   };
 
-const fetchReasonTypes = async () => {
-  try {
-    setReasonTypesLoading(true);
-    const response = await axios.get(`${baseUrl}AfterServiceLeads`, {
-      headers: {
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("user"))?.token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.data && Array.isArray(response.data)) {
-      // Group by ReasonType and keep reason + ID
-      const grouped = response.data.reduce((acc, item) => {
-        const reasonType = item.ReasonType || "Others";   // handle null or empty
-        if (!acc[reasonType]) {
-          acc[reasonType] = { Reasons: [] };
-        }
-        acc[reasonType].Reasons.push({
-          id: item.ID,
-          label: item.Reason
-        });
-        return acc;
-      }, {});
-
-      const allowedTypes = ['Booking', 'Payment', 'Service', 'App'];
-
-      const formattedReasonTypes = Object.keys(grouped)
-        .filter(reasonType => allowedTypes.some(type => reasonType?.includes(type)))
-        .map(reasonType => ({
-          value: reasonType,
-          label: reasonType,
-          Reasons: grouped[reasonType].Reasons
-        }));
-
-      // Add Others separately (or all null/"" will already go in from default above)
-      formattedReasonTypes.push({
-        value: 'Others',
-        label: 'Others',
-        Reasons: grouped['Others']?.Reasons || []
+  const fetchReasonTypes = async () => {
+    try {
+      setReasonTypesLoading(true);
+      const response = await axios.get(`${baseUrl}AfterServiceLeads`, {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(localStorage.getItem("user"))?.token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      setReasonTypes(formattedReasonTypes);
-    } else {
+      if (response.data && Array.isArray(response.data)) {
+        // Group by ReasonType and keep reason + ID
+        const grouped = response.data.reduce((acc, item) => {
+          const reasonType = item.ReasonType || "Others";   // handle null or empty
+          if (!acc[reasonType]) {
+            acc[reasonType] = { Reasons: [] };
+          }
+          acc[reasonType].Reasons.push({
+            id: item.ID,
+            label: item.Reason
+          });
+          return acc;
+        }, {});
+
+        const allowedTypes = ['Booking', 'Payment', 'Service', 'App'];
+
+        const formattedReasonTypes = Object.keys(grouped)
+          .filter(reasonType => allowedTypes.some(type => reasonType?.includes(type)))
+          .map(reasonType => ({
+            value: reasonType,
+            label: reasonType,
+            Reasons: grouped[reasonType].Reasons
+          }));
+
+        // Add Others separately (or all null/"" will already go in from default above)
+        formattedReasonTypes.push({
+          value: 'Others',
+          label: 'Others',
+          Reasons: grouped['Others']?.Reasons || []
+        });
+
+        setReasonTypes(formattedReasonTypes);
+      } else {
+        setReasonTypes([]);
+      }
+    } catch (error) {
+      console.error("Error fetching reason types:", error);
       setReasonTypes([]);
+    } finally {
+      setReasonTypesLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching reason types:", error);
-    setReasonTypes([]);
-  } finally {
-    setReasonTypesLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchReasonTypes();
@@ -218,8 +243,8 @@ const fetchReasonTypes = async () => {
       return;
     }
 
-    if (bookingRequiredCategories.includes(selectedReasonType) && !bookingId.trim()) {
-      showAlert('Please select a related booking for this ticket type.', 'error');
+    if (selectedReasonType === 'Booking' && !bookingId.trim() && !skippedBooking) {
+      showAlert('Please select a booking or skip selection to continue.', 'error');
       return;
     }
 
@@ -234,7 +259,7 @@ const fetchReasonTypes = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const ticketData = {
         custID: custId,
-        bookingID: bookingId,
+        bookingID: bookingId ? Number(bookingId) : null,
         reasonId: getReasonId(selectedReasonType),
         description: description.trim(),
       };
@@ -252,15 +277,15 @@ const fetchReasonTypes = async () => {
 
       if (response.status === 200 || response.status === 201) {
         // showAlert('Ticket created successfully!', 'success');
-         await Swal.fire({
-                title: "created",
-                text: "Ticket created successfully!.",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-              });
+        await Swal.fire({
+          title: "created",
+          text: "Ticket created successfully!.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
         onTicketCreated(); // Refresh tickets
         onClose(); // Close the form
       } else {
@@ -274,9 +299,10 @@ const fetchReasonTypes = async () => {
     }
   };
 
+
   const handleBookingChange = (booking) => {
     setBookingId(booking);
-    setStep(2);
+    setStep(3);
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -300,8 +326,8 @@ const fetchReasonTypes = async () => {
   };
 
   const handleSubReasonChange = (subReason) => {
-   setSelectedSubReasonId(subReason.id);
-     setSelectedSubReason(subReason.label); 
+    setSelectedSubReasonId(subReason.id);
+    setSelectedSubReason(subReason.label);
     setStep(4);
     setTimeout(() => {
       if (chatContainerRef.current) {
@@ -333,9 +359,9 @@ const fetchReasonTypes = async () => {
   };
 
   return (
-    <div className="card mb-4 new-ticket-card">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <h6 className="mb-0">🎫 New Ticket</h6>
+    <div className="card mb-4 new-ticket-card p-2 ">
+      <div className="card-header d-flex justify-content-between align-items-center mb-2">
+        <h6 className="mb-0">New Ticket</h6>
         <button
           type="button"
           className="btn-close"
@@ -343,11 +369,68 @@ const fetchReasonTypes = async () => {
           aria-label="Close"
         ></button>
       </div>
+
       <div className="card-body-ticket">
         <form onSubmit={handleSubmit} className="d-flex flex-column h-100">
           <div className="chat-container d-flex flex-column" ref={chatContainerRef}>
-            {/* Step 1: System: Select Booking */}
+
+            {/* Step 1: Select Reason */}
             {step >= 1 && (
+              <div className="mb-3">
+                <div className="chat-bubble system mb-2">
+                  <h6>Choose a category for your issue</h6>
+                  <div className="options">
+                    {reasonTypesLoading ? (
+                      <div className="text-center">
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading Issue...
+                      </div>
+                    ) : reasonTypes.length > 0 ? (
+                      reasonTypes.map((reasonType) => (
+                        <div key={reasonType.value} className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="reason"
+                            id={`reason-${reasonType.value}`}
+                            value={reasonType.value}
+                            checked={selectedReasonType === reasonType.value}
+                            onChange={async (e) => {
+                              const value = e.target.value;
+                              handleReasonChange(value);
+                              setStep(2); // Always go to booking step
+
+                              // ⏳ Wait a moment to ensure bookings are loaded
+                              setTimeout(() => {
+                                if (bookings.length === 0) {
+                                  setStep(3); // If no bookings → skip to sub-reason
+                                }
+                              }, 300);
+                            }}
+                            disabled={step > 1}
+                          />
+                          <label className="form-check-label" htmlFor={`reason-${reasonType.value}`}>
+                            {reasonType.label}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-muted">No Issue available.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* User: Selected Reason */}
+            {selectedReasonType && (
+              <div className="mb-3 d-flex justify-content-end me-2">
+                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedReasonType}</div>
+              </div>
+            )}
+
+            {/* Step 2: Select Booking (only when "Booking" reason is chosen) */}
+            {step >= 2 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
                   <h6>Select Booking</h6>
@@ -368,8 +451,11 @@ const fetchReasonTypes = async () => {
                               id={`booking-${booking.BookingID}`}
                               value={booking.BookingID}
                               checked={bookingId === booking.BookingID.toString()}
-                              onChange={(e) => handleBookingChange(e.target.value)}
-                              disabled={step > 1}
+                              onChange={(e) => {
+                                handleBookingChange(e.target.value);
+                                setStep(3); // go to sub-reason after selecting booking
+                              }}
+                              disabled={step > 2}
                             />
                             <label className="form-check-label" htmlFor={`booking-${booking.BookingID}`}>
                               {booking.BookingTrackID} - {booking.ServiceType} booked on {new Date(booking.BookingDate).toLocaleDateString()}
@@ -379,30 +465,49 @@ const fetchReasonTypes = async () => {
                         {bookings.length > 5 && (
                           <button
                             type="button"
-                            className="p-0 mt-2 border-0 ms-5"
-                            style={{ fontSize: '12px' }}
+                            className="btn btn-outline-primary mt-2 ms-5"
+                            style={{
+                              fontSize: "11px",
+                              padding: "1px 6px", // reduced height
+                              borderRadius: "6px",
+                              lineHeight: "1.2",
+                            }}
                             onClick={() => setShowAllBookings(!showAllBookings)}
-                            disabled={step > 1}
+                            disabled={step > 2}
                           >
-                            {showAllBookings ? 'Show Less' : ` See all bookings`}
+                            {showAllBookings ? "Show Less" : "See all bookings"}
                           </button>
                         )}
                         <button
                           type="button"
-                          className="p-0 mt-2 ms-4 border-0"
-                          style={{ fontSize: '12px' }}
+                          className="btn btn-outline-secondary mt-2 ms-2"
+                          style={{
+                            fontSize: "11px",
+                            padding: "1px 6px", // reduced height
+                            borderRadius: "6px",
+                            lineHeight: "1.2",
+                          }}
                           onClick={() => {
                             setSkippedBooking(true);
-                            setStep(2);
+                            setStep(3);
                           }}
-                          disabled={step > 1}
+                          disabled={step > 2}
                         >
                           Skip selection
                         </button>
                       </div>
                     ) : (
+                      // No bookings available → move directly to sub-reason
                       <div>
                         <p className="text-muted">No bookings found.</p>
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 mt-1"
+                          style={{ fontSize: '12px' }}
+                          onClick={() => setStep(3)}
+                        >
+                          Continue →
+                        </button>
                       </div>
                     )}
                   </div>
@@ -412,8 +517,8 @@ const fetchReasonTypes = async () => {
 
             {/* User: Selected Booking */}
             {bookingId && (
-              <div className="mb-3 d-flex justify-content-end">
-                <div className="chat-bubble user mb-2">
+              <div className="mb-3 d-flex justify-content-end me-2">
+                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
                   {(() => {
                     const booking = bookings.find(b => b.BookingID.toString() === bookingId);
                     return booking ? booking.BookingTrackID : '';
@@ -421,109 +526,177 @@ const fetchReasonTypes = async () => {
                 </div>
               </div>
             )}
-            {/* {bookingId && (
-              <div className="mb-3 d-flex justify-content-end">
-                <div className="chat-bubble user mb-2">Booking ID: {bookingId}</div>
-              </div>
-            )} */}
 
-            {/* Step 2: System: Select Reason */}
-            {step >= 2 && (
+            {/* Step 3: Select Sub-Reason */}
+            {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
-                  <h6>Select Reason</h6>
+                  <h6>Choose a specific reason</h6>
                   <div className="options">
-                    {reasonTypesLoading ? (
-                      <div className="text-center">
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Loading Reason...
+                    {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
+                      <div key={subReason.id} className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="subReason"
+                          id={`subReason-${subReason.id}`}
+                          value={subReason.id}
+                          checked={selectedSubReasonId === subReason.id}
+                          onChange={() => handleSubReasonChange(subReason)}
+                          disabled={step > 3}
+                        />
+                        <label className="form-check-label" htmlFor={`subReason-${subReason.id}`}>
+                          {subReason.label}
+                        </label>
                       </div>
-                    ) : reasonTypes.length > 0 ? (
-                      reasonTypes.filter(reasonType => skippedBooking ? ['App', 'Others'].includes(reasonType.value) : true).map((reasonType) => (
-                        <div key={reasonType.value} className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="reason"
-                            id={`reason-${reasonType.value}`}
-                            value={reasonType.value}
-                            checked={selectedReasonType === reasonType.value}
-                            onChange={(e) => handleReasonChange(e.target.value)}
-                            disabled={step > 2}
-                          />
-                          <label className="form-check-label" htmlFor={`reason-${reasonType.value}`}>
-                            {reasonType.label}
-                          </label>
-                        </div>
-                      ))
-                    ) : (
-                      <div>
-                        <p className="text-muted">No Reason available.</p>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* User: Selected Reason */}
-            {selectedReasonType && (
-              <div className="mb-3 d-flex justify-content-end">
-                <div className="chat-bubble user mb-2">{selectedReasonType}</div>
-              </div>
-            )}
-            {/* Step 3: System: Select Sub-Reason */}
-            {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
-            <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  <h6>Select One Option</h6>
-                  <div className="options">
-
-              {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
-                <div key={subReason.id} className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="subReason"
-                    id={`subReason-${subReason.id}`}
-                    value={subReason.id}
-                    checked={selectedSubReasonId === subReason.id}
-                    onChange={() => handleSubReasonChange(subReason)}
-                    disabled={step > 3}
-                  />
-                  <label className="form-check-label" htmlFor={`subReason-${subReason.id}`}>
-                    {subReason.label}
-                  </label>
-                </div>
-                ))}
-                    </div>
-               </div>
-               </div>
-            )}
-
             {/* User: Selected Sub-Reason */}
             {selectedSubReason && (
-              <div className="mb-3 d-flex justify-content-end">
-                <div className="chat-bubble user mb-2">{selectedSubReason}</div>
+              <div className="mb-3 d-flex justify-content-end me-2">
+                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedSubReason}</div>
               </div>
             )}
           </div>
 
-          {/* Always visible: Additional Details */}
-          <div className="description-section mb-3 mt-20" >
-            <label htmlFor="description" className="form-label">Description<span className="text-danger">*</span></label>
-            <textarea
-              className="form-control"
-              style={{ minHeight: "100px" }}
-              id="description"
-              rows="2"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your issue or request..."
-              required
-            ></textarea>
+          {/* Always visible: Description */}
+          <div className="description-section mb-3 mt-20">
+            <label htmlFor="description" className="form-label">
+              Description<span className="text-danger">*</span>
+            </label>
+
+            {/* Single hidden input for both images and docs */}
+            <input
+              id="fileUpload"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx"
+              multiple
+              style={{ display: "none" }}
+              onChange={(e) => handleFileChange(e)}
+            />
+
+            {/* Wrapper for textarea + plus button */}
+            <div style={{ position: "relative" }}>
+              {/* One "+" button — fixed inside textarea */}
+              <label
+                htmlFor="fileUpload"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  bottom: "12px",
+                  cursor: "pointer",
+                  fontSize: "25px",
+                  color: isHovered ? "#0d6efd" : "#929292ff", // blue on hover
+                  fontWeight: "bold",
+                  zIndex: 10,
+                  transition: "color 0.2s ease", // smooth transition
+                }}
+                title="Upload image or document"
+              >
+                <i class="bi bi-paperclip"></i>
+              </label>
+
+              {/* Textarea */}
+              <textarea
+                className="form-control"
+                style={{
+                  minHeight: "75px",
+                  paddingLeft: "45px",
+                  resize: "none",
+                }}
+                id="description"
+                rows="2"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your issue or request..."
+                required
+              ></textarea>
+            </div>
+
+            {/* Preview Section */}
+            {previewFiles.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  marginTop: "8px",
+                }}
+              >
+                {previewFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      position: "relative",
+                      width: "55px",
+                      height: "55px",
+                    }}
+                  >
+                    {file.type.startsWith("image/") ? (
+                      <img
+                        src={file.preview}
+                        alt={`preview-${index}`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "6px",
+                          objectFit: "cover",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "6px",
+                          border: "1px solid #ddd",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "30px",
+                          backgroundColor: "#f8f9fa",
+                        }}
+                      >
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                      </div>
+                    )}
+
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      style={{
+                        position: "absolute",
+                        top: "-6px",
+                        right: "-6px",
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: "18px",
+                        height: "18px",
+                        cursor: "pointer",
+                        fontSize: "10px",
+                        lineHeight: "15px",
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="buttons-section d-flex gap-2 justify-content-center">
+
+          {/* Buttons */}
+          <div className="buttons-section d-flex gap-2 justify-content-center mb-25">
             {step > 1 && (
               <button
                 type="button"
@@ -537,15 +710,19 @@ const fetchReasonTypes = async () => {
             <button
               type="submit"
               className="btn btn-primary px-4 py-3 text-decoration-none"
-              disabled={loading || (selectedReasonType !== 'Others' && step < 4) || (bookingRequiredCategories.includes(selectedReasonType) && !bookingId && !skippedBooking)}
+              disabled={loading || (selectedReasonType !== 'Others' && step < 3)}
             >
               {loading ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2 text-decoration-none" role="status" aria-hidden="true"></span>
+                  <span
+                    className="spinner-border spinner-border-sm me-2 text-decoration-none"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
                   Creating...
                 </>
               ) : (
-                'Create Ticket'
+                'Raise Ticket'
               )}
             </button>
             <button

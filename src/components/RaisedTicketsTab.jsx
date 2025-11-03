@@ -210,12 +210,12 @@ const RaisedTicketsTab = () => {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="mb-0">🎫 Raised Tickets</h5>
+        <h5 className="mb-0">🎫 Ticket List</h5>
         <button
           className="btn btn-outline-primary px-3 py-2"
           onClick={() => setShowNewTicket(true)}
         >
-          New Ticket
+          Raise Ticket
         </button>
       </div>
 
