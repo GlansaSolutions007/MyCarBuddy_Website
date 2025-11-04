@@ -26,7 +26,7 @@ const chatStyles = `
     text-align: left;
   }
   .chat-bubble.user {
-    background-color: #007bff;
+    background-color: #136d6e;
     color: white;
     min-width: 20%;
     align-self: flex-end;
@@ -223,17 +223,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
     }
   }, [selectedTicketBookingId, bookings]);
 
-  const getReasonId = (reason) => {
-    const reasonMap = {
-      'Booking': 1,
-      'Payment': 2,
-      'Service': 3,
-      'App': 4,
-      'Others': 5
-    };
-    return reasonMap[reason] || 5; // Default to Others if not found
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -258,14 +247,25 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
       formData.append("CustID", parseInt(custId));
       formData.append("BookingID", bookingId ? parseInt(bookingId) : 0);
       formData.append("Description", description.trim());
-      formData.append("ReasonId", getReasonId(selectedReasonType));
+
+      // ✅ Dynamic ReasonId logic
+      let reasonIdToSend = 0;
+
+      if (selectedReasonType === "Others") {
+        const othersGroup = reasonTypes.find(r => r.value === "Others");
+        reasonIdToSend = othersGroup?.Reasons?.[0]?.id || 5;
+      } else {
+        reasonIdToSend = selectedSubReasonId || 0;
+      }
+
+      formData.append("ReasonId", reasonIdToSend);
 
       // 🔹 Append each file as "Files"
       previewFiles.forEach((fileObj) => {
         formData.append("Files", fileObj.file);
       });
 
-      // ✅ Post it as multipart/form-data
+      // ✅ Post as multipart/form-data
       const response = await axios.post(`${baseUrl}Tickets`, formData, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -296,9 +296,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
       setLoading(false);
     }
   };
-
-
-
 
   const handleBookingChange = (booking) => {
     setBookingId(booking);
@@ -526,7 +523,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                     {(() => {
                       const booking = bookings.find(b => b.BookingID.toString() === bookingId);
                       return booking ? (
-                        <p>
+                        <p style={{color:"white"}}>
                           Great! You selected booking <strong>{booking.BookingTrackID}</strong>. <br />
                           Now please choose a specific reason:
                         </p>
@@ -585,8 +582,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               </div>
             )}
           </div>
-
-
 
           {/* Always visible: Description */}
           <div className="description-section mb-3 mt-20">
