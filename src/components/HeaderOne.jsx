@@ -14,6 +14,7 @@ import axios from "axios";
 import { FaCar } from "react-icons/fa";
 import NotificationDropdown from "./NotificationDropdown";
 import CryptoJS from "crypto-js";
+import { BsGooglePlay } from "react-icons/bs"; // this line fixes the error
 
 const API_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
@@ -1093,6 +1094,23 @@ const HeaderOne = () => {
 					<FaCar size={20} />
 					<span>AI Damage Analysis</span>
 				</button>
+				 <a
+      href="https://mycarbuddy.in/assets/apk/MycarbuddyApp.apk"
+      className="floating-right-button"
+      title="Download MyCarBuddy App"
+      download
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.05)";
+        e.currentTarget.style.boxShadow = "0 12px 35px rgba(17, 109, 110, 0.4)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow = "0 8px 25px rgba(17, 109, 110, 0.3)";
+      }}
+    >
+      <BsGooglePlay size={20} />
+      <span>Download App</span>
+    </a>
 			</div>
 		</>
 	);

@@ -113,8 +113,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
     });
   };
 
-
-
   // Get decrypted customer ID
   const getDecryptedCustId = () => {
     try {
@@ -237,67 +235,67 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!description.trim()) {
-    showAlert("Please enter a description for the ticket.", "error");
-    return;
-  }
+    if (!description.trim()) {
+      showAlert("Please enter a description for the ticket.", "error");
+      return;
+    }
 
-  const custId = getDecryptedCustId();
-  if (!custId) {
-    showAlert("Unable to identify user. Please log in again.", "error");
-    return;
-  }
+    const custId = getDecryptedCustId();
+    if (!custId) {
+      showAlert("Unable to identify user. Please log in again.", "error");
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const formData = new FormData();
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const formData = new FormData();
 
-    // 🔹 These keys must match your Swagger names exactly
-    formData.append("CustID", parseInt(custId));
-    formData.append("BookingID", bookingId ? parseInt(bookingId) : 0);
-    formData.append("Description", description.trim());
-    formData.append("ReasonId", getReasonId(selectedReasonType));
+      // 🔹 These keys must match your Swagger names exactly
+      formData.append("CustID", parseInt(custId));
+      formData.append("BookingID", bookingId ? parseInt(bookingId) : 0);
+      formData.append("Description", description.trim());
+      formData.append("ReasonId", getReasonId(selectedReasonType));
 
-    // 🔹 Append each file as "Files"
-    previewFiles.forEach((fileObj) => {
-      formData.append("Files", fileObj.file);
-    });
-
-    // ✅ Post it as multipart/form-data
-    const response = await axios.post(`${baseUrl}Tickets`, formData, {
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    if (response.status === 200 || response.status === 201) {
-      await Swal.fire({
-        title: "Created",
-        text: "Ticket created successfully!",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        toast: true,
-        position: "top-end",
+      // 🔹 Append each file as "Files"
+      previewFiles.forEach((fileObj) => {
+        formData.append("Files", fileObj.file);
       });
 
-      onTicketCreated();
-      onClose();
-    } else {
+      // ✅ Post it as multipart/form-data
+      const response = await axios.post(`${baseUrl}Tickets`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        await Swal.fire({
+          title: "Created",
+          text: "Ticket created successfully!",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          toast: true,
+          position: "top-end",
+        });
+
+        onTicketCreated();
+        onClose();
+      } else {
+        showAlert("Failed to create ticket. Please try again.", "error");
+      }
+    } catch (error) {
+      console.error("Error creating ticket:", error);
       showAlert("Failed to create ticket. Please try again.", "error");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error creating ticket:", error);
-    showAlert("Failed to create ticket. Please try again.", "error");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
 
@@ -380,6 +378,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             {step >= 1 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
+                  <h5>Hi! I'm here to help you create a support ticket.</h5>
+                  <p>Let's start by choosing a category for your issue.</p>
                   <h6>Choose a category for your issue</h6>
                   <div className="options">
                     {reasonTypesLoading ? (
@@ -427,7 +427,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             {/* User: Selected Reason */}
             {selectedReasonType && (
               <div className="mb-3 d-flex justify-content-end me-2">
-                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedReasonType}</div>
+                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedReasonType} Related</div>
               </div>
             )}
 
@@ -519,15 +519,24 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
 
             {/* User: Selected Booking */}
             {bookingId && (
-              <div className="mb-3 d-flex justify-content-end me-2">
-                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
-                  {(() => {
-                    const booking = bookings.find(b => b.BookingID.toString() === bookingId);
-                    return booking ? booking.BookingTrackID : '';
-                  })()}
+              <>
+                {/* User bubble */}
+                <div className="mb-3 d-flex justify-content-end me-2">
+                  <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
+                    {(() => {
+                      const booking = bookings.find(b => b.BookingID.toString() === bookingId);
+                      return booking ? (
+                        <p>
+                          Great! You selected booking <strong>{booking.BookingTrackID}</strong>. <br />
+                          Now please choose a specific reason:
+                        </p>
+                      ) : null;
+                    })()}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
+
 
             {/* Step 3: Select Sub-Reason */}
             {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
@@ -563,7 +572,21 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                 <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedSubReason}</div>
               </div>
             )}
+
+            {/* Step 4: Ask user to describe issue */}
+            {step >= 4 && (
+              <div className="mb-3">
+                <div className="chat-bubble system mb-2">
+                  <p>
+                    <strong>Perfect!</strong> Now please describe your issue in detail. <br />
+                    The more information you provide, the better we can assist you.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+
+
 
           {/* Always visible: Description */}
           <div className="description-section mb-3 mt-20">
@@ -575,7 +598,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             <input
               id="fileUpload"
               type="file"
-              accept="image/*,.pdf,.doc,.docx"
+              accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
               multiple
               style={{ display: "none" }}
               onChange={(e) => handleFileChange(e)}

@@ -15,6 +15,9 @@ const RaisedTicketsTab = () => {
   const { showAlert } = useAlert();
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const imgUrl = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
+  const [showReopenForm, setShowReopenForm] = useState({});
+  const [reopenReason, setReopenReason] = useState({});
 
   const getDecryptedCustId = () => {
     try {
@@ -70,6 +73,52 @@ const RaisedTicketsTab = () => {
     setShowCancelForm({});
   };
 
+
+
+  const confirmReopenTicket = async (ticketId) => {
+    const reason = reopenReason[ticketId] || "";
+    if (!reason.trim()) {
+      showAlert("Please enter a reopen reason.", "warning");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const ticket = tickets.find(
+        (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
+      );
+
+      if (!ticket?.TicketTrackId) {
+        showAlert("Unable to find ticket track ID.", "error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("TicketTrackId", ticket.TicketTrackId);
+      formData.append("Status", 6); // use your reopen status ID
+      formData.append("Description", reason);
+
+      const response = await axios.put(`${baseUrl}Tickets`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200) {
+        showAlert("Ticket reopened successfully.", "success");
+        setShowReopenForm((prev) => ({ ...prev, [ticketId]: false }));
+        setReopenReason((prev) => ({ ...prev, [ticketId]: "" }));
+        fetchTickets(); // refresh list
+      } else {
+        showAlert("Failed to reopen ticket. Please try again.", "error");
+      }
+    } catch (error) {
+      console.error("Error reopening ticket:", error);
+      showAlert("Failed to reopen ticket. Please try again.", "error");
+    }
+  };
+
   const handleCancelTicket = (ticketId) => {
     setShowCancelForm((prev) => ({
       ...prev,
@@ -77,6 +126,51 @@ const RaisedTicketsTab = () => {
     }));
     setTimelineExpanded({});
   };
+
+  const handleReopenToggle = (ticketId) => {
+    setShowReopenForm((prev) => ({
+      ...prev,
+      [ticketId]: !prev[ticketId],
+    }));
+    setShowCancelForm({}); // hide cancel form if open
+  };
+
+  const handleReopenTicket = async (ticketId) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const ticket = tickets.find(
+        (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
+      );
+
+      if (!ticket?.TicketTrackId) {
+        showAlert("Unable to find ticket track ID.", "error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("TicketTrackId", ticket.TicketTrackId);
+      formData.append("Status", 6); // ✅ use 1 or your API's reopen status ID
+      formData.append("Description", "Ticket reopened by user.");
+
+      const response = await axios.put(`${baseUrl}Tickets`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200) {
+        showAlert("Ticket reopened successfully.", "success");
+        fetchTickets();
+      } else {
+        showAlert("Failed to reopen ticket. Please try again.", "error");
+      }
+    } catch (error) {
+      console.error("Error reopening ticket:", error);
+      showAlert("Failed to reopen ticket. Please try again.", "error");
+    }
+  };
+
 
   const confirmCancelTicket = async (ticketId) => {
     const reason = cancelReason[ticketId] || "";
@@ -96,17 +190,23 @@ const RaisedTicketsTab = () => {
         return;
       }
 
-      // ✅ Prepare payload as per your API
-      const payload = {
-        ticketTrackId: ticket.TicketTrackId,
-        status: 3, // assuming 0 represents "Cancelled"
-        description: reason,
-      };
+      // Prepare payload as per your API
+      // ✅ Create FormData object
+      const formData = new FormData();
+      formData.append("TicketTrackId", ticket.TicketTrackId);
+      formData.append("Status", 5);
+      formData.append("Description", reason);
 
-      // ✅ API call (endpoint confirmed)
-      const response = await axios.put(`${baseUrl}Tickets`, payload, {
-        headers: { Authorization: `Bearer ${user?.token}` },
+      // If your API expects more fields (CustID, UpdatedBy, etc.), append them here
+      // formData.append("CustID", custId);
+
+      const response = await axios.put(`${baseUrl}Tickets`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "multipart/form-data", // 👈 important
+        },
       });
+
 
       if (response.status === 200) {
         showAlert("Ticket cancelled successfully.", "success");
@@ -159,20 +259,20 @@ const RaisedTicketsTab = () => {
     };
 
     const getStatusIcon = () => {
-      switch (statusLower) {
-        case "open":
-          return "🔓";
-        case "in progress":
-        case "inprogress":
-          return "⚙️";
-        case "resolved":
-        case "closed":
-          return "✅";
-        case "pending":
-          return "⏳";
-        default:
-          return "❓";
-      }
+      // switch (statusLower) {
+      //   case "open":
+      //     return "🔓";
+      //   case "in progress":
+      //   case "inprogress":
+      //     return "⚙️";
+      //   case "resolved":
+      //   case "closed":
+      //     return "✅";
+      //   case "pending":
+      //     return "⏳";
+      //   default:
+      // return "❓";
+      // }
     };
 
     return (
@@ -246,11 +346,10 @@ const RaisedTicketsTab = () => {
             >
               <h2 className="accordion-header" id={`heading${index}`}>
                 <button
-                  className={`accordion-button ${
-                    expandedTicket === (ticket.Id || ticket.id || index)
-                      ? ""
-                      : "collapsed"
-                  }`}
+                  className={`accordion-button ${expandedTicket === (ticket.Id || ticket.id || index)
+                    ? ""
+                    : "collapsed"
+                    }`}
                   type="button"
                   onClick={() => toggleTicket(ticket.Id || ticket.id || index)}
                   aria-expanded={
@@ -275,11 +374,10 @@ const RaisedTicketsTab = () => {
               </h2>
               <div
                 id={`collapse${index}`}
-                className={`accordion-collapse collapse ${
-                  expandedTicket === (ticket.Id || ticket.id || index)
-                    ? "show"
-                    : ""
-                }`}
+                className={`accordion-collapse collapse ${expandedTicket === (ticket.Id || ticket.id || index)
+                  ? "show"
+                  : ""
+                  }`}
                 aria-labelledby={`heading${index}`}
                 data-bs-parent="#ticketsAccordion"
               >
@@ -311,16 +409,11 @@ const RaisedTicketsTab = () => {
                     <div className="col-md-4">
                       <h6 className="text-primary">Ticket Details</h6>
                       <div className="mb-2">
-                      <strong>Status:</strong>{" "}
-                      {getStatusDisplay(
-                        (ticket.TrackingHistory?.[0]?.StatusName === "Pending"
-                          ? "Created"
-                          : ticket.TrackingHistory?.[0]?.StatusName) ||
-                          (ticket.StatusName === "Pending"
-                            ? "Created"
-                            : ticket.StatusName)
-                      )}
-                    </div>
+                        <strong>Status:</strong>{" "}
+                        {getStatusDisplay(
+                          ticket.TrackingHistory?.[0]?.StatusName || "Created"
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -371,103 +464,243 @@ const RaisedTicketsTab = () => {
                               }}
                             ></div>
 
-                            {ticket.TrackingHistory?.length > 0 ? (
-                              ticket.TrackingHistory.slice().reverse().map((step, i) => (
-                                <div
-                                  key={i}
-                                  className="timeline-item mb-3"
-                                  style={{
-                                    position: "relative",
-                                    display: "flex",
-                                    alignItems: "flex-start",
-                                    zIndex: 1,
-                                  }}
-                                >
-                                  {/* dot */}
+                            {(() => {
+                              // ✅ Combine only non-Pending statuses + one Created step
+                              const combinedSteps = [
+                                ...(ticket.TrackingHistory?.filter(
+                                  (step) => step.StatusName?.toLowerCase() !== "pending"
+                                ) || []),
+                                {
+                                  StatusName: "Created",
+                                  StatusDescription: ticket.Description || "Ticket created.",
+                                  StatusDate: ticket.CreatedDate,
+                                  FilePath: ticket.FilePath,
+                                },
+                              ].reverse(); // latest on top
+
+                              return combinedSteps.length > 0 ? (
+                                combinedSteps.map((step, i) => (
                                   <div
-                                    className="timeline-marker"
+                                    key={i}
+                                    className="timeline-item mb-3"
                                     style={{
                                       position: "relative",
                                       display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "center",
-                                      marginRight: "10px",
-                                      width: "30px",
+                                      alignItems: "flex-start",
+                                      zIndex: 1,
                                     }}
                                   >
+                                    {/* dot */}
                                     <div
-                                      className="timeline-dot"
+                                      className="timeline-marker"
                                       style={{
-                                        width: "12px",
-                                        height: "12px",
-                                        borderRadius: "50%",
-                                        backgroundColor: "#198754",
-                                        border: "2px solid white",
-                                        boxShadow: "0 0 0 2px #dee2e6",
-                                        zIndex: 2,
                                         position: "relative",
-                                        left: "9px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        marginRight: "10px",
+                                        width: "30px",
                                       }}
-                                    ></div>
-                                  </div>
+                                    >
+                                      <div
+                                        className="timeline-dot"
+                                        style={{
+                                          width: "12px",
+                                          height: "12px",
+                                          borderRadius: "50%",
+                                          backgroundColor: "#198754",
+                                          border: "2px solid white",
+                                          boxShadow: "0 0 0 2px #dee2e6",
+                                          zIndex: 2,
+                                          position: "relative",
+                                          left: "9px",
+                                        }}
+                                      ></div>
+                                    </div>
 
-                                  {/* details */}
-                                  <div className="timeline-content">
-                                    <h6
-                                      className="mb-1"
+                                    {/* details */}
+                                    <div
+                                      className="timeline-content"
                                       style={{
-                                        fontSize: "14px",
-                                        fontWeight: "600",
+                                        flexGrow: 1,
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "flex-start",
+                                        gap: "12px",
                                       }}
                                     >
-                                      {step.StatusName === "Pending"
-                                        ? "Created"
-                                        : step.StatusName}
-                                    </h6>
-                                    <p
-                                      className="mb-1 text-muted"
-                                      style={{ fontSize: "12px" }}
-                                    >
-                                      {step.StatusDescription ||
-                                        "No description provided."}
-                                    </p>
-                                    <small
-                                      className="text-muted"
-                                      style={{ fontSize: "11px" }}
-                                    >
-                                      {formatDate(step.StatusDate)}
-                                    </small>
+                                      {/* ✅ Left side — status details */}
+                                      <div style={{ flex: 1 }}>
+                                        <h6 className="mb-1" style={{ fontSize: "14px", fontWeight: "600" }}>
+                                          {step.StatusName === "Pending" ? "Created" : step.StatusName}
+                                        </h6>
+                                        <p className="mb-1 text-muted" style={{ fontSize: "12px" }}>
+                                          {step.StatusDescription || "No description provided."}
+                                        </p>
+                                        <small className="text-muted d-block mb-2" style={{ fontSize: "11px" }}>
+                                          {formatDate(step.StatusDate)}
+                                        </small>
+                                      </div>
+
+                                      {/* ✅ Right side — images and documents */}
+                                      {step.FilePath && (
+                                        <div
+                                          className="d-flex flex-row flex-wrap justify-content-end"
+                                          style={{
+                                            gap: "10px",
+                                            maxWidth: "320px",
+                                          }}
+                                        >
+                                          {step.FilePath.split(",").map((file, idx) => {
+                                            const trimmed = file.trim();
+                                            const fileUrl = `${imgUrl}TicketDocuments/${trimmed}`;
+                                            const fileName = trimmed.split("_").slice(1).join("_") || trimmed;
+
+                                            // Detect file type
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(trimmed);
+                                            const isPdf = /\.pdf$/i.test(trimmed);
+                                            const isDoc = /\.(doc|docx)$/i.test(trimmed);
+                                            const isExcel = /\.(xls|xlsx)$/i.test(trimmed);
+                                            const isText = /\.(txt|csv)$/i.test(trimmed);
+                                            const isPpt = /\.(ppt|pptx)$/i.test(trimmed);
+
+                                            // Decide icon for docs
+                                            let iconClass = "bi bi-file-earmark";
+                                            if (isPdf) iconClass = "bi bi-file-earmark-pdf text-danger";
+                                            else if (isDoc) iconClass = "bi bi-file-earmark-word text-primary";
+                                            else if (isExcel) iconClass = "bi bi-file-earmark-excel text-success";
+                                            else if (isText) iconClass = "bi bi-file-earmark-text text-secondary";
+                                            else if (isPpt) iconClass = "bi bi-file-earmark-ppt text-warning";
+
+                                            return (
+                                              <div
+                                                key={idx}
+                                                style={{
+                                                  width: "65px",
+                                                  textAlign: "center",
+                                                }}
+                                              >
+                                                {isImage ? (
+                                                  // 🖼️ Image preview
+                                                  <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                                    <img
+                                                      src={fileUrl}
+                                                      alt={fileName}
+                                                      style={{
+                                                        width: "60px",
+                                                        height: "60px",
+                                                        objectFit: "cover",
+                                                        borderRadius: "8px",
+                                                        border: "1px solid #dee2e6",
+                                                      }}
+                                                    />
+                                                  </a>
+                                                ) : (
+                                                  // 📄 Document box (square preview with icon)
+                                                  <a
+                                                    href={fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="d-flex flex-column align-items-center justify-content-center"
+                                                    style={{
+                                                      width: "60px",
+                                                      height: "60px",
+                                                      borderRadius: "8px",
+                                                      border: "1px solid #dee2e6",
+                                                      backgroundColor: "#f8f9fa",
+                                                      textDecoration: "none",
+                                                    }}
+                                                  >
+                                                    <i className={iconClass} style={{ fontSize: "24px" }}></i>
+                                                  </a>
+                                                )}
+
+                                                {/* File name below */}
+                                                <small
+                                                  className="text-muted d-block mt-1"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    wordBreak: "break-word",
+                                                    maxWidth: "60px",
+                                                    lineHeight: "1.1",
+                                                  }}
+                                                >
+                                                  {fileName.length > 10 ? fileName.slice(0, 10) + "…" : fileName}
+                                                </small>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+
+                                    </div>
+
                                   </div>
+                                ))
+                              ) : (
+                                <div className="text-muted small mt-2">
+                                  No tracking history available
                                 </div>
-                              ))
-                            ) : (
-                              <div className="text-muted small mt-2">
-                                No tracking history available
-                              </div>
-                            )}
+                              );
+                            })()}
+
                           </div>
                         )}
                       </div>
                     </div>
 
                     {/* Cancel Ticket */}
-                    <div
-                      style={{
-                        minWidth: "120px",
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <button
-                        className="btn btn-danger w-100 mt-2"
-                        style={{ height: "100%", padding: "10px 10px" }}
-                        onClick={() =>
-                          handleCancelTicket(ticket.Id || ticket.id || index)
-                        }
-                      >
-                        Cancel Ticket
-                      </button>
-                    </div>
+                    {/* ✅ Conditional button logic */}
+                    {(() => {
+                      const latestStatus =
+                        ticket?.TrackingHistory?.[0]?.StatusName?.toLowerCase() || "open";
+
+                      if (latestStatus === "cancelled") {
+                        // ❌ Don’t show any button
+                        return null;
+                      }
+
+                      if (latestStatus === "closed" || latestStatus === "resolved") {
+                        // 🔁 Show Reopen Ticket button
+                        return (
+                          <div
+                            style={{
+                              minWidth: "120px",
+                              display: "flex",
+                              flexDirection: "column",
+                            }}
+                          >
+                            <button
+                              className="btn btn-success w-100 mt-2"
+                              style={{ height: "100%", padding: "10px 10px" }}
+                              onClick={() => handleReopenToggle(ticket.Id || ticket.id || index)}
+                            >
+                              Reopen Ticket
+                            </button>
+                          </div>
+                        );
+                      }
+
+                      // 🛑 Default — show Cancel Ticket
+                      return (
+                        <div
+                          style={{
+                            minWidth: "120px",
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <button
+                            className="btn btn-danger w-100 mt-2"
+                            style={{ height: "100%", padding: "10px 10px" }}
+                            onClick={() => handleCancelTicket(ticket.Id || ticket.id || index)}
+                          >
+                            Cancel Ticket
+                          </button>
+                        </div>
+                      );
+                    })()}
+
                   </div>
 
                   {showCancelForm[ticket.Id || ticket.id || index] && (
@@ -502,6 +735,37 @@ const RaisedTicketsTab = () => {
                       </div>
                     </div>
                   )}
+                  {/* 🟢 Reopen Form */}
+                  {
+                    showReopenForm[ticket.Id || ticket.id || index] && (
+                      <div className="mt-2 p-3 border rounded bg-light">
+                        <h6 className="text-success mb-3">Please enter reopen reason</h6>
+                        <textarea
+                          className="form-control mb-3"
+                          rows="2"
+                          placeholder="Enter reason for reopening..."
+                          value={reopenReason[ticket.Id || ticket.id || index] || ""}
+                          onChange={(e) =>
+                            setReopenReason((prev) => ({
+                              ...prev,
+                              [ticket.Id || ticket.id || index]: e.target.value,
+                            }))
+                          }
+                        />
+                        <div className="text-center mt-2">
+                          <button
+                            className="btn btn-success"
+                            style={{ padding: "12px 15px", fontSize: "14px" }}
+                            onClick={() =>
+                              confirmReopenTicket(ticket.Id || ticket.id || index)
+                            }
+                          >
+                            Confirm Reopen
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  }
                   {ticket.response && (
                     <div className="mt-3 p-3 bg-light rounded">
                       <h6 className="text-success">Response from Support</h6>
@@ -518,8 +782,9 @@ const RaisedTicketsTab = () => {
             </div>
           ))}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
