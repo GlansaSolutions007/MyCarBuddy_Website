@@ -315,7 +315,7 @@ const RaisedTicketsTab = () => {
           className="btn btn-outline-primary px-3 py-2"
           onClick={() => setShowNewTicket(true)}
         >
-          Raise Ticket
+          New Ticket
         </button>
       </div>
 
@@ -410,9 +410,13 @@ const RaisedTicketsTab = () => {
                       <h6 className="text-primary">Ticket Details</h6>
                       <div className="mb-2">
                         <strong>Status:</strong>{" "}
-                        {getStatusDisplay(
-                          ticket.TrackingHistory?.[0]?.StatusName || "Created"
-                        )}
+                        {(() => {
+                          const currentStatus =
+                            ticket.TrackingHistory?.[0]?.StatusName?.toLowerCase() === "forward"
+                              ? "Created" // or whatever default you prefer
+                              : ticket.TrackingHistory?.[0]?.StatusName || "Created";
+                          return getStatusDisplay(currentStatus);
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -468,7 +472,9 @@ const RaisedTicketsTab = () => {
                               // ✅ Combine only non-Pending statuses + one Created step
                               const combinedSteps = [
                                 ...(ticket.TrackingHistory?.filter(
-                                  (step) => step.StatusName?.toLowerCase() !== "pending"
+                                  (step) =>
+                                    step.StatusName?.toLowerCase() !== "pending" &&
+                                    step.StatusName?.toLowerCase() !== "forward"
                                 ) || []),
                                 {
                                   StatusName: "Created",

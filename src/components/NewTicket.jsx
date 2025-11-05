@@ -457,7 +457,22 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                               disabled={step > 2}
                             />
                             <label className="form-check-label" htmlFor={`booking-${booking.BookingID}`}>
-                              {booking.BookingTrackID} - {booking.ServiceType} booked on {new Date(booking.BookingDate).toLocaleDateString()}
+                              {booking.BookingTrackID} - {booking.ServiceType}
+                              {" "}booked on {new Date(booking.BookingDate).toLocaleDateString()} -
+                              {booking.Packages && booking.Packages.length > 0 && (() => {
+                                // Join all package names with commas
+                                const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
+                                // Trim to max 25 characters
+                                const limitedText = allPackages.length > 25 ? allPackages.slice(0, 25) + "..." : allPackages;
+
+                                return (
+                                  <>
+                                    {" ("}
+                                    {limitedText}
+                                    {")"}
+                                  </>
+                                );
+                              })()}
                             </label>
                           </div>
                         ))}
@@ -523,7 +538,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                     {(() => {
                       const booking = bookings.find(b => b.BookingID.toString() === bookingId);
                       return booking ? (
-                        <p style={{color:"white"}}>
+                        <p style={{ color: "white" }}>
                           Great! You selected booking <strong>{booking.BookingTrackID}</strong>. <br />
                           Now please choose a specific reason:
                         </p>
@@ -584,6 +599,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
           </div>
 
           {/* Always visible: Description */}
+          {step >= 4 && (
           <div className="description-section mb-3 mt-20">
             <label htmlFor="description" className="form-label fw-bold">
               Description<span className="text-danger">*</span>
@@ -714,6 +730,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               </div>
             )}
           </div>
+          )}
 
           {/* Buttons */}
           <div className="buttons-section d-flex gap-2 justify-content-center mb-25">
@@ -742,7 +759,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   Creating...
                 </>
               ) : (
-                'Raise Ticket'
+                'Raised Ticket'
               )}
             </button>
             <button
