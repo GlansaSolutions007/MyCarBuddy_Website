@@ -82,6 +82,23 @@ const chatStyles = `
   .buttons-section {
     flex-shrink: 0;
   }
+
+  .chat-bubble.system h5,
+.chat-bubble.system h6,
+.chat-bubble.system p,
+.chat-bubble.user p,
+.chat-bubble.user {
+  font-size: 0.90rem; /* smaller font for chat feel */
+}
+
+.chat-bubble.system h6 {
+  font-weight: 600;
+}
+
+.chat-bubble.system,
+.chat-bubble.user {
+  line-height: 1.3;
+}
 `;
 
 // Inject styles into the document head
@@ -767,7 +784,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             <button
               type="submit"
               className="btn btn-primary px-4 py-3 text-decoration-none"
-              disabled={loading || (selectedReasonType !== 'Others' && step < 3)}
+              disabled={loading || (selectedReasonType !== 'Others' && step < 4)}
             >
               {loading ? (
                 <>
