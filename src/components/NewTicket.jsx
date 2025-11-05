@@ -43,6 +43,26 @@ const chatStyles = `
     margin-bottom: 2px;
     font-weight: bold;
   }
+
+  .chat-bubble.system h5,
+  .chat-bubble.system p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2;
+  }
+
+  .chat-bubble.user p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3;
+  }
+
+  .chat-bubble.system h6 {
+  margin: 4px 0 0 0 !important; /* small top gap only */
+  padding: 0 !important;
+  line-height: 1.2;
+}
+  
   .options .form-check {
     margin-bottom: 1px;
   }
@@ -600,136 +620,136 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
 
           {/* Always visible: Description */}
           {step >= 4 && (
-          <div className="description-section mb-3 mt-20">
-            <label htmlFor="description" className="form-label fw-bold">
-              Description<span className="text-danger">*</span>
-            </label>
-
-            {/* Single hidden input for both images and docs */}
-            <input
-              id="fileUpload"
-              type="file"
-              accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
-              multiple
-              style={{ display: "none" }}
-              onChange={(e) => handleFileChange(e)}
-            />
-
-            {/* Wrapper for textarea + plus button */}
-            <div style={{ position: "relative" }}>
-              {/* One "+" button — fixed inside textarea */}
-              <label
-                htmlFor="fileUpload"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  bottom: "12px",
-                  cursor: "pointer",
-                  fontSize: "25px",
-                  color: isHovered ? "#0d6efd" : "#929292ff", // blue on hover
-                  fontWeight: "bold",
-                  zIndex: 10,
-                  transition: "color 0.2s ease", // smooth transition
-                }}
-                title="Upload image or document"
-              >
-                <i class="bi bi-paperclip"></i>
+            <div className="description-section mb-3 mt-20">
+              <label htmlFor="description" className="form-label fw-bold">
+                Description<span className="text-danger">*</span>
               </label>
 
-              {/* Textarea */}
-              <textarea
-                className="form-control"
-                style={{
-                  minHeight: "75px",
-                  paddingLeft: "45px",
-                  resize: "none",
-                }}
-                id="description"
-                rows="2"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your issue or request..."
-                required
-              ></textarea>
-            </div>
+              {/* Single hidden input for both images and docs */}
+              <input
+                id="fileUpload"
+                type="file"
+                accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => handleFileChange(e)}
+              />
 
-            {/* Preview Section */}
-            {previewFiles.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px",
-                  marginTop: "8px",
-                }}
-              >
-                {previewFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      position: "relative",
-                      width: "55px",
-                      height: "55px",
-                    }}
-                  >
-                    {file.type.startsWith("image/") ? (
-                      <img
-                        src={file.preview}
-                        alt={`preview-${index}`}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "6px",
-                          objectFit: "cover",
-                          border: "1px solid #ddd",
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "6px",
-                          border: "1px solid #ddd",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "30px",
-                          backgroundColor: "#f8f9fa",
-                        }}
-                      >
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                      </div>
-                    )}
+              {/* Wrapper for textarea + plus button */}
+              <div style={{ position: "relative" }}>
+                {/* One "+" button — fixed inside textarea */}
+                <label
+                  htmlFor="fileUpload"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  style={{
+                    position: "absolute",
+                    left: "10px",
+                    bottom: "12px",
+                    cursor: "pointer",
+                    fontSize: "25px",
+                    color: isHovered ? "#0d6efd" : "#929292ff", // blue on hover
+                    fontWeight: "bold",
+                    zIndex: 10,
+                    transition: "color 0.2s ease", // smooth transition
+                  }}
+                  title="Upload image or document"
+                >
+                  <i class="bi bi-paperclip"></i>
+                </label>
 
-                    {/* Remove button */}
-                    <button
-                      type="button"
-                      onClick={() => removeFile(index)}
+                {/* Textarea */}
+                <textarea
+                  className="form-control"
+                  style={{
+                    minHeight: "75px",
+                    paddingLeft: "45px",
+                    resize: "none",
+                  }}
+                  id="description"
+                  rows="2"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe your issue or request..."
+                  required
+                ></textarea>
+              </div>
+
+              {/* Preview Section */}
+              {previewFiles.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginTop: "8px",
+                  }}
+                >
+                  {previewFiles.map((file, index) => (
+                    <div
+                      key={index}
                       style={{
-                        position: "absolute",
-                        top: "-6px",
-                        right: "-6px",
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "18px",
-                        height: "18px",
-                        cursor: "pointer",
-                        fontSize: "10px",
-                        lineHeight: "15px",
+                        position: "relative",
+                        width: "55px",
+                        height: "55px",
                       }}
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                      {file.type.startsWith("image/") ? (
+                        <img
+                          src={file.preview}
+                          alt={`preview-${index}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "6px",
+                            objectFit: "cover",
+                            border: "1px solid #ddd",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "6px",
+                            border: "1px solid #ddd",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "30px",
+                            backgroundColor: "#f8f9fa",
+                          }}
+                        >
+                          <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                      )}
+
+                      {/* Remove button */}
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        style={{
+                          position: "absolute",
+                          top: "-6px",
+                          right: "-6px",
+                          background: "red",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "18px",
+                          height: "18px",
+                          cursor: "pointer",
+                          fontSize: "10px",
+                          lineHeight: "15px",
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Buttons */}

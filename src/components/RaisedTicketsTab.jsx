@@ -386,24 +386,26 @@ const RaisedTicketsTab = () => {
                     <div className="col-md-8">
                       {ticket.BookingTrackID && (
                         <p className="mb-3">
-                          <span className="badge1 fw-bold">
-                            Booking ID: {ticket.BookingTrackID}
-                          </span>
+                          <h6 className="badge1 fw-bold text-primary">
+                            Booking ID: <span style={{ color: "black" }}>{ticket.BookingTrackID}</span>
+                          </h6>
                         </p>
                       )}
                       <p className="mb-3">
                         <h6 className="text-primary">
                           Reason:
-                          <span className="badge1 fw-bold color-black">
+                          <span className="badge1 fw-bold" style={{ color: "black" }} >
                             {" "}
                             {ticket.Reason}
                           </span>{" "}
                         </h6>
                       </p>
-                      <h6 className="text-primary">Description</h6>
-                      <p className="mb-3">
-                        {ticket.Description || "No description provided."}
-                      </p>
+                      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+                        <h6 className="text-primary mb-0 me-2">Description:</h6>
+                        <span className="badge1">
+                          {ticket.Description || "No description provided."}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="col-md-4">
@@ -411,10 +413,13 @@ const RaisedTicketsTab = () => {
                       <div className="mb-2">
                         <strong>Status:</strong>{" "}
                         {(() => {
-                          const currentStatus =
-                            ticket.TrackingHistory?.[0]?.StatusName?.toLowerCase() === "forward"
-                              ? "Created" // or whatever default you prefer
-                              : ticket.TrackingHistory?.[0]?.StatusName || "Created";
+                          let currentStatus = ticket.TrackingHistory?.[0]?.StatusName || "Created";
+                          currentStatus = currentStatus.toLowerCase();
+
+                          // Hide or replace unwanted statuses
+                          if (currentStatus === "forward" || currentStatus === "pending") {
+                            currentStatus = "Created";
+                          }
                           return getStatusDisplay(currentStatus);
                         })()}
                       </div>
