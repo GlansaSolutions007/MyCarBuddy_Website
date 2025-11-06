@@ -85,10 +85,15 @@ const chatStyles = `
 
   .chat-bubble.system h5,
 .chat-bubble.system h6,
-.chat-bubble.system p,
+.chat-bubble.system p {
+  font-size: 1.05rem !important; /* slightly larger for clarity */
+  line-height: 1.4;
+}
+
 .chat-bubble.user p,
 .chat-bubble.user {
-  font-size: 0.90rem; /* smaller font for chat feel */
+  font-size: 0.95rem; /* keep user text smaller */
+  line-height: 1.3;
 }
 
 .chat-bubble.system h6 {
@@ -133,13 +138,28 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
 
+    // Combine existing + new files
+    const totalFiles = [...previewFiles, ...files];
+
+    //  If user tries to exceed 5, show alert and block upload
+    if (totalFiles.length > 5) {
+      alert("You can upload a maximum of 5 images only.");
+      e.target.value = ""; // reset input
+      return; //  stop further execution — don't add or preview
+    }
+
+    //  Otherwise, create previews
     const filePreviews = files.map((file) => ({
       file,
       type: file.type,
       preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
     }));
 
+    //  Add new previews
     setPreviewFiles((prev) => [...prev, ...filePreviews]);
+
+    // Reset input for next selection
+    e.target.value = "";
   };
 
   const removeFile = (index) => {
@@ -412,8 +432,18 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             {step >= 1 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
-                  <h5>Hi! I'm here to help you create a support ticket.</h5>
-                  <p>Let's start by choosing a category for your issue.</p>
+                  {/* <h6>Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.</h6> */}
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.5",
+                      fontWeight: "500",
+                      marginTop: "4px", // small space above for balance
+                    }}
+                  >
+                    Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.
+                  </div>
+                  {/* <p>Let's start by choosing a category for your issue.</p> */}
                   <h6>Choose a category for your issue</h6>
                   <div className="options">
                     {reasonTypesLoading ? (
@@ -469,6 +499,16 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             {step >= 2 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.5",
+                      fontWeight: "500",
+                      marginTop: "4px", // small space above for balance
+                    }}
+                  >
+                    Great! You selected <span>{selectedReasonType} Related</span>. Now let's select the booking you want to raise a ticket for.
+                  </div>
                   <h6>Select Booking</h6>
                   <div className="options">
                     {isLoading ? (
@@ -495,7 +535,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                             />
                             <label className="form-check-label" htmlFor={`booking-${booking.BookingID}`}>
                               {booking.BookingTrackID} - {booking.ServiceType}
-                              {" "}booked on {new Date(booking.BookingDate).toLocaleDateString()} -
+                              {" "}Booked on {new Date(booking.BookingDate).toLocaleDateString()} -
                               {booking.Packages && booking.Packages.length > 0 && (() => {
                                 // Join all package names with commas
                                 const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
@@ -541,6 +581,13 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                           onClick={() => {
                             setSkippedBooking(true);
                             setStep(3);
+
+                            // Add a small delay to show "user" message naturally
+                            setTimeout(() => {
+                              if (chatContainerRef.current) {
+                                chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                              }
+                            }, 150);
                           }}
                           disabled={step > 2}
                         >
@@ -576,8 +623,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                       const booking = bookings.find(b => b.BookingID.toString() === bookingId);
                       return booking ? (
                         <p style={{ color: "white" }}>
-                          Great! You selected booking <strong>{booking.BookingTrackID}</strong>. <br />
-                          Now please choose a specific reason:
+                          Booking {booking.BookingTrackID}
                         </p>
                       ) : null;
                     })()}
@@ -586,11 +632,48 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               </>
             )}
 
+            {/* User: Skipped booking selection */}
+            {skippedBooking && !bookingId && (
+              <div className="mb-3 d-flex justify-content-end me-2">
+                <div
+                  className="chat-bubble user mb-2"
+                  style={{ textAlign: "center" }}
+                >
+                  Skip booking selection
+                </div>
+              </div>
+            )}
 
             {/* Step 3: Select Sub-Reason */}
             {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.5",
+                      fontWeight: "500",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {(() => {
+                      const booking = bookings.find(b => b.BookingID.toString() === bookingId);
+                      if (skippedBooking) {
+                        return (
+                          <span>
+                            No problem! Now please choose a specific reason.
+                          </span>
+                        );
+                      } else if (booking) {
+                        return (
+                          <span>
+                            Great! You selected booking {booking.BookingTrackID}. Now please choose a specific reason.
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                   <h6>Choose a specific reason</h6>
                   <div className="options">
                     {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
@@ -626,10 +709,17 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             {step >= 4 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
-                  <p>
-                    <strong>Perfect!</strong> Now please describe your issue in detail. <br />
-                    The more information you provide, the better we can assist you.
-                  </p>
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.5",
+                      fontWeight: "500",
+                      marginTop: "4px", // small space above for balance
+                    }}
+                  >
+                    Great! You selected reason <span>{selectedSubReason}</span>. <br />
+                    Now please describe your issue in detail. The more information you provide, the better we can assist you.
+                  </div>
                 </div>
               </div>
             )}
@@ -646,7 +736,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               <input
                 id="fileUpload"
                 type="file"
-                accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
+                // accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
+                accept="image/*"
                 multiple
                 style={{ display: "none" }}
                 onChange={(e) => handleFileChange(e)}

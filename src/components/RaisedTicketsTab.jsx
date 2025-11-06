@@ -18,6 +18,8 @@ const RaisedTicketsTab = () => {
   const imgUrl = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
   const [showReopenForm, setShowReopenForm] = useState({});
   const [reopenReason, setReopenReason] = useState({});
+  const [updateText, setUpdateText] = useState({});
+  const [updateFiles, setUpdateFiles] = useState({});
 
   const getDecryptedCustId = () => {
     try {
@@ -45,7 +47,9 @@ const RaisedTicketsTab = () => {
       });
 
       if (response.data && Array.isArray(response.data)) {
-        setTickets(response.data);
+        // setTickets(response.data);
+        const sortedTickets = [...response.data].reverse();
+        setTickets(sortedTickets);
       } else {
         setTickets([]);
       }
@@ -221,6 +225,57 @@ const RaisedTicketsTab = () => {
       showAlert("Failed to cancel ticket. Please try again.", "error");
     }
   };
+
+  const handleSendUpdate = async (ticketId) => {
+    const message = updateText[ticketId] || "";
+    const files = updateFiles[ticketId] || [];
+
+    if (!message.trim() && files.length === 0) {
+      showAlert("Please add a message or attach a file.", "warning");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const ticket = tickets.find(
+        (t) => (t.Id || t.id || t.TicketTrackId) === ticketId
+      );
+
+      if (!ticket?.TicketTrackId) {
+        showAlert("Unable to find ticket track ID.", "error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("TicketTrackId", ticket.TicketTrackId);
+      formData.append("Status", 8); // status for User update
+      formData.append("Description", message);
+      formData.append("UserResponse", true);
+
+      files.forEach((file) => formData.append("File", file));
+
+      const response = await axios.put(`${baseUrl}Tickets`, formData, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200) {
+        showAlert("Update sent successfully!", "success");
+        // clear input + files
+        setUpdateText((prev) => ({ ...prev, [ticketId]: "" }));
+        setUpdateFiles((prev) => ({ ...prev, [ticketId]: [] }));
+        fetchTickets(); // refresh timeline
+      } else {
+        showAlert("Failed to send update. Try again.", "error");
+      }
+    } catch (error) {
+      console.error("Error sending update:", error);
+      showAlert("Error sending update. Please try again.", "error");
+    }
+  };
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -587,7 +642,7 @@ const RaisedTicketsTab = () => {
                                               <div
                                                 key={idx}
                                                 style={{
-                                                  width: "65px",
+                                                  width: "55px",
                                                   textAlign: "center",
                                                 }}
                                               >
@@ -598,8 +653,8 @@ const RaisedTicketsTab = () => {
                                                       src={fileUrl}
                                                       alt={fileName}
                                                       style={{
-                                                        width: "60px",
-                                                        height: "60px",
+                                                        width: "50px",
+                                                        height: "50px",
                                                         objectFit: "cover",
                                                         borderRadius: "8px",
                                                         border: "1px solid #dee2e6",
@@ -657,6 +712,165 @@ const RaisedTicketsTab = () => {
 
                           </div>
                         )}
+                        {timelineExpanded[ticket.Id || ticket.id || index] && (() => {
+                          const latestStatus =
+                            ticket?.TrackingHistory?.[0]?.StatusName?.toLowerCase() || "";
+
+                          // Only show input field if status is "awaiting"
+                          if (latestStatus !== "awaiting") return null;
+
+                          return (
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <div
+                                style={{
+                                  marginTop: "12px",
+                                  borderTop: "1px solid #ddd",
+                                  paddingTop: "10px",
+                                  display: "flex",
+                                  alignItems: "center", // ✅ keeps all elements vertically centered
+                                  gap: "10px",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {/* Hidden File Input */}
+                                <input
+                                  type="file"
+                                  id={`updateFile-${ticket.Id || ticket.id || index}`}
+                                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                  multiple
+                                  style={{ display: "none" }}
+                                  onChange={(e) => {
+                                    const files = Array.from(e.target.files);
+                                    if (files.length > 3) {
+                                      alert("You can upload a maximum of 3 files per update.");
+                                      e.target.value = "";
+                                      return;
+                                    }
+                                    setUpdateFiles((prev) => ({
+                                      ...prev,
+                                      [ticket.Id || ticket.id || index]: files,
+                                    }));
+                                  }}
+                                />
+
+                                {/* 📎 Upload Button */}
+                                <label
+                                  htmlFor={`updateFile-${ticket.Id || ticket.id || index}`}
+                                  style={{
+                                    cursor: "pointer",
+                                    color: "#0d6efd",
+                                    fontSize: "20px",
+                                    display: "flex", // ✅ make label a flex container
+                                    alignItems: "center", // ✅ vertically center icon
+                                    justifyContent: "center", // horizontally center it
+                                    height: "36px", // same as input height
+                                    width: "36px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#f5f5f5", // subtle background
+                                  }}
+                                  title="Attach files"
+                                >
+                                  <i className="bi bi-paperclip"></i>
+                                </label>
+
+                                {/* 📝 Input */}
+                                <input
+                                  type="text"
+                                  placeholder="Add an update..."
+                                  style={{
+                                    flex: 1,
+                                    border: "1px solid #ccc",
+                                    borderRadius: "20px",
+                                    padding: "8px 14px",
+                                    fontSize: "14px",
+                                    outline: "none",
+                                  }}
+                                  value={updateText[ticket.Id || ticket.id || index] || ""}
+                                  onChange={(e) =>
+                                    setUpdateText((prev) => ({
+                                      ...prev,
+                                      [ticket.Id || ticket.id || index]: e.target.value,
+                                    }))
+                                  }
+                                />
+
+                                {/* 🚀 Send */}
+                                <button
+                                  className="btn btn-primary"
+                                  style={{
+                                    borderRadius: "20px",
+                                    padding: "6px 14px",
+                                    fontSize: "14px",
+                                  }}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleSendUpdate(ticket.Id || ticket.id || index);
+                                  }}
+                                >
+                                  Send
+                                </button>
+                              </div>
+
+                              {/* ✅ Show Image Previews */}
+                              {updateFiles[ticket.Id || ticket.id || index]?.length > 0 && (
+                                <div
+                                  style={{
+                                    marginTop: "10px",
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: "5px",
+                                  }}
+                                >
+                                  {updateFiles[ticket.Id || ticket.id || index].map((file, idx) => {
+                                    const isImage = file.type.startsWith("image/");
+                                    const fileURL = URL.createObjectURL(file);
+
+                                    return (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          position: "relative",
+                                          width: "50px",
+                                          height: "50px",
+                                          borderRadius: "8px",
+                                          overflow: "hidden",
+                                          border: "1px solid #ddd",
+                                        }}
+                                      >
+                                        {isImage ? (
+                                          <img
+                                            src={fileURL}
+                                            alt={`preview-${idx}`}
+                                            style={{
+                                              width: "100%",
+                                              height: "100%",
+                                              objectFit: "cover",
+                                            }}
+                                          />
+                                        ) : (
+                                          <div
+                                            style={{
+                                              width: "100%",
+                                              height: "100%",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              fontSize: "24px",
+                                              color: "#6c757d",
+                                              background: "#f8f9fa",
+                                            }}
+                                          >
+                                            <i className="bi bi-file-earmark"></i>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
 
