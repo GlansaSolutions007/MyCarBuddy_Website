@@ -3,6 +3,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import NewTicket from "./NewTicket";
+import Swal from "sweetalert2";
 
 const RaisedTicketsTab = () => {
   const [tickets, setTickets] = useState([]);
@@ -723,7 +724,7 @@ const RaisedTicketsTab = () => {
                             <div onClick={(e) => e.stopPropagation()}>
                               <div
                                 style={{
-                                  marginTop: "12px",
+                                  marginTop: "10px",
                                   borderTop: "1px solid #ddd",
                                   paddingTop: "10px",
                                   display: "flex",
@@ -736,20 +737,53 @@ const RaisedTicketsTab = () => {
                                 <input
                                   type="file"
                                   id={`updateFile-${ticket.Id || ticket.id || index}`}
-                                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                  accept="image/*"
                                   multiple
                                   style={{ display: "none" }}
                                   onChange={(e) => {
-                                    const files = Array.from(e.target.files);
-                                    if (files.length > 3) {
-                                      alert("You can upload a maximum of 3 files per update.");
+                                    const newFiles = Array.from(e.target.files);
+                                    const ticketKey = ticket.Id || ticket.id || index;
+
+                                    // ✅ Get existing files for this ticket
+                                    const existingFiles = updateFiles[ticketKey] || [];
+
+                                    // ✅ Combine old + new
+                                    const combinedFiles = [...existingFiles, ...newFiles];
+
+                                    // ✅ Limit total to 3
+                                    if (combinedFiles.length > 3) {
+                                      Swal.fire({
+                                        icon: "warning",
+                                        title: "Too many files",
+                                        text: "You can upload a maximum of 3 images per update.",
+                                      });
                                       e.target.value = "";
                                       return;
                                     }
+
+                                    // ✅ Validate all are images
+                                    const nonImageFiles = combinedFiles.filter(
+                                      (file) => !file.type.startsWith("image/")
+                                    );
+
+                                    if (nonImageFiles.length > 0) {
+                                      Swal.fire({
+                                        icon: "error",
+                                        title: "Invalid file type",
+                                        text: "Only image files are allowed (JPG, PNG, GIF, etc.).",
+                                      });
+                                      e.target.value = ""; // clear input
+                                      return;
+                                    }
+
+                                    // ✅ Save combined files
                                     setUpdateFiles((prev) => ({
                                       ...prev,
-                                      [ticket.Id || ticket.id || index]: files,
+                                      [ticketKey]: combinedFiles,
                                     }));
+
+                                    // Clear file input so same file can be reselected if needed
+                                    e.target.value = "";
                                   }}
                                 />
 
@@ -758,6 +792,7 @@ const RaisedTicketsTab = () => {
                                   htmlFor={`updateFile-${ticket.Id || ticket.id || index}`}
                                   style={{
                                     cursor: "pointer",
+                                    marginTop: "10px",
                                     color: "#0d6efd",
                                     fontSize: "20px",
                                     display: "flex", // ✅ make label a flex container

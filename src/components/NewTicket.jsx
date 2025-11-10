@@ -136,31 +136,50 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const [previewFiles, setPreviewFiles] = useState([]);
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+  const files = Array.from(e.target.files);
 
-    // Combine existing + new files
-    const totalFiles = [...previewFiles, ...files];
+  // Filter only image files
+  const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
 
-    //  If user tries to exceed 5, show alert and block upload
-    if (totalFiles.length > 5) {
-      alert("You can upload a maximum of 5 images only.");
-      e.target.value = ""; // reset input
-      return; //  stop further execution — don't add or preview
-    }
+  if (invalidFiles.length > 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "Invalid File Type",
+      text: "Only image files are allowed (JPG, PNG, etc.)",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#136d6e"
+    });
+    e.target.value = ""; // Reset the input
+    return;
+  }
 
-    //  Otherwise, create previews
-    const filePreviews = files.map((file) => ({
-      file,
-      type: file.type,
-      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
-    }));
+  // Combine existing + new files
+  const totalFiles = [...previewFiles, ...files];
 
-    //  Add new previews
-    setPreviewFiles((prev) => [...prev, ...filePreviews]);
+  // Restrict to 5 images max
+  if (totalFiles.length > 5) {
+    Swal.fire({
+      icon: "error",
+      title: "Too Many Images",
+      text: "You can upload a maximum of 5 images only.",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#136d6e"
+    });
+    e.target.value = ""; // reset input
+    return;
+  }
 
-    // Reset input for next selection
-    e.target.value = "";
-  };
+  // Generate previews
+  const filePreviews = files.map((file) => ({
+    file,
+    type: file.type,
+    preview: URL.createObjectURL(file)
+  }));
+
+  setPreviewFiles((prev) => [...prev, ...filePreviews]);
+  e.target.value = "";
+};
+
 
   const removeFile = (index) => {
     setPreviewFiles((prev) => {
@@ -736,7 +755,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               <input
                 id="fileUpload"
                 type="file"
-                // accept="image/*,.pdf,.doc,.docx, .xls,.xlsx,.ppt,.pptx,.txt"
                 accept="image/*"
                 multiple
                 style={{ display: "none" }}
@@ -887,7 +905,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   Creating...
                 </>
               ) : (
-                'Raised Ticket'
+                'Raise a Ticket'
               )}
             </button>
             <button
