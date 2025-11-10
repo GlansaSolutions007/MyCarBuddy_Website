@@ -253,7 +253,15 @@ const RaisedTicketsTab = () => {
       formData.append("Description", message);
       formData.append("UserResponse", true);
 
-      files.forEach((file) => formData.append("File", file));
+      // ✅ Append all files properly
+      files.forEach((file, index) => {
+        formData.append("Files", file, file.name); // important: use plural key if backend expects multiple
+      });
+
+      // ✅ Debug check: log what’s being sent
+      for (const pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
 
       const response = await axios.put(`${baseUrl}Tickets`, formData, {
         headers: {
@@ -264,7 +272,6 @@ const RaisedTicketsTab = () => {
 
       if (response.status === 200) {
         showAlert("Update sent successfully!", "success");
-        // clear input + files
         setUpdateText((prev) => ({ ...prev, [ticketId]: "" }));
         setUpdateFiles((prev) => ({ ...prev, [ticketId]: [] }));
         fetchTickets(); // refresh timeline
@@ -802,6 +809,7 @@ const RaisedTicketsTab = () => {
                                     width: "36px",
                                     borderRadius: "50%",
                                     backgroundColor: "#f5f5f5", // subtle background
+                                    marginBottom: "-6px",
                                   }}
                                   title="Attach files"
                                 >
