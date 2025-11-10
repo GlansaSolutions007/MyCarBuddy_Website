@@ -301,60 +301,51 @@ const RaisedTicketsTab = () => {
   };
 
   const getStatusDisplay = (status, statusName) => {
-    const statusText = statusName || status;
+    const statusText = statusName || status || "Unknown";
     const statusLower = (statusText || "").toLowerCase();
 
-    const getStatusColor = () => {
-      switch (statusLower) {
-        case "open":
-          return "#ffc107";
-        case "in progress":
-        case "inprogress":
-          return "#0dcaf0";
-        case "resolved":
-        case "closed":
-          return "#198754";
-        case "pending":
-          return "#6c757d";
-        default:
-          return "#6c757d";
-      }
+    // 🎨 Define color mapping for different statuses
+    const statusStyles = {
+      created: { bg: "#FFA500", color: "#fefefe" }, 
+      underreview: { bg: "#2B1A00", color: "#fefefe" }, 
+      awaiting: { bg: "#2B1A00", color: "#fefefe" }, 
+      resolved: { bg: "#009879", color: "#fefefe" }, // green
+      closed: { bg: "#009879", color: "#fefefe" },
+      reopened: { bg: "#2196f390", color: "#fefefe" }, // yellow-ish
+      cancelled: { bg: "#f4433690", color: "#fefefe" }, // red
+      default: { bg: "#E0E0E0", color: "#383d41" }, // fallback
+
+      ///////////////////////////////////////////////////////////////////////
+
+      open: { bg: "#fff3cd", color: "#856404" }, // yellow-ish
+      "in progress": { bg: "#d1ecf1", color: "#0c5460" }, // light blue
+      inprogress: { bg: "#d1ecf1", color: "#0c5460" },
+      pending: { bg: "#e2e3e5", color: "#383d41" }, // gray
+      userresponse: { bg: "#808080", color: "#fefefe" }, 
     };
 
-    const getStatusIcon = () => {
-      // switch (statusLower) {
-      //   case "open":
-      //     return "🔓";
-      //   case "in progress":
-      //   case "inprogress":
-      //     return "⚙️";
-      //   case "resolved":
-      //   case "closed":
-      //     return "✅";
-      //   case "pending":
-      //     return "⏳";
-      //   default:
-      // return "❓";
-      // }
-    };
+    const { bg, color } = statusStyles[statusLower] || statusStyles.default;
 
     return (
       <div
         style={{
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
           gap: "6px",
-          padding: "4px 12px",
+          padding: "0px 15px",
           borderRadius: "20px",
-          backgroundColor: getStatusColor() + "20",
-          border: `1px solid ${getStatusColor()}`,
-          fontSize: "12px",
-          fontWeight: "500",
-          color: getStatusColor(),
+          backgroundColor: bg,
+          color: color,
+          fontSize: "13px",
+          fontWeight: "600",
+          textTransform: "capitalize",
+          border: `1px solid ${color}30`,
+          transition: "0.3s",
+          opacity: 0.9,
         }}
       >
-        <span>{getStatusIcon()}</span>
-        <span>{statusText || "Unknown"}</span>
+        {statusText}
+
       </div>
     );
   };
@@ -473,7 +464,7 @@ const RaisedTicketsTab = () => {
 
                     <div className="col-md-4">
                       <h6 className="text-primary">Ticket Details</h6>
-                      <div className="mb-2">
+                      <div className="mb-2 text-primary">
                         <strong>Status:</strong>{" "}
                         {(() => {
                           let currentStatus = ticket.TrackingHistory?.[0]?.StatusName || "Created";
