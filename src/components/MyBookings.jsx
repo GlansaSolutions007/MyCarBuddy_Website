@@ -52,6 +52,7 @@ const MyBookings = () => {
   const [isSubmittingResume, setIsSubmittingResume] = useState(false);
   const [showPackagesOpen, setShowPackagesOpen] = useState(false);
   const [expandedPackageIdxs, setExpandedPackageIdxs] = useState(new Set());
+  const [expandedAddOnIdxs, setExpandedAddOnIdxs] = useState(new Set());
   const [couponList, setCouponList] = useState([]);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponApplied, setCouponApplied] = useState(false);
@@ -63,6 +64,8 @@ const MyBookings = () => {
   const [showRaisedTicketModal, setShowRaisedTicketModal] = useState(false);
   const [ticketDescription, setTicketDescription] = useState("");
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+  const [isAddOnsOpen, setIsAddOnsOpen] = useState(false);
+  
 
   const handleBack = () => {
     setSelectedBooking(null);
@@ -1333,7 +1336,7 @@ const BookingSkeleton = () => {
               </div>
             </div>
           </div>
-               ) : !booking?.Payments ? (
+        ) : !booking?.Payments ? (
                  <div className="alert alert-warning" role="alert">
                    <div className="row align-items-center g-2">
                      <div className="col">Your payment is pending. Please resume your booking to complete the payment.</div>
@@ -1518,7 +1521,7 @@ const BookingSkeleton = () => {
                   selectedBooking?.Payments?.[0]?.IsRefunded === true &&
                   selectedBooking?.RefundStatus !== null ? (
                     <button className="btn btn-warning px-3 py-1 text-decoration-none" disabled>
-                      {selectedBooking?.RefundStatus}
+                      Refund {selectedBooking?.RefundStatus}
                     </button>
                   ) :
                   /* 🔴 No refund yet */
@@ -1745,8 +1748,8 @@ const BookingSkeleton = () => {
         <div className="d-flex align-items-center justify-content-between mb-2">
           <h5 className="fw-semibold mb-0 d-flex align-items-center"><i className="bi bi-box-seam me-2 text-primary"></i>Included Packages</h5>
           <div className="d-flex align-items-center gap-2">
-            
-            <button 
+
+            <button
               className="btn btn-outline-primary px-4 py-2"
               onClick={() => handleAddBookingToCart(selectedBooking)}
               disabled={isProcessingBookAgain}
@@ -1802,207 +1805,510 @@ const BookingSkeleton = () => {
       </div>
     )}
 
-    {/* Booking Meta Info (trendy cards) */}
-    <div className="row g-3 mb-4">
-      {/* Payment */}
-      <div className="col-md-4">
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div className="d-flex align-items-center gap-2 px-3 py-2" style={{background:'#f8f9fa'}}>
-            <div className="rounded-circle d-flex align-items-center justify-content-center bg-radial" style={{width:32,height:32,color:'#fff'}}>
-              <i className="bi bi-wallet2"></i>
-            </div>
-            <h6 className="mb-0 text-muted">Payment</h6>
-          </div>
-          <div className="p-3">
-            <span className={`fw-bold ${selectedBooking?.Payments?.[0]?.PaymentStatus === 'Success' ? 'text-success' : 'text-danger'}`}>
-              {selectedBooking?.Payments?.[0]?.PaymentStatus || 'Pending'}
-  </span>
-            <div className="small text-muted mt-1">Payment Method: {selectedBooking?.PaymentMethod || 'N/A'}</div>
-          </div>
-</div>
-      </div>
-
-      {/* Technician */}
-      <div className="col-md-4">
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div className="d-flex align-items-center gap-2 px-3 py-2" style={{background:'#f8f9fa'}}>
-            <div className="rounded-circle d-flex align-items-center justify-content-center bg-radial" style={{width:32,height:32,color:'#fff'}}>
-              <i className="bi bi-person-badge"></i>
-            </div>
-            <h6 className="mb-0 text-muted">Technician</h6>
-          </div>
-          <div className="p-3">
-          {selectedBooking.TechID ? (
-            <>
-                <div className="fw-bold">{selectedBooking.TechFullName}</div>
-                <div className="text-muted small">+91 70752 43939</div>
-                {selectedBooking.AssignedTimeSlot && (
-                  <div className="text-muted small mt-1">
-                    <strong>Time Slot:</strong> {selectedBooking.AssignedTimeSlot}
-              </div>
-                )}
-              <div className="text-success small mt-1">Assigned</div>
-            </>
-          ) : (
-            <div className="text-muted fst-italic">Not assigned</div>
-          )}
-          </div>
-        </div>
-      </div>
-
-      {/* Booking Status */}
-        <div className="col-md-4">
-        <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div className="d-flex align-items-center gap-2 px-3 py-2" style={{background:'#f8f9fa'}}>
-            <div className="rounded-circle d-flex align-items-center justify-content-center bg-radial" style={{width:32,height:32,color:'#fff'}}>
-              <i className="bi bi-flag"></i>
-            </div>
-            <h6 className="mb-0 text-muted">Booking Status</h6>
-          </div>
-          <div className="p-3">
-            <div className="fw-semibold">{selectedBooking.BookingStatus}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Amount Summary + COS Pay Now */}
-    <div className="border-top pt-4">
-      <div className="d-flex justify-content-end mb-2">
-        <div className="me-4 fw-semibold">Amount</div>
-        <div className="fw-bold text-primary">
-          ₹{selectedBooking.TotalPrice.toFixed(2)}
-        </div>
-      </div>
-
-      {selectedBooking.CouponAmount > 0 && (
-      <div className="d-flex justify-content-end mb-2">
-          <div className="me-4 fw-semibold">Coupon</div>
-          <div className="fw-bold text-danger">
-            -₹{selectedBooking.CouponAmount.toFixed(2)}
-        </div>
-      </div>
-      )}
-      {appliedCoupon && (
-        <div className="d-flex justify-content-end mb-2">
-          <div className="me-4 fw-semibold">Coupon</div>
-          <div className="fw-bold text-danger">
-            -₹{(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking)).toFixed(2)}
-          </div>
-        </div>
-      )}
-      
-      <div className="d-flex justify-content-end mb-2">
-        <div className="me-4 fw-semibold">SGST (9%)</div>
-        <div className="fw-bold text-primary">
-          ₹{(() => {
-            if (appliedCoupon) {
-              const discountedBase = getBookingFinalTotalWithCoupon(selectedBooking);
-              const newGST = discountedBase * 0.18;
-              return (newGST / 2).toFixed(2);
-            }
-            return (Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2);
-          })()}
-        </div>
-      </div>
-      <div className="d-flex justify-content-end mb-2">
-        <div className="me-4 fw-semibold">CGST (9%)</div>
-        <div className="fw-bold text-primary">
-          ₹{(() => {
-            if (appliedCoupon) {
-              const discountedBase = getBookingFinalTotalWithCoupon(selectedBooking);
-              const newGST = discountedBase * 0.18;
-              return (newGST / 2).toFixed(2);
-            }
-            return (Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2);
-          })()}
-        </div>
-      </div>
-     
-      <hr />
-      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
-
-        <div className="ms-auto d-flex align-items-center gap-3">
-          <div className="me-1 fw-bold fs-5">Total</div>
-        <div className="fw-bold text-success fs-5">
-            {(() => {
-              if (appliedCoupon) {
-                const discountedBase = getBookingFinalTotalWithCoupon(selectedBooking);
-                const newGST = discountedBase * 0.18;
-                const finalTotal = discountedBase + newGST;
-                return `₹${finalTotal.toFixed(2)}`;
-              }
-              const backendFinal = (selectedBooking.TotalPrice + selectedBooking.GSTAmount - selectedBooking.CouponAmount);
-              return `₹${Number(backendFinal).toFixed(2)}`;
-            })()}
-        </div>
-      </div>
-      </div>
-      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">  
-
-      <div className="col-6">
-          {(() => {
-           
-           return ((selectedBooking?.PaymentMethod === 'COS' && selectedBooking?.Payments?.[0]?.PaymentStatus !== 'Success')
-           &&  (selectedBooking?.BookingStatus === 'Pending'  
-             || selectedBooking?.BookingStatus === 'Confirmed' 
-             || selectedBooking?.BookingStatus === 'JourneyStarted')
-
-         );
-          })() && (
-            <div className="card p-3 border-0 shadow-sm rounded-4" style={{ maxWidth: 420 }}>
-              <h6 className="mb-2">Have a coupon?</h6>
-              {!couponApplied ? (
-                <>
-                  <button className="btn btn-outline-primary px-4 py-2" onClick={() => setShowCouponPicker(true)}>View Coupons</button>
-                  {showCouponPicker && (
-                    <div className="mt-3" style={{ maxHeight: 200, overflowY: 'auto' }}>
-                      {couponList.map((c) => (
-                        <div key={c.id} className="d-flex justify-content-between align-items-start border rounded p-2 mb-2">
-                          <div>
-                            <div className="fw-semibold">{c.Code}</div>
-                            <div className="small text-muted">{c.Description}</div>
-                            {c.MinBookingAmount ? (
-                              <div className="small text-muted">Min ₹{c.MinBookingAmount}</div>
-                            ) : null}
-                          </div>
-                          <button className="btn btn-primary px-2 py-1" onClick={() => handleApplyCouponFullView(c)}>Apply</button>
-                        </div>
-                      ))}
-                      {couponList.length === 0 && (
-                        <div className="text-muted small">No coupons available.</div>
-                      )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="d-flex justify-content-between align-items-center w-100">
-                  <div>
-                    <div className="fw-semibold">Applied: {appliedCoupon?.Code}</div>
-                    <div className="small text-muted">{appliedCoupon?.Description}</div>
-                    <div className="small text-success mt-1">
-                      Discount: ₹{(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking)).toFixed(2)}
+    {/* Add-On Services (accordion list) */}
+    {selectedBooking.BookingAddOns?.length > 0 && (
+      <div className="mb-4">
+        <h5 className="fw-semibold mb-0 d-flex align-items-center"><i className="bi bi-plus-circle me-2 text-primary"></i>Add-On Services</h5>
+        <div className="accordion" id="addOnsAccordion">
+          {selectedBooking.BookingAddOns.map((addOn, idx) => {
+            const isOpen = expandedAddOnIdxs.has(idx);
+            return (
+              <div className="accordion-item" key={idx}>
+                <h2 className="accordion-header">
+                  <button
+                    className={`accordion-button ${isOpen ? '' : 'collapsed'} py-0`}
+                    type="button"
+                    onClick={() => {
+                      const next = new Set(expandedAddOnIdxs);
+                      if (next.has(idx)) next.delete(idx); else next.add(idx);
+                      setExpandedAddOnIdxs(next);
+                    }}
+                  >
+                    <i className="bi bi-plus-circle me-2"></i> {addOn.ServiceName}
+                  </button>
+                </h2>
+                <div className={`accordion-collapse collapse ${isOpen ? 'show' : ''}`}>
+                  <div className="accordion-body">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="text-muted small">{addOn.Description}</div>
+                      <div className="text-primary fw-semibold">₹{addOn.ServicePrice} (inc GST)</div>
                     </div>
                   </div>
-                  <button className="btn  btn-outline-danger px-2 py-1" onClick={handleRemoveCouponFullView}><i className="bi bi-x"></i></button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {/* Combined Booking Information Card */}
+<div className="col-12">
+  <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+    {/* Header */}
+    <div
+      className="d-flex align-items-center gap-2 px-3 py-2"
+      style={{ background: "#f8f9fa" }}
+    >
+      <div
+        className="rounded-circle d-flex align-items-center justify-content-center bg-radial"
+        style={{ width: 32, height: 32, color: "#fff" }}
+      >
+        <i className="bi bi-info-circle"></i>
+      </div>
+      <h6 className="mb-0 text-muted">Booking Information</h6>
+    </div>
+
+    <div className="p-3">
+      {/* Booking Status Row */}
+      <div className="row align-items-start border-bottom pb-2 mb-2">
+        <div className="col-md-4 fw-semibold text-muted">Booking Status</div>
+        <div className="col-md-4 fw-semibold text-success">
+          #{selectedBooking?.BookingTrackID || "N/A"}
+        </div>
+        <div className="col-md-4 text-end">
+          <span
+            className={`fw-bold ${
+              selectedBooking?.BookingStatus === "Success"
+                ? "text-success"
+                : selectedBooking?.BookingStatus === "Completed"
+                ? "text-success"
+                : selectedBooking?.BookingStatus === "Assigned"
+                ? "text-success"
+                : "text-danger"
+            }`}
+          >
+            {selectedBooking?.BookingStatus || "Pending"}
+          </span>
+        </div>
+      </div>
+
+      {/* Technician Row */}
+      <div className="row align-items-start border-bottom pb-2 mb-2">
+        <div className="col-md-4 fw-semibold text-muted">Technician</div>
+        <div className="col-md-4">
+          <span
+            className={`fw-bold ${
+              selectedBooking?.TechID ? "text-success" : "text-danger"
+            }`}
+          >
+            {selectedBooking?.TechID ? "Assigned" : "Pending"}
+          </span>
+        </div>
+        <div className="col-md-4 text-end">
+          {selectedBooking?.TechID ? (
+            <>
+              <div className="fw-bold">{selectedBooking.TechFullName}</div>
+              {selectedBooking?.BookingStatus !== "Completed" && (
+          <div className="text-muted small">+91 70752 43939</div>
+        )}
+              {selectedBooking?.AssignedTimeSlot && (
+                <div className="text-muted small">
+                  Time Slot: {selectedBooking.AssignedTimeSlot}
                 </div>
               )}
+            </>
+          ) : (
+            <div className="text-muted small fst-italic">
+              Technician not assigned
             </div>
           )}
         </div>
+      </div>
 
-      {(() => {
-            return ((selectedBooking?.PaymentMethod === 'COS' && selectedBooking?.Payments?.[0]?.PaymentStatus !== 'Success')
-              &&  (selectedBooking?.BookingStatus === 'Pending'  
-                || selectedBooking?.BookingStatus === 'Confirmed' 
-                || selectedBooking?.BookingStatus === 'JourneyStarted')
- 
-            );
-          })() && (
-            <button className="btn btn-primary btn-lg px-4 py-2" onClick={handlePayNow}>Pay Now</button>
+      {/* Payment Row */}
+      <div className="row align-items-start">
+        <div className="col-md-4 fw-semibold text-muted">Payment</div>
+        <div className="col-md-4">
+          <span
+            className={`fw-bold ${
+              selectedBooking?.Payments?.[0]?.PaymentStatus === "Success"
+                ? "text-success"
+                : "text-danger"
+            }`}
+          >
+            {selectedBooking?.Payments?.[0]?.PaymentStatus || "Pending"}
+          </span>
+        </div>
+        <div className="col-md-4 text-end">
+          <div className="small text-muted">
+            Payment Method: {selectedBooking?.PaymentMethod || "N/A"}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{/* Amount Summary + COS Pay Now */}
+<div className="border-top pt-4">
+  {(() => {
+    const addOnTotal =
+      selectedBooking.BookingAddOns?.reduce(
+        (sum, addOn) => sum + Number(addOn.ServicePrice || 0),
+        0
+      ) || 0;
+
+    const isPaid =
+      selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
+    const isCOS = selectedBooking?.PaymentMethod === "COS";
+    const isCOSUnpaid =
+      isCOS &&
+      !isPaid &&
+      ["Pending", "Confirmed", "JourneyStarted"].includes(
+        selectedBooking?.BookingStatus
+      );
+
+    const hasAddOns = addOnTotal > 0;
+    const isAllPaid = isPaid && !isCOSUnpaid && !hasAddOns;
+
+    // ✅ CASE 1: Online Paid + Add-ons present
+    if (isPaid && hasAddOns) {
+      return (
+        <div className="row justify-content-between py-3">
+          {/* Left: Paid Service Amount */}
+          <div className="col-md-5">
+            <div className="card border-0 shadow-sm rounded-4 p-3">
+              <h6 className="fw-semibold mb-3 text-muted">
+                Paid Service Amount
+              </h6>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">Amount</div>
+                <div className="fw-bold text-primary">
+                  ₹{selectedBooking.TotalPrice.toFixed(2)}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">SGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">CGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+
+              <hr />
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold fs-5">Total</div>
+                <div className="fw-bold text-success fs-5">
+                  ₹
+                  {(
+                    selectedBooking.TotalPrice + selectedBooking.GSTAmount
+                  ).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Add-on Service Amount */}
+          <div className="col-md-5">
+            <div className="card border-0 shadow-sm rounded-4 p-3">
+              <h6 className="fw-semibold mb-3 text-muted">
+                Add-on Service Amount
+              </h6>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">Add-on Total</div>
+                <div className="fw-bold text-primary">
+                  ₹{addOnTotal.toFixed(2)}
+                </div>
+              </div>
+
+              <hr />
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold fs-5">Amount to Pay</div>
+                <div className="fw-bold text-success fs-5">
+                  ₹{addOnTotal.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ✅ CASE 2: All Paid (COS + add-ons paid OR online + no add-ons)
+    if (isAllPaid || (isPaid && !hasAddOns)) {
+      return (
+        <div className="d-flex justify-content-end py-3">
+          <div className="col-md-5">
+            <div className="card border-0 shadow-sm rounded-4 p-3">
+              <h6 className="fw-semibold mb-3 text-muted">Amount Summary</h6>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">Amount</div>
+                <div className="fw-bold text-primary">
+                  ₹{selectedBooking.TotalPrice.toFixed(2)}
+                </div>
+              </div>
+
+              {(selectedBooking.CouponAmount > 0 || appliedCoupon) && (
+                <div className="d-flex justify-content-between mb-2">
+                  <div className="fw-semibold">Coupon</div>
+                  <div className="fw-bold text-danger">
+                    -₹
+                    {appliedCoupon
+                      ? (
+                          getBookingOriginalTotal(selectedBooking) -
+                          getBookingFinalTotalWithCoupon(selectedBooking)
+                        ).toFixed(2)
+                      : selectedBooking.CouponAmount.toFixed(2)}
+                  </div>
+                </div>
+              )}
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">SGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">CGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+
+              {hasAddOns && (
+                <div className="d-flex justify-content-between mb-2">
+                  <div className="fw-semibold">Add-on Total</div>
+                  <div className="fw-bold text-primary">
+                    ₹{addOnTotal.toFixed(2)}
+                  </div>
+                </div>
+              )}
+
+              <hr />
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold fs-5">Total</div>
+                <div className="fw-bold text-success fs-5">
+                  ₹
+                  {(
+                    selectedBooking.TotalPrice +
+                    selectedBooking.GSTAmount -
+                    selectedBooking.CouponAmount +
+                    addOnTotal
+                  ).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ✅ CASE 3: COS (Paid or Unpaid) + no add-ons
+    if (isCOS && !hasAddOns) {
+      return (
+        <div className="d-flex justify-content-end py-3">
+          <div className="col-md-5">
+            <div className="card border-0 shadow-sm rounded-4 p-3">
+              <h6 className="fw-semibold mb-3 text-muted">Amount Summary</h6>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">Amount</div>
+                <div className="fw-bold text-primary">
+                  ₹{selectedBooking.TotalPrice.toFixed(2)}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">SGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold">CGST (9%)</div>
+                <div className="fw-bold text-primary">
+                  ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+                </div>
+              </div>
+
+              <hr />
+              <div className="d-flex justify-content-between mb-2">
+                <div className="fw-semibold fs-5">Total</div>
+                <div className="fw-bold text-success fs-5">
+                  ₹
+                  {(
+                    selectedBooking.TotalPrice + selectedBooking.GSTAmount
+                  ).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ✅ CASE 4: Unpaid COS (with coupon + pay now)
+    return (
+      <>
+        <div className="mb-2">
+          <div className="d-flex justify-content-between mb-2">
+            <div className="fw-semibold">Amount</div>
+            <div className="fw-bold text-primary">
+              ₹{selectedBooking.TotalPrice.toFixed(2)}
+            </div>
+          </div>
+
+          {(selectedBooking.CouponAmount > 0 || appliedCoupon) && (
+            <div className="d-flex justify-content-between mb-2">
+              <div className="fw-semibold">Coupon</div>
+              <div className="fw-bold text-danger">
+                -₹
+                {appliedCoupon
+                  ? (
+                      getBookingOriginalTotal(selectedBooking) -
+                      getBookingFinalTotalWithCoupon(selectedBooking)
+                    ).toFixed(2)
+                  : selectedBooking.CouponAmount.toFixed(2)}
+              </div>
+            </div>
+          )}
+
+          <div className="d-flex justify-content-between mb-2">
+            <div className="fw-semibold">SGST (9%)</div>
+            <div className="fw-bold text-primary">
+              ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+            </div>
+          </div>
+          <div className="d-flex justify-content-between mb-2">
+            <div className="fw-semibold">CGST (9%)</div>
+            <div className="fw-bold text-primary">
+              ₹{(Number(selectedBooking.GSTAmount || 0) / 2).toFixed(2)}
+            </div>
+          </div>
+
+          {hasAddOns && (
+            <div className="d-flex justify-content-between mb-2">
+              <div className="fw-semibold">Add-on Total</div>
+              <div className="fw-bold text-primary">
+                ₹{addOnTotal.toFixed(2)}
+              </div>
+            </div>
+          )}
+
+          <hr />
+          <div className="d-flex justify-content-between mb-2">
+            <div className="fw-semibold fs-5">Total</div>
+            <div className="fw-bold text-success fs-5">
+              ₹
+              {(
+                selectedBooking.TotalPrice +
+                selectedBooking.GSTAmount -
+                selectedBooking.CouponAmount +
+                addOnTotal
+              ).toFixed(2)}
+            </div>
+          </div>
+        </div>
+
+        <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">
+          <div className="col-6">
+            {isCOSUnpaid && (
+              <div
+                className="card p-3 border-0 shadow-sm rounded-4"
+                style={{ maxWidth: 420 }}
+              >
+                <h6 className="mb-2">Have a coupon?</h6>
+                {!couponApplied ? (
+                  <>
+                    <button
+                      className="btn btn-outline-primary px-4 py-2"
+                      onClick={() => setShowCouponPicker(true)}
+                    >
+                      View Coupons
+                    </button>
+                    {showCouponPicker && (
+                      <div
+                        className="mt-3"
+                        style={{ maxHeight: 200, overflowY: "auto" }}
+                      >
+                        {couponList.map((c) => (
+                          <div
+                            key={c.id}
+                            className="d-flex justify-content-between align-items-start border rounded p-2 mb-2"
+                          >
+                            <div>
+                              <div className="fw-semibold">{c.Code}</div>
+                              <div className="small text-muted">
+                                {c.Description}
+                              </div>
+                              {c.MinBookingAmount ? (
+                                <div className="small text-muted">
+                                  Min ₹{c.MinBookingAmount}
+                                </div>
+                              ) : null}
+                            </div>
+                            <button
+                              className="btn btn-primary px-2 py-1"
+                              onClick={() => handleApplyCouponFullView(c)}
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        ))}
+                        {couponList.length === 0 && (
+                          <div className="text-muted small">
+                            No coupons available.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                      <div className="fw-semibold">
+                        Applied: {appliedCoupon?.Code}
+                      </div>
+                      <div className="small text-muted">
+                        {appliedCoupon?.Description}
+                      </div>
+                      <div className="small text-success mt-1">
+                        Discount: ₹
+                        {(
+                          getBookingOriginalTotal(selectedBooking) -
+                          getBookingFinalTotalWithCoupon(selectedBooking)
+                        ).toFixed(2)}
+                      </div>
+                    </div>
+                    <button
+                      className="btn btn-outline-danger px-2 py-1"
+                      onClick={handleRemoveCouponFullView}
+                    >
+                      <i className="bi bi-x"></i>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {isCOSUnpaid && (
+            <button
+              className="btn btn-primary btn-lg px-4 py-2"
+              onClick={handlePayNow}
+            >
+              Pay Now
+            </button>
           )}
         </div>
-    </div>
+      </>
+    );
+  })()}
+</div>
 
     {/* Cancel Section Overlay */}
     {showCancelSection && (
@@ -2114,9 +2420,6 @@ const BookingSkeleton = () => {
         )}
       </div>
     )}
-
-
-
  
     </>
     )}
