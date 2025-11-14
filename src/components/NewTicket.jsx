@@ -136,49 +136,49 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const [previewFiles, setPreviewFiles] = useState([]);
 
   const handleFileChange = (e) => {
-  const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files);
 
-  // Filter only image files
-  const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
+    // Filter only image files
+    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
 
-  if (invalidFiles.length > 0) {
-    Swal.fire({
-      icon: "warning",
-      title: "Invalid File Type",
-      text: "Only image files are allowed (JPG, PNG, etc.)",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#136d6e"
-    });
-    e.target.value = ""; // Reset the input
-    return;
-  }
+    if (invalidFiles.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid File Type",
+        text: "Only image files are allowed (JPG, PNG, etc.)",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#136d6e"
+      });
+      e.target.value = ""; // Reset the input
+      return;
+    }
 
-  // Combine existing + new files
-  const totalFiles = [...previewFiles, ...files];
+    // Combine existing + new files
+    const totalFiles = [...previewFiles, ...files];
 
-  // Restrict to 5 images max
-  if (totalFiles.length > 5) {
-    Swal.fire({
-      icon: "error",
-      title: "Too Many Images",
-      text: "You can upload a maximum of 5 images only.",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#136d6e"
-    });
-    e.target.value = ""; // reset input
-    return;
-  }
+    // Restrict to 5 images max
+    if (totalFiles.length > 5) {
+      Swal.fire({
+        icon: "error",
+        title: "Too Many Images",
+        text: "You can upload a maximum of 5 images only.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#136d6e"
+      });
+      e.target.value = ""; // reset input
+      return;
+    }
 
-  // Generate previews
-  const filePreviews = files.map((file) => ({
-    file,
-    type: file.type,
-    preview: URL.createObjectURL(file)
-  }));
+    // Generate previews
+    const filePreviews = files.map((file) => ({
+      file,
+      type: file.type,
+      preview: URL.createObjectURL(file)
+    }));
 
-  setPreviewFiles((prev) => [...prev, ...filePreviews]);
-  e.target.value = "";
-};
+    setPreviewFiles((prev) => [...prev, ...filePreviews]);
+    e.target.value = "";
+  };
 
 
   const removeFile = (index) => {
@@ -289,15 +289,49 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
       const booking = bookings.find(b => b.BookingID.toString() === selectedTicketBookingId.toString());
       if (booking) {
         setBookingId(booking.BookingID.toString());
-        setStep(2);
+        setStep(1); // Start at step 1 for pre-selected booking (show it)
         setTimeout(() => {
           if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
           }
         }, 100);
+        // Auto-advance to step 2 (reason selection) after showing the booking
+        // shorten the delay so UX feels responsive but user still sees the booking
+        setTimeout(() => {
+          setStep(2);
+        }, 800); // shorter delay than before
       }
+    } else {
+      setStep(1); // Normal flow starts at step 1
     }
   }, [selectedTicketBookingId, bookings]);
+
+  const handleReasonChange = (reason) => {
+    setSelectedReasonType(reason);
+    setSelectedSubReason('');
+    if (selectedTicketBookingId) {
+      // Pre-selected flow: booking already selected, go to sub-reason or description
+      if (reason === 'Others') {
+        setStep(4);
+      } else {
+        setStep(3);
+      }
+    } else {
+      // Normal flow: go to booking selection
+      setStep(2);
+      // Check if no bookings, skip to sub-reason
+      setTimeout(() => {
+        if (bookings.length === 0) {
+          setStep(3);
+        }
+      }, 300);
+    }
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 100);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -383,21 +417,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
     }, 100);
   };
 
-  const handleReasonChange = (reason) => {
-    setSelectedReasonType(reason);
-    setSelectedSubReason('');
-    if (reason === 'Others') {
-      setStep(4);
-    } else {
-      setStep(3);
-    }
-    setTimeout(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
-    }, 100);
-  };
-
   const handleSubReasonChange = (subReason) => {
     setSelectedSubReasonId(subReason.id);
     setSelectedSubReason(subReason.label);
@@ -447,11 +466,83 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
         <form onSubmit={handleSubmit} className="d-flex flex-column h-100">
           <div className="chat-container d-flex flex-column" ref={chatContainerRef}>
 
-            {/* Step 1: Select Reason */}
-            {step >= 1 && (
+            {/* Step 1: Pre-selected Booking (only when selectedTicketBookingId is provided) */}
+            {selectedTicketBookingId && step >= 1 && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
-                  {/* <h6>Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.</h6> */}
+                  {/* <div
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.5",
+                      fontWeight: "500",
+                      marginTop: "4px",
+                    }}
+                  >
+                    Hii ! I see you're raising a ticket for booking from your bookings {booking.BookingTrackID}. Let's start by choosing a category from your issue.
+                  </div> */}
+                  {/* <h6>Selected Booking</h6> */}
+                  <div className="options">
+                    {(() => {
+                      const booking = bookings.find(b => b.BookingID.toString() === selectedTicketBookingId.toString());
+                      return booking ? (
+                        <div style={{
+                          fontSize: "0.95rem",
+                          lineHeight: "1.5",
+                          fontWeight: "500",
+                        }}>
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="preselectedBooking"
+                            id="preselectedBooking"
+                            checked={true}
+                            readOnly
+                          />
+                           Hii ! I see you're raising a ticket for booking from your bookings {booking.BookingTrackID}.
+
+                          {/* <label className="form-check-label" htmlFor="preselectedBooking">
+                            {booking.BookingTrackID} - {booking.ServiceType}
+                            {" "}Booked on {new Date(booking.BookingDate).toLocaleDateString()} -
+                            {booking.Packages && booking.Packages.length > 0 && (() => {
+                              const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
+                              const limitedText = allPackages.length > 25 ? allPackages.slice(0, 25) + "..." : allPackages;
+                              return (
+                                <>
+                                  {" ("}
+                                  {limitedText}
+                                  {")"}
+                                </>
+                              );
+                            })()}
+                          </label> */}
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* User: Selected Booking (moved up so it appears before the Reason block when preselected) */}
+            {/* {bookingId && (
+              <div className="mb-3 d-flex justify-content-end me-2">
+                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
+                  {(() => {
+                    const booking = bookings.find(b => b.BookingID.toString() === bookingId);
+                    return booking ? (
+                      <p style={{ color: "white", margin: 0 }}>
+                        Booking {booking.BookingTrackID}
+                      </p>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+            )} */}
+
+            {/* Step 1 (Normal) or Step 2 (Pre-selected): Select Reason */}
+            { ((step >= 1 && !selectedTicketBookingId) || (step >= 2 && selectedTicketBookingId)) && (
+              <div className="mb-3">
+                <div className="chat-bubble system mb-2">
                   <div
                     style={{
                       fontSize: "0.95rem",
@@ -462,7 +553,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   >
                     Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.
                   </div>
-                  {/* <p>Let's start by choosing a category for your issue.</p> */}
                   <h6>Choose a category for your issue</h6>
                   <div className="options">
                     {reasonTypesLoading ? (
@@ -482,17 +572,14 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                             checked={selectedReasonType === reasonType.value}
                             onChange={async (e) => {
                               const value = e.target.value;
+                              // call the handler which will set steps appropriately
                               handleReasonChange(value);
-                              setStep(2); // Always go to booking step
-
-                              // ⏳ Wait a moment to ensure bookings are loaded
-                              setTimeout(() => {
-                                if (bookings.length === 0) {
-                                  setStep(3); // If no bookings → skip to sub-reason
-                                }
-                              }, 300);
+                              // NOTE: removed extra setStep(2) here so preselected flow can advance to step 3 inside handler
+                              // handler already handles skipping to subreason when bookings empty
                             }}
-                            disabled={step > 1}
+                            // allow reason selection in both:
+                            // normal (step === 1) and pre-selected (step === 2)
+                            disabled={step > 2}
                           />
                           <label className="form-check-label" htmlFor={`reason-${reasonType.value}`}>
                             {reasonType.label}
@@ -514,8 +601,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
               </div>
             )}
 
-            {/* Step 2: Select Booking (only when "Booking" reason is chosen) */}
-            {step >= 2 && (
+            {/* Step 2: Select Booking (only for normal flow, not pre-selected) */}
+            {step >= 2 && !selectedTicketBookingId && (
               <div className="mb-3">
                 <div className="chat-bubble system mb-2">
                   <div
@@ -554,7 +641,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                             />
                             <label className="form-check-label" htmlFor={`booking-${booking.BookingID}`}>
                               {booking.BookingTrackID} - {booking.ServiceType}
-                              {" "}Booked on {new Date(booking.BookingDate).toLocaleDateString()} -
+                              {" "} {new Date(booking.BookingDate).toLocaleDateString()} -
                               {booking.Packages && booking.Packages.length > 0 && (() => {
                                 // Join all package names with commas
                                 const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
@@ -630,25 +717,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* User: Selected Booking */}
-            {bookingId && (
-              <>
-                {/* User bubble */}
-                <div className="mb-3 d-flex justify-content-end me-2">
-                  <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
-                    {(() => {
-                      const booking = bookings.find(b => b.BookingID.toString() === bookingId);
-                      return booking ? (
-                        <p style={{ color: "white" }}>
-                          Booking {booking.BookingTrackID}
-                        </p>
-                      ) : null;
-                    })()}
-                  </div>
-                </div>
-              </>
             )}
 
             {/* User: Skipped booking selection */}
@@ -781,7 +849,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   }}
                   title="Upload image or document"
                 >
-                  <i class="bi bi-paperclip"></i>
+                  <i className="bi bi-paperclip"></i>
                 </label>
 
                 {/* Textarea */}
@@ -846,7 +914,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                             backgroundColor: "#f8f9fa",
                           }}
                         >
-                          <i class="bi bi-file-earmark-text-fill"></i>
+                          <i className="bi bi-file-earmark-text-fill"></i>
                         </div>
                       )}
 
