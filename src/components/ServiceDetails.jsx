@@ -213,6 +213,7 @@ const ServiceDetails = () => {
   const [loading, setLoading] = useState(true);
   const [seoMeta, setSeoMeta] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [faqs, setFaqs] = useState([]);
 
   const selectedCarDetails = JSON.parse(
     localStorage.getItem("selectedCarDetails")
@@ -344,6 +345,23 @@ const ServiceDetails = () => {
 
     fetchSeoData();
   }, [services]);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const response = await axios.get(
+          `${BaseURL}FAQS/Packages?PackageID=${id}`
+        );
+        setFaqs(response.data[0]?.FAQS || []);
+      } catch (error) {
+        console.error("Error fetching FAQs:", error);
+      }
+    };
+
+    if (id) {
+      fetchFaqs();
+    }
+  }, [id]);
 
   const service = services.find((s) => s.id === parseInt(id));
 
@@ -524,6 +542,40 @@ const ServiceDetails = () => {
                       </li>
                     ))}
                   </ul>
+
+                  {faqs.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="mb-3">Frequently Asked Questions</h4>
+                      <div className="accordion mb-4" id="faqAccordion">
+                        {faqs.map((faq, idx) => (
+                          <div className="accordion-item px-0">
+                            <h2 className="accordion-header" id={`heading${idx}`}>
+                              <button
+                                className="accordion-button collapsed fw-bold px-4 py-0"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target={`#collapse${idx}`}
+                                aria-expanded="false"
+                                aria-controls={`collapse${idx}`}
+                              >
+                                {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
+                              </button>
+                            </h2>
+                            <div
+                              id={`collapse${idx}`}
+                              className="accordion-collapse collapse"
+                              aria-labelledby={`heading${idx}`}
+                              data-bs-parent="#faqAccordion"
+                            >
+                              <div className="accordion-body">
+                                {faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
