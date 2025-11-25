@@ -406,6 +406,17 @@ const HeaderOne = () => {
       .replace(/^-+|-+$/g, ""); // trim starting/ending "-"
   };
 
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [hash]);
+
+
   return (
     <>
       <header className={`nav-header header-layout1 ${scroll ? "m-180" : ""}`}>
@@ -557,7 +568,7 @@ const HeaderOne = () => {
                         </NavLink>
                       </li>
 
-                      <li className="menu-item-has-children">
+                      {/* <li className="menu-item-has-children">
                         <Link to="/service">Services</Link>
                         <ul
                           className="sub-menu"
@@ -593,6 +604,10 @@ const HeaderOne = () => {
                             </li>
                           ))}
                         </ul>
+                      </li> */}
+                      <li>
+                        {/* <a href="#services">Services</a> */}
+                        <Link to="/#services">Services</Link>
                       </li>
 
                       <li>

@@ -29,6 +29,7 @@ import SearchPage from "./pages/SearchPage";
 import AppRedirectPage from "./pages/AppRedirectPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
+import AddOnServicesLayer from "./pages/AddOnServicesPage";
 
 function App() {
   useEffect(() => {
@@ -66,6 +67,7 @@ function App() {
           <Route exact path="/redirect" element={<AppRedirectPage />} />
           <Route exact path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/redirect-to-payment/:encodedUrl" element={<RedirectToPayment />} />
+          <Route path="/addon-services" element={<AddOnServicesLayer />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>

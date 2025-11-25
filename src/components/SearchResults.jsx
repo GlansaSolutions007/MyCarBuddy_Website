@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./ServiceCards.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -75,6 +75,8 @@ const SearchResults = ({ searchTerm }) => {
   const baseUrlImage = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 
   const { cartItems, addToCart, removeFromCart } = useCart();
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   const selectedCarDetails = JSON.parse(localStorage.getItem("selectedCarDetails"));
   let brandId, modelId, fuelId;
@@ -299,12 +301,27 @@ const SearchResults = ({ searchTerm }) => {
 
   return (
     <div className="container my-4">
-      <h4 className="mb-3">Search Results for "{searchTerm}"</h4>
+      {/* <h4 className="mb-3">Search Results for "{searchTerm}"</h4> */}
 
       {loading ? (
         <SkeletonLoader />
       ) : packages.length === 0 ? (
-        <p className="text-muted">No packages found for "{searchTerm}".</p>
+        // <p className="text-muted">No packages found for "{searchTerm}".</p>
+        <div className="col-12 text-center my-5">
+          <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
+              alt="No results"
+              style={{ width: "150px", marginBottom: "20px", opacity: "0.8" }}
+            />
+            <h4 style={{ color: "#5a5a5a", fontWeight: "600" }}>
+              Whoops! No search result found for "{searchTerm}".
+            </h4>
+            <p style={{ color: "#888" }}>
+              It looks like we don't have what you're looking for right now.
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="row">
           {/* Sidebar Filters */}
@@ -318,7 +335,7 @@ const SearchResults = ({ searchTerm }) => {
                   <strong>Categories</strong>
                   {/* <span className="badge bg-light text-dark">{categories.length}</span> */}
                 </div>
-                <div className="mt-2" style={{ maxHeight: 220, overflowY: 'auto' , padding:'10px 0px' }}>
+                <div className="mt-2" style={{ maxHeight: 220, overflowY: 'auto', padding: '10px 0px' }}>
                   {categories.map(cat => (
                     <div key={cat} className="form-check">
                       <input
@@ -337,7 +354,7 @@ const SearchResults = ({ searchTerm }) => {
               </div>
 
               {/* Price Filter - Only show when car is selected */}
-              {selectedCar && (
+              {/* {selectedCar && (
                 <div className="mb-3">
                   <strong>Price Range</strong>
                   <div className="d-flex gap-2 align-items-center mt-2">
@@ -367,7 +384,7 @@ const SearchResults = ({ searchTerm }) => {
                   </div>
                   <div className="small text-muted mt-1">Min: ₹{effectiveMin} • Max: ₹{effectiveMax}</div>
                 </div>
-              )}
+              )} */}
 
               {/* Sort Options */}
               <div className="mb-3">
@@ -380,12 +397,12 @@ const SearchResults = ({ searchTerm }) => {
                   <option value="relevance">Relevance</option>
                   <option value="name_asc">Name: A to Z</option>
                   <option value="name_desc">Name: Z to A</option>
-                 { selectedCar ? (<>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                 </>):(
-                  <></>
-                 )}
+                  {selectedCar ? (<>
+                    {/* <option value="price_asc">Price: Low to High</option> */}
+                    {/* <option value="price_desc">Price: High to Low</option> */}
+                  </>) : (
+                    <></>
+                  )}
                 </select>
               </div>
 
@@ -397,111 +414,120 @@ const SearchResults = ({ searchTerm }) => {
           <div className="col-lg-9 search-results-container">
             <div className="row">
               {filteredAndSortedPackages.map((pkg) => {
-            const isInCart = cartItems.some((i) => i.id === pkg.id);
-            return (
-              <div key={pkg.id} className="col-12 col-md-6 col-lg-4 mb-4">
-                <div className="pricing-card d-flex flex-column h-100">
-                  <div
-                    className="pricing-card-price-wrap position-relative"
-                    onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="pricing-card_icon">
-                      <img
-                        src={pkg.image}
-                        className="img-fluid rounded service-img"
-                        alt={pkg.title}
-                        style={{ width: '100%', height: 190 , objectFit: 'cover' }}
-                      />
-                    </div>
-                  </div>
-                  <div className="pricing-card-details d-flex flex-column" style={{ minHeight: 180 }}>
-                    <h4 className="pricing-card_title mb-2">{highlightText(pkg.title, searchTerm)}</h4>
-                    <div className="checklist style2">
-                      <ul className="list-unstyled small mb-2">
-                        {pkg.includes.slice(0, 3).map((item, idx) => (
-                          <li key={idx}>
-                            <i className="fas fa-angle-right"></i> {highlightText(item, searchTerm)}
-                          </li>
-                        ))}
-                        {pkg.includes.length > 3 && (
-                          <li>
-                            <a
-                              href={`/servicedetails/${slugify(pkg.title)}/${pkg.id}`}
-                              className="text-danger text-decoration-underline"
-                            >
-                              View More
-                            </a>
-                          </li>
-                        )}
-                      </ul>
-                    </div>
+                const isInCart = cartItems.some((i) => i.id === pkg.id);
+                return (
+                  <div key={pkg.id} className="col-12 col-md-6 col-lg-4 mb-4">
+                    <div className="pricing-card d-flex flex-column h-100">
+                      <div
+                        className="pricing-card-price-wrap position-relative"
+                        onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div className="pricing-card_icon">
+                          <img
+                            src={pkg.image}
+                            className="img-fluid rounded service-img"
+                            alt={pkg.title}
+                            style={{ width: '100%', height: 190, objectFit: 'cover' }}
+                          />
+                        </div>
+                      </div>
+                      <div className="pricing-card-details d-flex flex-column" style={{ minHeight: 180 }}>
+                        <h4 className="pricing-card_title mb-2">{highlightText(pkg.title, searchTerm)}</h4>
+                        <div className="checklist style2">
+                          <ul className="list-unstyled small mb-2">
+                            {pkg.includes.slice(0, 3).map((item, idx) => (
+                              <li key={idx}>
+                                <i className="fas fa-angle-right"></i> {highlightText(item, searchTerm)}
+                              </li>
+                            ))}
+                            {pkg.includes.length > 3 && (
+                              <li>
+                                <a
+                                  href={`/servicedetails/${slugify(pkg.title)}/${pkg.id}`}
+                                  className="text-danger text-decoration-underline"
+                                >
+                                  View More
+                                </a>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
 
-                    {selectedCar ? (
-                      <>
-                        <div className="ribbon">
+                        {selectedCar ? (
+                          <>
+                            {/* <div className="ribbon">
                           ₹{pkg.price}
                           <p>
                             <div className="text-muted1 text-decoration-line-through">
                               ₹{pkg.originalPrice}
                             </div>
                           </p>
-                        </div>
+                        </div> */}
 
-                        {isInCart ? (
-                          <>
-                            <div className="mt-auto d-flex align-items-center gap-2">
-                              <button
-                                className="btn style-border2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate("/cart");
-                                }}
-                              >
-                                ✔ View Cart
-                              </button>
-                              <button
-                                className="btn style-border2 ml-2"
-                                onClick={() => removeFromCart(pkg.id)}
-                              >
-                                <i className="bi bi-trash" />
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="mt-auto">
-                            <button
+                            {isInCart ? (
+                              <>
+                                <div className="mt-auto d-flex align-items-center gap-2">
+                                  <button
+                                    className="btn style-border2"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate("/cart");
+                                    }}
+                                  >
+                                    ✔ View Cart
+                                  </button>
+                                  <button
+                                    className="btn style-border2 ml-2"
+                                    onClick={() => removeFromCart(pkg.id)}
+                                  >
+                                    <i className="bi bi-trash" />
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="mt-auto">
+                                {/* <button
                               className="btn style-border2"
                               onClick={(e) => handleAddToCartClick(e, pkg)}
                             >
                               + ADD TO CART
-                            </button>
-                          </div>
+                            </button> */}
+                                <Link
+                                  className="btn style4 px-4 py-2"
+                                  onClick={() => {
+                                    setSelectedService(pkg);
+                                    setOpenModal(true);
+                                  }}
+                                >
+                                  Book Service <i className="fas fa-arrow-right ms-2" />
+                                </Link>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-muted fst-italic mb-2">
+                              Select your car to see price
+                            </div>
+                            <div className="mt-auto">
+                              <button
+                                className="btn style-border2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowCarModal(true);
+                                }}
+                              >
+                                Choose Your Car
+                              </button>
+                            </div>
+                          </>
                         )}
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-muted fst-italic mb-2">
-                          Select your car to see price
-                        </div>
-                        <div className="mt-auto">
-                          <button
-                            className="btn style-border2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setShowCarModal(true);
-                            }}
-                          >
-                            Choose Your Car
-                          </button>
-                        </div>
-                      </>
-                    )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-            })}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -528,6 +554,137 @@ const SearchResults = ({ searchTerm }) => {
         endPosition={animationEndPos}
         onAnimationEnd={handleAnimationEnd}
       />
+      {openModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.65)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999999,
+            padding: "10px",
+          }}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              padding: "20px",
+              width: "95%",
+              maxWidth: "450px",
+              borderRadius: "14px",
+              boxShadow: "0px 6px 18px rgba(0,0,0,0.15)",
+              animation: "fadeIn 0.25s ease-in-out",
+            }}
+          >
+            <h5
+              style={{
+                textAlign: "center",
+                marginBottom: "8px",
+                color: "#0a6264",
+                fontWeight: 700,
+              }}
+            >
+              Book – {selectedService?.title}
+            </h5>
+
+            {/* ✨ New Description Line */}
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                marginTop: "-5px",
+                marginBottom: "18px",
+                color: "#555",
+              }}
+            >
+              Give few information about you, our team will contact you.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setOpenModal(false);
+              }}
+            >
+              {/* Row - Name + Contact */}
+              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter your name"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Phone number"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "14px",
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    background: "#8b8b8bff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                  onClick={() => setOpenModal(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn"
+                  style={{
+                    background: "#0a6264",
+                    color: "#fff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

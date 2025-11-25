@@ -77,15 +77,15 @@ const ContactArea = () => {
                     </div>
                   </div>
                   <div className="col-md-10 pl-3">
-                      <h6 className="contact-info_title">Address</h6>
-                      <p className="contact-info_text">
-                        {companyInfo.address}
-                      </p>
-                      {/* <p className="contact-info_text"> </p> */}
+                    <h6 className="contact-info_title">Address</h6>
+                    <p className="contact-info_text">
+                      {companyInfo.address}
+                    </p>
+                    {/* <p className="contact-info_text"> </p> */}
                   </div>
                 </div>
               </div>
-              
+
             </div>
             <div className=" col-lg-4 col-md-6">
               <div className="contact-info">
@@ -96,15 +96,15 @@ const ContactArea = () => {
                     </div>
                   </div>
                   <div className="col-md-10 pl-3">
-                      <h6 className="contact-info_title">Phone Number</h6>
-                      <p className="contact-info_text">
-                        {companyInfo.phones.map((phone, index) => (
-                          <React.Fragment key={index}>
-                            <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link>
-                            {index < companyInfo.phones.length - 1 && <br />}
-                          </React.Fragment>
-                        ))}
-                      </p>
+                    <h6 className="contact-info_title">Phone Number</h6>
+                    <p className="contact-info_text">
+                      {companyInfo.phones.map((phone, index) => (
+                        <React.Fragment key={index}>
+                          <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link>
+                          {index < companyInfo.phones.length - 1 && <br />}
+                        </React.Fragment>
+                      ))}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -120,7 +120,7 @@ const ContactArea = () => {
               </div>
             </div> */}
             <div className=" col-lg-4 col-md-6">
-               <div className="contact-info">
+              <div className="contact-info">
                 <div className="row">
                   <div className="col-md-2">
                     <div className="contact-info_icon">
@@ -128,15 +128,15 @@ const ContactArea = () => {
                     </div>
                   </div>
                   <div className="col-md-10 pl-3">
-                      <h6 className="contact-info_title">E-mail</h6>
-                        <p className="contact-info_text">
-                          <a href={`mailto:${companyInfo.email}`}>
-                            {companyInfo.email}
-                          </a>
-                        </p>
-                        <p className="contact-info_text">
-                          {/* <a href="mailto:nafiz 0121@gmail.com">nafiz 0121@gmail.com</a> */}
-                        </p>
+                    <h6 className="contact-info_title">E-mail</h6>
+                    <p className="contact-info_text">
+                      <a href={`mailto:${companyInfo.email}`}>
+                        {companyInfo.email}
+                      </a>
+                    </p>
+                    <p className="contact-info_text">
+                      {/* <a href="mailto:nafiz 0121@gmail.com">nafiz 0121@gmail.com</a> */}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -165,15 +165,15 @@ const ContactArea = () => {
             <div className="col-lg-6 text-lg-end">
 
               <div className="map-sec">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60902.88409628053!2d78.31117294863282!3d17.439109100000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9a3e6c6874dd%3A0x7abfee772aee3875!2sGlansa%20Solutions!5e0!3m2!1sen!2sin!4v1756129461537!5m2!1sen!2sin"
-              allowFullScreen=""
-              loading="lazy"
-              title="address"
-              height={"250"}
-              width={"250"}
-            />
-          </div>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60902.88409628053!2d78.31117294863282!3d17.439109100000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9a3e6c6874dd%3A0x7abfee772aee3875!2sGlansa%20Solutions!5e0!3m2!1sen!2sin!4v1756129461537!5m2!1sen!2sin"
+                  allowFullScreen=""
+                  loading="lazy"
+                  title="address"
+                  height={"250"}
+                  width={"250"}
+                />
+              </div>
 
               {/* <div className="faq-thumb2 mb-xl-0 mb-50">
                 <div className="about-counter-grid jump">
@@ -239,7 +239,16 @@ const ContactArea = () => {
                           id="number"
                           placeholder="Phone Number"
                           value={formData.number}
-                          onChange={handleChange}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/[^0-9]/g, ""); // remove non-numeric
+
+                            // Check first digit
+                            if (value.length > 0 && !/^[6-9]/.test(value[0])) {
+                              value = ""; // clear if invalid start
+                            }
+
+                            handleChange({ target: { name: "number", value } });
+                          }}
                           required
                         />
                       </div>
@@ -273,7 +282,7 @@ const ContactArea = () => {
                   {success && <div className="alert alert-success">{success}</div>}
                   {error && <div className="alert alert-danger">{error}</div>}
                   <div className="form-btn col-12">
-                    <button type="submit" className="btn style2 btn-contact" disabled={loading}>
+                    <button type="submit" className="btn style2 btn-contact" disabled={loading} style={{ padding: "8px 16px", fontSize: "20px" }} >
                       {loading ? 'Sending...' : 'Submit'} <i className="fas fa-arrow-right ms-2" />
                     </button>
                   </div>

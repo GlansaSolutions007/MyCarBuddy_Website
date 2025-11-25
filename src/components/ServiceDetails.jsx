@@ -214,6 +214,8 @@ const ServiceDetails = () => {
   const [seoMeta, setSeoMeta] = useState(null);
   const [categories, setCategories] = useState([]);
   const [faqs, setFaqs] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const selectedCarDetails = JSON.parse(
     localStorage.getItem("selectedCarDetails")
@@ -276,8 +278,8 @@ const ServiceDetails = () => {
               title: pkg.PackageName,
               banners: pkg.BannerImage
                 ? pkg.BannerImage.split(",").map(
-                    (img) => `${ImageURL}${img.trim()}`
-                  )
+                  (img) => `${ImageURL}${img.trim()}`
+                )
                 : [],
               image: `${ImageURL}${pkg.PackageImage}`,
               tag: "Featured Package",
@@ -420,9 +422,8 @@ const ServiceDetails = () => {
                         <div className="carousel-inner">
                           {service.banners.map((img, idx) => (
                             <div
-                              className={`carousel-item ${
-                                idx === 0 ? "active" : ""
-                              }`}
+                              className={`carousel-item ${idx === 0 ? "active" : ""
+                                }`}
                               key={idx}
                             >
                               <img
@@ -473,7 +474,17 @@ const ServiceDetails = () => {
                     {selectedCar ? (
                       <>
                         <h5 className="mb-0 fw-bold text-dark">
-                          ₹ {service.price}
+                          {/* ₹ {service.price} */}
+                          <button
+                            className="btn btn-danger fw-bold px-4 py-2"
+                            // onClick={(e) => {
+                            //   e.stopPropagation();
+                            //   setSelectedService(service.title);
+                            //   setOpenModal(true);
+                            // }}
+                          >
+                            Quick Support
+                          </button>
                         </h5>
                         {isInCart ? (
                           <div>
@@ -497,15 +508,25 @@ const ServiceDetails = () => {
                             </button>
                           </div>
                         ) : (
+                          // <button
+                          //   className="btn btn-danger fw-bold px-4 py-2"
+                          //   onClick={(e) => {
+                          //     e.stopPropagation();
+                          //     addToCart(service);
+                          //     toast.success("Service added to cart");
+                          //   }}
+                          // >
+                          //   + ADD TO CART
+                          // </button>
                           <button
                             className="btn btn-danger fw-bold px-4 py-2"
                             onClick={(e) => {
                               e.stopPropagation();
-                              addToCart(service);
-                              toast.success("Service added to cart");
+                              setSelectedService(service.title);
+                              setOpenModal(true);
                             }}
                           >
-                            + ADD TO CART
+                            BOOK SERVICE
                           </button>
                         )}
                       </>
@@ -598,9 +619,8 @@ const ServiceDetails = () => {
                         className="list-group-item d-flex justify-content-between align-items-center"
                       >
                         <Link
-                          to={`/service/${slugify(cat.CategoryName)}/${
-                            cat.CategoryID
-                          }`}
+                          to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID
+                            }`}
                         >
                           {cat.CategoryName}
                         </Link>
@@ -671,18 +691,16 @@ const ServiceDetails = () => {
                 return chunkedServices.map((chunk, slideIndex) => (
                   <div
                     key={slideIndex}
-                    className={`carousel-item ${
-                      slideIndex === 0 ? "active" : ""
-                    }`}
+                    className={`carousel-item ${slideIndex === 0 ? "active" : ""
+                      }`}
                   >
                     <div className="row">
                       {chunk.map((s) => (
                         <div key={s.PackageID} className="col-md-3 mb-3">
                           <div className="card h-100">
                             <Link
-                              to={`/servicedetails/${slugify(s.PackageName)}/${
-                                s.PackageID
-                              }`}
+                              to={`/servicedetails/${slugify(s.PackageName)}/${s.PackageID
+                                }`}
                               style={{
                                 textDecoration: "none",
                                 color: "inherit",
@@ -700,7 +718,7 @@ const ServiceDetails = () => {
                               />
                               <div className="card-body d-flex flex-column">
                                 <h5 className="card-title">{s.PackageName}</h5>
-                                <div className="mb-2">
+                                {/* <div className="mb-2">
                                   <span className="text-success fw-bold">
                                     ₹{s.Serv_Off_Price}
                                   </span>
@@ -709,17 +727,17 @@ const ServiceDetails = () => {
                                       ₹{s.Serv_Reg_Price}
                                     </span>
                                   )}
-                                </div>
+                                </div> */}
                                 <ul className="list-unstyled">
                                   {s.IncludeNames
                                     ? s.IncludeNames.split(",")
-                                        .slice(0, 4)
-                                        .map((inc, idx) => (
-                                          <li key={idx}>
-                                            <i className="fas fa-check-circle text-success me-2"></i>
-                                            {inc.trim()}
-                                          </li>
-                                        ))
+                                      .slice(0, 4)
+                                      .map((inc, idx) => (
+                                        <li key={idx}>
+                                          <i className="fas fa-check-circle text-success me-2"></i>
+                                          {inc.trim()}
+                                        </li>
+                                      ))
                                     : null}
                                 </ul>
                               </div>
@@ -750,28 +768,38 @@ const ServiceDetails = () => {
                                     </button>
                                   </>
                                 ) : (
+                                  // <button
+                                  //   className="btn btn-danger fw-bold px-4 py-2"
+                                  //   onClick={(e) => {
+                                  //     e.stopPropagation();
+                                  //     addToCart({
+                                  //       id: s.PackageID,
+                                  //       title: s.PackageName,
+                                  //       price: s.Serv_Off_Price,
+                                  //       image: s.PackageImage
+                                  //         ? `${ImageURL}${s.PackageImage}`
+                                  //         : "",
+                                  //       includes: s.IncludeNames
+                                  //         ? s.IncludeNames.split(",").map((i) =>
+                                  //             i.trim()
+                                  //           )
+                                  //         : [],
+                                  //       categoryId: s.CategoryID,
+                                  //     });
+                                  //     toast.success("Service added to cart");
+                                  //   }}
+                                  // >
+                                  //   + ADD TO CART
+                                  // </button>
                                   <button
                                     className="btn btn-danger fw-bold px-4 py-2"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      addToCart({
-                                        id: s.PackageID,
-                                        title: s.PackageName,
-                                        price: s.Serv_Off_Price,
-                                        image: s.PackageImage
-                                          ? `${ImageURL}${s.PackageImage}`
-                                          : "",
-                                        includes: s.IncludeNames
-                                          ? s.IncludeNames.split(",").map((i) =>
-                                              i.trim()
-                                            )
-                                          : [],
-                                        categoryId: s.CategoryID,
-                                      });
-                                      toast.success("Service added to cart");
+                                      setSelectedService(s.PackageName);
+                                      setOpenModal(true);
                                     }}
                                   >
-                                    + ADD TO CART
+                                    BOOK SERVICE
                                   </button>
                                 )}
                               </div>
@@ -803,6 +831,137 @@ const ServiceDetails = () => {
           onCarSaved={(car) => setSelectedCar(car)}
         />
       </div>
+      {openModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.65)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999999,
+            padding: "10px",
+          }}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              padding: "20px",
+              width: "95%",
+              maxWidth: "450px",
+              borderRadius: "14px",
+              boxShadow: "0px 6px 18px rgba(0,0,0,0.15)",
+              animation: "fadeIn 0.25s ease-in-out",
+            }}
+          >
+            <h5
+              style={{
+                textAlign: "center",
+                marginBottom: "8px",
+                color: "#0a6264",
+                fontWeight: 700,
+              }}
+            >
+              Book – {selectedService}
+            </h5>
+
+            {/* ✨ New Description Line */}
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                marginTop: "-5px",
+                marginBottom: "18px",
+                color: "#555",
+              }}
+            >
+              Give few information about you, our team will contact you.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setOpenModal(false);
+              }}
+            >
+              {/* Row - Name + Contact */}
+              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter your name"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Phone number"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "14px",
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    background: "#8b8b8bff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                  onClick={() => setOpenModal(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn"
+                  style={{
+                    background: "#0a6264",
+                    color: "#fff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -14,11 +14,18 @@ import { useParams } from "react-router-dom";
 const ServiceDetailsPage = () => {
   let [active, setActive] = useState(true);
   const { categoryname, categoryId } = useParams();
+  const formatCategoryName = (slug) => {
+    if (!slug) return "";
+    return slug
+      .replace(/-/g, " ")       // replace - with space
+      .replace(/\b\w/g, (l) => l.toUpperCase()); // capitalize each word
+  };
 
-      const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
-    const [seoMeta, setSeoMeta] = useState(null);
 
-      useEffect(() => {
+  const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const [seoMeta, setSeoMeta] = useState(null);
+
+  useEffect(() => {
     const fetchSeoData = async () => {
 
       try {
@@ -43,14 +50,14 @@ const ServiceDetailsPage = () => {
   }, []);
   return (
     <>
-       {/* Dynamic SEO Meta Tags */}
-                  {seoMeta && (
-                    <Helmet>
-                      <title>{seoMeta.seo_title || `${categoryname} | MyCarBuddy`}</title>
-                      <meta name="description" content={seoMeta.seo_description || ""} />
-                      <meta name="keywords" content={seoMeta.seo_keywords || ""} />
-                    </Helmet>
-                  )}
+      {/* Dynamic SEO Meta Tags */}
+      {seoMeta && (
+        <Helmet>
+          <title>{seoMeta.seo_title || `${categoryname} | MyCarBuddy`}</title>
+          <meta name="description" content={seoMeta.seo_description || ""} />
+          <meta name="keywords" content={seoMeta.seo_keywords || ""} />
+        </Helmet>
+      )}
       {/* Preloader */}
       {active === true && <Preloader />}
 
@@ -58,7 +65,7 @@ const ServiceDetailsPage = () => {
       <HeaderOne />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Service Packages"} />
+      <Breadcrumb title={formatCategoryName(categoryname)} />
 
       {/* Service Details */}
       <ServiceCards />

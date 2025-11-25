@@ -149,6 +149,8 @@ export default function ServiceCards() {
   const scrollRef = useRef();
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const baseUrlImage = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
+  const [selectedService, setSelectedService] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
@@ -211,8 +213,7 @@ export default function ServiceCards() {
       setLoadingPackages(true);
       try {
         const response = await axios.get(
-          `${BASE_URL}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?categoryId=${categoryId}&subCategoryId=${activeTab}&BrandId=${
-            brandId || ""
+          `${BASE_URL}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?categoryId=${categoryId}&subCategoryId=${activeTab}&BrandId=${brandId || ""
           }&ModelId=${modelId || ""}&fuelTypeId=${fuelId || ""}`
         );
 
@@ -343,11 +344,10 @@ export default function ServiceCards() {
           {subcategories.map((sub) => (
             <div
               key={sub.SubCategoryID}
-              className={`tab-pill ${
-                activeTab?.toString() === sub.SubCategoryID.toString()
-                  ? "active"
-                  : ""
-              }`}
+              className={`tab-pill ${activeTab?.toString() === sub.SubCategoryID.toString()
+                ? "active"
+                : ""
+                }`}
               onClick={() => setActiveTab(sub.SubCategoryID)}
             >
               <span>{sub.SubCategoryName}</span>
@@ -463,7 +463,7 @@ export default function ServiceCards() {
                         <ul className="list-unstyled small mb-2">
                           {(() => {
                             const maxLines = 4;
-                            const approxCharsPerLine = 30; 
+                            const approxCharsPerLine = 30;
                             let totalLines = 0;
                             const visibleItems = [];
 
@@ -521,14 +521,15 @@ export default function ServiceCards() {
                       {selectedCar ? (
                         <>
                           {/* <h3 className="pricing-card_price"><span className="currency">₹{pkg.price}</span></h3> */}
-                          <div className="ribbon">
+                          
+                          {/* <div className="ribbon">
                             ₹{pkg.price}
                             <p>
                               <div className="text-muted1 text-decoration-line-through">
                                 ₹{pkg.originalPrice}
                               </div>
                             </p>
-                          </div>
+                          </div> */}
 
                           {isInCart ? (
                             <>
@@ -552,11 +553,21 @@ export default function ServiceCards() {
                               </button>
                             </>
                           ) : (
+                            // <button
+                            //   className="btn style-border2 "
+                            //   onClick={(e) => handleAddToCartClick(e, pkg)}
+                            // >
+                            //   + ADD TO CART
+                            // </button>
                             <button
                               className="btn style-border2 "
-                              onClick={(e) => handleAddToCartClick(e, pkg)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedService(pkg);
+                                setOpenModal(true);
+                              }}
                             >
-                              + ADD TO CART
+                              BOOK SERVICE
                             </button>
                           )}
                         </>
@@ -606,6 +617,137 @@ export default function ServiceCards() {
         endPosition={animationEndPos}
         onAnimationEnd={handleAnimationEnd}
       />
+      {openModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.65)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999999,
+            padding: "10px",
+          }}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              padding: "20px",
+              width: "95%",
+              maxWidth: "450px",
+              borderRadius: "14px",
+              boxShadow: "0px 6px 18px rgba(0,0,0,0.15)",
+              animation: "fadeIn 0.25s ease-in-out",
+            }}
+          >
+            <h5
+              style={{
+                textAlign: "center",
+                marginBottom: "8px",
+                color: "#0a6264",
+                fontWeight: 700,
+              }}
+            >
+              Book – {selectedService?.title}
+            </h5>
+
+            {/* ✨ New Description Line */}
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                marginTop: "-5px",
+                marginBottom: "18px",
+                color: "#555",
+              }}
+            >
+              Give few information about you, our team will contact you.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setOpenModal(false);
+              }}
+            >
+              {/* Row - Name + Contact */}
+              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter your name"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Phone number"
+                    required
+                    style={{
+                      padding: "8px",
+                      fontSize: "13px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "14px",
+                }}
+              >
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    background: "#8b8b8bff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                  onClick={() => setOpenModal(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="btn"
+                  style={{
+                    background: "#0a6264",
+                    color: "#fff",
+                    fontSize: "13px",
+                    padding: "8px 20px",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
