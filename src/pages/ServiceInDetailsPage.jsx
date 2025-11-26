@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from "react";
 import HeaderOne from "../components/HeaderOne";
-
 import FooterAreaOne from "../components/FooterAreaOne";
 import Breadcrumb from "../components/Breadcrumb";
-// import SubscribeOne from "../components/SubscribeOne";
 import ServiceDetails from "../components/ServiceDetails";
 import Preloader from "../helper/Preloader";
+import { useParams } from "react-router-dom";
 
 const ServiceInDetailsPage = () => {
+  const { packagename } = useParams(); // <-- get dynamic part
   let [active, setActive] = useState(true);
+
   useEffect(() => {
-    setTimeout(function () {
+    setTimeout(() => {
       setActive(false);
     }, 2000);
   }, []);
+
+  const formatTitle = (text) => {
+    if (!text) return "";
+    return text
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <>
-      {/* Preloader */}
-      {active === true && <Preloader />}
+      {active && <Preloader />}
 
-      {/* Header one */}
       <HeaderOne />
 
-      {/* Breadcrumb */}
-      <Breadcrumb title={"Service Details"} />
-
-      {/* Service Details */}
+      {/* Dynamic Title */}
+      <Breadcrumb title={formatTitle(packagename)} />
       <ServiceDetails />
 
-      {/* Subscribe One */}
-      {/* <SubscribeOne /> */}
-
-      {/* Footer Area One */}
       <FooterAreaOne />
     </>
   );

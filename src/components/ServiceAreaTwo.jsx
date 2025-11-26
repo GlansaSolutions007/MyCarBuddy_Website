@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaSearch } from "react-icons/fa";
+import BookServiceModal from "./BookServiceModal"
+
 
 const ServiceAreaTwo = () => {
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -10,6 +12,8 @@ const ServiceAreaTwo = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -117,7 +121,7 @@ const ServiceAreaTwo = () => {
                       <div className="checklist style-white">
                         <div className="btn-wrap mt-20">
                           <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
-                            Book Service <i className="fas fa-arrow-right ms-2" />
+                            Book Servicee <i className="fas fa-arrow-right ms-2" />
                           </Link>
                         </div>
                       </div>
@@ -161,11 +165,21 @@ const ServiceAreaTwo = () => {
                           {/* <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
                             Book Service <i className="fas fa-arrow-right ms-2" />
                           </Link> */}
-                          <Link
+                          {/* <Link
                             className="btn style4 px-4 py-2"
                             onClick={() => {
                               setSelectedService(service);
                               setOpenModal(true);
+                            }}
+                          >
+                            Book Service <i className="fas fa-arrow-right ms-2" />
+                          </Link> */}
+                          <Link
+                            className="btn style4 px-4 py-2"
+                            onClick={(e) => {
+                              e.stopPropagation();          // prevent card click
+                              setSelectedService(service.title);      // <--- IMPORTANT
+                              setIsModalOpen(true);
                             }}
                           >
                             Book Service <i className="fas fa-arrow-right ms-2" />
@@ -310,6 +324,11 @@ const ServiceAreaTwo = () => {
           </div>
         </div>
       )}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </div>
   );
 };

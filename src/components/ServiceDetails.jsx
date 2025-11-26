@@ -5,6 +5,9 @@ import toast from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import ChooseCarModal from "./ChooseCarModalGridLayout";
 import { Helmet } from "react-helmet-async";
+import BookServiceModal from "./BookServiceModal"
+import { Button } from "bootstrap";
+
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
@@ -215,7 +218,7 @@ const ServiceDetails = () => {
   const [categories, setCategories] = useState([]);
   const [faqs, setFaqs] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedCarDetails = JSON.parse(
     localStorage.getItem("selectedCarDetails")
@@ -228,6 +231,10 @@ const ServiceDetails = () => {
     modelId = selectedCarDetails.model?.id;
     fuelId = selectedCarDetails.fuel?.id;
   }
+
+  // if(selectedService.length > 0){
+  //   console.log(selectedService);
+  // }
 
   useEffect(() => {
     const loadSelectedCar = () => {
@@ -477,11 +484,9 @@ const ServiceDetails = () => {
                           {/* ₹ {service.price} */}
                           <button
                             className="btn btn-danger fw-bold px-4 py-2"
-                            // onClick={(e) => {
-                            //   e.stopPropagation();
-                            //   setSelectedService(service.title);
-                            //   setOpenModal(true);
-                            // }}
+                            onClick={() => {
+                              navigate("/#services");
+                            }}
                           >
                             Quick Support
                           </button>
@@ -521,9 +526,9 @@ const ServiceDetails = () => {
                           <button
                             className="btn btn-danger fw-bold px-4 py-2"
                             onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedService(service.title);
-                              setOpenModal(true);
+                              e.stopPropagation();          // prevent card click
+                              setSelectedService(service);      // <--- IMPORTANT
+                              setIsModalOpen(true);
                             }}
                           >
                             BOOK SERVICE
@@ -532,7 +537,7 @@ const ServiceDetails = () => {
                       </>
                     ) : (
                       <>
-                        <div className="text-muted fst-italic mb-2">
+                        {/* <div className="text-muted fst-italic mb-2">
                           Select your car to see price
                         </div>
                         <button
@@ -543,6 +548,24 @@ const ServiceDetails = () => {
                           }}
                         >
                           Choose Your Car
+                        </button> */}
+                        <button
+                          className="btn btn-danger fw-bold px-4 py-2"
+                          onClick={() => {
+                            navigate("/#help");
+                          }}
+                        >
+                          Quick Support
+                        </button>
+                        <button
+                          className="btn btn-danger fw-bold px-4 py-2"
+                          onClick={(e) => {
+                            e.stopPropagation();          // prevent card click
+                            setSelectedService(service);      // <--- IMPORTANT
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          BOOK SERVICE
                         </button>
                       </>
                     )}
@@ -794,9 +817,9 @@ const ServiceDetails = () => {
                                   <button
                                     className="btn btn-danger fw-bold px-4 py-2"
                                     onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedService(s.PackageName);
-                                      setOpenModal(true);
+                                      e.stopPropagation();          // prevent card click
+                                      setSelectedService({title: s.PackageName});
+                                      setIsModalOpen(true);
                                     }}
                                   >
                                     BOOK SERVICE
@@ -831,137 +854,11 @@ const ServiceDetails = () => {
           onCarSaved={(car) => setSelectedCar(car)}
         />
       </div>
-      {openModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.65)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 999999,
-            padding: "10px",
-          }}
-        >
-          <div
-            style={{
-              background: "#ffffff",
-              padding: "20px",
-              width: "95%",
-              maxWidth: "450px",
-              borderRadius: "14px",
-              boxShadow: "0px 6px 18px rgba(0,0,0,0.15)",
-              animation: "fadeIn 0.25s ease-in-out",
-            }}
-          >
-            <h5
-              style={{
-                textAlign: "center",
-                marginBottom: "8px",
-                color: "#0a6264",
-                fontWeight: 700,
-              }}
-            >
-              Book – {selectedService}
-            </h5>
-
-            {/* ✨ New Description Line */}
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: "12px",
-                marginTop: "-5px",
-                marginBottom: "18px",
-                color: "#555",
-              }}
-            >
-              Give few information about you, our team will contact you.
-            </p>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setOpenModal(false);
-              }}
-            >
-              {/* Row - Name + Contact */}
-              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "13px", fontWeight: 600 }}>Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter your name"
-                    required
-                    style={{
-                      padding: "8px",
-                      fontSize: "13px",
-                      borderRadius: "6px",
-                    }}
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "13px", fontWeight: 600 }}>
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Phone number"
-                    required
-                    style={{
-                      padding: "8px",
-                      fontSize: "13px",
-                      borderRadius: "6px",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "14px",
-                }}
-              >
-                <button
-                  type="button"
-                  className="btn"
-                  style={{
-                    background: "#8b8b8bff",
-                    fontSize: "13px",
-                    padding: "8px 20px",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                  }}
-                  onClick={() => setOpenModal(false)}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="btn"
-                  style={{
-                    background: "#0a6264",
-                    color: "#fff",
-                    fontSize: "13px",
-                    padding: "8px 20px",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                  }}
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </>
   );
 };

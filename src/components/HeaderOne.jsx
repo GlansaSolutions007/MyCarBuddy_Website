@@ -702,7 +702,7 @@ const HeaderOne = () => {
 									</Link>
 								</div> */}
 
-                      <div
+                      {/* <div
                         className="navbar-right-desc-details "
                         style={{
                           display: "flex",
@@ -776,9 +776,9 @@ const HeaderOne = () => {
                             )}
                           </span>
                         </h6>
-                      </div>
+                      </div> */}
 
-                      <div
+                      {/* <div
                         className="navbar-right-desc-details signDiv d-none d-md-flex"
                         style={{
                           display: "flex",
@@ -883,9 +883,9 @@ const HeaderOne = () => {
                             </span>
                           </>
                         )}
-                      </div>
+                      </div> */}
 
-                      <div
+                      {/* <div
                         className="navbar-right-desc-details"
                         style={{
                           display: "flex",
@@ -898,9 +898,9 @@ const HeaderOne = () => {
                         <span
                           className="header-grid-text"
                           style={{ visibility: "hidden" }}
-                        >
-                          {/* Cart */}
-                        </span>
+                        > */}
+                      {/* Cart */}
+                      {/* </span>
                         <Link
                           to="/cart"
                           title="Go to Cart"
@@ -913,10 +913,10 @@ const HeaderOne = () => {
                             </span>
                           )}
                         </Link>
-                      </div>
+                      </div> */}
 
                       {/* Notifications */}
-                      {user?.id && (
+                      {/* {user?.id && (
                         <div
                           className="navbar-right-desc-details"
                           style={{
@@ -930,11 +930,10 @@ const HeaderOne = () => {
                             className="header-grid-text"
                             style={{ visibility: "hidden" }}
                           >
-                            {/* Notifications */}
                           </span>
                           <NotificationDropdown />
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>
@@ -1026,7 +1025,7 @@ const HeaderOne = () => {
                   </NavLink>
                 </li>
 
-                {user?.id ? (
+                {/* {user?.id ? (
                   <>
                     <li>
                       <NavLink
@@ -1037,14 +1036,14 @@ const HeaderOne = () => {
                       >
                         Profile
                       </NavLink>
-                    </li>
-                    {/* <li>
+                    </li> */}
+                {/* <li>
                                             <div className="d-flex align-items-center justify-content-between">
                                                 <span>Notifications</span>
                                                 <NotificationDropdown  />
                                             </div>
 										</li> */}
-                    <li>
+                {/* <li>
                       <NavLink
                         to="/cart"
                         className={(navData) =>
@@ -1090,7 +1089,7 @@ const HeaderOne = () => {
                       Login
                     </NavLink>
                   </li>
-                )}
+                )} */}
               </ul>
             </div>
           </div>

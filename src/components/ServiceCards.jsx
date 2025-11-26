@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import ChooseCarModal from "./ChooseCarModalGridLayout";
 import AddToCartAnimation from "./AddToCartAnimation";
+import BookServiceModal from "./BookServiceModal"
 
 const SkeletonLoader = () => {
   return (
@@ -151,6 +152,8 @@ export default function ServiceCards() {
   const baseUrlImage = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
   const [selectedService, setSelectedService] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedService, setSelectedService] = useState(null);
 
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
@@ -521,7 +524,7 @@ export default function ServiceCards() {
                       {selectedCar ? (
                         <>
                           {/* <h3 className="pricing-card_price"><span className="currency">₹{pkg.price}</span></h3> */}
-                          
+
                           {/* <div className="ribbon">
                             ₹{pkg.price}
                             <p>
@@ -559,12 +562,22 @@ export default function ServiceCards() {
                             // >
                             //   + ADD TO CART
                             // </button>
+                            // <button
+                            //   className="btn style-border2 "
+                            //   onClick={(e) => {
+                            //     e.stopPropagation();
+                            //     setSelectedService(pkg);
+                            //     setOpenModal(true);
+                            //   }}
+                            // >
+                            //   BOOK SERVICE
+                            // </button>
                             <button
                               className="btn style-border2 "
                               onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedService(pkg);
-                                setOpenModal(true);
+                                e.stopPropagation();          // prevent card click
+                                setSelectedService(pkg);      // <--- IMPORTANT
+                                setIsModalOpen(true);
                               }}
                             >
                               BOOK SERVICE
@@ -573,7 +586,7 @@ export default function ServiceCards() {
                         </>
                       ) : (
                         <>
-                          <div className="text-muted fst-italic mb-2">
+                          {/* <div className="text-muted fst-italic mb-2">
                             Add your car to see price
                           </div>
                           <button
@@ -584,7 +597,17 @@ export default function ServiceCards() {
                             }}
                           >
                             Add Your Car
-                          </button>
+                          </button> */}
+                           <button
+                              className="btn style-border2 "
+                              onClick={(e) => {
+                                e.stopPropagation();          // prevent card click
+                                setSelectedService(pkg);      // <--- IMPORTANT
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              BOOK SERVICE
+                            </button>
                         </>
                       )}
                       {/* <a className="btn style-border2" href="/about">Start now <i className="fas fa-arrow-right ms-2"></i></a> */}
@@ -748,6 +771,11 @@ export default function ServiceCards() {
           </div>
         </div>
       )}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </div>
   );
 }

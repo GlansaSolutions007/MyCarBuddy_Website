@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
+import BookServiceModal from "./BookServiceModal"
 
 const steps = [
   {
@@ -40,7 +41,7 @@ const ServiceAreaHomePage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  
+
   // Auth & Form States
   const [otpStep, setOtpStep] = useState(false);
   const [timer, setTimer] = useState(60);
@@ -51,10 +52,13 @@ const ServiceAreaHomePage = () => {
   const [otpExpired, setOtpExpired] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const { showAlert } = useAlert();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     let interval;
@@ -153,10 +157,10 @@ const ServiceAreaHomePage = () => {
     } catch (err) {
       console.error("OTP Verify / Lead Submit Error", err);
       // Determine if it was OTP error or API error for better feedback
-      if(err.response?.config?.url?.includes("verify-otp")) {
-         showAlert("Error", "Invalid OTP", 3000, "error");
+      if (err.response?.config?.url?.includes("verify-otp")) {
+        showAlert("Error", "Invalid OTP", 3000, "error");
       } else {
-         showAlert("Error", "OTP verified but failed to save inquiry details.", 3000, "warning");
+        showAlert("Error", "OTP verified but failed to save inquiry details.", 3000, "warning");
       }
     } finally {
       setLoading(false);
@@ -166,7 +170,7 @@ const ServiceAreaHomePage = () => {
   const getDeviceId = () => {
     let deviceId = localStorage.getItem("deviceId");
     if (!deviceId) {
-      deviceId = uuidv4(); 
+      deviceId = uuidv4();
       localStorage.setItem("deviceId", deviceId);
     }
     return deviceId;
@@ -208,9 +212,9 @@ const ServiceAreaHomePage = () => {
   const slugify = (text) => {
     return text
       .toLowerCase()
-      .replace(/&/g, "and")     
-      .replace(/[^a-z0-9]+/g, "-") 
-      .replace(/^-+|-+$/g, ""); 
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
   const filteredServices = services.filter((service) =>
@@ -218,12 +222,12 @@ const ServiceAreaHomePage = () => {
   );
 
   return (
-    <div className="service-area-2 space overflow-hidden" id="services">
+    <div className="service-area-2 space overflow-hidden">
       <div className="container px-2 px-sm-3 px-md-4">
         <div className="row justify-content-center">
           <div className="col-lg-6">
             <div className="title-area text-center mb-0">
-              <span className="sub-title">Our Services</span>
+              <span className="sub-title" id="services">Our Services</span>
               <h2 className="sec-title">
                 Trusted Car Repair the Professionals{" "}
                 <img
@@ -301,11 +305,21 @@ const ServiceAreaHomePage = () => {
                     </div>
                     <div className="checklist style-white">
                       <div className="btn-wrap mt-20">
-                        <Link
+                        {/* <Link
                           className="btn style4 px-4 py-2"
                           onClick={() => {
                             setSelectedService(service);
                             setOpenModal(true);
+                          }}
+                        >
+                          Book Service <i className="fas fa-arrow-right ms-2" />
+                        </Link> */}
+                        <Link
+                          className="btn style4 px-4 py-2"
+                          onClick={(e) => {
+                            e.stopPropagation();          // prevent card click
+                            setSelectedService(service);      // <--- IMPORTANT
+                            setIsModalOpen(true);
                           }}
                         >
                           Book Service <i className="fas fa-arrow-right ms-2" />
@@ -342,7 +356,7 @@ const ServiceAreaHomePage = () => {
             <button
               className="btn btn-primary mt-2"
               style={{ borderRadius: "20px", padding: "8px 24px" }}
-              onClick={() => window.location.reload()} 
+              onClick={() => window.location.reload()}
             >
               View All Services
             </button>
@@ -362,7 +376,7 @@ const ServiceAreaHomePage = () => {
         </div>
       </div>
 
-      <div className="row justify-content-center mt-4">
+      <div className="row justify-content-center mt-4" id="help">
         <style>
           {`
             .support-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; }
@@ -426,8 +440,9 @@ const ServiceAreaHomePage = () => {
                 <p className="mb-4" style={{ opacity: 0.9, color: "#ffffffc9" }}>
                   Connect directly with our support team for immediate help.
                 </p>
-                <button
+                <Link
                   className="btn glass-btn px-4 py-2"
+                  to="/contact"
                   style={{
                     background: "#fff",
                     color: "#181818ff",
@@ -436,10 +451,9 @@ const ServiceAreaHomePage = () => {
                     border: "1px solid rgba(255,255,255,0.4)",
                     boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
                   }}
-                  onClick={() => (window.location.href = "tel:+911234567890")}
                 >
                   Call Now
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -456,7 +470,7 @@ const ServiceAreaHomePage = () => {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "#2c3e50", 
+                background: "#2c3e50",
               }}
             >
               <div
@@ -561,8 +575,8 @@ const ServiceAreaHomePage = () => {
                   height: 110,
                   borderRadius: "50%",
                   background: isHovered
-                    ? "linear-gradient(135deg, #1aa1a4, #136d6f)" 
-                    : "linear-gradient(135deg, #136d6f, #0e4e50)", 
+                    ? "linear-gradient(135deg, #1aa1a4, #136d6f)"
+                    : "linear-gradient(135deg, #136d6f, #0e4e50)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -573,9 +587,9 @@ const ServiceAreaHomePage = () => {
                   boxShadow: isHovered
                     ? "0 15px 35px rgba(19, 109, 111, 0.4)"
                     : "0 8px 20px rgba(0,0,0,0.1)",
-                  border: "4px solid #fff", 
-                  outline: "4px solid rgba(19, 109, 111, 0.1)", 
-                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)", 
+                  border: "4px solid #fff",
+                  outline: "4px solid rgba(19, 109, 111, 0.1)",
+                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                 }}
               >
                 <div
@@ -696,11 +710,11 @@ const ServiceAreaHomePage = () => {
                 e.preventDefault();
                 if (!otpStep) {
                   // Move to OTP Step
-                  handleSendOTP();      
+                  handleSendOTP();
                   return;
                 } else {
                   // Verify OTP & Submit Lead
-                  handleVerifyOTP(); 
+                  handleVerifyOTP();
                 }
               }}
             >
@@ -789,11 +803,11 @@ const ServiceAreaHomePage = () => {
                     border: "1px solid #e5e7eb",
                     backgroundColor: "#fff",
                     color: "#1f2937",
-                    resize: "none",       
+                    resize: "none",
                     fontFamily: "inherit",
-                    minHeight: "28px",     
+                    minHeight: "28px",
                     lineHeight: "1.2",
-                    overflow: "hidden",    
+                    overflow: "hidden",
                   }}
                 />
               </div>
@@ -897,6 +911,11 @@ const ServiceAreaHomePage = () => {
           </div>
         </div>
       )}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </div>
   );
 };
