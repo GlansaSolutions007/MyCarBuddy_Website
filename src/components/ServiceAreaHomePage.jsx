@@ -5,6 +5,9 @@ import "./ServiceAreaTwo.css";
 import { FaSearch } from "react-icons/fa";
 import { Calendar, MapPin, CheckCircle } from "lucide-react";
 import Swal from "sweetalert2";
+import { useAlert } from "../context/AlertContext";
+import CryptoJS from "crypto-js";
+import { v4 as uuidv4 } from "uuid";
 
 const steps = [
   {
@@ -36,12 +39,138 @@ const ServiceAreaHomePage = () => {
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  const [showAIChat, setShowAIChat] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  // Add this state at the top of your component
+  
+  // Auth & Form States
   const [otpStep, setOtpStep] = useState(false);
   const [timer, setTimer] = useState(60);
   const [otp, setOtp] = useState("");
+  const [identifier, setIdentifier] = useState(""); // This is the PhoneNumber
+  const [fullName, setFullName] = useState(""); // NEW: To capture Name
+  const [description, setDescription] = useState(""); // NEW: To capture Description
+  const [otpExpired, setOtpExpired] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+  const { showAlert } = useAlert();
+
+  useEffect(() => {
+    let interval;
+    if (otpSent && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    } else if (timer === 0 && otpSent) {
+      setOtpExpired(true);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, timer]);
+
+  const handleSendOTP = async () => {
+    if (!identifier) {
+      showAlert("Error", "Please enter a valid phone number", 3000, "error");
+      return;
+    }
+    if (!fullName) {
+      showAlert("Error", "Please enter your name", 3000, "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier });
+
+      setOtpSent(true);
+      setOtpExpired(false);
+      setOtpStep(true);
+      setTimer(60);
+    } catch (err) {
+      console.error("Send OTP Error", err);
+      showAlert("Error", "Failed to send OTP", 3000, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    const deviceId = getDeviceId();
+    setLoading(true);
+
+    try {
+      // 1. Verify the OTP
+      const res = await axios.post(`${baseUrl}Auth/verify-otp`, {
+        loginId: identifier,
+        otp,
+        deviceToken: "web-token",
+        deviceId,
+      });
+
+      // 2. Store User Data (Auth Logic)
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
+          name: res.data?.name || "GUEST",
+          token: res.data?.token,
+          profileImage: res?.data?.profileImage,
+        })
+      );
+
+      // 3. SEND LEAD DATA (The new requirement)
+      // Note: We use res.data.custID from the response
+      const leadPayload = {
+        custID: res.data?.custID, // Integer from Auth response
+        fullName: fullName,       // String from State
+        phoneNumber: identifier,  // String from State
+        email: "",                // Static Empty String
+        platform: "web",          // Static "web"
+        description: `${selectedService.title} - ${description}`  // String from State
+      };
+
+      await axios.put(`${baseUrl}Leads/UpdateCustomerAndLead`, leadPayload);
+
+      // 4. Cleanup & UI Success
+      window.dispatchEvent(new Event("userProfileUpdated"));
+
+      // Reset Form
+      setOpenModal(false);
+      setOtpStep(false);
+      setOtp("");
+      setFullName("");
+      setIdentifier("");
+      setDescription("");
+
+      Swal.fire({
+        title: 'Thank You!',
+        text: 'Your inquiry has been successfully submitted.',
+        icon: 'success',
+        confirmButtonColor: '#0a6264',
+      });
+
+    } catch (err) {
+      console.error("OTP Verify / Lead Submit Error", err);
+      // Determine if it was OTP error or API error for better feedback
+      if(err.response?.config?.url?.includes("verify-otp")) {
+         showAlert("Error", "Invalid OTP", 3000, "error");
+      } else {
+         showAlert("Error", "OTP verified but failed to save inquiry details.", 3000, "warning");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDeviceId = () => {
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      deviceId = uuidv4(); 
+      localStorage.setItem("deviceId", deviceId);
+    }
+    return deviceId;
+  };
 
   useEffect(() => {
     let countdown;
@@ -79,9 +208,9 @@ const ServiceAreaHomePage = () => {
   const slugify = (text) => {
     return text
       .toLowerCase()
-      .replace(/&/g, "and")     // replace "&" with "and"
-      .replace(/[^a-z0-9]+/g, "-") // replace all non-alphanumeric with "-"
-      .replace(/^-+|-+$/g, ""); // trim starting/ending "-"
+      .replace(/&/g, "and")     
+      .replace(/[^a-z0-9]+/g, "-") 
+      .replace(/^-+|-+$/g, ""); 
   };
 
   const filteredServices = services.filter((service) =>
@@ -172,9 +301,6 @@ const ServiceAreaHomePage = () => {
                     </div>
                     <div className="checklist style-white">
                       <div className="btn-wrap mt-20">
-                        {/* <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
-                          Book Service <i className="fas fa-arrow-right ms-2" />
-                        </Link> */}
                         <Link
                           className="btn style4 px-4 py-2"
                           onClick={() => {
@@ -195,9 +321,8 @@ const ServiceAreaHomePage = () => {
 
       {filteredServices.length > 0 ? (
         filteredServices.map((service) => (
-          // ... your existing card code
           <div key={service.id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-            {/* ... */}
+            {/* Hidden logic for mapping if needed */}
           </div>
         ))
       ) : (
@@ -214,20 +339,12 @@ const ServiceAreaHomePage = () => {
             <p style={{ color: "#888" }}>
               It looks like we don't have what you're looking for right now.
             </p>
-            {/* Optional: Add a button to clear search */}
             <button
               className="btn btn-primary mt-2"
               style={{ borderRadius: "20px", padding: "8px 24px" }}
-              onClick={() => window.location.reload()} // Replace with your clear search function
+              onClick={() => window.location.reload()} 
             >
               View All Services
-            </button>
-            <button
-              className="btn btn-primary mt-2 ms-2"
-              style={{ borderRadius: "20px", padding: "8px 24px" }}
-            // onClick={() => window.location.reload()} // Replace with your clear search function
-            >
-              Get support
             </button>
           </div>
         </div>
@@ -246,19 +363,17 @@ const ServiceAreaHomePage = () => {
       </div>
 
       <div className="row justify-content-center mt-4">
-        {/* Styles for hover animations */}
         <style>
           {`
-      .support-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; }
-      .support-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important; }
-      .support-card:hover .bg-image { transform: scale(1.1); }
-      .glass-btn { backdrop-filter: blur(4px); transition: all 0.3s ease; }
-      .glass-btn:hover { transform: scale(1.05); background: #ffffff !important; color: #fdfdfdff !important; }
-    `}
+            .support-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; }
+            .support-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important; }
+            .support-card:hover .bg-image { transform: scale(1.1); }
+            .glass-btn { backdrop-filter: blur(4px); transition: all 0.3s ease; }
+            .glass-btn:hover { transform: scale(1.05); background: #ffffff !important; color: #fdfdfdff !important; }
+          `}
         </style>
 
         <div className="row justify-content-center mt-4">
-          {/* Quick Call Support */}
           <div className="col-12 col-md-5 mb-4">
             <div
               className="p-5 text-center position-relative support-card"
@@ -271,10 +386,9 @@ const ServiceAreaHomePage = () => {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "#136d6f", // Fallback color
+                background: "#136d6f",
               }}
             >
-              {/* Background Image */}
               <div
                 className="bg-image"
                 style={{
@@ -287,7 +401,6 @@ const ServiceAreaHomePage = () => {
                   transition: "transform 0.5s ease",
                 }}
               />
-              {/* Gradient Overlay */}
               <div
                 style={{
                   position: "absolute",
@@ -296,7 +409,6 @@ const ServiceAreaHomePage = () => {
                   zIndex: 1,
                 }}
               />
-              {/* Content */}
               <div style={{ position: "relative", zIndex: 2 }}>
                 <div
                   className="mb-3 d-flex justify-content-center align-items-center"
@@ -332,7 +444,6 @@ const ServiceAreaHomePage = () => {
             </div>
           </div>
 
-          {/* AI Support */}
           <div className="col-12 col-md-5 mb-4">
             <div
               className="p-5 text-center position-relative support-card"
@@ -345,10 +456,9 @@ const ServiceAreaHomePage = () => {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                background: "#2c3e50", // Fallback color
+                background: "#2c3e50", 
               }}
             >
-              {/* Background Image */}
               <div
                 className="bg-image"
                 style={{
@@ -361,7 +471,6 @@ const ServiceAreaHomePage = () => {
                   transition: "transform 0.5s ease",
                 }}
               />
-              {/* Gradient Overlay */}
               <div
                 style={{
                   position: "absolute",
@@ -370,7 +479,6 @@ const ServiceAreaHomePage = () => {
                   zIndex: 1,
                 }}
               />
-              {/* Content */}
               <div style={{ position: "relative", zIndex: 2 }}>
                 <div
                   className="mb-3 d-flex justify-content-center align-items-center"
@@ -431,7 +539,6 @@ const ServiceAreaHomePage = () => {
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              {/* Connecting Line (Desktop Only) */}
               {index < steps.length - 1 && (
                 <div
                   className="d-none d-md-block"
@@ -448,32 +555,29 @@ const ServiceAreaHomePage = () => {
                 />
               )}
 
-              {/* Circular Icon Container */}
               <div
                 style={{
                   width: 110,
                   height: 110,
                   borderRadius: "50%",
                   background: isHovered
-                    ? "linear-gradient(135deg, #1aa1a4, #136d6f)" // Lighter gradient on hover
-                    : "linear-gradient(135deg, #136d6f, #0e4e50)", // Darker gradient default
+                    ? "linear-gradient(135deg, #1aa1a4, #136d6f)" 
+                    : "linear-gradient(135deg, #136d6f, #0e4e50)", 
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: 25,
                   position: "relative",
                   zIndex: 1,
-                  // Active Effects:
                   transform: isHovered ? "translateY(-5px) scale(1.05)" : "translateY(0) scale(1)",
                   boxShadow: isHovered
-                    ? "0 15px 35px rgba(19, 109, 111, 0.4)" // Glow effect
+                    ? "0 15px 35px rgba(19, 109, 111, 0.4)"
                     : "0 8px 20px rgba(0,0,0,0.1)",
-                  border: "4px solid #fff", // Crisp white ring
-                  outline: "4px solid rgba(19, 109, 111, 0.1)", // Outer faint ring
-                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)", // Bouncy transition
+                  border: "4px solid #fff", 
+                  outline: "4px solid rgba(19, 109, 111, 0.1)", 
+                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)", 
                 }}
               >
-                {/* The Icon itself */}
                 <div
                   style={{
                     transition: "transform 0.4s ease",
@@ -483,7 +587,6 @@ const ServiceAreaHomePage = () => {
                   <Icon size={40} color="#fff" />
                 </div>
 
-                {/* Step Number Badge */}
                 <div
                   style={{
                     position: "absolute",
@@ -509,7 +612,6 @@ const ServiceAreaHomePage = () => {
                 </div>
               </div>
 
-              {/* Title */}
               <h4
                 className="fw-bold mb-2"
                 style={{
@@ -520,7 +622,6 @@ const ServiceAreaHomePage = () => {
                 {step.title}
               </h4>
 
-              {/* Description */}
               <p className="text-muted" style={{ maxWidth: 300, fontSize: "0.95rem" }}>
                 {step.description}
               </p>
@@ -528,13 +629,6 @@ const ServiceAreaHomePage = () => {
           );
         })}
       </div>
-
-
-
-
-
-
-
 
       {openModal && (
         <div
@@ -602,25 +696,11 @@ const ServiceAreaHomePage = () => {
                 e.preventDefault();
                 if (!otpStep) {
                   // Move to OTP Step
-                  setOtpStep(true);
-                  setTimer(60);
+                  handleSendOTP();      
+                  return;
                 } else {
-                  // 🔹 FINAL SUBMISSION LOGIC
-                  setOpenModal(false);
-                  setOtpStep(false);
-                  setOtp("");
-
-                  // 🔹 Trigger SweetAlert Popup
-                  Swal.fire({
-                    title: 'Thank You!',
-                    text: 'Your inquiry has been successfully submitted. Our team will review your requirements and contact you shortly.',
-                    icon: 'success',
-                    confirmButtonColor: '#0a6264',
-                    confirmButtonText: 'Okay',
-                    width: '400px',
-                    padding: '20px',
-                    timer: 10000 // Auto close after 5 seconds
-                  });
+                  // Verify OTP & Submit Lead
+                  handleVerifyOTP(); 
                 }
               }}
             >
@@ -636,6 +716,9 @@ const ServiceAreaHomePage = () => {
                     placeholder="Your Name"
                     disabled={otpStep}
                     required
+                    // 🔹 Bind to State
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -658,6 +741,8 @@ const ServiceAreaHomePage = () => {
                     placeholder="Mobile No."
                     disabled={otpStep}
                     required
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))}
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -689,6 +774,9 @@ const ServiceAreaHomePage = () => {
                   className="modern-input"
                   placeholder="Briefly describe your requirements..."
                   disabled={otpStep}
+                  // 🔹 Bind to State
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   onInput={(e) => {
                     e.target.style.height = "auto";
                     e.target.style.height = e.target.scrollHeight + "px";
@@ -701,11 +789,11 @@ const ServiceAreaHomePage = () => {
                     border: "1px solid #e5e7eb",
                     backgroundColor: "#fff",
                     color: "#1f2937",
-                    resize: "none",       // user can't stretch manually
+                    resize: "none",       
                     fontFamily: "inherit",
-                    minHeight: "28px",     // very small default height
+                    minHeight: "28px",     
                     lineHeight: "1.2",
-                    overflow: "hidden",    // hide scrollbar until needed
+                    overflow: "hidden",    
                   }}
                 />
               </div>
@@ -789,19 +877,20 @@ const ServiceAreaHomePage = () => {
 
                 <button
                   type="submit"
+                  disabled={loading}
                   style={{
                     padding: "10px",
                     borderRadius: "8px",
                     border: "none",
-                    background: "#0a6264",
+                    background: loading ? "#6b7280" : "#0a6264",
                     color: "#fff",
                     fontSize: "13px",
                     fontWeight: 600,
-                    cursor: "pointer",
+                    cursor: loading ? "not-allowed" : "pointer",
                     boxShadow: "0 2px 8px rgba(10, 98, 100, 0.25)",
                   }}
                 >
-                  {otpStep ? "Submit Inquiry" : "Verify Number"}
+                  {loading ? "Processing..." : (otpStep ? "Submit Inquiry" : "Verify Number")}
                 </button>
               </div>
             </form>
