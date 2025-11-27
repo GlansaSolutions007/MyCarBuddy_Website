@@ -163,11 +163,11 @@ const MainProfile = () => {
 
   const tabs = [
     { key: "profile", label: "👤 Profile" },
-    { key: "mybookings", label: "📅 My Bookings" },
-    { key: "addresses", label: "🏠 Addresses" },
-    { key: "mycars", label: "🚗 My Car List" },
-    { key: "invoices", label: "📄 Invoices" },
-    { key: "tickets", label: "🎫 Ticket List" },
+    // { key: "mybookings", label: "📅 My Bookings" },
+    // { key: "addresses", label: "🏠 Addresses" },
+    // { key: "mycars", label: "🚗 My Car List" },
+    // { key: "invoices", label: "📄 Invoices" },
+    // { key: "tickets", label: "🎫 Ticket List" },
     { key: "logout", label: "🚪 Log Out" },
     { key: "DeleteAccount", label: "🗑️ Delete Account" },
   ];

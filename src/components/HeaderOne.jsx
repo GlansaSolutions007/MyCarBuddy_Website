@@ -778,7 +778,7 @@ const HeaderOne = () => {
                         </h6>
                       </div> */}
 
-                      {/* <div
+                      <div
                         className="navbar-right-desc-details signDiv d-none d-md-flex"
                         style={{
                           display: "flex",
@@ -883,7 +883,7 @@ const HeaderOne = () => {
                             </span>
                           </>
                         )}
-                      </div> */}
+                      </div>
 
                       {/* <div
                         className="navbar-right-desc-details"

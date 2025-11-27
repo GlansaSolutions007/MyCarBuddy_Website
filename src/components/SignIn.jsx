@@ -39,9 +39,9 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			// Reset form when modal opens
 			setOtpSent(false);
 			setIdentifier("");
-            setOtpExpired(false);
-            setLoading(false);
-            setTimer(0);
+			setOtpExpired(false);
+			setLoading(false);
+			setTimer(0);
 			setOtp("");
 		}
 	}, [isVisible]);
@@ -104,6 +104,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 				JSON.stringify({
 					id: CryptoJS.AES.encrypt(response.data?.custID.toString(), secretKey).toString(),
 					name: response.data?.name || "GUEST",
+					phone: identifier,
 					token: response.data?.token,
 					profileImage: response?.data?.profileImage,
 				})

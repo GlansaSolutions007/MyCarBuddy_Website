@@ -178,7 +178,7 @@ const ServiceAreaTwo = () => {
                             className="btn style4 px-4 py-2"
                             onClick={(e) => {
                               e.stopPropagation();          // prevent card click
-                              setSelectedService(service.title);      // <--- IMPORTANT
+                              setSelectedService(service);      // <--- IMPORTANT
                               setIsModalOpen(true);
                             }}
                           >

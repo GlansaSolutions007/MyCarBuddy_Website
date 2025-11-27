@@ -20,6 +20,17 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const { showAlert } = useAlert();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isLoggedIn = user && user.token;
+
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setFullName(user?.name || "");
+      setIdentifier(user?.phone || "");
+    }
+  }, [isLoggedIn]);
+
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -27,12 +38,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       setOtpStep(false);
       setTimer(60);
       setOtp("");
-      setIdentifier("");
-      setFullName("");
+      setIdentifier(isLoggedIn ? user?.phone : "");   // 🔥 FIX
+      setFullName(isLoggedIn ? user?.name : "");
       setDescription("");
       setOtpSent(false);
     }
-  }, [isOpen]);
+  }, [isOpen, isLoggedIn]);
+
+
 
   // Timer Logic
   useEffect(() => {
@@ -96,6 +109,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         JSON.stringify({
           id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
           name: res.data?.name || "GUEST",
+          phone: identifier,   // ← ADD THIS
           token: res.data?.token,
           profileImage: res?.data?.profileImage,
         })
@@ -134,6 +148,45 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   };
 
   if (!isOpen) return null;
+
+  const handleLoggedInSubmit = async () => {
+    setLoading(true);
+
+    try {
+      const decryptedCustId = CryptoJS.AES.decrypt(
+        user.id,
+        secretKey
+      ).toString(CryptoJS.enc.Utf8);
+
+      const leadPayload = {
+        custID: decryptedCustId,
+        fullName,
+        phoneNumber: identifier,
+        email: "",
+        platform: "web",
+        description: `${selectedService?.title || "General Enquiry"} - ${description}`,
+      };
+
+      await axios.put(`${baseUrl}Leads/UpdateCustomerAndLead`, leadPayload);
+
+      Swal.fire({
+        title: "Thank You!",
+        text: "Your enquiry has been submitted. Our support team will contact you soon.",
+        icon: "success",
+        confirmButtonColor: "#0a6264",
+      });
+
+      onClose();
+    } catch (err) {
+      console.error("Logged-in enquiry submit error:", err);
+      showAlert("Error", "Failed to submit enquiry", 3000, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  console.log({ identifier });
 
   return (
     <div
@@ -186,17 +239,57 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
           </p>
         </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); otpStep ? handleVerifyOTP() : handleSendOTP(); }}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+
+          if (isLoggedIn) {
+            handleLoggedInSubmit();   // 🔥 DIRECT SUBMIT WHEN LOGGED IN
+          } else {
+            otpStep ? handleVerifyOTP() : handleSendOTP();
+          }
+        }}>
           <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ marginBottom: "12px" }}>
               <label style={{ fontSize: "11px", fontWeight: 700 }}>Name</label>
-              <input type="text" className="modern-input" required value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={otpStep} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #e5e7eb" }} />
+              <input
+                type="text"
+                className="modern-input"
+                required
+                value={fullName}
+                readOnly={isLoggedIn}
+                disabled={otpStep}
+                onChange={(e) => setFullName(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                }}
+              />
             </div>
-            <div style={{ flex: 1 }}>
+
+            {/* Phone Only If NOT Logged In */}
+            <div style={{ marginBottom: "12px" }}>
               <label style={{ fontSize: "11px", fontWeight: 700 }}>Phone</label>
-              <input type="tel" className="modern-input" required value={identifier} onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))} disabled={otpStep} style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #e5e7eb" }} />
+              <input
+                type="tel"
+                className="modern-input"
+                required
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))}
+                readOnly={isLoggedIn}
+                disabled={otpStep}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                }}
+              />
+
             </div>
           </div>
+
 
           <div style={{ marginBottom: "12px" }}>
             <label style={{ fontSize: "11px", fontWeight: 700 }}>Message</label>
@@ -204,19 +297,40 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
           </div>
 
           {/* OTP Section */}
-          <div style={{ maxHeight: otpStep ? "120px" : "0px", opacity: otpStep ? 1 : 0, overflow: "hidden", transition: "all 0.3s ease-in-out", marginBottom: otpStep ? "15px" : "0" }}>
-            <div style={{ background: "rgba(10, 98, 100, 0.04)", padding: "12px", borderRadius: "10px", border: "1px dashed #0a6264", textAlign: "center" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "#0a6264" }}>Enter OTP Code</span>
-                <span style={{ fontSize: "11px", color: "#6b7280" }}>{timer > 0 ? `00:${timer}` : <span onClick={handleSendOTP} style={{ cursor: "pointer" }}>Resend</span>}</span>
+          {!isLoggedIn && (
+            <div style={{ maxHeight: otpStep ? "120px" : "0px", opacity: otpStep ? 1 : 0, overflow: "hidden", transition: "all 0.3s ease-in-out", marginBottom: otpStep ? "15px" : "0" }}>
+              <div style={{ background: "rgba(10, 98, 100, 0.04)", padding: "12px", borderRadius: "10px", border: "1px dashed #0a6264", textAlign: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#0a6264" }}>Enter OTP Code</span>
+                  <span style={{ fontSize: "11px", color: "#6b7280" }}>{timer > 0 ? `00:${timer}` : <span onClick={handleSendOTP} style={{ cursor: "pointer" }}>Resend</span>}</span>
+                </div>
+                <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} placeholder="• • • • • •" required={otpStep} className="modern-input" style={{ width: "100%", padding: "8px", fontSize: "16px", textAlign: "center", letterSpacing: "5px", fontWeight: "bold", borderRadius: "6px", border: "1px solid #d1d5db", color: "#0a6264", background: "#fff" }} />
               </div>
-              <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} placeholder="• • • • • •" required={otpStep} className="modern-input" style={{ width: "100%", padding: "8px", fontSize: "16px", textAlign: "center", letterSpacing: "5px", fontWeight: "bold", borderRadius: "6px", border: "1px solid #d1d5db", color: "#0a6264", background: "#fff" }} />
             </div>
-          </div>
+          )}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "5px" }}>
             <button type="button" onClick={() => otpStep ? setOtpStep(false) : onClose()} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #e5e7eb", background: "#fff" }}>{otpStep ? "Back" : "Cancel"}</button>
-            <button type="submit" disabled={loading} style={{ padding: "10px", borderRadius: "8px", border: "none", background: loading ? "#6b7280" : "#0a6264", color: "#fff" }}>{loading ? "Processing..." : (otpStep ? "Submit Enquiry" : "Verify Number")}</button>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "10px",
+                borderRadius: "8px",
+                border: "none",
+                background: loading ? "#6b7280" : "#0a6264",
+                color: "#fff"
+              }}
+            >
+              {loading
+                ? "Processing..."
+                : isLoggedIn
+                  ? "Submit Enquiry"   // logged in → direct submit
+                  : otpStep
+                    ? "Submit Enquiry" // after OTP verified
+                    : "Verify Number"}
+            </button>
+
           </div>
         </form>
       </div>
