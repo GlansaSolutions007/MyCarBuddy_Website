@@ -16,6 +16,23 @@ const HeroSection = () => {
 
     return () => clearInterval(interval);
   }, [images.length]);
+
+  const handleContactClick = () => {
+    const phone = "7075243939";
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // Open WhatsApp Web
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
+
   return (
     <section
       style={{
@@ -27,7 +44,7 @@ const HeroSection = () => {
       <h1 className="d-none">MyCarBuddy</h1>
 
       {/* Background curve */}
-       {/* <svg
+      {/* <svg
         viewBox="0 0 350 600"
         xmlns="http://www.w3.org/2000/svg"
         style={{
@@ -48,43 +65,46 @@ const HeroSection = () => {
       {/* <ParticlesBg /> */}
 
       {/* Left content */}
-            <div
+      <div
         style={{
           flex: "1 1 400px",
           zIndex: 2,
           paddingLeft: "50px",
         }}
       >
-         <div className="hero-style3 row">
+        <div className="hero-style3 row">
           <div className="col-md-6">
-             <div className="hero-subtitle text-white" data-ani="slideinup" data-ani-delay="0s">
-                                <span>
-                                  <img src="assets/img/hero/hero_shape_3.png" alt="MyCarBuddy" />
-                                  Welcome To MyCarBuddy
-                                </span>
-                              </div>
-                              <h1 className="hero-title text-white" data-ani="slideinup" data-ani-delay="0.1s">
-                               Premium Car Care at Your Doorstep
-                              </h1>
-                              <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
-                              MyCarBuddy bring hassle-free service right when you need it, so you enjoy life while we care for your car.
-                               </p>
-                              <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
-                                Our experts assess your car’s needs with clarity, no hidden costs, only genuine solutions.
-                              </p>
-                              <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
-                                Treat your car like our best buddy. Book now for expert care that keeps it running at its best!
-                              </p>
-                              <div className="btn-group" data-ani="slideinup" data-ani-delay="0.3s">
-                                {/* <Link to="/about" className="btn">
+            <div className="hero-subtitle text-white" data-ani="slideinup" data-ani-delay="0s">
+              <span>
+                <img src="assets/img/hero/hero_shape_3.png" alt="MyCarBuddy" />
+                Welcome To MyCarBuddy
+              </span>
+            </div>
+            <h1 className="hero-title text-white" data-ani="slideinup" data-ani-delay="0.1s">
+              Premium Car Care at Your Doorstep
+            </h1>
+            <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
+              My Car Buddy bring hassle-free service right when you need it, so you enjoy life while we care for your car.
+            </p>
+            <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
+              Our experts assess your car’s needs with clarity, no hidden costs, only genuine solutions.
+            </p>
+            <p className="hero-text text-white" data-ani="slideinup" data-ani-delay="0.2s">
+              Treat your car like our best buddy. Book now for expert care that keeps it running at its best!
+            </p>
+            <div className="btn-group" data-ani="slideinup" data-ani-delay="0.3s">
+              {/* <Link to="/about" className="btn">
                                   Learn More
                                 </Link> */}
-                                <div className="call-media-wrap">
+              <div className="call-media-wrap">
 
-                                  <Link to="/service" className="btn btn-primary px-4 py-3">
-                                    Book Now
-                                    </Link>
-                                  {/* <div className="icon">
+                <Link to="/service" className="btn btn-primary px-4 py-3">
+                  Explore Services
+                </Link>
+                <Link onClick={handleContactClick} className="btn btn-primary px-4 py-3">
+                  Call Now
+                </Link>
+                {/* <div className="icon">
                                     <img src="/assets/img/icon/phone-1.svg" alt="MyCarBuddy" />
                                   </div>
                                   <div className="media-body">
@@ -99,23 +119,23 @@ const HeroSection = () => {
                                       </a>
                                     </h4>
                                   </div> */}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="col-md-6">
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6">
             {/* <img src="/assets/img/hero/carwash.png" alt="Car Wash" className="hero-image"  /> */}
 
           </div>
-          </div>
-          
+        </div>
 
 
-                             
+
+
 
       </div>
-       
+
       {/* 3D Car Model */}
-       {/* <motion.div
+      {/* <motion.div
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 1 }}

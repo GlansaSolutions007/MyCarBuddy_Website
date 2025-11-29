@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaSearch } from "react-icons/fa";
 import BookServiceModal from "./BookServiceModal"
+import Fuse from "fuse.js";
 
 
 const ServiceAreaTwo = () => {
@@ -48,6 +49,27 @@ const ServiceAreaTwo = () => {
       .replace(/^-+|-+$/g, ""); // trim starting/ending "-"
   };
 
+  // --- START FUSE LOGIC ---
+  const fuse = useMemo(() => {
+    return new Fuse(services, {
+      keys: [
+        { name: "title", weight: 0.7 },      // Search Title
+        { name: "description", weight: 0.3 } // Search Description
+      ],
+      threshold: 0.4, // Allows spelling mistakes
+      includeScore: true,
+    });
+  }, [services]);
+
+  const filteredServices = useMemo(() => {
+    if (!searchTerm) return services;
+    const results = fuse.search(searchTerm);
+    return results.map((result) => result.item);
+  }, [searchTerm, services, fuse]);
+  // --- END FUSE LOGIC ---
+
+  // const slugify = (text) => { 
+  // ... your existing slugify function
 
   return (
     <div className="service-area-2 space overflow-hidden">
@@ -71,7 +93,7 @@ const ServiceAreaTwo = () => {
           <div className="position-relative ml-20">
             <FaSearch
               className="fasearch"
-              style={{ left: "85%" }}
+              style={{ left: "84%" }}
             />
             <input
               type="text"
@@ -89,110 +111,130 @@ const ServiceAreaTwo = () => {
         </div>
       </div>
 
-      {services.length === 2 ? (
-        <div className="container">
-          <div className="counter-area-1 space-bottom">
-            <div className="row gx-0 align-items-center justify-content-center gap-3">
-              {services
-                .filter((service) =>
-                  service.title.toLowerCase().includes(searchTerm.toLowerCase())
-                ).map((service) => (
-                  <div key={service.id} className="col-lg-5">
-                    <div
-                      className="counter-checklist-wrap d-flex flex-column"
-                      style={{ backgroundImage: `url(${service.image})`, minHeight: '400px' }}
-                    >
-                      <div className="call-media-wrap flex-grow-1">
-                        <div className="icon">
-                          <img src={service.icon} alt="icon" />
-                        </div>
-                        <div className="media-body">
-                          <h4 className="link">
-                            <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
-                              {service.title}
-                            </Link>
-                          </h4>
-                          <p className="service-card_text text-white mt-2">
-                            {service.description}
-                          </p>
-                        </div>
+      {/* --- START SEARCH RESULT LOGIC --- */}
 
-                      </div>
-                      <div className="checklist style-white">
-                        <div className="btn-wrap mt-20">
-                          <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
-                            Book Servicee <i className="fas fa-arrow-right ms-2" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      {filteredServices.length === 0 ? (
+        // 1. SHOW THIS IF NO SERVICES MATCH
+        <div className="container mt-5 mb-5">
+          <div className="col-12 text-center">
+            <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
+                alt="No results"
+                style={{ width: "150px", marginBottom: "20px", opacity: "0.8" }}
+              />
+              <h4 style={{ color: "#5a5a5a", fontWeight: "600" }}>
+                Whoops! No service found.
+              </h4>
+              <p style={{ color: "#888" }}>
+                We couldn't find what you searched for. Try a different keyword.
+              </p>
+              <button
+                className="btn btn-primary mt-2"
+                style={{
+                  borderRadius: "20px",
+                  padding: "8px 24px",
+                  background: "#116d6e",
+                  border: "none"
+                }}
+                onClick={() => setSearchTerm("")}
+              >
+                Clear Search
+              </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="container">
-          <div className="row gy-4 justify-content-center">
-            {services
-              .filter((service) =>
-                service.title.toLowerCase().includes(searchTerm.toLowerCase())
-              ).map((service) => (
-                <div key={service.id} className="col-lg-4">
-                  <Link className=" " to={`/service/${slugify(service.title)}/${service.id}`}>
-                    <div
-                      className="counter-checklist-wrap d-flex flex-column"
-                      style={{ backgroundImage: `url(${service.image})`, minHeight: '250px' }}
-                    >
-                      <div className="call-media-wrap flex-grow-1">
-                        <div className="icon">
-                          <img src={service.icon} alt="icon" style={{ maxWidth: '80%' }} />
+        // 2. SHOW YOUR EXISTING LAYOUT IF SERVICES ARE FOUND
+        <>
+          {services.length === 2 ? (
+            <div className="container">
+              <div className="counter-area-1 space-bottom">
+                <div className="row gx-0 align-items-center justify-content-center gap-3">
+                  {filteredServices.map((service) => (
+                    <div key={service.id} className="col-lg-5">
+                      <div
+                        className="counter-checklist-wrap d-flex flex-column"
+                        style={{ backgroundImage: `url(${service.image})`, minHeight: '400px' }}
+                      >
+                        <div className="call-media-wrap flex-grow-1">
+                          <div className="icon">
+                            <img src={service.icon} alt="icon" />
+                          </div>
+                          <div className="media-body">
+                            <h4 className="link">
+                              <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
+                                {service.title}
+                              </Link>
+                            </h4>
+                            <p className="service-card_text text-white mt-2">
+                              {service.description}
+                            </p>
+                          </div>
                         </div>
-                        <div className="media-body">
-                          <h4 className="link">
-                            <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
-                              {service.title}
+                        <div className="checklist style-white">
+                          <div className="btn-wrap mt-20">
+                            <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
+                              Book Servicee <i className="fas fa-arrow-right ms-2" />
                             </Link>
-                          </h4>
-                          <p className="service-card_text text-white mt-2">
-                            {service.description}
-                          </p>
-                        </div>
-
-                      </div>
-                      <div className="checklist style-white">
-                        <div className="btn-wrap mt-20">
-                          {/* <Link className="btn style4 px-4 py-2" to={`/service/${slugify(service.title)}/${service.id}`}>
-                            Book Service <i className="fas fa-arrow-right ms-2" />
-                          </Link> */}
-                          {/* <Link
-                            className="btn style4 px-4 py-2"
-                            onClick={() => {
-                              setSelectedService(service);
-                              setOpenModal(true);
-                            }}
-                          >
-                            Book Service <i className="fas fa-arrow-right ms-2" />
-                          </Link> */}
-                          <Link
-                            className="btn style4 px-4 py-2"
-                            onClick={(e) => {
-                              e.stopPropagation();          // prevent card click
-                              setSelectedService(service);      // <--- IMPORTANT
-                              setIsModalOpen(true);
-                            }}
-                          >
-                            Book Service <i className="fas fa-arrow-right ms-2" />
-                          </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  ))}
                 </div>
-              ))}
-          </div>
-        </div>
+              </div>
+            </div>
+          ) : (
+            <div className="container">
+              <div className="row gy-4 justify-content-center">
+                {filteredServices.map((service) => (
+                  <div key={service.id} className="col-lg-4">
+                    <Link className=" " to={`/service/${slugify(service.title)}/${service.id}`}>
+                      <div
+                        className="counter-checklist-wrap d-flex flex-column"
+                        style={{ backgroundImage: `url(${service.image})`, minHeight: '250px' }}
+                      >
+                        <div className="call-media-wrap flex-grow-1">
+                          <div className="icon">
+                            <img src={service.icon} alt="icon" style={{ maxWidth: '80%' }} />
+                          </div>
+                          <div className="media-body">
+                            <h4 className="link">
+                              <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
+                                {service.title}
+                              </Link>
+                            </h4>
+                            <p className="service-card_text text-white mt-2">
+                              {service.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="checklist style-white">
+                          <div className="btn-wrap mt-20">
+                            <Link
+                              className="btn style4 px-4 py-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedService(service);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              Book Service <i className="fas fa-arrow-right ms-2" />
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
+
+      {/* --- END SEARCH RESULT LOGIC --- */}
       {openModal && (
         <div
           style={{

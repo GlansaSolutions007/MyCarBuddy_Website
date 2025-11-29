@@ -668,8 +668,8 @@ const ServiceDetails = () => {
                   </div>
                   <h5>
                     {" "}
-                    <Link to="tel:7075243939">+91 70752 43939</Link>
-                    <br /> <Link to="tel:9885653865"> +91 98856 53865</Link>
+                    <Link to="tel:7075243939">+91 707-524-3939</Link>
+                    <br /> <Link to="tel:9885653865"> +91 988-565-3865</Link>
                   </h5>
                 </div>
               </aside>

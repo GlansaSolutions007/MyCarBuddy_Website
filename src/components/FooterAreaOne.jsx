@@ -34,6 +34,38 @@ const FooterAreaOne = () => {
       .replace(/^-+|-+$/g, "");
   };
 
+  const handleContactClickFirst = () => {
+    const phone = "7075243939";
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // Open WhatsApp Web
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
+
+  const handleContactClickSecond = () => {
+    const phone = "9885653865";
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // Open WhatsApp Web
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
+
   return (
     <footer
       className="footer-wrapper footer-layout1 "
@@ -49,31 +81,31 @@ const FooterAreaOne = () => {
         <div className="row justify-content-between col-md-12 pt-4">
           <div className="col-md-3 pt-4">
             <div className="col-md-12 text-center">
-             <img src="/assets/img/logoWhite.png" alt="MyCarBuddy"  width={"300px"}/>
-             <div className="d-flex justify-content-start my-4 mx-4">
-               <Link
-                 to="https://www.facebook.com/people/Mycarbuddyin/61578291056729/?sk=about_details"
-                 target="_blank"
-                 style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
-               >
-                 <i className="fab fa-facebook-f" />
-               </Link>
-               <Link
-                 to="https://www.instagram.com/mycarbuddy.in/"
-                 target="_blank"
-                 style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
-               >
-                 <i className="fab fa-instagram" />
-               </Link>
-               <Link
-                 to="https://www.linkedin.com/company/108159284/admin/dashboard/"
-                 target="_blank"
-                 style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
-               >
-                 <i className="fab fa-linkedin" />
-               </Link>
-               </div>
-          </div>
+              <img src="/assets/img/logoWhite.png" alt="MyCarBuddy" width={"300px"} />
+              <div className="d-flex justify-content-start my-4 mx-4">
+                <Link
+                  to="https://www.facebook.com/people/Mycarbuddyin/61578291056729/?sk=about_details"
+                  target="_blank"
+                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                >
+                  <i className="fab fa-facebook-f" />
+                </Link>
+                <Link
+                  to="https://www.instagram.com/mycarbuddy.in/"
+                  target="_blank"
+                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                >
+                  <i className="fab fa-instagram" />
+                </Link>
+                <Link
+                  to="https://www.linkedin.com/company/108159284/admin/dashboard/"
+                  target="_blank"
+                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                >
+                  <i className="fab fa-linkedin" />
+                </Link>
+              </div>
+            </div>
           </div>
           <div className="col-md-2 pt-4">
             <div className="widget widget_nav_menu footer-widget mb-30px ">
@@ -84,7 +116,7 @@ const FooterAreaOne = () => {
                     <Link to="/about">About</Link>
                   </li>
                   <li>
-                    <Link  to="/service">Services</Link>
+                    <Link to="/service">Services</Link>
                   </li>
                   <li>
                     <Link to="/contact">Contact</Link>
@@ -141,10 +173,11 @@ const FooterAreaOne = () => {
               <h3 className="widget_title">Reach Us</h3>
               <div className="widget-contact">
                 <p>
-                 Unit #B1, Second Floor Spaces & More Business Park,Madhapur #3 D.No# 1-89/A/8, C/2, Vittal Rao Nagar Rd, Madhapur,  Hyderabad India, 500081
+                  Unit #B1, Second Floor Spaces & More Business Park,Madhapur #3 D.No# 1-89/A/8, C/2, Vittal Rao Nagar Rd, Madhapur,  Hyderabad India, 500081
                 </p>
                 <p>
-                <Link to="tel:7075243939">Phone: +91 70752 43939</Link><br /> <Link to="tel:9885653865">Phone: +91 98856 53865</Link>
+                  <Link onClick={handleContactClickFirst}>Phone: +91 707-524-3939</Link><br />
+                  <Link onClick={handleContactClickSecond}>Phone: +91 988-565-3865</Link>
                 </p>
                 <p>
                   <Link toe="mailto:info@mycarbuddy.in">Email: info@mycarbuddy.in</Link>
@@ -156,15 +189,15 @@ const FooterAreaOne = () => {
       </div>
       <div className="copyright-wrap py-2">
         <div className="container">
-        <div className="row gy-2 justify-content-md-between justify-content-center p-2">
-          <div className="col-auto align-self-center">
-            <p className="copyright-text text-center">
-              © <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> 2025 | All Rights Reserved
-            </p>
-          </div>
-          <div className="col-auto">
-            <div className="footer-links">
-              <Link to="/refund-cancellation">Cancellation & Refund Policy</Link>
+          <div className="row gy-2 justify-content-md-between justify-content-center p-2">
+            <div className="col-auto align-self-center">
+              <p className="copyright-text text-center">
+                © <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> 2025 | All Rights Reserved
+              </p>
+            </div>
+            <div className="col-auto">
+              <div className="footer-links">
+                <Link to="/refund-cancellation">Cancellation & Refund Policy</Link>
               </div>
             </div>
           </div>

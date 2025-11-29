@@ -2444,7 +2444,7 @@ const MyBookings = () => {
                             </div>
                             {selectedBooking?.BookingStatus !== "Completed" && (
                               <div className="text-muted small">
-                                +91 70752 43939
+                                +91 707-524-3939
                               </div>
                             )}
                             {selectedBooking?.AssignedTimeSlot && (

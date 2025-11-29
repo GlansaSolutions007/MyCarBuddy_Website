@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import ChooseCarModal from "./ChooseCarModal";
 import AddToCartAnimation from "./AddToCartAnimation";
+import BookServiceModal from "./BookServiceModal"
+import Fuse from "fuse.js";
 
 // Function to highlight matching text in yellow
 const highlightText = (text, highlight) => {
@@ -52,6 +54,7 @@ const SkeletonLoader = () => {
 };
 
 const SearchResults = ({ searchTerm }) => {
+  const [allData, setAllData] = useState([]); // <--- ADD THIS
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -77,6 +80,7 @@ const SearchResults = ({ searchTerm }) => {
   const { cartItems, addToCart, removeFromCart } = useCart();
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedCarDetails = JSON.parse(localStorage.getItem("selectedCarDetails"));
   let brandId, modelId, fuelId;
@@ -94,29 +98,31 @@ const SearchResults = ({ searchTerm }) => {
     setEffectiveMax(0);
     setSortOption("relevance");
     const fetchSearchResults = async () => {
-      if (!searchTerm) return;
+      // NOTE: Removed "if (!searchTerm) return;" so we load data even if search is empty to allow matching
       setLoading(true);
-      setPage(1);
-      setHasMore(true);
       try {
+        // CHANGED: Removed searchTerm from URL and increased pageSize to fetch ALL data
         const response = await axios.get(
-          `${BASE_URL}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?searchTerm=${encodeURIComponent(searchTerm)}&page=1&pageSize=10`
+          `${BASE_URL}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?searchTerm=&page=1&pageSize=200`
         );
 
-        const formatted = response.data.filter(pkg => pkg.IsActive === true && pkg.Serv_Off_Price > 300).map(pkg => ({
-          id: pkg.PackageID,
-          title: pkg.PackageName,
-          description: pkg.SubCategoryName,
-          categoryName: pkg.CategoryName,
-          image: `${baseUrlImage}${pkg.PackageImage}`,
-          price: pkg.Serv_Off_Price,
-          originalPrice: pkg.Serv_Reg_Price,
-          includes: pkg.IncludeNames ? pkg.IncludeNames.split(',').map(i => i.trim()) : [],
-        }));
+        const formatted = response.data
+          .filter(pkg => pkg.IsActive === true && pkg.Serv_Off_Price > 300)
+          .map(pkg => ({
+            id: pkg.PackageID,
+            title: pkg.PackageName,
+            description: pkg.SubCategoryName,
+            categoryName: pkg.CategoryName,
+            image: `${baseUrlImage}${pkg.PackageImage}`,
+            price: pkg.Serv_Off_Price,
+            originalPrice: pkg.Serv_Reg_Price,
+            includes: pkg.IncludeNames ? pkg.IncludeNames.split(',').map(i => i.trim()) : [],
+          }));
 
-        setPackages(formatted);
-        setHasMore(formatted.length === 10); // Assuming pageSize=10
-        // initialize price bounds
+        setAllData(formatted); // <--- Store in Master List
+        setPackages(formatted); // <--- Initialize view with everything
+
+        // ... (Keep your price calculation logic here) ...
         if (formatted.length > 0) {
           const prices = formatted.map(p => Number(p.price) || 0);
           const minP = Math.min(...prices);
@@ -125,18 +131,10 @@ const SearchResults = ({ searchTerm }) => {
           setEffectiveMax(maxP);
           setPriceMin(minP);
           setPriceMax(maxP);
-        } else {
-          setEffectiveMin(0);
-          setEffectiveMax(0);
-          setPriceMin(0);
-          setPriceMax(0);
         }
-        setSelectedCategories([]);
-        setSortOption("relevance");
+
       } catch (err) {
         console.error("Failed to fetch search results", err);
-        setPackages([]);
-        setHasMore(false);
       } finally {
         setLoading(false);
       }
@@ -299,6 +297,31 @@ const SearchResults = ({ searchTerm }) => {
     setSortOption("relevance");
   };
 
+  // NEW: Fuse.js Filtering Logic
+  useEffect(() => {
+    if (!allData.length) return;
+
+    if (!searchTerm) {
+      setPackages(allData); // If no search, show everything
+      return;
+    }
+
+    const fuse = new Fuse(allData, {
+      keys: [
+        { name: "title", weight: 0.7 },
+        { name: "description", weight: 0.3 }, // Search in SubCategoryName
+        { name: "includes", weight: 0.2 },    // Search in includes list
+      ],
+      threshold: 0.4, // 0.4 allows for spelling mistakes (typos)
+      includeScore: true,
+    });
+
+    const results = fuse.search(searchTerm);
+    const items = results.map((result) => result.item);
+
+    setPackages(items); // Update the view with Fuse results
+  }, [searchTerm, allData]);
+
   return (
     <div className="container my-4">
       {/* <h4 className="mb-3">Search Results for "{searchTerm}"</h4> */}
@@ -308,20 +331,63 @@ const SearchResults = ({ searchTerm }) => {
       ) : packages.length === 0 ? (
         // <p className="text-muted">No packages found for "{searchTerm}".</p>
         <div className="col-12 text-center my-5">
+
+          {/* Top Section */}
           <div style={{ maxWidth: "500px", margin: "0 auto" }}>
             <img
               src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
               alt="No results"
-              style={{ width: "150px", marginBottom: "20px", opacity: "0.8" }}
+              style={{
+                width: "150px",
+                marginBottom: "20px",
+                opacity: "0.8"
+              }}
             />
-            <h4 style={{ color: "#5a5a5a", fontWeight: "600" }}>
+            <h4 style={{ color: "#5a5a5a", fontWeight: "600", marginBottom: "10px" }}>
               Whoops! No search result found for "{searchTerm}".
             </h4>
-            <p style={{ color: "#888" }}>
-              It looks like we don't have what you're looking for right now.
+            <p style={{ color: "#888", marginBottom: "25px" }}>
+              Need help finding the right service? Choose an option below.
             </p>
           </div>
+
+          {/* Buttons Box */}
+          <div
+            className="d-flex justify-content-center gap-4 px-4 py-3 mx-auto"
+            style={{
+              backgroundColor: "#f1f1f1",
+              width: "450px",
+              borderRadius: "12px",
+              padding: "20px 25px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
+            }}
+          >
+            {/* Quick Support */}
+            <button
+              className="btn btn-danger fw-bold px-4 py-2"
+              style={{ minWidth: "150px" }}
+              onClick={() => {
+                navigate("/#help");
+              }}
+            >
+              Quick Support
+            </button>
+
+            {/* Quick Booking */}
+            <button
+              className="btn btn-danger fw-bold px-4 py-2"
+              style={{ minWidth: "150px" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedService();
+                setIsModalOpen(true);
+              }}
+            >
+              Quick Booking
+            </button>
+          </div>
         </div>
+
       ) : (
         <div className="row">
           {/* Sidebar Filters */}
@@ -685,6 +751,11 @@ const SearchResults = ({ searchTerm }) => {
           </div>
         </div>
       )}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </div>
   );
 };

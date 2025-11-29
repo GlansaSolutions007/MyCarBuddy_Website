@@ -119,7 +119,7 @@ const Terms = () => {
         Secunderabad, Hyderabad, Telangana – 500026, India. <br />
         📧 Email: info@glansa.com <br />
         📞 Phone: +91 9885653865<br/>
-        📞 Phone: +91 70752 43939
+        📞 Phone: +91 707-524-3939
       </p>
     </div>
   );

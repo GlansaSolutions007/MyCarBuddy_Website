@@ -23,7 +23,7 @@ const HomePageThree = () => {
   let [active, setActive] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showCarDamageModal, setShowCarDamageModal] = useState(false);
-   const [seoMeta, setSeoMeta] = useState(null);
+  const [seoMeta, setSeoMeta] = useState(null);
   const serviceRef = useRef(null);
   const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
@@ -88,7 +88,7 @@ const HomePageThree = () => {
 
   return (
     <>
-     {/* ✅ Dynamic SEO Meta Tags */}
+      {/* ✅ Dynamic SEO Meta Tags */}
       {seoMeta && (
         <Helmet>
           <title>{seoMeta.seo_title || "Home | MyCarBuddy"}</title>
@@ -108,9 +108,9 @@ const HomePageThree = () => {
       <HeroSection />
 
       {/* Car Damage Analysis Section */}
-   
 
-      <ProcessAreaTwo />
+
+
 
       {/* Service Area Two */}
       <div ref={serviceRef}>
@@ -118,7 +118,7 @@ const HomePageThree = () => {
       </div>
 
       {/* Choose Car Modal */}
-      <ChooseCarModal isVisible={showModal} onClose={() => setShowModal(false)}  />
+      <ChooseCarModal isVisible={showModal} onClose={() => setShowModal(false)} />
 
       {/* Car Damage Analysis Modal */}
       {showCarDamageModal && (
@@ -131,18 +131,18 @@ const HomePageThree = () => {
               background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
               overflow: "hidden",
               maxWidth: "600px",
-              padding : "0px 30px 30px"
+              padding: "0px 30px 30px"
             }}>
               <div className="modal-header" >
-                   <div className="row">
-                    <div className="col-md-2">
-                      <FaCar size={40} color="#116d6e" />
-                    </div>
-                    <div className="col-md-10">
-                       <h2 style={{ color: '#116d6e', fontWeight: '700', fontSize: '1.8rem' }}>AI Car Damage Analysis</h2>
-                    
-                    </div>
-                  </div>  
+                <div className="row">
+                  <div className="col-md-2">
+                    <FaCar size={40} color="#116d6e" />
+                  </div>
+                  <div className="col-md-10">
+                    <h2 style={{ color: '#116d6e', fontWeight: '700', fontSize: '1.8rem' }}>AI Car Damage Analysis</h2>
+
+                  </div>
+                </div>
 
                 <button
                   type="button"
@@ -151,38 +151,39 @@ const HomePageThree = () => {
                     setShowCarDamageModal(false);
                     localStorage.setItem('carDamageModalDismissed', 'true');
                   }}
-                 style={{ marginTop : "-1.5rem" }}
+                  style={{ marginTop: "-1.5rem" }}
                 >X</button>
               </div>
               <div className="modal-body" style={{ padding: "10px" }}>
-                  <div className="row align-items-center">
-                    <div className="col-md-12">
-                      {/* <h2 className="mb-3" style={{ color: '#116d6e' }}>AI Car Damage Analysis</h2> */}
-                      <p className="mb-4">
-                        Upload images of your car to detect and analyze body damages using advanced AI technology.
-                        Get detailed reports on dents, scratches, rust, and other damages instantly.
-                      </p>
-                      <button
-                        className="btn btn-primary px-4 py-2"
-                        onClick={() =>{
-                           localStorage.setItem('carDamageModalDismissed', 'true');
-                           navigate('/car-damage-analysis') ; 
-                        }}
-                        style={{ backgroundColor: '#116d6e', borderColor: '#116d6e' }}
-                      >
-                        Click Here to Analyze
-                      </button>
-                    </div>
-                    {/* <div className="col-md-6">
+                <div className="row align-items-center">
+                  <div className="col-md-12">
+                    {/* <h2 className="mb-3" style={{ color: '#116d6e' }}>AI Car Damage Analysis</h2> */}
+                    <p className="mb-4">
+                      Upload images of your car to detect and analyze body damages using advanced AI technology.
+                      Get detailed reports on dents, scratches, rust, and other damages instantly.
+                    </p>
+                    <button
+                      className="btn btn-primary px-4 py-2"
+                      onClick={() => {
+                        localStorage.setItem('carDamageModalDismissed', 'true');
+                        navigate('/car-damage-analysis');
+                      }}
+                      style={{ backgroundColor: '#116d6e', borderColor: '#116d6e' }}
+                    >
+                      Click Here to Analyze
+                    </button>
+                  </div>
+                  {/* <div className="col-md-6">
                       <FaCar size={200} color="#116d6e" />
                     </div> */}
-                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
+      <ProcessAreaTwo />
 
       {/* Feature Area One */}
       <AboutFour />
@@ -194,7 +195,7 @@ const HomePageThree = () => {
       {/* Faq Area Two */}
       <FaqAreaTwo />
 
-{/* Testimonial One */}
+      {/* Testimonial One */}
       <TestimonialOne />
 
       {/* Marquee One */}
@@ -206,7 +207,7 @@ const HomePageThree = () => {
 
 
 
-      
+
 
       {/* Blog Area Three */}
       {/* <BlogAreaThree /> */}
@@ -217,7 +218,7 @@ const HomePageThree = () => {
       {/* Footer Area One */}
       <FooterAreaOne />
 
-     
+
     </>
   );
 };

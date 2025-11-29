@@ -21,6 +21,7 @@ import { FaCar } from "react-icons/fa";
 import NotificationDropdown from "./NotificationDropdown";
 import CryptoJS from "crypto-js";
 import { BsGooglePlay } from "react-icons/bs"; // this line fixes the error
+import { Phone } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
@@ -60,6 +61,8 @@ const HeaderOne = () => {
   // New state for service search
   const [serviceSearchTerm, setServiceSearchTerm] = useState("");
   const [decryptedUserId, setDecryptedUserId] = useState("");
+
+  const [isContactHovered, setIsContactHovered] = useState(false);
 
   const debounce = (func, delay) => {
     let timeoutId;
@@ -416,6 +419,21 @@ const HeaderOne = () => {
     }
   }, [hash]);
 
+  const handleContactClick = () => {
+    const phone = "7075243939";
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // Open WhatsApp Web
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
 
   return (
     <>
@@ -454,6 +472,9 @@ const HeaderOne = () => {
                       <i className="fas fa-clock" />
                       Monday - Sunday
                     </li> */}
+                    <li onClick={handleContactClick} style={{ cursor: "pointer" }}>
+                      <i className="fas fa-phone-alt" style={{ color: "#116d6e" }} /> +91 707-524-3939
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -530,6 +551,7 @@ const HeaderOne = () => {
           </div>
         </div>
         <div className={`sticky-wrapper ${scroll ? "sticky" : ""}`}>
+
           {/* Main Menu Area */}
           <div className="menu-area">
             {/* <div className="header-navbar-logo ">
@@ -537,7 +559,7 @@ const HeaderOne = () => {
                 <img src="/assets/img/MyCarBuddy-Logo1.png" alt="MyCarBuddy" />
               </Link>
             </div> */}
-            <div className="container">
+            <div className="container-fluid px-0">
               <div className="row align-items-center justify-content-lg-start justify-content-between">
                 <div className="col-auto d-block">
                   <div className="header-logo1 p-3">
@@ -545,13 +567,14 @@ const HeaderOne = () => {
                       <img
                         src="/assets/img/MyCarBuddy-Logo1.webp"
                         alt="MyCarBuddy"
-                        width={200}
+                        width={150}
                         height={100}
                       />
                     </Link>
                   </div>
                 </div>
-                <div className="col-auto m-auto">
+                
+                <div className="col-auto d-flex align-items-center" style={{ marginLeft: "-30px" }}>
                   <nav className="main-menu d-none d-lg-inline-block">
                     <ul>
                       <li>
@@ -568,7 +591,7 @@ const HeaderOne = () => {
                         </NavLink>
                       </li>
 
-                      {/* <li className="menu-item-has-children">
+                      <li className="menu-item-has-children">
                         <Link to="/service">Services</Link>
                         <ul
                           className="sub-menu"
@@ -604,11 +627,10 @@ const HeaderOne = () => {
                             </li>
                           ))}
                         </ul>
-                      </li> */}
-                      <li>
-                        {/* <a href="#services">Services</a> */}
-                        <Link to="/#services">Services</Link>
                       </li>
+                      {/* <li>
+                        <Link to="/#services">Services</Link>
+                      </li> */}
 
                       <li>
                         <NavLink
@@ -777,6 +799,74 @@ const HeaderOne = () => {
                           </span>
                         </h6>
                       </div> */}
+
+                      <div className="col-auto d-block">
+
+                  {/* ================= START OF CONTACT WIDGET ================= */}
+
+                  {/* This style tag handles the keyframe animation strictly for this component */}
+                  <style>
+                    {`
+                          @keyframes gentle-jump {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-4px); }
+                          }
+                        `}
+                  </style>
+
+                  <div className="d-none d-lg-block mx-2">
+                    <a
+                      // href="tel:+1234567890" // UPDATE YOUR NUMBER HERE
+                      onClick={handleContactClick}
+                      onMouseEnter={() => setIsContactHovered(true)}
+                      onMouseLeave={() => setIsContactHovered(false)}
+                      className="d-flex align-items-center gap-2 text-decoration-none rounded-pill"
+                      style={{
+                        // Base Styles
+                        border: "2px solid #116d6e",
+                        padding: "4px 18px",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                        // Dynamic Inline Styles (Hover Logic)
+                        backgroundColor: isContactHovered ? "#116d6e" : "white",
+                        color: isContactHovered ? "white" : "#116d6e",
+                        transform: isContactHovered ? "scale(1.05)" : "scale(1)",
+                        boxShadow: isContactHovered ? "0px 4px 15px rgba(17, 109, 110, 0.4)" : "none",
+                      }}
+                    >
+                      {/* Icon with inline Animation */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          animation: "gentle-jump 1.5s infinite ease-in-out", // The jumping magic
+                        }}
+                      >
+                        <Phone size={20} strokeWidth={2.5} />
+                      </div>
+
+                      {/* Text Section */}
+                      <div style={{ lineHeight: "1.2", display: "flex", flexDirection: "column" }}>
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "600",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                            opacity: isContactHovered ? 0.9 : 0.7,
+                          }}
+                        >
+                          Call Us Now
+                        </span>
+                        <span style={{ fontSize: "15px", fontWeight: "700" }}>
+                          +91 707-524-3939
+                        </span>
+                      </div>
+                    </a>
+                  </div>
+
+                  {/* ================= END OF CONTACT WIDGET ================= */}
+                </div>
 
                       <div
                         className="navbar-right-desc-details signDiv d-none d-md-flex"

@@ -20,6 +20,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.2.1",
+    "fuse.js": "^7.1.0",
     "https-browserify": "^1.0.0",
     "imagesloaded": "^5.0.0",
     "isotope-layout": "^3.0.6",

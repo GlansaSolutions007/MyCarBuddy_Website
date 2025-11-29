@@ -63,6 +63,25 @@ const ContactArea = () => {
     }
     setLoading(false);
   };
+
+  const handlePhoneClick = (phone) => {
+    // Extract digits only
+    const number = phone.replace(/\D/g, "");
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Call on mobile
+      window.location.href = `tel:${number}`;
+    } else {
+      // WhatsApp Web on desktop
+      window.open(`https://wa.me/${number}`, "_blank");
+    }
+  };
+
+
   return (
     <>
       <div className="contact-area space">
@@ -100,7 +119,13 @@ const ContactArea = () => {
                     <p className="contact-info_text">
                       {companyInfo.phones.map((phone, index) => (
                         <React.Fragment key={index}>
-                          <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link>
+                          {/* <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link> */}
+                          <a
+                            onClick={() => handlePhoneClick(phone)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {phone}
+                          </a>
                           {index < companyInfo.phones.length - 1 && <br />}
                         </React.Fragment>
                       ))}

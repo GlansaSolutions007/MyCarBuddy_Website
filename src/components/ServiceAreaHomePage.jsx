@@ -9,6 +9,7 @@ import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 import BookServiceModal from "./BookServiceModal"
+import Fuse from "fuse.js";
 
 const steps = [
   {
@@ -217,12 +218,58 @@ const ServiceAreaHomePage = () => {
       .replace(/^-+|-+$/g, "");
   };
 
-  const filteredServices = services.filter((service) =>
-    service.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredServices = services.filter((service) =>
+  //   service.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+
+  // ... existing code (Auth states, etc.)
+
+  // 1. Configure Fuse Options
+  const fuseOptions = {
+    // isCaseSensitive: false,
+    includeScore: true,
+    shouldSort: true,
+    // keys: Which fields to search in. 
+    // Weight: Higher weight means matches in 'title' rank higher than 'description'
+    keys: [
+      { name: "title", weight: 0.7 },
+      { name: "description", weight: 0.3 }
+    ],
+    // threshold: 0.0 is exact match, 1.0 is match anything. 
+    // 0.3 to 0.4 is usually good for spelling mistakes (fuzziness).
+    threshold: 0.4,
+  };
+
+  // 2. Initialize Fuse with your data
+  const fuse = new Fuse(services, fuseOptions);
+
+  // 3. Create the results variable
+  // If search exists, search with Fuse and extract the 'item'. 
+  // If no search, return all services.
+  const filteredServices = searchTerm
+    ? fuse.search(searchTerm).map((result) => result.item)
+    : services;
+
+  // ... existing code (slugify, etc.)
+
+   const handleContactClick = () => {
+    const phone = "7075243939";
+
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // Open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // Open WhatsApp Web
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
 
   return (
-    <div className="service-area-2 space overflow-hidden">
+    <div className="service-area-2 mt-50 overflow-hidden">
       <div className="container px-2 px-sm-3 px-md-4">
         <div className="row justify-content-center">
           <div className="col-lg-6">
@@ -264,72 +311,62 @@ const ServiceAreaHomePage = () => {
 
       <div className="container">
         <div className="row gy-4 justify-content-center">
-          {services
-            .filter((service) =>
-              service.title.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .map((service) => (
-              <div key={service.id} className="col-6 col-sm-6 col-md-4 col-lg-3">
-                <div
-                  className="service-card-minimal d-flex flex-column"
-                  style={{ minHeight: '150px' }}
-                >
-                  <div className="service-card-minimal-content d-flex flex-column align-items-center justify-content-center h-100" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
-                    <div className="icon">
-                      <img src={service.icon} alt="icon" className="service-icon" />
-                    </div>
-                    <p className="service-title text-center mt-3">
-                      {service.title}
-                    </p>
+          {/* Use the new filteredServices variable here */}
+          {filteredServices.map((service) => (
+            <div key={service.id} className="col-6 col-sm-6 col-md-4 col-lg-3">
+              {/* ... Rest of your card code remains exactly the same ... */}
+              <div
+                className="service-card-minimal d-flex flex-column"
+                style={{ minHeight: '150px' }}
+              >
+                <div className="service-card-minimal-content d-flex flex-column align-items-center justify-content-center h-100" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
+                  <div className="icon">
+                    <img src={service.icon} alt="icon" className="service-icon" />
                   </div>
-                  <div
-                    className="service-card-full d-flex flex-column"
-                    style={{ backgroundImage: `url(${service.image})` }}
-                  >
-                    <div className="call-media-wrap flex-grow-1" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
-                      <div className="call-media-wrap flex-grow-1">
-                        <div className="icon">
-                          <img src={service.icon} alt="icon" />
-                        </div>
-                        <div className="media-body">
-                          <h4 className="link">
-                            <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
-                              {service.title}
-                            </Link>
-                          </h4>
-                          <p className="service-card_text text-white mt-2">
-                            {service.description}
-                          </p>
-                        </div>
+                  <p className="service-title text-center mt-3">
+                    {service.title}
+                  </p>
+                </div>
+                <div
+                  className="service-card-full d-flex flex-column"
+                  style={{ backgroundImage: `url(${service.image})` }}
+                >
+                  <div className="call-media-wrap flex-grow-1" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
+                    <div className="call-media-wrap flex-grow-1">
+                      <div className="icon">
+                        <img src={service.icon} alt="icon" />
+                      </div>
+                      <div className="media-body">
+                        <h4 className="link">
+                          <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
+                            {service.title}
+                          </Link>
+                        </h4>
+                        <p className="service-card_text text-white mt-2">
+                          {service.description}
+                        </p>
                       </div>
                     </div>
-                    <div className="checklist style-white">
-                      <div className="btn-wrap mt-20">
-                        {/* <Link
-                          className="btn style4 px-4 py-2"
-                          onClick={() => {
-                            setSelectedService(service);
-                            setOpenModal(true);
-                          }}
-                        >
-                          Book Service <i className="fas fa-arrow-right ms-2" />
-                        </Link> */}
-                        <Link
-                          className="btn style4 px-4 py-2"
-                          onClick={(e) => {
-                            e.stopPropagation();          // prevent card click
-                            setSelectedService(service);      // <--- IMPORTANT
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          Book Service <i className="fas fa-arrow-right ms-2" />
-                        </Link>
-                      </div>
+                  </div>
+                  <div className="checklist style-white">
+                    <div className="btn-wrap mt-20">
+                      <Link
+                        className="btn style4 px-4 py-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedService(service);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        Book Service <i className="fas fa-arrow-right ms-2" />
+                      </Link>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+              {/* ... End of card code ... */}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -436,13 +473,17 @@ const ServiceAreaHomePage = () => {
                 >
                   <i className="bi bi-telephone" style={{ fontSize: "28px" }}></i>
                 </div>
-                <h4 className="fw-bold mb-2" style={{ color: "#ffffffc9" }} >Quick Call Support</h4>
+                <h4 className="fw-bold mb-2" style={{ color: "#ffffffc9" }} >Quick Call Support (+91 707-524-3939)</h4>
                 <p className="mb-4" style={{ opacity: 0.9, color: "#ffffffc9" }}>
                   Connect directly with our support team for immediate help.
                 </p>
-                <Link
+
+                <a
                   className="btn glass-btn px-4 py-2"
-                  to="/contact"
+                  // href="https://api.whatsapp.com/send?phone=917075243939"
+                  onClick={handleContactClick}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     background: "#fff",
                     color: "#181818ff",
@@ -453,7 +494,8 @@ const ServiceAreaHomePage = () => {
                   }}
                 >
                   Call Now
-                </Link>
+                </a>
+
               </div>
             </div>
           </div>
@@ -644,273 +686,6 @@ const ServiceAreaHomePage = () => {
         })}
       </div>
 
-      {openModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-            padding: "15px",
-            animation: "fadeIn 0.3s ease-in-out",
-          }}
-        >
-          <style>
-            {`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modern-input:focus { border-color: #0a6264 !important; box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.1) !important; outline: none; }
-        .modern-input:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; border-color: #e5e7eb; }
-        textarea::-webkit-scrollbar { width: 6px; }
-        textarea::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-      `}
-          </style>
-
-          <div
-            style={{
-              background: "#ffffff",
-              padding: "25px",
-              width: "100%",
-              maxWidth: "450px",
-              borderRadius: "20px",
-              boxShadow: "0px 10px 40px rgba(0,0,0,0.2)",
-              animation: "slideUp 0.3s ease-out",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* 🔹 Header Section */}
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h5
-                style={{
-                  margin: "0 0 4px 0",
-                  color: "#0a6264",
-                  fontWeight: 800,
-                  fontSize: "20px",
-                  letterSpacing: "-0.5px",
-                }}
-              >
-                {otpStep ? "Verify Identity" : "Quick Inquiry"}
-              </h5>
-              <p style={{ margin: 0, fontSize: "12px", color: "#6b7280" }}>
-                {selectedService?.title ? (
-                  <span>Service: <strong style={{ color: "#0a6264" }}>{selectedService.title}</strong></span>
-                ) : (
-                  "Please fill in your details"
-                )}
-              </p>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!otpStep) {
-                  // Move to OTP Step
-                  handleSendOTP();
-                  return;
-                } else {
-                  // Verify OTP & Submit Lead
-                  handleVerifyOTP();
-                }
-              }}
-            >
-              {/* 🔹 Row: Name & Phone (Side by Side) */}
-              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "#374151", marginBottom: "4px" }}>
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    className="modern-input"
-                    placeholder="Your Name"
-                    disabled={otpStep}
-                    required
-                    // 🔹 Bind to State
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      fontSize: "13px",
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                      backgroundColor: "#fff",
-                      color: "#1f2937",
-                    }}
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "#374151", marginBottom: "4px" }}>
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    className="modern-input"
-                    placeholder="Mobile No."
-                    disabled={otpStep}
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      fontSize: "13px",
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                      backgroundColor: "#fff",
-                      color: "#1f2937",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* 🔹 Description Field */}
-              <div style={{ marginBottom: "12px" }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    color: "#374151",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Message / Description
-                </label>
-
-                <textarea
-                  className="modern-input"
-                  placeholder="Briefly describe your requirements..."
-                  disabled={otpStep}
-                  // 🔹 Bind to State
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onInput={(e) => {
-                    e.target.style.height = "auto";
-                    e.target.style.height = e.target.scrollHeight + "px";
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: "6px",
-                    fontSize: "12px",
-                    borderRadius: "6px",
-                    border: "1px solid #e5e7eb",
-                    backgroundColor: "#fff",
-                    color: "#1f2937",
-                    resize: "none",
-                    fontFamily: "inherit",
-                    minHeight: "28px",
-                    lineHeight: "1.2",
-                    overflow: "hidden",
-                  }}
-                />
-              </div>
-
-              {/* 🔹 Expandable OTP Section */}
-              <div
-                style={{
-                  maxHeight: otpStep ? "120px" : "0px",
-                  opacity: otpStep ? 1 : 0,
-                  overflow: "hidden",
-                  transition: "all 0.3s ease-in-out",
-                  marginBottom: otpStep ? "15px" : "0",
-                }}
-              >
-                <div
-                  style={{
-                    background: "rgba(10, 98, 100, 0.04)",
-                    padding: "12px",
-                    borderRadius: "10px",
-                    border: "1px dashed #0a6264",
-                    textAlign: "center"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#0a6264" }}>Enter OTP Code</span>
-                    <span style={{ fontSize: "11px", color: "#6b7280" }}>
-                      {timer > 0 ? `00:${timer.toString().padStart(2, '0')}` : <span style={{ cursor: 'pointer', color: '#0a6264', fontWeight: 'bold' }} onClick={() => setTimer(60)}>Resend</span>}
-                    </span>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    maxLength={6}
-                    placeholder="• • • • • •"
-                    required={otpStep}
-                    className="modern-input"
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      fontSize: "16px",
-                      textAlign: "center",
-                      letterSpacing: "5px",
-                      borderRadius: "6px",
-                      border: "1px solid #d1d5db",
-                      fontWeight: "bold",
-                      color: "#0a6264",
-                      background: "#fff"
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* 🔹 Action Buttons */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "5px" }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (otpStep) {
-                      setOtpStep(false);
-                      setOtp("");
-                    } else {
-                      setOpenModal(false);
-                    }
-                  }}
-                  style={{
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    background: "#fff",
-                    color: "#4b5563",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "background 0.2s",
-                  }}
-                >
-                  {otpStep ? "Back" : "Cancel"}
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "none",
-                    background: loading ? "#6b7280" : "#0a6264",
-                    color: "#fff",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: loading ? "not-allowed" : "pointer",
-                    boxShadow: "0 2px 8px rgba(10, 98, 100, 0.25)",
-                  }}
-                >
-                  {loading ? "Processing..." : (otpStep ? "Submit Inquiry" : "Verify Number")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       <BookServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
