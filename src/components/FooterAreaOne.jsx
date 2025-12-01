@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Chatbot from "./Chatbot";
 import axios from "axios";
+import "./Footer.css"; // Ensure you import the CSS file
 
 const FooterAreaOne = () => {
   const [categories, setCategories] = useState([]);
@@ -13,8 +13,15 @@ const FooterAreaOne = () => {
         const response = await axios.get(`${API_URL}Category`);
         if (Array.isArray(response.data)) {
           const activeCategories = response.data.filter((cat) => cat.IsActive);
+          const targetCategories = [
+            "AC Service and Repair",
+            "Car Spa & Cleaning",
+            "Denting & Painting",
+            "Car Inspections",
+            "Detailing Services",
+          ];
           const filteredCategories = activeCategories.filter((cat) =>
-            ["AC Service and Repair", "Car Spa & Cleaning", "Denting & Painting", "Car Inspections", "Detailing Services"].includes(cat.CategoryName)
+            targetCategories.includes(cat.CategoryName)
           );
           setCategories(filteredCategories);
         }
@@ -34,120 +41,98 @@ const FooterAreaOne = () => {
       .replace(/^-+|-+$/g, "");
   };
 
-  const handleContactClickFirst = () => {
-    const phone = "7075243939";
-
+  // Reusable Contact Handler
+  const handleContactClick = (phone) => {
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      // Open phone dialer
       window.location.href = `tel:${phone}`;
     } else {
-      // Open WhatsApp Web
-      window.open(`https://wa.me/91${phone}`, "_blank");
-    }
-  };
-
-  const handleContactClickSecond = () => {
-    const phone = "9885653865";
-
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
-      navigator.userAgent
-    );
-
-    if (isMobile) {
-      // Open phone dialer
-      window.location.href = `tel:${phone}`;
-    } else {
-      // Open WhatsApp Web
       window.open(`https://wa.me/91${phone}`, "_blank");
     }
   };
 
   return (
     <footer
-      className="footer-wrapper footer-layout1 "
-      // style={{ backgroundImage: "url(assets/img/bg/footer-bg1-1.png)" }}
-      style={{ backgroundColor: "url(assets/img/bg/footer-top-bg1-1.png)" }}
+      className="footer-wrapper"
+      style={{ backgroundImage: "url(/assets/img/bg/footer-top-bg1-1.png)" }}
     >
+      <div className="footer-overlay"></div>
 
-      {/* <Chatbot/> */}
-      <div className="widget-area p-0">
-        {/* <div className="col-md-12 text-center">
-             <img src="/assets/img/logoWhite.png" alt="MyCarBuddy"  width={"300px"}/>
-        </div> */}
-        <div className="row justify-content-between col-md-12 pt-4">
-          <div className="col-md-3 pt-4">
-            <div className="col-md-12 text-center">
-              <img src="/assets/img/logoWhite.png" alt="MyCarBuddy" width={"300px"} />
-              <div className="d-flex justify-content-start my-4 mx-4">
+      <div className="container pt-5 pb-4 footer-content">
+        <div className="row justify-content-between">
+          
+          {/* Column 1: Logo & Social */}
+          <div className="col-lg-3 col-md-6 mb-4">
+            <div className="footer-widget text-center text-md-start">
+              <Link to="/">
+                <img
+                  src="/assets/img/logoWhite.png"
+                  alt="MyCarBuddy"
+                  style={{ maxWidth: "250px", height: "auto" }}
+                />
+              </Link>
+              <p className="mt-3 text-light opacity-75">
+                {/* Your trusted partner for car care. Expert mechanics, doorstep service, and premium quality. */}
+              </p>
+              <div className="social-icon-box">
                 <Link
                   to="https://www.facebook.com/people/Mycarbuddyin/61578291056729/?sk=about_details"
                   target="_blank"
-                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                  className="social-link"
+                  aria-label="Facebook"
                 >
                   <i className="fab fa-facebook-f" />
                 </Link>
                 <Link
                   to="https://www.instagram.com/mycarbuddy.in/"
                   target="_blank"
-                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                  className="social-link"
+                  aria-label="Instagram"
                 >
                   <i className="fab fa-instagram" />
                 </Link>
                 <Link
                   to="https://www.linkedin.com/company/108159284/admin/dashboard/"
                   target="_blank"
-                  style={{ margin: '0 16px', color: 'white', fontSize: '26px', width: '26px', height: '26px', }}
+                  className="social-link"
+                  aria-label="LinkedIn"
                 >
-                  <i className="fab fa-linkedin" />
+                  <i className="fab fa-linkedin-in" />
                 </Link>
               </div>
             </div>
           </div>
-          <div className="col-md-2 pt-4">
-            <div className="widget widget_nav_menu footer-widget mb-30px ">
+
+          {/* Column 2: Quick Links */}
+          <div className="col-lg-2 col-md-6 mb-4">
+            <div className="footer-widget widget_nav_menu">
               <h3 className="widget_title">Quick Links</h3>
               <div className="menu-all-pages-container">
-                <ul className="menu d-inline-block">
-                  <li>
-                    <Link to="/about">About</Link>
-                  </li>
-                  <li>
-                    <Link to="/service">Services</Link>
-                  </li>
-                  <li>
-                    <Link to="/contact">Contact</Link>
-                  </li>
-                  <li>
-                    <Link to="/privacy">Privacy Policy</Link>
-                  </li>
-                  <li>
-                    <Link to="/terms">Terms &amp; Condition</Link>
-                  </li>
+                <ul>
+                  <li><Link to="/about">About Us</Link></li>
+                  <li><Link to="/service">All Services</Link></li>
+                  <li><Link to="/contact">Contact Support</Link></li>
+                  <li><Link to="/privacy">Privacy Policy</Link></li>
+                  <li><Link to="/terms">Terms & Conditions</Link></li>
                 </ul>
               </div>
             </div>
           </div>
-          <div className="col-md-2 pt-4">
-            <div className="widget widget_nav_menu footer-widget mb-30px">
-              <h3 className="widget_title" style={{ textAlign: 'left' }}>Our Services</h3>
+
+          {/* Column 3: Services (Dynamic) */}
+          <div className="col-lg-3 col-md-6 mb-4">
+            <div className="footer-widget widget_nav_menu">
+              <h3 className="widget_title">Popular Services</h3>
               <div className="menu-all-pages-container">
-                <ul
-                  className="menu"
-                  style={{
-                    padding: "0px 0",
-                    margin: 0,
-                    display: "grid",
-                    gridTemplateColumns: "repeat(1, 1fr)",
-                    gap: "0px 2px",
-                  }}
-                >
+                <ul>
                   {categories.map((category) => (
-                    <li key={category.CategoryID} style={{ padding: "2px 0" }}>
-                      <Link to={`/service/${slugify(category.CategoryName)}/${category.CategoryID}`}>
+                    <li key={category.CategoryID}>
+                      <Link
+                        to={`/service/${slugify(category.CategoryName)}/${category.CategoryID}`}
+                      >
                         {category.CategoryName}
                       </Link>
                     </li>
@@ -157,80 +142,70 @@ const FooterAreaOne = () => {
             </div>
           </div>
 
-          {/* <div className="col-md-2 ">
-            <div className="widget footer-widget widget-newsletter">
-              <h3 className="widget_title">About</h3>
-
-              <p className="footer-text ">
-              At My Car Buddy, we make car care effortless by bringing professional services straight to your doorstep. No more waiting at garages or service centers. Our expert mechanics and technicians come to you, whenever and wherever you need them.
-              </p>
-
-            </div>
-          </div> */}
-
-          <div className="col-md-3 pt-4">
-            <div className="widget footer-widget mb-30px">
+          {/* Column 4: Contact Info */}
+          <div className="col-lg-4 col-md-6 mb-4">
+            <div className="footer-widget">
               <h3 className="widget_title">Reach Us</h3>
               <div className="widget-contact">
-                <p>
-                  Unit #B1, Second Floor Spaces & More Business Park,Madhapur #3 D.No# 1-89/A/8, C/2, Vittal Rao Nagar Rd, Madhapur,  Hyderabad India, 500081
-                </p>
-                <p>
-                  <Link onClick={handleContactClickFirst}>Phone: +91 707-524-3939</Link><br />
-                  <Link onClick={handleContactClickSecond}>Phone: +91 988-565-3865</Link>
-                </p>
-                <p>
-                  <Link toe="mailto:info@mycarbuddy.in">Email: info@mycarbuddy.in</Link>
-                </p>
+                <div className="contact-item">
+                  <i className="fas fa-map-marker-alt contact-icon"></i>
+                  <p className="mb-0" style={{color: "#b3b3b3"}}>
+                    Unit #B1, 2nd Floor, Spaces & More Business<br/>
+                    Park, Madhapur, Hyderabad, India, 500081
+                  </p>
+                </div>
+                
+                <div className="contact-item">
+                  <i className="fas fa-phone-alt contact-icon"></i>
+                  <div>
+                    <div 
+                      onClick={() => handleContactClick("7075243939")} 
+                      className="d-block contact-link" 
+                      style={{cursor: 'pointer'}}
+                    >
+                      +91 707-524-3939
+                    </div>
+                    <div 
+                      onClick={() => handleContactClick("9885653865")} 
+                      className="d-block contact-link" 
+                      style={{cursor: 'pointer'}}
+                    >
+                      +91 988-565-3865
+                    </div>
+                  </div>
+                </div>
+
+                <div className="contact-item">
+                  <i className="fas fa-envelope contact-icon"></i>
+                  <a href="mailto:info@mycarbuddy.in" className="contact-link">
+                    info@mycarbuddy.in
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="copyright-wrap py-2">
+
+      {/* Copyright Strip */}
+      <div className="copyright-wrap py-3">
         <div className="container">
-          <div className="row gy-2 justify-content-md-between justify-content-center p-2">
-            <div className="col-auto align-self-center">
-              <p className="copyright-text text-center">
-                © <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> 2025 | All Rights Reserved
+          <div className="row align-items-center">
+            <div className="col-md-6 text-center text-md-start">
+              <p className="mb-0 copyright-text">
+                © {new Date().getFullYear()} <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> | All Rights Reserved
               </p>
             </div>
-            <div className="col-auto">
+            <div className="col-md-6 text-center text-md-end mt-2 mt-md-0">
               <div className="footer-links">
-                <Link to="/refund-cancellation">Cancellation & Refund Policy</Link>
+                <Link to="/refund-cancellation" className="text-light text-decoration-none small">
+                  Cancellation & Refund Policy
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* Floating WhatsApp Chat Button */}
-      {/* <a
-        href="https://wa.me/9885653865"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          backgroundColor: '#25D366',
-          color: 'white',
-          borderRadius: '50%',
-          width: '55px',
-          height: '55px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-          zIndex: 1000,
-          textDecoration: 'none',
-          transition: 'all 0.3s ease',
-        }}
-        onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
-        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-        aria-label="Chat on WhatsApp"
-      >
-        <i className="fab fa-whatsapp" style={{ fontSize: '30px' }}></i>
-      </a> */}
     </footer>
   );
 };

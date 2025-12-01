@@ -6,14 +6,14 @@ const FaqAreaTwo = () => {
   return (
     <section className="faq-area-2 space mt-50">
       <div className="container mt-50 pt-50">
-        <div className="title-area">
-              <span className="sub-title">FAQ</span>
-              <h2 className="sec-title">
+         <div className="title-area text-center mb-40">
+              <h3 className="sub-title">FAQ</h3>
+              <h2 className="sec-title text-dark">
                 Your Car Service Questions Answered{" "}
                 <img
-                  className="title-bg-shape"
-                  src="assets/img/bg/title-bg-shape.png"
-                  alt="Car Service"
+                  className="title-bg-shape shape-center"
+                  src="assets/img/bg/title-bg-shape2.png"
+                  alt="MyCarBuddy"
                 />
               </h2>
             </div>
@@ -41,13 +41,13 @@ const FaqAreaTwo = () => {
                   <h4 className="about-counter-text">Cars Washed</h4>
                 </div>
               </div> */}
-                 <img src="assets/img/normal/faq-thumb-2-1.webp" alt="MyCarBuddy"/>
+              <img src="assets/img/normal/faq-thumb-2-1.webp" alt="MyCarBuddy" />
             </div>
           </div>
 
           {/* FAQ Section */}
           <div className="col-xl-6">
-            
+
 
             <div className="accordion-area accordion" id="faqAccordion" style={{ maxHeight: '500px', overflowY: 'auto' }}>
               {/* Question 1 */}

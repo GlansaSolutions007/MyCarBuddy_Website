@@ -631,7 +631,7 @@ const ServiceDetails = () => {
                   className="widget widget_service-list mb-4 d-flex flex-column"
                   style={{ height: "70vh" }}
                 >
-                  <h4 className="widget_title mb-3">Other Services</h4>
+                  <h4 className="widget_title mb-3 text-dark ">Other Services</h4>
                   <ul
                     className="overflow-auto p-0 m-0"
                     style={{ listStyle: "none" }}
@@ -651,8 +651,8 @@ const ServiceDetails = () => {
                     ))}
                   </ul>
                 </div>
-                <div className="widget widget_contact bg-light p-3 rounded text-center">
-                  <h5 className="widget_title mb-2">Need Help?</h5>
+                <div className="widget widget_contact bg-light p-3 rounded ps-4">
+                  <h5 className="widget_title mb-2 text-dark">Need Help?</h5>
                   <p className="text-muted mb-2">
                     Have questions about this service?
                   </p>
@@ -682,7 +682,7 @@ const ServiceDetails = () => {
             className="d-flex justify-content-between align-items-center mb-3"
             style={{ position: "relative" }}
           >
-            <h4 className="widget_title mb-0">Related Services</h4>
+            <h4 className="widget_title mb-0 text-dark">Related Services</h4>
             <div
               className="testimonialOne arrow"
               style={{ position: "absolute", bottom: "0px", right: "0px" }}

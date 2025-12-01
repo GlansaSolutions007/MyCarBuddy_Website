@@ -109,29 +109,28 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     rzp.open();
   };
 
-  const normalSubmit = async (custID) => {
+  const normalSubmit = async () => {
     const leadPayload = {
-      custID,
       fullName,
       phoneNumber: identifier,
       email: "",
-      platform: "web",
-      description: `${selectedService?.title || "General Enquiry"} - ${description}`,
+      description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
 
-    await axios.put(`${baseUrl}Leads/UpdateCustomerAndLead`, leadPayload);
+    await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
     window.dispatchEvent(new Event("userProfileUpdated"));
 
     Swal.fire({
       title: "Thank You!",
-      text: "Thank you! Your Enquiry has been submitted. Our support team will reach out to you soon.",
+      text: "Thank you! Your enquiry has been submitted. Our support team will reach out to you soon.",
       icon: "success",
       confirmButtonColor: "#0a6264",
     });
 
     onClose();
   };
+
 
   const handleSendOTP = async () => {
     if (!identifier) {
@@ -182,7 +181,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       if (inspection) {
         handlePayment();
       } else {
-        await normalSubmit(res.data?.custID);
+        await normalSubmit();
       }
     } catch (err) {
       console.error("OTP Verify Error", err);
@@ -207,7 +206,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       if (inspection) {
         handlePayment();
       } else {
-        await normalSubmit(decryptedCustId);
+        await normalSubmit();
       }
     } catch (err) {
       console.error("Logged-in enquiry submit error:", err);
@@ -304,8 +303,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                 <li>Technician visits your location for inspection</li>
                 <li>Helps us give correct estimate before actual service</li>
               </ul>
-              <p style={{marginTop: "12px", fontSize: "15px", lineHeight: "1.6", color: "#444"}}>
-                <strong>Inspection Fee: ₹499</strong> — Mandatory Step to Ensure Accurate Repair & Avoid Extra Charges.
+              <p style={{ marginTop: "12px", fontSize: "15px", lineHeight: "1.6", color: "#444" }}>
+                <strong>Inspection Fee: ₹299</strong> — Mandatory Step to Ensure Accurate Repair & Avoid Extra Charges.
               </p>
             </div>
 
