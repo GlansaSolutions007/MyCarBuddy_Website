@@ -1,0 +1,561 @@
+/* ===== Process Area One - Modern Style ===== */
+
+.process-one-section {
+  background: linear-gradient(180deg, #f0f9f9 0%, #ffffff 50%, #f8fffe 100%);
+  padding: 0 0 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.process-one-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(10, 98, 100, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.process-one-section::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(26, 161, 164, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Floating decorative shapes */
+.process-one-shapes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.process-one-shape {
+  position: absolute;
+  opacity: 0.15;
+}
+
+.process-one-shape-1 {
+  top: 10%;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+  animation: spinSlow 20s linear infinite;
+}
+
+.process-one-shape-2 {
+  bottom: 15%;
+  right: 8%;
+  width: 100px;
+  height: 100px;
+  animation: spinSlow 25s linear infinite reverse;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Section Header ===== */
+.process-one-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.process-one-subtitle {
+  display: inline-block;
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #1aa1a4 0%, #0a6264 50%, #0e4e50 100%);
+  color: #fff;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.3);
+}
+
+.process-one-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.3;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===== Process Steps Grid ===== */
+.process-one-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  position: relative;
+}
+
+/* Connector Lines */
+.process-one-connector {
+  position: absolute;
+  top: 80px;
+  left: calc(33.33% - 15%);
+  width: 30%;
+  height: 4px;
+  background: linear-gradient(90deg, #0a6264 0%, rgba(10, 98, 100, 0.2) 100%);
+  border-radius: 10px;
+  z-index: 0;
+}
+
+.process-one-connector:nth-of-type(2) {
+  left: calc(66.66% - 15%);
+}
+
+/* ===== Process Card ===== */
+.process-one-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1;
+  overflow: hidden;
+}
+
+.process-one-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #1aa1a4 0%, #0a6264 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.process-one-card:hover::before {
+  transform: scaleX(1);
+}
+
+.process-one-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 60px rgba(10, 98, 100, 0.18);
+  border-color: rgba(10, 98, 100, 0.15);
+}
+
+/* Step Number */
+.process-one-number {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.1) 0%, rgba(26, 161, 164, 0.1) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0a6264;
+  transition: all 0.4s ease;
+}
+
+.process-one-card:hover .process-one-number {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  transform: scale(1.15) rotate(10deg);
+}
+
+/* Icon Container */
+.process-one-icon {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(145deg, #f9f0f0 0%, #f4e8e8 100%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 24px;
+  box-shadow: 0 8px 25px rgba(10, 98, 100, 0.12);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+}
+
+.process-one-icon::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 2px dashed rgba(10, 98, 100, 0.15);
+  border-radius: 50%;
+  transition: all 0.4s ease;
+}
+
+.process-one-card:hover .process-one-icon {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  transform: scale(1.1);
+  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.3);
+}
+
+.process-one-card:hover .process-one-icon::after {
+  transform: rotate(180deg);
+  border-color: rgba(10, 98, 100, 0.3);
+}
+
+.process-one-icon img {
+  width: 50px;
+  height: 50px;
+  transition: all 0.4s ease;
+  /* Red color by default (for side icons) */
+  filter: brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(2048%) hue-rotate(344deg) brightness(88%) contrast(97%);
+}
+
+.process-one-card:hover .process-one-icon img {
+  /* White color on hover (for side icons) */
+  filter: brightness(0) invert(1);
+  transform: scale(1.1);
+}
+
+/* Card Content */
+.process-one-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 14px;
+  transition: color 0.3s ease;
+}
+
+.process-one-card:hover .process-one-card-title {
+  color: #0a6264;
+}
+
+.process-one-card-text {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Center Card Highlight */
+.process-one-card.featured {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border: none;
+}
+
+.process-one-card.featured::before {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.process-one-card.featured .process-one-number {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.process-one-card.featured:hover .process-one-number {
+  background: #fff;
+  color: #0a6264;
+}
+
+.process-one-card.featured .process-one-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.process-one-card.featured .process-one-icon::after {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.process-one-card.featured:hover .process-one-icon {
+  background: #fff;
+}
+
+.process-one-card.featured .process-one-icon img {
+  /* White color by default for center icon */
+  filter: brightness(0) invert(1);
+}
+
+.process-one-card.featured:hover .process-one-icon img {
+  /* Red color on hover for center icon */
+  filter: brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(2048%) hue-rotate(344deg) brightness(88%) contrast(97%);
+}
+
+.process-one-card.featured .process-one-card-title {
+  color: #fff;
+}
+
+.process-one-card.featured:hover .process-one-card-title {
+  color: #fff;
+}
+
+.process-one-card.featured .process-one-card-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== Responsive Styles ===== */
+@media (max-width: 1199px) {
+  .process-one-section {
+    padding: 60px 0;
+  }
+
+  .process-one-card {
+    padding: 35px 25px;
+  }
+
+  .process-one-connector {
+    width: 25%;
+    left: calc(33.33% - 12.5%);
+  }
+
+  .process-one-connector:nth-of-type(2) {
+    left: calc(66.66% - 12.5%);
+  }
+}
+
+@media (max-width: 991px) {
+  .process-one-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .process-one-connector {
+    display: none;
+  }
+
+  .process-one-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    text-align: left;
+    padding: 30px;
+  }
+
+  .process-one-card::before {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: 5px;
+    height: 100%;
+    transform: scaleY(0);
+  }
+
+  .process-one-card:hover::before {
+    transform: scaleY(1);
+  }
+
+  .process-one-number {
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  .process-one-icon {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    margin: 0;
+  }
+
+  .process-one-icon img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .process-one-card-content {
+    flex: 1;
+  }
+
+  .process-one-card-title {
+    font-size: 1.15rem;
+  }
+
+  .process-one-card-text {
+    font-size: 0.9rem;
+  }
+
+  /* Reset featured card for tablet/mobile */
+  .process-one-card.featured {
+    background: #ffffff;
+  }
+
+  .process-one-card.featured .process-one-number {
+    background: linear-gradient(135deg, rgba(10, 98, 100, 0.1) 0%, rgba(26, 161, 164, 0.1) 100%);
+    color: #0a6264;
+  }
+
+  .process-one-card.featured .process-one-icon {
+    background: linear-gradient(145deg, #f0f9f9 0%, #e8f4f4 100%);
+    border: none;
+    backdrop-filter: none;
+  }
+
+  .process-one-card.featured .process-one-icon::after {
+    border-color: rgba(10, 98, 100, 0.15);
+  }
+
+  .process-one-card.featured .process-one-icon img {
+    /* White color by default */
+    filter: brightness(0) invert(1);
+  }
+
+  .process-one-card.featured .process-one-card-title {
+    color: #1a1a2e;
+  }
+
+  .process-one-card.featured .process-one-card-text {
+    color: #666;
+  }
+
+  .process-one-shapes {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .process-one-header {
+    margin-bottom: 40px;
+  }
+
+  .process-one-subtitle {
+    font-size: 0.75rem;
+    padding: 6px 18px;
+  }
+
+  .process-one-title {
+    font-size: 1.5rem;
+  }
+
+  .process-one-card {
+    padding: 24px 20px;
+    gap: 18px;
+    border-radius: 20px;
+  }
+
+  .process-one-icon {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+  }
+
+  .process-one-icon img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .process-one-card-title {
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+
+  .process-one-card-text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .process-one-section {
+    padding: 50px 0;
+  }
+
+  .process-one-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+  }
+
+  .process-one-card::before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: 100%;
+    height: 5px;
+    transform: scaleX(0);
+  }
+
+  .process-one-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .process-one-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 16px;
+  }
+
+  .process-one-icon img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .process-one-card-title {
+    font-size: 1.1rem;
+  }
+
+  .process-one-card-text {
+    font-size: 0.9rem;
+  }
+
+  .process-one-number {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+/* Touch device optimization */
+@media (hover: none) {
+  .process-one-card:active {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(10, 98, 100, 0.15);
+  }
+
+  .process-one-card:active .process-one-icon {
+    background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  }
+
+  .process-one-card:active .process-one-icon img {
+    /* White color on active (for side icons) */
+    filter: brightness(0) invert(1);
+  }
+
+  .process-one-card.featured:active .process-one-icon img {
+    /* Red color on active for center icon */
+    filter: brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(2048%) hue-rotate(344deg) brightness(88%) contrast(97%);
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.process-one-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.process-one-card:nth-child(1) { animation-delay: 0.1s; }
+.process-one-card:nth-child(2) { animation-delay: 0.2s; }
+.process-one-card:nth-child(3) { animation-delay: 0.3s; }
+

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ServiceCards.css";
 import { useNavigate, useParams } from "react-router-dom";
-// import { FaSnowflake, FaCarBattery, FaCarSide, FaPaintRoller, FaMagic, FaShower, FaTools, FaGasPump } from "react-icons/fa";
-// import servicetwo from '../../src/images/service-2.png';
+import { FaChevronLeft, FaChevronRight, FaCheck, FaShoppingCart, FaTrash, FaCalendarAlt, FaBoxOpen } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -12,120 +11,40 @@ import BookServiceModal from "./BookServiceModal"
 
 const SkeletonLoader = () => {
   return (
-    <div className="container my-4">
-      {/* Category Title Skeleton */}
-      <div
-        className="skeleton-category-title mb-3"
-        style={{
-          width: "200px",
-          height: 28,
-          backgroundColor: "#e0e0e0",
-          borderRadius: "0.25rem",
-        }}
-      ></div>
-
-      {/* Tabs Skeleton */}
-      <div className="d-flex align-items-center position-relative mb-4">
-        <div
-          className="skeleton-arrow-btn"
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: "#e0e0e0",
-            borderRadius: "50%",
-            marginRight: 8,
-          }}
-        ></div>
-        <div className="d-flex gap-2">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="skeleton-tab"
-              style={{
-                width: 120,
-                height: 36,
-                backgroundColor: "#e0e0e0",
-                borderRadius: "1rem",
-              }}
-            ></div>
-          ))}
+    <section className="sc-section">
+      <div className="container">
+        {/* Header Skeleton */}
+        <div className="sc-header-skeleton">
+          <div className="sc-skeleton sc-skeleton-title"></div>
         </div>
-        <div
-          className="skeleton-arrow-btn"
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: "#e0e0e0",
-            borderRadius: "50%",
-            marginLeft: 8,
-          }}
-        ></div>
-      </div>
 
-      {/* Services Cards Skeleton */}
-      <div className="row">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="col-md-6 mb-4">
-            <div className="pricing-card">
-              <div className="pricing-card-price-wrap">
-                <div
-                  className="skeleton-card-image"
-                  style={{
-                    width: "100%",
-                    height: 200,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.5rem",
-                  }}
-                ></div>
-              </div>
-              <div className="pricing-card-details">
-                <div
-                  className="skeleton-card-title mb-2"
-                  style={{
-                    width: "80%",
-                    height: 24,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div className="skeleton-card-list mb-3">
-                  {[...Array(3)].map((_, j) => (
-                    <div
-                      key={j}
-                      className="skeleton-list-item mb-1"
-                      style={{
-                        width: "90%",
-                        height: 16,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                  ))}
-                </div>
-                <div
-                  className="skeleton-card-price mb-2"
-                  style={{
-                    width: "60px",
-                    height: 20,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-card-button"
-                  style={{
-                    width: "120px",
-                    height: 36,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
+        {/* Tabs Skeleton */}
+        <div className="sc-tabs-skeleton">
+          <div className="sc-skeleton sc-skeleton-arrow"></div>
+          <div className="sc-skeleton-tabs-wrapper">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="sc-skeleton sc-skeleton-tab"></div>
+            ))}
+          </div>
+          <div className="sc-skeleton sc-skeleton-arrow"></div>
+        </div>
+
+        {/* Cards Skeleton */}
+        <div className="sc-cards-grid">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="sc-card-skeleton">
+              <div className="sc-skeleton sc-skeleton-image"></div>
+              <div className="sc-skeleton-content">
+                <div className="sc-skeleton sc-skeleton-card-title"></div>
+                <div className="sc-skeleton sc-skeleton-text"></div>
+                <div className="sc-skeleton sc-skeleton-text-short"></div>
+                <div className="sc-skeleton sc-skeleton-button"></div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -335,288 +254,158 @@ export default function ServiceCards() {
   }
 
   return (
-    <div className="container my-4">
-      {categoryName && (
-        <h4 className="mb-3 text-uppercase fw-bold">{categoryName}</h4>
-      )}
-      <div className="d-flex align-items-center position-relative mb-4">
-        <button className="arrow-btn left" onClick={() => scroll("left")}>
-          <i className="fa fa-arrow-left"></i>
-        </button>
-        <div className="scrollable-tabs" ref={scrollRef}>
-          {subcategories.map((sub) => (
-            <div
-              key={sub.SubCategoryID}
-              className={`tab-pill ${activeTab?.toString() === sub.SubCategoryID.toString()
-                ? "active"
-                : ""
-                }`}
-              onClick={() => setActiveTab(sub.SubCategoryID)}
-            >
-              <span>{sub.SubCategoryName}</span>
-            </div>
-          ))}
-        </div>
-        <button className="arrow-btn right" onClick={() => scroll("right")}>
-          <i className="fa fa-arrow-right"></i>
-        </button>
-      </div>
+    <section className="sc-section">
+      <div className="container">
+        {/* Section Header */}
+        {categoryName && (
+          <div className="sc-header">
+            <h2 className="sc-title">{categoryName}</h2>
+            <p className="sc-subtitle">Choose from our premium service packages</p>
+          </div>
+        )}
 
-      {/* Services */}
-      <div className="row">
+        {/* Tabs Navigation */}
+        <div className="sc-tabs-wrapper">
+          <button className="sc-arrow-btn sc-arrow-left" onClick={() => scroll("left")}>
+            <FaChevronLeft />
+          </button>
+          <div className="sc-tabs" ref={scrollRef}>
+            {subcategories.map((sub) => (
+              <button
+                key={sub.SubCategoryID}
+                className={`sc-tab ${activeTab?.toString() === sub.SubCategoryID.toString() ? "sc-tab-active" : ""}`}
+                onClick={() => setActiveTab(sub.SubCategoryID)}
+              >
+                {sub.SubCategoryName}
+              </button>
+            ))}
+          </div>
+          <button className="sc-arrow-btn sc-arrow-right" onClick={() => scroll("right")}>
+            <FaChevronRight />
+          </button>
+        </div>
+
+        {/* Services Grid */}
         {loadingPackages ? (
-          <div className="row">
+          <div className="sc-cards-grid">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="col-md-6 mb-4">
-                <div className="pricing-card">
-                  <div className="pricing-card-price-wrap">
-                    <div
-                      className="skeleton-card-image"
-                      style={{
-                        width: "100%",
-                        height: 200,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.5rem",
-                      }}
-                    ></div>
-                  </div>
-                  <div className="pricing-card-details">
-                    <div
-                      className="skeleton-card-title mb-2"
-                      style={{
-                        width: "80%",
-                        height: 24,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                    <div className="skeleton-card-list mb-3">
-                      {[...Array(3)].map((_, j) => (
-                        <div
-                          key={j}
-                          className="skeleton-list-item mb-1"
-                          style={{
-                            width: "90%",
-                            height: 16,
-                            backgroundColor: "#e0e0e0",
-                            borderRadius: "0.25rem",
-                          }}
-                        ></div>
-                      ))}
-                    </div>
-                    <div
-                      className="skeleton-card-price mb-2"
-                      style={{
-                        width: "60px",
-                        height: 20,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                    <div
-                      className="skeleton-card-button"
-                      style={{
-                        width: "120px",
-                        height: 36,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                  </div>
+              <div key={i} className="sc-card-skeleton">
+                <div className="sc-skeleton sc-skeleton-image"></div>
+                <div className="sc-skeleton-content">
+                  <div className="sc-skeleton sc-skeleton-card-title"></div>
+                  <div className="sc-skeleton sc-skeleton-text"></div>
+                  <div className="sc-skeleton sc-skeleton-text-short"></div>
+                  <div className="sc-skeleton sc-skeleton-button"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : packages.length === 0 ? (
-          <p className="text-muted">
-            No packages available for this subcategory.
-          </p>
+          <div className="sc-empty-state">
+            <div className="sc-empty-icon">
+              <FaBoxOpen />
+            </div>
+            <h3 className="sc-empty-title">No Packages Available</h3>
+            <p className="sc-empty-text">No packages available for this subcategory. Please try another option.</p>
+          </div>
         ) : (
-          packages.map((pkg) => {
-            const isInCart = cartItems.some((i) => i.id === pkg.id);
-            return (
-              <>
-                <div className="col-md-6 mb-4">
-                  <div
-                    className="pricing-card"
-                    onClick={() =>
-                      navigate(
-                        `/servicedetails/${slugify(pkg.title)}/${pkg.id}`
-                      )
-                    }
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="pricing-card-price-wrap">
-                      <div className="pricing-card-price-wrap position-relative">
-                        {/* <div className="pricing-badge">
-                        10% OFF
-                      </div> */}
-                        <div className="pricing-card_icon">
-                          <img
-                            src={pkg.image}
-                            className="img-fluid rounded service-img"
-                            alt={pkg.title}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="pricing-card-details">
-                      <h4 className="pricing-card_title">{pkg.title}</h4>
-                      <div className="checklist style2">
-                        <ul className="list-unstyled small mb-2">
-                          {(() => {
-                            const maxLines = 4;
-                            const approxCharsPerLine = 30;
-                            let totalLines = 0;
-                            const visibleItems = [];
+          <div className="sc-cards-grid">
+            {packages.map((pkg, index) => {
+              const isInCart = cartItems.some((i) => i.id === pkg.id);
+              return (
+                <div
+                  key={pkg.id}
+                  className="sc-card"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`)}
+                >
+                  {/* Card Image */}
+                  <div className="sc-card-image-wrapper">
+                    <img src={pkg.image} alt={pkg.title} className="sc-card-image" />
+                    <div className="sc-card-overlay"></div>
+                    {pkg.tag && <span className="sc-card-badge">{pkg.tag}</span>}
+                  </div>
 
-                            for (let i = 0; i < pkg.includes.length; i++) {
-                              const item = pkg.includes[i];
-                              const linesNeeded = Math.ceil(
-                                item.length / approxCharsPerLine
-                              );
+                  {/* Card Content */}
+                  <div className="sc-card-content">
+                    <h3 className="sc-card-title">{pkg.title}</h3>
+                    
+                    {/* Includes List */}
+                    <ul className="sc-card-includes">
+                      {(() => {
+                        const maxLines = 4;
+                        const approxCharsPerLine = 30;
+                        let totalLines = 0;
+                        const visibleItems = [];
 
-                              if (totalLines + linesNeeded <= maxLines) {
-                                visibleItems.push(item);
-                                totalLines += linesNeeded;
-                              } else {
-                                break;
-                              }
-                            }
+                        for (let i = 0; i < pkg.includes.length; i++) {
+                          const item = pkg.includes[i];
+                          const linesNeeded = Math.ceil(item.length / approxCharsPerLine);
 
-                            return visibleItems.map((item, idx) => (
-                              <li key={idx}>
-                                <i className="fas fa-angle-right"></i> {item}
-                              </li>
-                            ));
-                          })()}
+                          if (totalLines + linesNeeded <= maxLines) {
+                            visibleItems.push(item);
+                            totalLines += linesNeeded;
+                          } else {
+                            break;
+                          }
+                        }
 
-                          {pkg.includes.length > 0 &&
-                            pkg.includes.some((item, idx) => idx >= 0) &&
-                            (() => {
-                              const maxLines = 4;
-                              const approxCharsPerLine = 30;
-                              let totalLines = 0;
+                        return visibleItems.map((item, idx) => (
+                          <li key={idx} className="sc-card-include-item">
+                            <FaCheck className="sc-include-icon" />
+                            <span>{item}</span>
+                          </li>
+                        ));
+                      })()}
+                    </ul>
 
-                              for (let i = 0; i < pkg.includes.length; i++) {
-                                const linesNeeded = Math.ceil(
-                                  pkg.includes[i].length / approxCharsPerLine
-                                );
-                                totalLines += linesNeeded;
-                                if (totalLines > maxLines) return true;
-                              }
-                              return false;
-                            })() && (
-                              <li>
-                                <a
-                                  href={`/servicedetails/${slugify(
-                                    pkg.title
-                                  )}/${pkg.id}`}
-                                  className="text-danger text-decoration-underline"
-                                >
-                                  View More
-                                </a>
-                              </li>
-                            )}
-                        </ul>
-                      </div>
+                    {pkg.includes.length > 4 && (
+                      <span className="sc-view-more">+{pkg.includes.length - 4} more services</span>
+                    )}
 
-                      {selectedCar ? (
-                        <>
-                          {/* <h3 className="pricing-card_price"><span className="currency">₹{pkg.price}</span></h3> */}
-
-                          {/* <div className="ribbon">
-                            ₹{pkg.price}
-                            <p>
-                              <div className="text-muted1 text-decoration-line-through">
-                                ₹{pkg.originalPrice}
-                              </div>
-                            </p>
-                          </div> */}
-
-                          {isInCart ? (
-                            <>
-                              <button
-                                className="btn style-border2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate("/cart");
-                                }}
-                              >
-                                ✔ View Cart
-                              </button>
-                              <button
-                                className="btn style-border2 ml-5"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeFromCart(pkg.id);
-                                }}
-                              >
-                                <i className="bi bi-trash" />
-                              </button>
-                            </>
-                          ) : (
-                            // <button
-                            //   className="btn style-border2 "
-                            //   onClick={(e) => handleAddToCartClick(e, pkg)}
-                            // >
-                            //   + ADD TO CART
-                            // </button>
-                            // <button
-                            //   className="btn style-border2 "
-                            //   onClick={(e) => {
-                            //     e.stopPropagation();
-                            //     setSelectedService(pkg);
-                            //     setOpenModal(true);
-                            //   }}
-                            // >
-                            //   BOOK SERVICE
-                            // </button>
-                            <button
-                              className="btn style-border2 "
-                              onClick={(e) => {
-                                e.stopPropagation();          // prevent card click
-                                setSelectedService(pkg);      // <--- IMPORTANT
-                                setIsModalOpen(true);
-                              }}
-                            >
-                              BOOK SERVICE
-                            </button>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {/* <div className="text-muted fst-italic mb-2">
-                            Add your car to see price
-                          </div>
+                    {/* Card Actions */}
+                    <div className="sc-card-actions">
+                      {isInCart ? (
+                        <div className="sc-cart-actions">
                           <button
-                            className="btn style-border2"
+                            className="sc-btn sc-btn-secondary"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setShowCarModal(true);
+                              navigate("/cart");
                             }}
                           >
-                            Add Your Car
-                          </button> */}
-                           <button
-                              className="btn style-border2 "
-                              onClick={(e) => {
-                                e.stopPropagation();          // prevent card click
-                                setSelectedService(pkg);      // <--- IMPORTANT
-                                setIsModalOpen(true);
-                              }}
-                            >
-                              BOOK SERVICE
-                            </button>
-                        </>
+                            <FaShoppingCart />
+                            <span>View Cart</span>
+                          </button>
+                          <button
+                            className="sc-btn sc-btn-danger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFromCart(pkg.id);
+                            }}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="sc-btn sc-btn-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedService(pkg);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <FaCalendarAlt />
+                          <span>Book Service</span>
+                        </button>
                       )}
-                      {/* <a className="btn style-border2" href="/about">Start now <i className="fas fa-arrow-right ms-2"></i></a> */}
                     </div>
                   </div>
                 </div>
-              </>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </div>
       <ChooseCarModal
@@ -776,6 +565,6 @@ export default function ServiceCards() {
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
       />
-    </div>
+    </section>
   );
 }

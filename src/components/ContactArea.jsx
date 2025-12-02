@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import "./ContactArea.css";
 
 const ContactArea = () => {
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -65,259 +65,232 @@ const ContactArea = () => {
   };
 
   const handlePhoneClick = (phone) => {
-    // Extract digits only
     const number = phone.replace(/\D/g, "");
-
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      // Call on mobile
       window.location.href = `tel:${number}`;
     } else {
-      // WhatsApp Web on desktop
       window.open(`https://wa.me/${number}`, "_blank");
     }
   };
 
-
   return (
-    <>
-      <div className="contact-area space">
-        <div className="container">
-          <div className="row gy-4 justify-content-center">
-            <div className=" col-lg-4 col-md-6">
-              <div className="contact-info">
-                <div className="row">
-                  <div className="col-md-2">
-                    <div className="contact-info_icon">
-                      <i className="fas fa-map-marker-alt" />
-                    </div>
-                  </div>
-                  <div className="col-md-10 pl-3">
-                    <h6 className="contact-info_title">Address</h6>
-                    <p className="contact-info_text">
-                      {companyInfo.address}
-                    </p>
-                    {/* <p className="contact-info_text"> </p> */}
-                  </div>
-                </div>
-              </div>
+    <section className="contact-section">
+      <div className="container">
+        {/* Section Header */}
+        {/* <div className="contact-header">
+          <span className="contact-subtitle">Contact Us</span>
+          <h2 className="contact-title">Get In Touch With Us</h2>
+          <p className="contact-description">
+            Have questions or need assistance? We're here to help. Reach out to us through any of the channels below.
+          </p>
+        </div> */}
 
+        {/* Contact Info Cards */}
+        <div className="contact-info-grid">
+          {/* Address Card */}
+          <div className="contact-info-card">
+            <div className="contact-info-icon">
+              <i className="fas fa-map-marker-alt" />
             </div>
-            <div className=" col-lg-4 col-md-6">
-              <div className="contact-info">
-                <div className="row">
-                  <div className="col-md-2">
-                    <div className="contact-info_icon">
-                      <i className="fas fa-phone-alt" />
-                    </div>
-                  </div>
-                  <div className="col-md-10 pl-3">
-                    <h6 className="contact-info_title">Phone Number</h6>
-                    <p className="contact-info_text">
-                      {companyInfo.phones.map((phone, index) => (
-                        <React.Fragment key={index}>
-                          {/* <Link to={`tel:${phone.replace(/\D/g, '')}`}>{phone}</Link> */}
-                          <a
-                            onClick={() => handlePhoneClick(phone)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {phone}
-                          </a>
-                          {index < companyInfo.phones.length - 1 && <br />}
-                        </React.Fragment>
-                      ))}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="contact-info-content">
+              <h4 className="contact-info-title">Our Location</h4>
+              <p className="contact-info-text">{companyInfo.address || 'Loading...'}</p>
             </div>
-            {/* <div className="col-xxl-3 col-lg-4 col-md-6">
-              <div className="contact-info">
-                <div className="contact-info_icon">
-                  <i className="fas fa-clock" />
-                </div>
-                <h6 className="contact-info_title">Opening</h6>
-                <p className="contact-info_text">Sun-10AM To 5PM</p>
-                <p className="contact-info_text">Thurs-9AM To 8PM</p>
-              </div>
-            </div> */}
-            <div className=" col-lg-4 col-md-6">
-              <div className="contact-info">
-                <div className="row">
-                  <div className="col-md-2">
-                    <div className="contact-info_icon">
-                      <i className="fas fa-envelope" />
-                    </div>
-                  </div>
-                  <div className="col-md-10 pl-3">
-                    <h6 className="contact-info_title">E-mail</h6>
-                    <p className="contact-info_text">
-                      <a href={`mailto:${companyInfo.email}`}>
-                        {companyInfo.email}
-                      </a>
-                    </p>
-                    <p className="contact-info_text">
-                      {/* <a href="mailto:nafiz 0121@gmail.com">nafiz 0121@gmail.com</a> */}
-                    </p>
-                  </div>
-                </div>
-              </div>
+          </div>
 
+          {/* Phone Card */}
+          <div className="contact-info-card">
+            <div className="contact-info-icon">
+              <i className="fas fa-phone-alt" />
+            </div>
+            <div className="contact-info-content">
+              <h4 className="contact-info-title">Phone Number</h4>
+              <p className="contact-info-text">
+                {companyInfo.phones.length > 0 ? (
+                  companyInfo.phones.map((phone, index) => (
+                    <React.Fragment key={index}>
+                      <a onClick={() => handlePhoneClick(phone)}>{phone}</a>
+                      {index < companyInfo.phones.length - 1 && <br />}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  'Loading...'
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Email Card */}
+          <div className="contact-info-card">
+            <div className="contact-info-icon">
+              <i className="fas fa-envelope" />
+            </div>
+            <div className="contact-info-content">
+              <h4 className="contact-info-title">Email Address</h4>
+              <p className="contact-info-text">
+                <a href={`mailto:${companyInfo.email}`}>
+                  {companyInfo.email || 'Loading...'}
+                </a>
+              </p>
             </div>
           </div>
         </div>
-      </div>
-      <div className="space-bottom1">
-        <div className="container">
-          {/* <div className="map-sec">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60902.88409628053!2d78.31117294863282!3d17.439109100000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9a3e6c6874dd%3A0x7abfee772aee3875!2sGlansa%20Solutions!5e0!3m2!1sen!2sin!4v1756129461537!5m2!1sen!2sin"
-              allowFullScreen=""
-              loading="lazy"
-              title="address"
-              height={"250"}
-              width={"100%"}
-            />
-          </div> */}
-        </div>
-      </div>
-      <div className="space-bottom ">
-        <div className="container">
-          <div className="row flex-row-reverse">
-            <div className="col-lg-6 text-lg-end">
 
-              <div className="map-sec">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60902.88409628053!2d78.31117294863282!3d17.439109100000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9a3e6c6874dd%3A0x7abfee772aee3875!2sGlansa%20Solutions!5e0!3m2!1sen!2sin!4v1756129461537!5m2!1sen!2sin"
-                  allowFullScreen=""
-                  loading="lazy"
-                  title="address"
-                  height={"250"}
-                  width={"250"}
+        {/* Main Content: Form + Map */}
+        <div className="contact-main">
+          {/* Contact Form */}
+          <div className="contact-form-wrapper">
+            <div className="contact-form-header">
+              <h3 className="contact-form-title">
+                <i className="fas fa-paper-plane" />
+                Send Us a Message
+              </h3>
+              <p className="contact-form-subtitle">
+                Fill out the form below and we'll get back to you as soon as possible.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="contact-form">
+              <div className="contact-form-row">
+                <div className="contact-form-group">
+                  <i className="fas fa-user contact-form-icon" />
+                  <input
+                    type="text"
+                    className="contact-form-input"
+                    name="name"
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="contact-form-group">
+                  <i className="fas fa-envelope contact-form-icon" />
+                  <input
+                    type="email"
+                    className="contact-form-input"
+                    name="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="contact-form-row">
+                <div className="contact-form-group">
+                  <i className="fas fa-phone contact-form-icon" />
+                  <input
+                    type="tel"
+                    className="contact-form-input"
+                    name="number"
+                    placeholder="Phone Number"
+                    value={formData.number}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/[^0-9]/g, "");
+                      if (value.length > 0 && !/^[6-9]/.test(value[0])) {
+                        value = "";
+                      }
+                      handleChange({ target: { name: "number", value } });
+                    }}
+                    required
+                  />
+                </div>
+                <div className="contact-form-group">
+                  <i className="fas fa-tag contact-form-icon" />
+                  <input
+                    type="text"
+                    className="contact-form-input"
+                    name="subject"
+                    placeholder="Subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="contact-form-group">
+                <textarea
+                  className="contact-form-textarea"
+                  name="message"
+                  placeholder="Write your message here..."
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
-              {/* <div className="faq-thumb2 mb-xl-0 mb-50">
-                <div className="about-counter-grid jump">
-                  <img
-                    src="assets/img/icon/faq2-counter-icon-1.svg"
-                    alt="MyCarBuddy"
-                  />
-                  <div className="media-right">
-                    <h3 className="about-counter">
-                      <span className="counter-number">250</span>+
-                    </h3>
-                    <h4 className="about-counter-text">Services we provide</h4>
-                  </div>
+              {success && (
+                <div className="contact-alert contact-alert-success">
+                  <i className="fas fa-check-circle" />
+                  {success}
                 </div>
-                <img src="assets/img/normal/faq-thumb-2-1.webp" alt="MyCarBuddy" />
-              </div> */}
+              )}
+              {error && (
+                <div className="contact-alert contact-alert-error">
+                  <i className="fas fa-exclamation-circle" />
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="contact-submit-btn"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Send Message
+                    <i className="fas fa-arrow-right" />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Map Section */}
+          <div className="contact-map-wrapper">
+            <div className="contact-map-header">
+              <h3 className="contact-map-title">
+                <i className="fas fa-map-marked-alt" />
+                Find Us Here
+              </h3>
             </div>
-            <div className="col-lg-6">
-              <div className="contact-form-wrap p-0">
-                <div className="title-area">
-                  <span className="sub-title">Contact form</span>
-                  <h2 className="sec-title">Get In Touch</h2>
-                </div>
-                <form
-                  onSubmit={handleSubmit}
-                  className="appointment-form ajax-contact"
-                >
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="name"
-                          id="name"
-                          placeholder="Your Name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <input
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          id="email"
-                          placeholder="Email Address"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <input
-                          type="tel"
-                          className="form-control"
-                          name="number"
-                          id="number"
-                          placeholder="Phone Number"
-                          value={formData.number}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/[^0-9]/g, ""); // remove non-numeric
 
-                            // Check first digit
-                            if (value.length > 0 && !/^[6-9]/.test(value[0])) {
-                              value = ""; // clear if invalid start
-                            }
+            <div className="contact-map">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60902.88409628053!2d78.31117294863282!3d17.439109100000007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9a3e6c6874dd%3A0x7abfee772aee3875!2sGlansa%20Solutions!5e0!3m2!1sen!2sin!4v1756129461537!5m2!1sen!2sin"
+                allowFullScreen=""
+                loading="lazy"
+                title="Our Location"
+              />
+            </div>
 
-                            handleChange({ target: { name: "number", value } });
-                          }}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="subject"
-                          id="subject"
-                          placeholder="Subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="form-group col-12">
-                    <textarea
-                      placeholder="Message here.."
-                      id="contactForm"
-                      className="form-control"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  {success && <div className="alert alert-success">{success}</div>}
-                  {error && <div className="alert alert-danger">{error}</div>}
-                  <div className="form-btn col-12">
-                    <button type="submit" className="btn style2 btn-contact" disabled={loading} style={{ padding: "8px 16px", fontSize: "20px" }} >
-                      {loading ? 'Sending...' : 'Submit'} <i className="fas fa-arrow-right ms-2" />
-                    </button>
-                  </div>
-                </form>
+            {/* Quick Contact Card */}
+            <div className="contact-quick-card">
+              <div className="contact-quick-icon">
+                <i className="fas fa-headset" />
+              </div>
+              <div className="contact-quick-content">
+                <h4>Need Quick Support?</h4>
+                <p>Call us now for immediate assistance with your car service needs.</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </section>
   );
 };
 

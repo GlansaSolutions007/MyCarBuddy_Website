@@ -1,72 +1,99 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import "./ProcessAreaTwo.css";
+
+const features = [
+  {
+    icon: "assets/img/icon/icon3.1-04.png",
+    title: "Convenience at Your Fingertips",
+    description:
+      "Book a service in seconds and let us handle the rest. We come to you, wherever you are, so you never have to disrupt your day for car care.",
+  },
+  {
+    icon: "assets/img/icon/icon3.1-02.png",
+    title: "Expertise You Can Rely On",
+    description:
+      "Gentle hand wash, high-pressure rinse, tyre cleaning, and wax protection to keep your car looking brand new — right in your driveway.",
+  },
+  {
+    icon: "assets/img/icon/icon3.1-01.png",
+    title: "Transparent & Honest Service",
+    description:
+      "No hidden fees, no surprises. We provide clear estimates, upfront pricing, and honest recommendations—so you always know what to expect.",
+  },
+  {
+    icon: "assets/img/icon/icon3.1-03.png",
+    title: "Comprehensive Solutions",
+    description:
+      "From emergency repairs to routine maintenance, we cover it all. Whether it's a flat tire, battery issue, or a full service, Car Buddy is your one-stop solution.",
+  },
+];
 
 const ProcessAreaTwo = () => {
   return (
-    <div
-      className="process-area-2 space-top  bg-smoke pb-50"
-    // style={{ backgroundImage: "url(assets/img/bg/process2-bg.png)" }}
-    >
-      <div className="container mb-4">
-        <div className="row justify-content-center ">
-          <div className="col-xl-5 col-lg-7">
+    <div className="process-area-2 space-top pb-50" style={{marginTop: "-60px"}} >
+      <div className="container">
+        {/* Section Header */}
+        <div className="row justify-content-center mb-5">
+          <div className="col-xl-6 col-lg-8">
             <div className="title-area text-center mb-0">
-              <h3 className="sub-title">Why Choose Us?</h3>
-              <h2 className="sec-title text-dark">
-                Reliable Car Care, Right Where You Need It{" "}
-                <img
-                  className="title-bg-shape shape-center"
-                  src="assets/img/bg/title-bg-shape2.png"
-                  alt="MyCarBuddy"
-                />
+              <span
+                className="sub-title"
+                style={{
+                  display: "inline-block",
+                  padding: "8px 24px",
+                  background: "linear-gradient(135deg, #1aa1a4 0%, #0a6264 50%, #0e4e50 100%)",
+                  color: "#fff",
+                  borderRadius: "50px",
+                  fontSize: "0.85rem",
+                  fontWeight: "600",
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  marginBottom: "16px",
+                  boxShadow: "0 4px 15px rgba(10, 98, 100, 0.3)",
+                }}
+              >
+                Why Choose Us?
+              </span>
+              <h2
+                className="sec-title"
+                style={{
+                  fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                  fontWeight: "700",
+                  color: "#1a1a2e",
+                  lineHeight: "1.3",
+                }}
+              >
+                Reliable Car Care, Right Where You Need It
               </h2>
             </div>
           </div>
         </div>
-        <div class="row mt-4 mb-4">
-          <div class="col-xxl-6 col-xl-6">
-            <div class="about-feature-wrap style-shadow">
-              <div class="icon"><img src="assets/img/icon/icon3.1-04.png" alt="CarBuddy" /></div>
-              <div class="about-feature-wrap-details">
-                <h5 class="about-feature-title">Convenience at Your Fingertips</h5>
-                <p class="about-feature-text">Book a service in seconds and let us handle the rest. We come to you, wherever you are, so you never have to disrupt your day for car care.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-xxl-6 col-xl-6">
-            <div class="about-feature-wrap style-shadow">
-              <div class="icon"><img src="assets/img/icon/icon3.1-02.png" alt="CarBuddy" /></div>
-              <div class="about-feature-wrap-details">
-                <h5 class="about-feature-title">Expertise You Can Rely On</h5>
-                <p class="about-feature-text">Gentle hand wash, high-pressure rinse, tyre cleaning, and wax protection to keep your car looking brand new — right in your driveway.</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="row mt-4">
-          <div class="col-xxl-6 col-xl-6">
-            <div class="about-feature-wrap style-shadow">
-              <div class="icon"><img src="assets/img/icon/icon3.1-01.png" alt="CarBuddy" /></div>
-              <div class="about-feature-wrap-details">
-                <h5 class="about-feature-title">Transparent & Honest Service</h5>
-                <p class="about-feature-text">No hidden fees, no surprises. We provide clear estimates, upfront pricing, and honest recommendations—so you always know what to expect.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-xxl-6 col-xl-6">
-            <div class="about-feature-wrap style-shadow">
-              <div class="icon"><img src="assets/img/icon/icon3.1-03.png" alt="CarBuddy" /></div>
-              <div class="about-feature-wrap-details">
-                <h5 class="about-feature-title">Comprehensive Solutions</h5>
-                <p class="about-feature-text">From emergency repairs to routine maintenance, we cover it all. Whether it’s a flat tire, battery issue, or a full service, Car Buddy is your one-stop solution for all automotive needs.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-4">
-        </div>
+        {/* Features Grid */}
+        <div className="row g-4">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className={`col-12 col-md-6 animate-feature animate-delay-${index + 1}`}
+            >
+              <div className="feature-card">
+                {/* Number Badge */}
+                <span className="feature-card-number">0{index + 1}</span>
 
+                {/* Icon */}
+                <div className="feature-card-icon">
+                  <img src={feature.icon} alt={feature.title} />
+                </div>
+
+                {/* Content */}
+                <div className="feature-card-content">
+                  <h5 className="feature-card-title">{feature.title}</h5>
+                  <p className="feature-card-text">{feature.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

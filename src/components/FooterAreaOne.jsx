@@ -62,10 +62,10 @@ const FooterAreaOne = () => {
       <div className="footer-overlay"></div>
 
       <div className="container pt-5 pb-4 footer-content">
-        <div className="row justify-content-between">
+        <div className="row justify-content-between footer-row-mobile">
           
           {/* Column 1: Logo & Social */}
-          <div className="col-lg-3 col-md-6 mb-4">
+          <div className="col-lg-3 col-md-6 mb-4 footer-col-logo">
             <div className="footer-widget text-center text-md-start">
               <Link to="/">
                 <img
@@ -107,7 +107,7 @@ const FooterAreaOne = () => {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div className="col-lg-2 col-md-6 mb-4">
+          <div className="col-lg-2 col-md-6 mb-4 footer-col-links">
             <div className="footer-widget widget_nav_menu">
               <h3 className="widget_title">Quick Links</h3>
               <div className="menu-all-pages-container">
@@ -123,7 +123,7 @@ const FooterAreaOne = () => {
           </div>
 
           {/* Column 3: Services (Dynamic) */}
-          <div className="col-lg-3 col-md-6 mb-4">
+          <div className="col-lg-3 col-md-6 mb-4 footer-col-links">
             <div className="footer-widget widget_nav_menu">
               <h3 className="widget_title">Popular Services</h3>
               <div className="menu-all-pages-container">
@@ -143,7 +143,7 @@ const FooterAreaOne = () => {
           </div>
 
           {/* Column 4: Contact Info */}
-          <div className="col-lg-4 col-md-6 mb-4">
+          <div className="col-lg-4 col-md-6 mb-4 footer-col-contact">
             <div className="footer-widget">
               <h3 className="widget_title">Reach Us</h3>
               <div className="widget-contact">

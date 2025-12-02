@@ -5,6 +5,7 @@ import { useAlert } from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
 
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
+
 const Profile = () => {
   const [user, setUser] = useState({
     FullName: "",
@@ -34,7 +35,6 @@ const Profile = () => {
           }
         );
         const data = res.data[0] || {};
-        console.log("Fetched user profile:", data);
 
         setUser({
           FullName: data.FullName || "",
@@ -53,7 +53,6 @@ const Profile = () => {
         if (isEmptyProfile) {
           setEditing(true);
         }
-        // localStorage.setItem("user", JSON.stringify({ ...parsed, ...data }));
       } catch (err) {
         console.error("Failed to fetch user profile", err);
       }
@@ -76,7 +75,6 @@ const Profile = () => {
       formData.append("PhoneNumber", user.PhoneNumber || "");
       formData.append("AlternateNumber", user.AlternateNumber || "");
 
-      // If image is base64 string, convert to file
       if (user.ProfileImage?.startsWith("data:image")) {
         const blob = await fetch(user.ProfileImage).then((r) => r.blob());
         formData.append("ProfileImageFile", blob, "profile.jpg");
@@ -92,11 +90,9 @@ const Profile = () => {
 
       if (!res.ok) throw new Error("Failed to update profile");
 
-      const updatedData = await res.json();
       window.dispatchEvent(new Event("userProfileUpdated"));
       setEditing(false);
       showAlert("success", "Profile updated successfully!", 3000, "success");
-      //reload the page
       window.location.reload();
     } catch (err) {
       console.error("Save failed:", err);
@@ -115,134 +111,185 @@ const Profile = () => {
     reader.readAsDataURL(file);
   };
 
+  const getProfileImageSrc = () => {
+    if (user?.ProfileImage?.startsWith("data:")) {
+      return user.ProfileImage;
+    }
+    if (user?.ProfileImage) {
+      return `${ImageURL}${user.ProfileImage}`;
+    }
+    return "/assets/img/avatar.png";
+  };
+
   return (
-    <div className="container py-4">
-      <div className="row justify-content-center">
-        <div className="col-md-12">
-          <div className="card shadow-sm rounded-4 p-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="mb-0">Profile Details</h4>
-              {!editing && (
-                <button
-                  className="btn btn-outline-primary px-4 py-2"
-                  onClick={() => setEditing(true)}
-                >
-                  <i className="bi bi-pencil-fill"></i> Edit
-                </button>
+    <>
+      {/* Tab Header */}
+      <div className="profile-tab-header">
+        <h3 className="profile-tab-title">
+          <i className="fas fa-user-circle" />
+          Personal Information
+        </h3>
+        {!editing && (
+          <button
+            className="profile-edit-btn"
+            onClick={() => setEditing(true)}
+          >
+            <i className="fas fa-pencil-alt" />
+            Edit Profile
+          </button>
+        )}
+      </div>
+
+      {/* Tab Body */}
+      <div className="profile-tab-body">
+        <div className="profile-layout">
+          {/* Left: Image Section */}
+          <div className="profile-image-section">
+            <div className="profile-image-wrapper">
+              <img
+                src={getProfileImageSrc()}
+                alt="Profile"
+                className="profile-main-image"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/assets/img/avatar.png";
+                }}
+              />
+              {editing && (
+                <label className="profile-image-upload">
+                  <i className="fas fa-camera" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </label>
               )}
             </div>
 
-            <div className="row align-items-center ">
-              {/* Profile Image */}
-              <div className="text-center mb-4 col-md-5 mb-md-0 ml-15 ">
-                {(user.ProfileImage && (
-                  <img
-                    src={
-                      user?.ProfileImage?.startsWith("data:")
-                        ? user.ProfileImage // base64 preview
-                        : user?.ProfileImage
-                        ? `${ImageURL}${user.ProfileImage}` // saved image from server
-                        : "/assets/img/avatar.png" // fallback
-                    }
-                    alt="Profile"
-                    className="rounded-circle border"
-                    style={{
-                      width: "300px",
-                      height: "300px",
-                      objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/assets/img/avatar.png";
-                    }}
-                  />
-                )) || (
-                  <img
-                    src="/assets/img/avatar.png"
-                    alt="Profile"
-                    // className="rounded-circle border"
-                  />
-                )}
+            <div className="profile-user-info">
+              <h4>{user.FullName || "Your Name"}</h4>
+              <span className="profile-user-badge">
+                <i className="fas fa-check-circle" />
+                Verified Customer
+              </span>
+            </div>
+
+            {/* Mini Stats */}
+            {/* <div className="profile-mini-stats">
+              <div className="profile-mini-stat">
+                <div className="profile-mini-stat-value">0</div>
+                <div className="profile-mini-stat-label">Bookings</div>
               </div>
-              <div className="col-md-6 ms-auto mr-20">
-                <div className="mb-3">
-                  <label className="form-label">Full Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="FullName"
-                    value={user.FullName}
-                    onChange={handleInputChange}
-                    placeholder="Enter your name"
-                    readOnly={!editing}
-                  />
-                </div>
+              <div className="profile-mini-stat">
+                <div className="profile-mini-stat-value">0</div>
+                <div className="profile-mini-stat-label">Services</div>
+              </div>
+              <div className="profile-mini-stat">
+                <div className="profile-mini-stat-value">5.0</div>
+                <div className="profile-mini-stat-label">Rating</div>
+              </div>
+            </div> */}
+          </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Mobile</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="PhoneNumber"
-                    value={user.PhoneNumber}
-                    readOnly
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    name="Email"
-                    value={user.Email === "null" ? "" : user.Email}
-                    onChange={handleInputChange}
-                    readOnly={!editing}
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Alternate Number</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="AlternateNumber"
-                    value={user.AlternateNumber}
-                    onChange={handleInputChange}
-                    readOnly={!editing}
-                  />
-                </div>
-                {editing && (
-                  <div className="mt-3">
-                    <label className="form-label">Profile Image</label>
+          {/* Right: Form Section */}
+          <div className="profile-form-section">
+            <div className="profile-form">
+              <div className="profile-form-row">
+                {/* Full Name */}
+                <div className="profile-form-group">
+                  <label className="profile-form-label">Full Name</label>
+                  <div className="profile-form-input-wrapper">
+                    <i className="fas fa-user profile-form-icon" />
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
+                      type="text"
+                      className={`profile-form-input ${editing ? 'editing' : ''}`}
+                      name="FullName"
+                      value={user.FullName}
+                      onChange={handleInputChange}
+                      placeholder="Enter your full name"
+                      readOnly={!editing}
                     />
                   </div>
-                )}
+                </div>
+
+                {/* Phone Number */}
+                <div className="profile-form-group">
+                  <label className="profile-form-label">Mobile Number</label>
+                  <div className="profile-form-input-wrapper">
+                    <i className="fas fa-phone profile-form-icon" />
+                    <input
+                      type="text"
+                      className="profile-form-input"
+                      name="PhoneNumber"
+                      value={user.PhoneNumber}
+                      readOnly
+                    />
+                    <i className="fas fa-lock profile-form-lock" title="Cannot be changed" />
+                  </div>
+                </div>
               </div>
+
+              <div className="profile-form-row">
+                {/* Email */}
+                <div className="profile-form-group">
+                  <label className="profile-form-label">Email Address</label>
+                  <div className="profile-form-input-wrapper">
+                    <i className="fas fa-envelope profile-form-icon" />
+                    <input
+                      type="email"
+                      className={`profile-form-input ${editing ? 'editing' : ''}`}
+                      name="Email"
+                      value={user.Email === "null" ? "" : user.Email}
+                      onChange={handleInputChange}
+                      placeholder="Enter your email"
+                      readOnly={!editing}
+                    />
+                  </div>
+                </div>
+
+                {/* Alternate Number */}
+                <div className="profile-form-group">
+                  <label className="profile-form-label">Alternate Number</label>
+                  <div className="profile-form-input-wrapper">
+                    <i className="fas fa-phone-alt profile-form-icon" />
+                    <input
+                      type="text"
+                      className={`profile-form-input ${editing ? 'editing' : ''}`}
+                      name="AlternateNumber"
+                      value={user.AlternateNumber}
+                      onChange={handleInputChange}
+                      placeholder="Enter alternate number"
+                      readOnly={!editing}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              {editing && (
+                <div className="profile-actions">
+                  <button
+                    className="profile-btn profile-btn-primary"
+                    onClick={handleSave}
+                  >
+                    <i className="fas fa-check" />
+                    Save Changes
+                  </button>
+                  <button
+                    className="profile-btn profile-btn-secondary"
+                    onClick={() => setEditing(false)}
+                  >
+                    <i className="fas fa-times" />
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
-            {editing && (
-              <div className="d-flex justify-content-center gap-3 mt-3">
-                <button
-                  className="btn btn-success px-4 py-2"
-                  onClick={handleSave}
-                >
-                  Update Profile
-                </button>
-                <button
-                  className="btn btn-secondary px-4 py-2"
-                  onClick={() => setEditing(false)}
-                >
-                  Cancel Update
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

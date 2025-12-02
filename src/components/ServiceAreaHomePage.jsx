@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ServiceAreaTwo.css";
 import { FaSearch } from "react-icons/fa";
@@ -218,41 +218,26 @@ const ServiceAreaHomePage = () => {
       .replace(/^-+|-+$/g, "");
   };
 
-  // const filteredServices = services.filter((service) =>
-  //   service.title.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
-  // ... existing code (Auth states, etc.)
-
-  // 1. Configure Fuse Options
+  // Configure Fuse Options
   const fuseOptions = {
-    // isCaseSensitive: false,
     includeScore: true,
     shouldSort: true,
-    // keys: Which fields to search in. 
-    // Weight: Higher weight means matches in 'title' rank higher than 'description'
     keys: [
       { name: "title", weight: 0.7 },
       { name: "description", weight: 0.3 }
     ],
-    // threshold: 0.0 is exact match, 1.0 is match anything. 
-    // 0.3 to 0.4 is usually good for spelling mistakes (fuzziness).
     threshold: 0.4,
   };
 
-  // 2. Initialize Fuse with your data
+  // Initialize Fuse with your data
   const fuse = new Fuse(services, fuseOptions);
 
-  // 3. Create the results variable
-  // If search exists, search with Fuse and extract the 'item'. 
-  // If no search, return all services.
+  // Create the results variable
   const filteredServices = searchTerm
     ? fuse.search(searchTerm).map((result) => result.item)
     : services;
 
-  // ... existing code (slugify, etc.)
-
-   const handleContactClick = () => {
+  const handleContactClick = () => {
     const phone = "7075243939";
 
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
@@ -260,308 +245,177 @@ const ServiceAreaHomePage = () => {
     );
 
     if (isMobile) {
-      // Open phone dialer
       window.location.href = `tel:${phone}`;
     } else {
-      // Open WhatsApp Web
       window.open(`https://wa.me/91${phone}`, "_blank");
     }
   };
 
   return (
-    <div className="service-area-2 mt-50 overflow-hidden">
+    <div className="service-area-2 pt-50 overflow-hidden">
       <div className="container px-2 px-sm-3 px-md-4">
+        {/* Section Header */}
         <div className="row justify-content-center">
-          <div className="col-lg-6">
-            <div className="title-area text-center mb-0">
+          <div className="col-lg-8 col-xl-6">
+            <div className="title-area text-center mb-4">
               <span className="sub-title" id="services">Our Services</span>
               <h2 className="sec-title">
-                Trusted Car Repair the Professionals{" "}
+                Trusted Car Repair Professionals
                 <img
-                  className="title-bg-shape shape-center"
+                  className="title-bg-shape shape-center d-none d-md-inline"
                   src="assets/img/bg/title-bg-shape.png"
                   alt="Fixturbo"
                 />
               </h2>
-
             </div>
           </div>
         </div>
-        <div className="text-end mb-4">
-          <div className="position-relative ml-20">
-            <FaSearch
-              className="fasearch"
-              style={{ left: "85%" }}
-            />
+
+        {/* Search Bar */}
+        <div className="search-container mb-4">
+          <div className="search-wrapper">
+            <FaSearch className="search-icon" />
             <input
               type="text"
               placeholder="Search services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: "5px 10px 5px 35px",
-                borderRadius: "20px",
-                border: "1px solid #116d6e",
-                width: "200px",
-              }}
             />
           </div>
         </div>
       </div>
 
+      {/* Services Grid */}
       <div className="container">
-        <div className="row gy-4 justify-content-center">
-          {/* Use the new filteredServices variable here */}
-          {filteredServices.map((service) => (
-            <div key={service.id} className="col-6 col-sm-6 col-md-4 col-lg-3">
-              {/* ... Rest of your card code remains exactly the same ... */}
+        {filteredServices.length > 0 ? (
+          <div className="row gy-4 justify-content-center">
+            {filteredServices.map((service, index) => (
               <div
-                className="service-card-minimal d-flex flex-column"
-                style={{ minHeight: '150px' }}
+                key={service.id}
+                className={`col-6 col-sm-6 col-md-4 col-lg-3 animate-fadeInUp delay-${(index % 4) + 1}`}
               >
-                <div className="service-card-minimal-content d-flex flex-column align-items-center justify-content-center h-100" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
-                  <div className="icon">
-                    <img src={service.icon} alt="icon" className="service-icon" />
-                  </div>
-                  <p className="service-title text-center mt-3">
-                    {service.title}
-                  </p>
-                </div>
                 <div
-                  className="service-card-full d-flex flex-column"
-                  style={{ backgroundImage: `url(${service.image})` }}
+                  className="service-card-minimal"
+                  onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}
                 >
-                  <div className="call-media-wrap flex-grow-1" onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}>
-                    <div className="call-media-wrap flex-grow-1">
-                      <div className="icon">
-                        <img src={service.icon} alt="icon" />
-                      </div>
-                      <div className="media-body">
-                        <h4 className="link">
-                          <Link className="text-white" to={`/service/${slugify(service.title)}/${service.id}`}>
-                            {service.title}
-                          </Link>
-                        </h4>
-                        <p className="service-card_text text-white mt-2">
-                          {service.description}
-                        </p>
-                      </div>
+                  {/* Background Image - Always Visible */}
+                  <div
+                    className="service-card-bg"
+                    style={{ backgroundImage: `url(${service.image})` }}
+                  />
+
+                  {/* Gradient Overlay */}
+                  <div className="service-card-overlay" />
+
+                  {/* Card Content */}
+                  <div className="service-card-content">
+                    {/* Icon */}
+                    <div className="service-card-icon">
+                      <img src={service.icon} alt={service.title} />
                     </div>
-                  </div>
-                  <div className="checklist style-white">
-                    <div className="btn-wrap mt-20">
-                      <Link
-                        className="btn style4 px-4 py-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedService(service);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        Book Service <i className="fas fa-arrow-right ms-2" />
-                      </Link>
-                    </div>
+
+                    {/* Title - Always Visible */}
+                    <h4 className="service-card-title">{service.title}</h4>
+
+                    {/* Description - Shows on Hover */}
+                    <p className="service-card-desc">{service.description}</p>
+
+                    {/* Book Button - Shows on Hover */}
+                    <button
+                      className="service-card-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedService(service);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      Book Service <i className="fas fa-arrow-right" />
+                    </button>
                   </div>
                 </div>
               </div>
-              {/* ... End of card code ... */}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {filteredServices.length > 0 ? (
-        filteredServices.map((service) => (
-          <div key={service.id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-            {/* Hidden logic for mapping if needed */}
+            ))}
           </div>
-        ))
-      ) : (
-        <div className="col-12 text-center my-5">
-          <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+        ) : (
+          <div className="no-results">
             <img
               src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
               alt="No results"
-              style={{ width: "150px", marginBottom: "20px", opacity: "0.8" }}
             />
-            <h4 style={{ color: "#5a5a5a", fontWeight: "600" }}>
-              Whoops! No search result found.
-            </h4>
-            <p style={{ color: "#888" }}>
-              It looks like we don't have what you're looking for right now.
-            </p>
+            <h4>Whoops! No search result found.</h4>
+            <p>It looks like we don't have what you're looking for right now.</p>
             <button
-              className="btn btn-primary mt-2"
-              style={{ borderRadius: "20px", padding: "8px 24px" }}
-              onClick={() => window.location.reload()}
+              className="btn"
+              onClick={() => setSearchTerm('')}
             >
               View All Services
             </button>
           </div>
-        </div>
-      )}
-
-      {/* 🔹 Quick Support Section */}
-      <div className="row mt-50 justify-content-center">
-        <div className="col-xl-10">
-          <div className="title-area text-center mb-4">
-            <h3 className="sub-title">Need Help?</h3>
-            <h2 className="sec-title text-dark">
-              Get Support Instantly
-            </h2>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div className="row justify-content-center mt-4" id="help">
-        <style>
-          {`
-            .support-card { transition: all 0.4s ease; border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; }
-            .support-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important; }
-            .support-card:hover .bg-image { transform: scale(1.1); }
-            .glass-btn { backdrop-filter: blur(4px); transition: all 0.3s ease; }
-            .glass-btn:hover { transform: scale(1.05); background: #ffffff !important; color: #fdfdfdff !important; }
-          `}
-        </style>
+      {/* Quick Support Section */}
+      <div className="container support-section mt-5">
+        <div className="row justify-content-center mb-4">
+          <div className="col-lg-8 col-xl-6">
+            <div className="title-area text-center">
+              <span className="sub-title">Need Help?</span>
+              <h2 className="sec-title">Get Support Instantly</h2>
+            </div>
+          </div>
+        </div>
 
-        <div className="row justify-content-center mt-4">
-          <div className="col-12 col-md-5 mb-4">
-            <div
-              className="p-5 text-center position-relative support-card"
-              style={{
-                borderRadius: 20,
-                color: "#fff",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                background: "#136d6f",
-              }}
-            >
+        <div className="row justify-content-center g-4" id="help">
+          {/* Call Support Card */}
+          <div className="col-12 col-md-6 col-lg-5">
+            <div className="support-card call-support">
               <div
                 className="bg-image"
                 style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundImage: "url('https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=1000&auto=format&fit=crop')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  zIndex: 0,
-                  transition: "transform 0.5s ease",
+                  backgroundImage: "url('https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=1000&auto=format&fit=crop')"
                 }}
               />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  background: "linear-gradient(135deg, rgba(19, 109, 111, 0.95) 0%, rgba(19, 109, 111, 0.75) 100%)",
-                  zIndex: 1,
-                }}
-              />
-              <div style={{ position: "relative", zIndex: 2 }}>
-                <div
-                  className="mb-3 d-flex justify-content-center align-items-center"
-                  style={{
-                    width: 60, height: 60,
-                    background: "rgba(255,255,255,0.2)",
-                    borderRadius: "50%",
-                    margin: "0 auto",
-                    backdropFilter: "blur(5px)",
-                  }}
-                >
-                  <i className="bi bi-telephone" style={{ fontSize: "28px" }}></i>
+              <div className="overlay" />
+              <div className="content">
+                <div className="icon-wrapper">
+                  <i className="bi bi-telephone"></i>
                 </div>
-                <h4 className="fw-bold mb-2" style={{ color: "#ffffffc9" }} >Quick Call Support (+91 707-524-3939)</h4>
-                <p className="mb-4" style={{ opacity: 0.9, color: "#ffffffc9" }}>
+                <h4>Quick Call Support</h4>
+                <p>
                   Connect directly with our support team for immediate help.
+                  <br />
+                  {/* <strong>+91 707-524-3939</strong> */}
                 </p>
-
-                <a
-                  className="btn glass-btn px-4 py-2"
-                  // href="https://api.whatsapp.com/send?phone=917075243939"
+                <button
+                  className="support-btn"
                   onClick={handleContactClick}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    background: "#fff",
-                    color: "#181818ff",
-                    fontWeight: "700",
-                    borderRadius: 30,
-                    border: "1px solid rgba(255,255,255,0.4)",
-                    boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-                  }}
                 >
-                  Call Now
-                </a>
-
+                  Call Now - (+91 707-524-3939)
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="col-12 col-md-5 mb-4">
-            <div
-              className="p-5 text-center position-relative support-card"
-              style={{
-                borderRadius: 20,
-                color: "#fff",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                background: "#2c3e50",
-              }}
-            >
+          {/* AI Support Card */}
+          <div className="col-12 col-md-6 col-lg-5">
+            <div className="support-card ai-support">
               <div
                 className="bg-image"
                 style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundImage: "url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000&auto=format&fit=crop')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  zIndex: 0,
-                  transition: "transform 0.5s ease",
+                  backgroundImage: "url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1000&auto=format&fit=crop')"
                 }}
               />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  background: "linear-gradient(135deg, rgba(30, 30, 40, 0.9) 0%, rgba(19, 109, 111, 0.75) 100%)",
-                  zIndex: 1,
-                }}
-              />
-              <div style={{ position: "relative", zIndex: 2 }}>
-                <div
-                  className="mb-3 d-flex justify-content-center align-items-center"
-                  style={{
-                    width: 60, height: 60,
-                    background: "rgba(255,255,255,0.2)",
-                    borderRadius: "50%",
-                    margin: "0 auto",
-                    backdropFilter: "blur(5px)",
-                  }}
-                >
-                  <i className="bi bi-robot" style={{ fontSize: "28px" }}></i>
+              <div className="overlay" />
+              <div className="content">
+                <div className="icon-wrapper">
+                  <i className="bi bi-robot"></i>
                 </div>
-                <h4 className="fw-bold mb-2" style={{ color: "#ffffffc9" }}>AI Analysis Support</h4>
-                <p className="mb-4" style={{ opacity: 0.9, color: "#ffffffc9" }}>
+                <h4>AI Analysis Support</h4>
+                <p>
                   Get instant answers from our AI-powered support assistant.
                 </p>
                 <button
-                  className="btn glass-btn px-4 py-2"
-                  style={{
-                    background: "#fff",
-                    color: "#181818ff",
-                    fontWeight: "600",
-                    borderRadius: 30,
-                    border: "1px solid rgba(255,255,255,0.4)",
-                    boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-                  }}
+                  className="support-btn"
                   onClick={() => navigate("/car-damage-analysis")}
                 >
                   Chat Now
@@ -572,120 +426,75 @@ const ServiceAreaHomePage = () => {
         </div>
       </div>
 
-      <div className="row mt-50 justify-content-center">
-        <div className="col-xl-10">
-          <div className="title-area text-center mb-4">
-            <h3 className="sub-title">How It Works</h3>
-            <h2 className="sec-title text-dark">
-              Your Service in 3 Easy Steps
-            </h2>
+      {/* How It Works Section */}
+      <div className="container steps-section" style={{marginTop: "-60px"}}>
+        <div className="row justify-content-center mb-4">
+          <div className="col-lg-8 col-xl-6">
+            <div className="title-area text-center">
+              <span className="sub-title">How It Works</span>
+              <h2 className="sec-title">Your Service in 3 Easy Steps</h2>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="row justify-content-center mt-50">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const isHovered = hoveredIndex === index;
 
-          return (
-            <div
-              className="col-12 col-md-4 mb-4 d-flex flex-column align-items-center text-center position-relative"
-              key={index}
-              style={{ minHeight: 250, cursor: "default" }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              {index < steps.length - 1 && (
-                <div
-                  className="d-none d-md-block"
-                  style={{
-                    position: "absolute",
-                    top: "75px",
-                    right: "-20%",
-                    width: "40%",
-                    height: 4,
-                    background: "linear-gradient(90deg, #136d6f, rgba(19, 109, 111, 0.2))",
-                    zIndex: 0,
-                    borderRadius: "10px",
-                  }}
-                />
-              )}
+        <div className="row justify-content-center g-4">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isHovered = hoveredIndex === index;
 
+            return (
               <div
-                style={{
-                  width: 110,
-                  height: 110,
-                  borderRadius: "50%",
-                  background: isHovered
-                    ? "linear-gradient(135deg, #1aa1a4, #136d6f)"
-                    : "linear-gradient(135deg, #136d6f, #0e4e50)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 25,
-                  position: "relative",
-                  zIndex: 1,
-                  transform: isHovered ? "translateY(-5px) scale(1.05)" : "translateY(0) scale(1)",
-                  boxShadow: isHovered
-                    ? "0 15px 35px rgba(19, 109, 111, 0.4)"
-                    : "0 8px 20px rgba(0,0,0,0.1)",
-                  border: "4px solid #fff",
-                  outline: "4px solid rgba(19, 109, 111, 0.1)",
-                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                }}
+                className="col-12 col-md-4"
+                key={index}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
-                <div
-                  style={{
-                    transition: "transform 0.4s ease",
-                    transform: isHovered ? "scale(1.1) rotate(5deg)" : "scale(1) rotate(0)",
-                  }}
-                >
-                  <Icon size={40} color="#fff" />
-                </div>
+                <div className="step-card position-relative">
+                  {/* Connector Line */}
+                  {index < steps.length - 1 && (
+                    <div className="step-connector d-none d-md-block" />
+                  )}
 
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    width: 35,
-                    height: 35,
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, var(--bs-info), var(--bs-primary))",
-                    color: "#fff",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontWeight: "800",
-                    fontSize: 14,
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-                    border: "2px solid #fff",
-                    transform: isHovered ? "scale(1.2)" : "scale(1)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  {index + 1}
+                  {/* Icon */}
+                  <div
+                    className="step-icon-wrapper"
+                    style={{
+                      background: isHovered
+                        ? 'linear-gradient(135deg, #1aa1a4 0%, #0a6264 100%)'
+                        : 'linear-gradient(135deg, #0a6264 0%, #0e4e50 100%)',
+                      transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+                      boxShadow: isHovered
+                        ? '0 15px 40px rgba(10, 98, 100, 0.4)'
+                        : '0 10px 30px rgba(10, 98, 100, 0.3)',
+                    }}
+                  >
+                    <Icon
+                      size={42}
+                      color="#fff"
+                      style={{
+                        transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1)',
+                        transition: 'transform 0.4s ease',
+                      }}
+                    />
+                    <span className="step-number">{index + 1}</span>
+                  </div>
+
+                  {/* Text */}
+                  <h4
+                    className="step-title"
+                    style={{ color: isHovered ? '#0a6264' : '#1a1a2e' }}
+                  >
+                    {step.title}
+                  </h4>
+                  <p className="step-description">{step.description}</p>
                 </div>
               </div>
-
-              <h4
-                className="fw-bold mb-2"
-                style={{
-                  color: isHovered ? "#136d6f" : "#212529",
-                  transition: "color 0.3s ease"
-                }}
-              >
-                {step.title}
-              </h4>
-
-              <p className="text-muted" style={{ maxWidth: 300, fontSize: "0.95rem" }}>
-                {step.description}
-              </p>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
+      {/* Book Service Modal */}
       <BookServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

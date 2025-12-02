@@ -5,203 +5,42 @@ import toast from "react-hot-toast";
 import { useCart } from "../context/CartContext";
 import ChooseCarModal from "./ChooseCarModalGridLayout";
 import { Helmet } from "react-helmet-async";
-import BookServiceModal from "./BookServiceModal"
-import { Button } from "bootstrap";
-
+import BookServiceModal from "./BookServiceModal";
+import { FaCheck, FaShoppingCart, FaTrash, FaCalendarAlt, FaPhone, FaHeadset, FaChevronLeft, FaChevronRight, FaClock, FaQuestionCircle, FaArrowRight } from "react-icons/fa";
+import "./ServiceDetails.css";
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 
 const SkeletonLoader = () => {
   return (
-    <div className="service-details-area py-5">
+    <section className="sd-section">
       <div className="container">
-        <div className="row gx-5 flex-row">
+        <div className="sd-layout">
           {/* Main Content Skeleton */}
-          <div className="col-lg-8">
-            <div className="service-page-single">
-              <div className="page-img mb-4">
-                <div
-                  className="skeleton-carousel mb-4"
-                  style={{
-                    height: 400,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.5rem",
-                  }}
-                ></div>
-                <div
-                  className="d-flex justify-content-between align-items-center px-4 py-3"
-                  style={{ backgroundColor: "#f1f1f1" }}
-                >
-                  <div
-                    className="skeleton-price"
-                    style={{
-                      width: "100px",
-                      height: 24,
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "0.25rem",
-                    }}
-                  ></div>
-                  <div
-                    className="skeleton-button"
-                    style={{
-                      width: "120px",
-                      height: 36,
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "0.25rem",
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="page-content">
-                <div
-                  className="skeleton-title mb-3"
-                  style={{
-                    width: "60%",
-                    height: 32,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-text mb-2"
-                  style={{
-                    width: "90%",
-                    height: 16,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-text mb-4"
-                  style={{
-                    width: "80%",
-                    height: 16,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-
-                <div
-                  className="skeleton-subtitle mb-2"
-                  style={{
-                    width: "200px",
-                    height: 24,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div className="skeleton-list mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="skeleton-list-item mb-2"
-                      style={{
-                        width: "90%",
-                        height: 20,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                  ))}
-                </div>
-              </div>
+          <div className="sd-main">
+            <div className="sd-skeleton sd-skeleton-carousel"></div>
+            <div className="sd-skeleton-actions">
+              <div className="sd-skeleton sd-skeleton-btn"></div>
+              <div className="sd-skeleton sd-skeleton-btn"></div>
             </div>
+            <div className="sd-skeleton sd-skeleton-title"></div>
+            <div className="sd-skeleton sd-skeleton-text"></div>
+            <div className="sd-skeleton sd-skeleton-text-short"></div>
+            <div className="sd-skeleton sd-skeleton-subtitle"></div>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="sd-skeleton sd-skeleton-item"></div>
+            ))}
           </div>
 
           {/* Sidebar Skeleton */}
-          <div className="col-lg-4">
-            <aside className="sidebar-area">
-              <div className="widget widget_service-list mb-4">
-                <div
-                  className="skeleton-sidebar-title mb-3"
-                  style={{
-                    width: "150px",
-                    height: 24,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div className="skeleton-sidebar-list">
-                  {[...Array(4)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="skeleton-sidebar-item mb-2"
-                      style={{
-                        width: "100%",
-                        height: 20,
-                        backgroundColor: "#e0e0e0",
-                        borderRadius: "0.25rem",
-                      }}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="widget widget_contact bg-light p-3 rounded text-center">
-                <div
-                  className="skeleton-contact-title mb-2"
-                  style={{
-                    width: "100px",
-                    height: 20,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-contact-text mb-2"
-                  style={{
-                    width: "100%",
-                    height: 16,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-contact-text mb-2"
-                  style={{
-                    width: "90%",
-                    height: 16,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-contact-text mb-2"
-                  style={{
-                    width: "80%",
-                    height: 16,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-contact-icon mb-2"
-                  style={{
-                    width: "40px",
-                    height: 40,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "50%",
-                    margin: "0 auto",
-                  }}
-                ></div>
-                <div
-                  className="skeleton-contact-phone"
-                  style={{
-                    width: "120px",
-                    height: 20,
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "0.25rem",
-                    margin: "0 auto",
-                  }}
-                ></div>
-              </div>
-            </aside>
+          <div className="sd-sidebar">
+            <div className="sd-skeleton sd-skeleton-sidebar-card"></div>
+            <div className="sd-skeleton sd-skeleton-sidebar-card-small"></div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -402,7 +241,7 @@ const ServiceDetails = () => {
 
   return (
     <>
-      {/* ✅ Dynamic SEO Meta Tags */}
+      {/* Dynamic SEO Meta Tags */}
       {seoMeta && (
         <Helmet>
           <title>{seoMeta.seo_title || "About | MyCarBuddy"}</title>
@@ -410,432 +249,316 @@ const ServiceDetails = () => {
           <meta name="keywords" content={seoMeta.seo_keywords || ""} />
         </Helmet>
       )}
-      {/* Service Details Area */}
-      <div className="service-details-area py-5">
+
+      {/* Service Details Section */}
+      <section className="sd-section">
+        <div className="sd-bg-decoration sd-bg-decoration-1"></div>
+        <div className="sd-bg-decoration sd-bg-decoration-2"></div>
+
         <div className="container">
-          <div className="row gx-5 flex-row">
+          <div className="sd-layout">
             {/* Main Content */}
-            <div className="col-lg-8">
-              <div className="service-page-single">
-                <div className="page-img mb-4">
-                  <div className="d-flex1">
-                    <div className="w-100">
-                      <div
-                        id="serviceCarousel"
-                        className="carousel slide mb-4"
-                        data-bs-ride="carousel"
-                        data-bs-interval="3000"
-                      >
-                        <div className="carousel-inner">
-                          {service.banners.map((img, idx) => (
-                            <div
-                              className={`carousel-item ${idx === 0 ? "active" : ""
-                                }`}
-                              key={idx}
-                            >
-                              <img
-                                src={img}
-                                className="d-block w-100 rounded"
-                                alt={`${service.title} ${idx + 1}`}
-                                style={{ objectFit: "cover", height: "400px" }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-
-                        <button
-                          className="carousel-control-prev"
-                          type="button"
-                          data-bs-target="#serviceCarousel"
-                          data-bs-slide="prev"
-                        >
-                          <span
-                            className="carousel-control-prev-icon"
-                            aria-hidden="true"
-                          ></span>
-                          <span className="visually-hidden">Previous</span>
-                        </button>
-
-                        <button
-                          className="carousel-control-next"
-                          type="button"
-                          data-bs-target="#serviceCarousel"
-                          data-bs-slide="next"
-                        >
-                          <span
-                            className="carousel-control-next-icon"
-                            aria-hidden="true"
-                          ></span>
-                          <span className="visually-hidden">Next</span>
-                        </button>
+            <div className="sd-main">
+              {/* Image Carousel */}
+              <div className="sd-carousel-wrapper">
+                <div
+                  id="serviceCarousel"
+                  className="carousel slide sd-carousel"
+                  data-bs-ride="carousel"
+                  data-bs-interval="4000"
+                >
+                  <div className="carousel-inner">
+                    {service.banners.map((img, idx) => (
+                      <div className={`carousel-item ${idx === 0 ? "active" : ""}`} key={idx}>
+                        <img src={img} className="sd-carousel-image" alt={`${service.title} ${idx + 1}`} />
                       </div>
-                    </div>
-
-                    <div className="w-50 d-flex flex-row justify-content-end gap-2"></div>
-                  </div>
-
-                  <div
-                    className="d-flex justify-content-between align-items-center px-4 py-3"
-                    style={{ backgroundColor: "#f1f1f1" }}
-                  >
-                    {selectedCar ? (
-                      <>
-                        <h5 className="mb-0 fw-bold text-dark">
-                          {/* ₹ {service.price} */}
-                          <button
-                            className="btn btn-danger fw-bold px-4 py-2"
-                            onClick={() => {
-                              navigate("/#services");
-                            }}
-                          >
-                            Quick Support
-                          </button>
-                        </h5>
-                        {isInCart ? (
-                          <div>
-                            <button
-                              className="btn style-border2 px-4 py-2"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate("/cart");
-                              }}
-                            >
-                              ✔ View Cart
-                            </button>
-                            <button
-                              className="btn style-border2 px-3 py-2 ml-5"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeFromCart(service.id);
-                              }}
-                            >
-                              <i className="bi bi-trash" />
-                            </button>
-                          </div>
-                        ) : (
-                          // <button
-                          //   className="btn btn-danger fw-bold px-4 py-2"
-                          //   onClick={(e) => {
-                          //     e.stopPropagation();
-                          //     addToCart(service);
-                          //     toast.success("Service added to cart");
-                          //   }}
-                          // >
-                          //   + ADD TO CART
-                          // </button>
-                          <button
-                            className="btn btn-danger fw-bold px-4 py-2"
-                            onClick={(e) => {
-                              e.stopPropagation();          // prevent card click
-                              setSelectedService(service);      // <--- IMPORTANT
-                              setIsModalOpen(true);
-                            }}
-                          >
-                            BOOK SERVICE
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {/* <div className="text-muted fst-italic mb-2">
-                          Select your car to see price
-                        </div>
-                        <button
-                          className="btn style-border2 px-4 py-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowCarModal(true);
-                          }}
-                        >
-                          Choose Your Car
-                        </button> */}
-                        <button
-                          className="btn btn-danger fw-bold px-4 py-2"
-                          onClick={() => {
-                            navigate("/#help");
-                          }}
-                        >
-                          Quick Support
-                        </button>
-                        <button
-                          className="btn btn-danger fw-bold px-4 py-2"
-                          onClick={(e) => {
-                            e.stopPropagation();          // prevent card click
-                            setSelectedService(service);      // <--- IMPORTANT
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          BOOK SERVICE
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="page-content">
-                  <h2 className="page-title">{service.title}</h2>
-                  <p className="text-muted mb-3">{service.duration}</p>
-                  <p>{service.Description}</p>
-
-                  <h4 className="mt-4 mb-2">Included in this service:</h4>
-                  <ul className="list-group mb-4">
-                    {service.includes.map((item, idx) => (
-                      <li key={idx} className="list-group-item">
-                        <i className="fas fa-check-circle text-success me-2"></i>
-                        {item}
-                      </li>
                     ))}
-                  </ul>
+                  </div>
 
-                  {faqs.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="mb-3">Frequently Asked Questions</h4>
-                      <div className="accordion mb-4" id="faqAccordion">
-                        {faqs.map((faq, idx) => (
-                          <div className="accordion-item px-0">
-                            <h2 className="accordion-header" id={`heading${idx}`}>
-                              <button
-                                className="accordion-button collapsed fw-bold px-4 py-0"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target={`#collapse${idx}`}
-                                aria-expanded="false"
-                                aria-controls={`collapse${idx}`}
-                              >
-                                {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
-                              </button>
-                            </h2>
-                            <div
-                              id={`collapse${idx}`}
-                              className="accordion-collapse collapse"
-                              aria-labelledby={`heading${idx}`}
-                              data-bs-parent="#faqAccordion"
-                            >
-                              <div className="accordion-body">
-                                {faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                  {service.banners.length > 1 && (
+                    <>
+                      <button className="sd-carousel-btn sd-carousel-prev" type="button" data-bs-target="#serviceCarousel" data-bs-slide="prev">
+                        <FaChevronLeft />
+                      </button>
+                      <button className="sd-carousel-btn sd-carousel-next" type="button" data-bs-target="#serviceCarousel" data-bs-slide="next">
+                        <FaChevronRight />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Carousel Indicators */}
+                  {service.banners.length > 1 && (
+                    <div className="sd-carousel-indicators">
+                      {service.banners.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          data-bs-target="#serviceCarousel"
+                          data-bs-slide-to={idx}
+                          className={idx === 0 ? "active" : ""}
+                        ></button>
+                      ))}
                     </div>
                   )}
                 </div>
               </div>
-            </div>
 
-            {/* Sidebar */}
-            <div className="col-lg-4">
-              <aside className="sidebar-area">
-                <div
-                  className="widget widget_service-list mb-4 d-flex flex-column"
-                  style={{ height: "70vh" }}
-                >
-                  <h4 className="widget_title mb-3 text-dark ">Other Services</h4>
-                  <ul
-                    className="overflow-auto p-0 m-0"
-                    style={{ listStyle: "none" }}
-                  >
-                    {otherCategories.map((cat) => (
-                      <li
-                        key={cat.CategoryID}
-                        className="list-group-item d-flex justify-content-between align-items-center"
-                      >
-                        <Link
-                          to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID
-                            }`}
-                        >
-                          {cat.CategoryName}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="widget widget_contact bg-light p-3 rounded ps-4">
-                  <h5 className="widget_title mb-2 text-dark">Need Help?</h5>
-                  <p className="text-muted mb-2">
-                    Have questions about this service?
-                  </p>
-                  <p>
-                    At <strong>My Car Buddy</strong>, powered by{" "}
-                    <strong>Glansa Solutions Pvt. Ltd.</strong>, we aim to make
-                    your car care experience seamless and worry-free. Whether
-                    you need assistance with booking, payments, service updates,
-                    or technical support, our team is ready to help.
-                  </p>
-                  <div className="icon fs-3 mb-2 text-primary">
-                    <i className="fas fa-phone-alt"></i>
+              {/* Action Bar */}
+              <div className="sd-action-bar">
+                <button className="sd-btn sd-btn-outline" onClick={() => navigate("/#help")}>
+                  <FaHeadset />
+                  <span>Quick Support</span>
+                </button>
+
+                {isInCart ? (
+                  <div className="sd-cart-actions">
+                    <button className="sd-btn sd-btn-secondary" onClick={() => navigate("/cart")}>
+                      <FaShoppingCart />
+                      <span>View Cart</span>
+                    </button>
+                    <button className="sd-btn sd-btn-danger" onClick={() => removeFromCart(service.id)}>
+                      <FaTrash />
+                    </button>
                   </div>
-                  <h5>
-                    {" "}
-                    <Link to="tel:7075243939">+91 707-524-3939</Link>
-                    <br /> <Link to="tel:9885653865"> +91 988-565-3865</Link>
-                  </h5>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </div>
-
-        <div className="widget widget_related-services mb-4">
-          <div
-            className="d-flex justify-content-between align-items-center mb-3"
-            style={{ position: "relative" }}
-          >
-            <h4 className="widget_title mb-0 text-dark">Related Services</h4>
-            <div
-              className="testimonialOne arrow"
-              style={{ position: "absolute", bottom: "0px", right: "0px" }}
-            >
-              <div
-                className="testimonialOne-button-prev testimonialOne-button"
-                data-bs-target="#relatedServicesCarousel"
-                data-bs-slide="prev"
-              >
-                <i className="fas fa-arrow-left"></i>
-              </div>
-              <div
-                className="testimonialOne-button-next testimonialOne-button"
-                data-bs-target="#relatedServicesCarousel"
-                data-bs-slide="next"
-              >
-                <i className="fas fa-arrow-right"></i>
-              </div>
-            </div>
-          </div>
-          <div id="relatedServicesCarousel" className="carousel slide">
-            <div className="carousel-inner">
-              {(() => {
-                const services = categoryServices;
-                const chunkedServices = [];
-                for (let i = 0; i < services.length; i += 4) {
-                  chunkedServices.push(services.slice(i, i + 4));
-                }
-                return chunkedServices.map((chunk, slideIndex) => (
-                  <div
-                    key={slideIndex}
-                    className={`carousel-item ${slideIndex === 0 ? "active" : ""
-                      }`}
+                ) : (
+                  <button
+                    className="sd-btn sd-btn-primary"
+                    onClick={() => {
+                      setSelectedService(service);
+                      setIsModalOpen(true);
+                    }}
                   >
-                    <div className="row">
-                      {chunk.map((s) => (
-                        <div key={s.PackageID} className="col-md-3 mb-3">
-                          <div className="card h-100">
-                            <Link
-                              to={`/servicedetails/${slugify(s.PackageName)}/${s.PackageID
-                                }`}
-                              style={{
-                                textDecoration: "none",
-                                color: "inherit",
-                              }}
-                            >
-                              <img
-                                src={
-                                  s.PackageImage
-                                    ? `${ImageURL}${s.PackageImage}`
-                                    : ""
-                                }
-                                className="card-img-top"
-                                alt={s.PackageName}
-                                style={{ height: "150px", objectFit: "cover" }}
-                              />
-                              <div className="card-body d-flex flex-column">
-                                <h5 className="card-title">{s.PackageName}</h5>
-                                {/* <div className="mb-2">
-                                  <span className="text-success fw-bold">
-                                    ₹{s.Serv_Off_Price}
-                                  </span>
-                                  {s.Serv_Reg_Price && (
-                                    <span className="text-decoration-line-through text-muted ms-1 small">
-                                      ₹{s.Serv_Reg_Price}
-                                    </span>
-                                  )}
-                                </div> */}
-                                <ul className="list-unstyled">
-                                  {s.IncludeNames
-                                    ? s.IncludeNames.split(",")
-                                      .slice(0, 4)
-                                      .map((inc, idx) => (
-                                        <li key={idx}>
-                                          <i className="fas fa-check-circle text-success me-2"></i>
-                                          {inc.trim()}
-                                        </li>
-                                      ))
-                                    : null}
-                                </ul>
-                              </div>
-                            </Link>
-                            <div className="card-body pt-0">
-                              <div className="mt-auto">
-                                {cartItems.some(
-                                  (item) => item.id === s.PackageID
-                                ) ? (
-                                  <>
-                                    <button
-                                      className="btn style-border2 px-4 py-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate("/cart");
-                                      }}
-                                    >
-                                      ✔ View Cart
-                                    </button>
-                                    <button
-                                      className="btn style-border2 px-3 py-2 ml-5"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeFromCart(s.PackageID);
-                                      }}
-                                    >
-                                      <i className="bi bi-trash" />
-                                    </button>
-                                  </>
-                                ) : (
-                                  // <button
-                                  //   className="btn btn-danger fw-bold px-4 py-2"
-                                  //   onClick={(e) => {
-                                  //     e.stopPropagation();
-                                  //     addToCart({
-                                  //       id: s.PackageID,
-                                  //       title: s.PackageName,
-                                  //       price: s.Serv_Off_Price,
-                                  //       image: s.PackageImage
-                                  //         ? `${ImageURL}${s.PackageImage}`
-                                  //         : "",
-                                  //       includes: s.IncludeNames
-                                  //         ? s.IncludeNames.split(",").map((i) =>
-                                  //             i.trim()
-                                  //           )
-                                  //         : [],
-                                  //       categoryId: s.CategoryID,
-                                  //     });
-                                  //     toast.success("Service added to cart");
-                                  //   }}
-                                  // >
-                                  //   + ADD TO CART
-                                  // </button>
-                                  <button
-                                    className="btn btn-danger fw-bold px-4 py-2"
-                                    onClick={(e) => {
-                                      e.stopPropagation();          // prevent card click
-                                      setSelectedService({title: s.PackageName});
-                                      setIsModalOpen(true);
-                                    }}
-                                  >
-                                    BOOK SERVICE
-                                  </button>
-                                )}
-                              </div>
-                            </div>
+                    <FaCalendarAlt />
+                    <span>Book Service</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Service Content */}
+              <div className="sd-content">
+                <h1 className="sd-title">{service.title}</h1>
+                
+                {service.duration && (
+                  <div className="sd-duration">
+                    <FaClock className="sd-duration-icon" />
+                    <span>Estimated Time: {service.duration} minutes</span>
+                  </div>
+                )}
+
+                {service.Description && (
+                  <p className="sd-description">{service.Description}</p>
+                )}
+
+                {/* What's Included - In Main Content */}
+                {service.includes.length > 0 && (
+                  <div className="sd-includes-main">
+                    <h3 className="sd-section-title">
+                      <span className="sd-section-title-icon"><FaCheck /></span>
+                      What's Included
+                    </h3>
+                    <ul className="sd-includes-list-main">
+                      {service.includes.map((item, idx) => (
+                        <li key={idx} className="sd-includes-item-main">
+                          <span className="sd-includes-check-main"><FaCheck /></span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* FAQ Section - In Main Content */}
+                {faqs.length > 0 && (
+                  <div className="sd-faq-main">
+                    <h3 className="sd-section-title">
+                      <span className="sd-section-title-icon"><FaQuestionCircle /></span>
+                      Frequently Asked Questions
+                    </h3>
+                    <div className="sd-faq-accordion-main">
+                      {faqs.map((faq, idx) => (
+                        <div key={idx} className="sd-faq-card">
+                          <button
+                            className="sd-faq-question"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target={`#faqCollapse${idx}`}
+                          >
+                            <span className="sd-faq-number">{String(idx + 1).padStart(2, '0')}</span>
+                            <span className="sd-faq-question-text">
+                              {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
+                            </span>
+                            <span className="sd-faq-chevron">
+                              <i className="fas fa-chevron-down" />
+                            </span>
+                          </button>
+                          <div id={`faqCollapse${idx}`} className="collapse sd-faq-answer">
+                            <p>{faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                ));
-              })()}
+                )}
+
+              </div>
             </div>
+
+            {/* Sidebar */}
+            <aside className="sd-sidebar">
+              {/* Other Services */}
+              <div className="sd-sidebar-card">
+                <h4 className="sd-sidebar-title">Other Services</h4>
+                <ul className="sd-services-list">
+                  {otherCategories.map((cat) => (
+                    <li key={cat.CategoryID} className="sd-services-item">
+                      <Link to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`}>
+                        <span>{cat.CategoryName}</span>
+                        <FaArrowRight className="sd-services-arrow" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Contact Card */}
+              <div className="sd-contact-card">
+                <div className="sd-contact-icon">
+                  <FaPhone />
+                </div>
+                <h4 className="sd-contact-title">Need Help?</h4>
+                <p className="sd-contact-text">
+                  Have questions about this service? Our team is ready to help.
+                </p>
+                <div className="sd-contact-phones">
+                  <Link to="tel:7075243939" className="sd-phone-link">
+                    <FaPhone /> +91 707-524-3939
+                  </Link>
+                  <Link to="tel:9885653865" className="sd-phone-link">
+                    <FaPhone /> +91 988-565-3865
+                  </Link>
+                </div>
+              </div>
+
+              {/* Why Choose Us */}
+              <div className="sd-why-choose">
+                <h4 className="sd-sidebar-title">
+                  <FaQuestionCircle className="sd-sidebar-title-icon" />
+                  Why Choose Us
+                </h4>
+                <div className="sd-why-list">
+                  <div className="sd-why-item">
+                    <span className="sd-why-number">01</span>
+                    <div className="sd-why-content">
+                      <h5>Expert Technicians</h5>
+                      <p>Our certified mechanics have years of experience in all car makes and models.</p>
+                    </div>
+                  </div>
+                  <div className="sd-why-item">
+                    <span className="sd-why-number">02</span>
+                    <div className="sd-why-content">
+                      <h5>Genuine Parts</h5>
+                      <p>We use only OEM and high-quality aftermarket parts for all repairs.</p>
+                    </div>
+                  </div>
+                  <div className="sd-why-item">
+                    <span className="sd-why-number">03</span>
+                    <div className="sd-why-content">
+                      <h5>Transparent Pricing</h5>
+                      <p>No hidden charges. Get detailed estimates before any work begins.</p>
+                    </div>
+                  </div>
+                  <div className="sd-why-item">
+                    <span className="sd-why-number">04</span>
+                    <div className="sd-why-content">
+                      <h5>Warranty Coverage</h5>
+                      <p>All services come with warranty for your peace of mind.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </aside>
           </div>
+
+          {/* Related Services */}
+          {categoryServices.length > 0 && (
+            <div className="sd-related">
+              <div className="sd-related-header">
+                <h3 className="sd-related-title">Related Services</h3>
+                <div className="sd-related-nav">
+                  <button className="sd-related-btn" data-bs-target="#relatedServicesCarousel" data-bs-slide="prev">
+                    <FaChevronLeft />
+                  </button>
+                  <button className="sd-related-btn" data-bs-target="#relatedServicesCarousel" data-bs-slide="next">
+                    <FaChevronRight />
+                  </button>
+                </div>
+              </div>
+
+              <div id="relatedServicesCarousel" className="carousel slide">
+                <div className="carousel-inner">
+                  {(() => {
+                    const chunkedServices = [];
+                    for (let i = 0; i < categoryServices.length; i += 4) {
+                      chunkedServices.push(categoryServices.slice(i, i + 4));
+                    }
+                    return chunkedServices.map((chunk, slideIndex) => (
+                      <div key={slideIndex} className={`carousel-item ${slideIndex === 0 ? "active" : ""}`}>
+                        <div className="sd-related-grid">
+                          {chunk.map((s) => (
+                            <div key={s.PackageID} className="sd-related-card">
+                              <Link to={`/servicedetails/${slugify(s.PackageName)}/${s.PackageID}`}>
+                                <div className="sd-related-image-wrapper">
+                                  <img
+                                    src={s.PackageImage ? `${ImageURL}${s.PackageImage}` : ""}
+                                    alt={s.PackageName}
+                                    className="sd-related-image"
+                                  />
+                                </div>
+                                <div className="sd-related-content">
+                                  <h5 className="sd-related-card-title">{s.PackageName}</h5>
+                                  <ul className="sd-related-includes">
+                                    {s.IncludeNames &&
+                                      s.IncludeNames.split(",")
+                                        .slice(0, 3)
+                                        .map((inc, idx) => (
+                                          <li key={idx}>
+                                            <FaCheck className="sd-related-check" />
+                                            <span>{inc.trim()}</span>
+                                          </li>
+                                        ))}
+                                  </ul>
+                                </div>
+                              </Link>
+                              <div className="sd-related-actions">
+                                {cartItems.some((item) => item.id === s.PackageID) ? (
+                                  <button className="sd-btn sd-btn-secondary sd-btn-sm" onClick={() => navigate("/cart")}>
+                                    <FaShoppingCart /> View Cart
+                                  </button>
+                                ) : (
+                                  <button
+                                    className="sd-btn sd-btn-primary sd-btn-sm"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setSelectedService({ title: s.PackageName });
+                                      setIsModalOpen(true);
+                                    }}
+                                  >
+                                    <FaCalendarAlt /> Book Now
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <ChooseCarModal
@@ -853,7 +576,8 @@ const ServiceDetails = () => {
           }}
           onCarSaved={(car) => setSelectedCar(car)}
         />
-      </div>
+      </section>
+
       <BookServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

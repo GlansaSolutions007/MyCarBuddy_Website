@@ -9,9 +9,11 @@ import RaisedTicketsTab from "./RaisedTicketsTab";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
+import "./MainProfile.css";
 
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+
 const MainProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,8 +29,6 @@ const MainProfile = () => {
   });
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const userName = user?.name || "Guest User";
-  const userIdentifier = user?.identifier || "No identifier";
   const decryptedCustId = (() => {
     try {
       if (!user?.id) return "";
@@ -79,8 +79,7 @@ const MainProfile = () => {
       }
     };
     fetchUser();
-  }, []); 
-
+  }, []);
 
   const handleTabClick = (key) => {
     if (key === "logout") {
@@ -90,12 +89,40 @@ const MainProfile = () => {
       navigate("/");
     } else {
       setActiveTab(key);
-      // Smooth scroll to top after tab change
       setTimeout(() => {
         try {
           window.scrollTo({ top: 0, behavior: "smooth" });
         } catch (_) {}
       }, 0);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone, and you will lose all your data."
+    );
+    if (confirmed) {
+      try {
+        const response = await axios.delete(
+          `${process.env.REACT_APP_CARBUDDY_BASE_URL}Customer/CustId?CustId=${decryptedCustId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          showAlert("Account deleted successfully.", "success");
+          localStorage.clear();
+          sessionStorage.clear();
+          navigate("/");
+        } else {
+          showAlert("Failed to delete account. Please try again.", "error");
+        }
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        showAlert("Error deleting account. Please try again.", "error");
+      }
     }
   };
 
@@ -114,45 +141,22 @@ const MainProfile = () => {
       case "tickets":
         return <RaisedTicketsTab />;
       case "DeleteAccount":
-        const handleDelete = async () => {
-          const confirmed = window.confirm(
-            "Are you sure you want to delete your account? This action cannot be undone, and you will lose all your data."
-          );
-          if (confirmed) {
-            try {
-              const response = await axios.delete(
-                `${process.env.REACT_APP_CARBUDDY_BASE_URL}Customer/CustId?CustId=${decryptedCustId}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${user.token}`,
-                  },
-                }
-              );
-              if (response.status === 200) {
-                showAlert("Account deleted successfully.", "success");
-                localStorage.clear();
-                sessionStorage.clear();
-                navigate("/");
-              } else {
-                showAlert("Failed to delete account. Please try again.", "error");
-              }
-            } catch (error) {
-              console.error("Error deleting account:", error);
-              showAlert("Error deleting account. Please try again.", "error");
-            }
-          }
-        };
         return (
-          <div className="text-center">
-            <h5 className="text-danger">Delete Account</h5>
-            <p className="text-muted">
-              Are you sure you want to delete your account? This action cannot be undone, and you will lose all your data.
+          <div className="delete-account-section">
+            <div className="delete-account-icon">
+              <i className="fas fa-exclamation-triangle" />
+            </div>
+            <h3 className="delete-account-title">Delete Your Account</h3>
+            <p className="delete-account-text">
+              Are you sure you want to delete your account? This action cannot be undone, 
+              and you will permanently lose all your data, bookings, and preferences.
             </p>
             <button
-              className="btn btn-danger px-4 py-3"
-              onClick={handleDelete}
+              className="delete-account-btn"
+              onClick={handleDeleteAccount}
             >
-              Delete Account
+              <i className="fas fa-trash-alt" />
+              Delete My Account
             </button>
           </div>
         );
@@ -162,66 +166,79 @@ const MainProfile = () => {
   };
 
   const tabs = [
-    { key: "profile", label: "👤 Profile" },
-    // { key: "mybookings", label: "📅 My Bookings" },
-    // { key: "addresses", label: "🏠 Addresses" },
-    // { key: "mycars", label: "🚗 My Car List" },
-    // { key: "invoices", label: "📄 Invoices" },
-    // { key: "tickets", label: "🎫 Ticket List" },
-    { key: "logout", label: "🚪 Log Out" },
-    { key: "DeleteAccount", label: "🗑️ Delete Account" },
+    { key: "profile", label: "Profile", icon: "fas fa-user" },
+    { key: "mybookings", label: "My Bookings", icon: "fas fa-calendar-check" },
+    { key: "addresses", label: "Addresses", icon: "fas fa-map-marker-alt" },
+    { key: "mycars", label: "My Cars", icon: "fas fa-car" },
+    { key: "invoices", label: "Invoices", icon: "fas fa-file-invoice" },
+    { key: "tickets", label: "Tickets", icon: "fas fa-ticket-alt" },
+    { key: "logout", label: "Log Out", icon: "fas fa-sign-out-alt", className: "logout" },
+    { key: "DeleteAccount", label: "Delete Account", icon: "fas fa-trash-alt", className: "delete" },
   ];
 
-  return (
-    <div className="container py-4">
+  if (!user) {
+    return null;
+  }
 
-      {!user ? (
-        <div className="alert alert-danger">
-          {/* You are not logged in. Please log in to access your profile. */}
+  return (
+    <div className="main-profile-section">
+      <div className="container">
+        {/* Page Header */}
+        <div className="profile-page-header">
+          {/* <span className="profile-page-subtitle">My Account</span> */}
+          <h2 className="profile-page-title">Account Settings</h2>
         </div>
-      ) : (
+
         <div className="row">
-        {/* Sidebar */}
-        <div className="col-md-3 mb-3">
-          <div className="card shadow-sm p-3">
-            <div className="text-center mb-3">
-              <img
+          {/* Sidebar */}
+          <div className="col-lg-3 col-md-4">
+            <div className="profile-sidebar">
+              {/* Sidebar Header */}
+              <div className="profile-sidebar-header">
+                <img
                   src={userData?.ProfileImage ? `${ImageURL}${userData.ProfileImage}` : "/assets/img/avatar.png"}
                   alt="Profile"
-                  className="rounded-circle border"
-                  style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                  className="profile-sidebar-avatar"
                   onError={(e) => {
-                    e.target.onerror = null; // prevent infinite loop
-                    e.target.src = "/assets/img/avatar.png"; // fallback to default
+                    e.target.onerror = null;
+                    e.target.src = "/assets/img/avatar.png";
                   }}
                 />
-              <h6 className="mt-2 mb-0">{userData.FullName}</h6>
-              <small className="text-muted">{userData.PhoneNumber}</small>
-            </div>
+                <h4 className="profile-sidebar-name">
+                  {userData.FullName || "User"}
+                </h4>
+                <p className="profile-sidebar-phone">
+                  <i className="fas fa-phone" />
+                  {userData.PhoneNumber || "No phone"}
+                </p>
+              </div>
 
-            <div className="nav flex-column nav-pills">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  className={`nav-link text-start ${
-                    activeTab === tab.key ? "active" : ""
-                  }`}
-                  onClick={() => handleTabClick(tab.key)}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {/* Sidebar Navigation */}
+              <div className="profile-sidebar-nav">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    className={`profile-nav-item ${activeTab === tab.key ? 'active' : ''} ${tab.className || ''}`}
+                    onClick={() => handleTabClick(tab.key)}
+                  >
+                    <span className="nav-icon">
+                      <i className={tab.icon} />
+                    </span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="col-lg-9 col-md-8" ref={contentRef}>
+            <div className="profile-content">
+              {renderContent()}
             </div>
           </div>
         </div>
-
-        {/* Content */}
-        <div className="col-md-9" ref={contentRef}>
-          <div className="card shadow-sm p-4">{renderContent()}</div>
-        </div>
       </div>
-      )}
-      
     </div>
   );
 };

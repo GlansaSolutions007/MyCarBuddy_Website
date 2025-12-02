@@ -1,7 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
 
 const CTAAreaOne = () => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const buttonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "14px 28px",
+    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: "1rem",
+    borderRadius: "50px",
+    border: "none",
+    textDecoration: "none",
+    boxShadow: isHovered ? "0 12px 35px rgba(245, 158, 11, 0.45)" : "0 8px 25px rgba(245, 158, 11, 0.35)",
+    transform: isHovered ? "translateY(-3px)" : "translateY(0)",
+    transition: "all 0.3s ease",
+  };
+
+  const arrowStyle = {
+    transition: "transform 0.3s ease",
+    transform: isHovered ? "translateX(5px)" : "translateX(0)",
+  };
+
   return (
     <div className="cta-area-1">
       <div className="cta1-bg-thumb">
@@ -20,8 +45,13 @@ const CTAAreaOne = () => {
             </div>
             <div className="col-md-auto">
               <div className="title-area mb-0">
-                <Link className="btn" to="/contact">
-                  View More <i className="fas fa-arrow-right ms-2" />
+                <Link 
+                  to="/contact"
+                  style={buttonStyle}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  View More <FaArrowRight style={arrowStyle} />
                 </Link>
               </div>
             </div>

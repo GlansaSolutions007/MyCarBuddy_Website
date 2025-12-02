@@ -1,0 +1,324 @@
+/* ===== Marquee Section - Light Modern Style with Tire Pattern ===== */
+
+.marquee-section {
+  background: linear-gradient(180deg, #f8fffe 0%, #f0f9f9 100%);
+  padding: 30px 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(10, 98, 100, 0.08);
+  border-bottom: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+/* Tire Shadow - Left */
+.marquee-section::before {
+  content: '';
+  position: absolute;
+  left: -80px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
+  background: 
+    radial-gradient(circle at center, transparent 35%, rgba(10, 98, 100, 0.06) 36%, rgba(10, 98, 100, 0.06) 45%, transparent 46%),
+    radial-gradient(circle at center, transparent 55%, rgba(10, 98, 100, 0.04) 56%, rgba(10, 98, 100, 0.04) 70%, transparent 71%),
+    radial-gradient(circle at center, rgba(10, 98, 100, 0.03) 20%, transparent 21%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Tire Shadow - Right */
+.marquee-section::after {
+  content: '';
+  position: absolute;
+  right: -80px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
+  background: 
+    radial-gradient(circle at center, transparent 35%, rgba(10, 98, 100, 0.06) 36%, rgba(10, 98, 100, 0.06) 45%, transparent 46%),
+    radial-gradient(circle at center, transparent 55%, rgba(10, 98, 100, 0.04) 56%, rgba(10, 98, 100, 0.04) 70%, transparent 71%),
+    radial-gradient(circle at center, rgba(10, 98, 100, 0.03) 20%, transparent 21%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Tire Tread Pattern - Subtle Background */
+.marquee-wrapper {
+  position: relative;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(10, 98, 100, 0.02) 60px,
+      rgba(10, 98, 100, 0.02) 62px
+    );
+}
+
+/* Marquee Item */
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 40px;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.marquee-item:hover {
+  transform: scale(1.03);
+}
+
+.marquee-item:hover .marquee-icon-wrapper {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  transform: rotate(8deg);
+  box-shadow: 0 8px 25px rgba(10, 98, 100, 0.3);
+}
+
+.marquee-item:hover .marquee-icon {
+  filter: brightness(0) invert(1);
+}
+
+.marquee-item:hover .marquee-text {
+  color: #0a6264;
+}
+
+/* Icon Wrapper - Tire/Wheel Style */
+.marquee-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: rgba(10, 98, 100, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  box-shadow: 
+    inset 0 0 0 2px rgba(10, 98, 100, 0.1),
+    0 4px 12px rgba(10, 98, 100, 0.08);
+}
+
+/* Wheel rim effect */
+.marquee-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px dashed rgba(10, 98, 100, 0.15);
+  border-radius: 50%;
+  transition: all 0.4s ease;
+}
+
+.marquee-item:hover .marquee-icon-wrapper::before {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: rotate(45deg);
+}
+
+.marquee-icon {
+  width: 22px;
+  height: 22px;
+  transition: all 0.3s ease;
+  /* Teal color filter */
+  filter: brightness(0) saturate(100%) invert(32%) sepia(15%) saturate(2000%) hue-rotate(140deg) brightness(95%) contrast(90%);
+}
+
+/* Marquee Text */
+.marquee-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+/* Separator - Gear/Wheel Style */
+.marquee-separator {
+  color: #1aa1a4;
+  font-size: 1.1rem;
+  margin-left: 8px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.marquee-item:hover .marquee-separator {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* ===== Responsive Styles ===== */
+@media (max-width: 1199px) {
+  .marquee-section {
+    padding: 26px 0;
+  }
+
+  .marquee-section::before,
+  .marquee-section::after {
+    width: 160px;
+    height: 160px;
+  }
+
+  .marquee-text {
+    font-size: 1.35rem;
+  }
+
+  .marquee-icon-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .marquee-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .marquee-item {
+    gap: 12px;
+    padding: 0 35px;
+  }
+}
+
+@media (max-width: 991px) {
+  .marquee-section {
+    padding: 22px 0;
+  }
+
+  .marquee-section::before,
+  .marquee-section::after {
+    width: 140px;
+    height: 140px;
+  }
+
+  .marquee-text {
+    font-size: 1.2rem;
+  }
+
+  .marquee-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .marquee-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .marquee-item {
+    gap: 10px;
+    padding: 0 28px;
+  }
+
+  .marquee-separator {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .marquee-section {
+    padding: 18px 0;
+  }
+
+  .marquee-section::before {
+    left: -100px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .marquee-section::after {
+    right: -100px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .marquee-text {
+    font-size: 1.05rem;
+  }
+
+  .marquee-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .marquee-icon-wrapper::before {
+    inset: 2px;
+  }
+
+  .marquee-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .marquee-item {
+    gap: 8px;
+    padding: 0 22px;
+  }
+
+  .marquee-separator {
+    font-size: 0.9rem;
+    margin-left: 6px;
+  }
+}
+
+@media (max-width: 575px) {
+  .marquee-section {
+    padding: 14px 0;
+  }
+
+  .marquee-section::before,
+  .marquee-section::after {
+    display: none;
+  }
+
+  .marquee-text {
+    font-size: 0.9rem;
+    letter-spacing: 0;
+  }
+
+  .marquee-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .marquee-icon-wrapper::before {
+    display: none;
+  }
+
+  .marquee-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .marquee-item {
+    gap: 6px;
+    padding: 0 16px;
+  }
+
+  .marquee-separator {
+    font-size: 0.8rem;
+    margin-left: 4px;
+  }
+}
+
+/* Touch device optimization */
+@media (hover: none) {
+  .marquee-item:active {
+    transform: scale(1.03);
+  }
+
+  .marquee-item:active .marquee-icon-wrapper {
+    background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+    box-shadow: 0 8px 25px rgba(10, 98, 100, 0.3);
+  }
+
+  .marquee-item:active .marquee-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .marquee-item:active .marquee-separator {
+    transform: rotate(180deg);
+  }
+}

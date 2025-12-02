@@ -1,0 +1,873 @@
+/* ===== Car Damage Analysis Section - Modern Style ===== */
+
+.damage-analysis-section {
+  background: linear-gradient(180deg, #f8fffe 0%, #f0f9f9 50%, #ffffff 100%);
+  padding: 50px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Decorations */
+.damage-bg-decoration {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.damage-bg-decoration-1 {
+  top: -150px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(10, 98, 100, 0.08) 0%, transparent 70%);
+}
+
+.damage-bg-decoration-2 {
+  bottom: -100px;
+  left: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(26, 161, 164, 0.06) 0%, transparent 70%);
+}
+
+/* Section Header */
+.damage-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.damage-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(10, 98, 100, 0.3);
+}
+
+.damage-subtitle-icon {
+  font-size: 1rem;
+}
+
+.damage-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.damage-description {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Content Wrapper */
+.damage-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: stretch;
+}
+
+/* Upload Section */
+.damage-upload-section {
+  position: relative;
+}
+
+.damage-upload-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.damage-upload-card-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.damage-upload-icon-wrapper {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.1) 0%, rgba(26, 161, 164, 0.1) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.damage-upload-header-icon {
+  font-size: 1.6rem;
+  color: #0a6264;
+}
+
+.damage-upload-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.damage-upload-subtitle {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Drop Zone */
+.damage-dropzone {
+  border: 2px dashed rgba(10, 98, 100, 0.3);
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, #f8fffe 0%, #f0f9f9 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.damage-dropzone:hover,
+.damage-dropzone-active {
+  border-color: #0a6264;
+  background: linear-gradient(180deg, #eef8f8 0%, #e5f3f3 100%);
+  transform: scale(1.01);
+}
+
+.damage-dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.damage-dropzone-icon {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.damage-dropzone-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.damage-dropzone-or {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.damage-dropzone-browse {
+  color: #0a6264;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.damage-dropzone-browse:hover {
+  color: #1aa1a4;
+}
+
+.damage-dropzone-hint {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
+}
+
+.damage-file-input {
+  display: none;
+}
+
+/* Preview Section */
+.damage-preview-section {
+  margin-bottom: 16px;
+}
+
+.damage-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0a6264;
+  margin-bottom: 10px;
+}
+
+.damage-preview-icon {
+  font-size: 1rem;
+}
+
+.damage-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.damage-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.damage-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.damage-preview-item:hover img {
+  transform: scale(1.1);
+}
+
+.damage-preview-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  background: rgba(220, 53, 69, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.damage-preview-item:hover .damage-preview-remove {
+  opacity: 1;
+}
+
+.damage-preview-remove:hover {
+  background: #dc3545;
+  transform: scale(1.1);
+}
+
+.damage-preview-number {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
+  background: rgba(10, 98, 100, 0.9);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Error Message */
+.damage-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  color: #dc2626;
+  font-size: 0.95rem;
+}
+
+.damage-error-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Analyze Button */
+.damage-analyze-btn {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 30px rgba(10, 98, 100, 0.3);
+  margin-top: auto;
+}
+
+.damage-analyze-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.4);
+}
+
+.damage-analyze-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.damage-btn-icon {
+  font-size: 1.1rem;
+}
+
+.damage-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Result Section */
+.damage-result-section {
+  position: relative;
+}
+
+.damage-result-card {
+  background: linear-gradient(135deg, #0a6264 0%, #0e5658 50%, #063536 100%);
+  border-radius: 20px;
+  padding: 24px;
+  height: 100%;
+  min-height: 380px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.damage-result-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.damage-result-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(26, 161, 164, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.damage-result-card-active {
+  align-items: flex-start;
+}
+
+/* Illustration (No Result State) */
+.damage-illustration {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.damage-illustration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.damage-illustration-content {
+  margin-bottom: 20px;
+}
+
+.damage-illustration-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.damage-illustration-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.damage-illustration-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.damage-feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+}
+
+.damage-feature-dot {
+  width: 6px;
+  height: 6px;
+  background: #1aa1a4;
+  border-radius: 50%;
+}
+
+.damage-car-icon {
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.15);
+  margin-top: 12px;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Analysis Report (Result State) */
+.damage-report {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.damage-report-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.damage-report-icon-wrapper {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.damage-report-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.damage-report-content {
+  flex: 1;
+  overflow-y: auto;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  padding-right: 10px;
+  max-height: 350px;
+}
+
+.damage-report-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.damage-report-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.damage-report-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.damage-service-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 6px 25px rgba(245, 158, 11, 0.35);
+}
+
+.damage-service-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(245, 158, 11, 0.45);
+}
+
+.damage-service-btn-icon {
+  transition: transform 0.3s ease;
+}
+
+.damage-service-btn:hover .damage-service-btn-icon {
+  transform: translateX(5px);
+}
+
+/* ===== Responsive Styles ===== */
+@media (max-width: 1199px) {
+  .damage-analysis-section {
+    padding: 40px 0;
+  }
+
+  .damage-content-wrapper {
+    gap: 24px;
+  }
+
+  .damage-upload-card {
+    padding: 20px;
+  }
+
+  .damage-result-card {
+    padding: 20px;
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 991px) {
+  .damage-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .damage-result-card {
+    min-height: 300px;
+  }
+
+  .damage-car-icon {
+    font-size: 4rem;
+  }
+
+  .damage-header {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .damage-analysis-section {
+    padding: 35px 0;
+  }
+
+  .damage-header {
+    margin-bottom: 24px;
+  }
+
+  .damage-subtitle {
+    font-size: 0.7rem;
+    padding: 6px 14px;
+  }
+
+  .damage-title {
+    font-size: 1.5rem;
+  }
+
+  .damage-description {
+    font-size: 0.9rem;
+  }
+
+  .damage-upload-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .damage-upload-icon-wrapper {
+    width: 45px;
+    height: 45px;
+  }
+
+  .damage-upload-header-icon {
+    font-size: 1.3rem;
+  }
+
+  .damage-upload-title {
+    font-size: 1.1rem;
+  }
+
+  .damage-dropzone {
+    padding: 20px 16px;
+  }
+
+  .damage-dropzone-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .damage-dropzone-text {
+    font-size: 0.9rem;
+  }
+
+  .damage-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+    max-height: 130px;
+  }
+
+  .damage-analyze-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .damage-result-card {
+    padding: 18px;
+    border-radius: 16px;
+    min-height: 280px;
+  }
+
+  .damage-illustration-title {
+    font-size: 1.2rem;
+  }
+
+  .damage-illustration-text {
+    font-size: 0.8rem;
+  }
+
+  .damage-car-icon {
+    font-size: 3.5rem;
+  }
+
+  .damage-report-content {
+    max-height: 220px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .damage-analysis-section {
+    padding: 30px 0;
+  }
+
+  .damage-upload-card {
+    padding: 16px;
+  }
+
+  .damage-upload-card-header {
+    margin-bottom: 12px;
+  }
+
+  .damage-upload-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+
+  .damage-upload-header-icon {
+    font-size: 1.2rem;
+  }
+
+  .damage-upload-title {
+    font-size: 1rem;
+  }
+
+  .damage-upload-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .damage-dropzone {
+    padding: 18px 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .damage-dropzone-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .damage-dropzone-text {
+    font-size: 0.85rem;
+  }
+
+  .damage-dropzone-hint {
+    font-size: 0.7rem;
+  }
+
+  .damage-preview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-height: 120px;
+    gap: 6px;
+  }
+
+  .damage-analyze-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .damage-result-card {
+    padding: 16px;
+    min-height: 240px;
+  }
+
+  .damage-illustration-badge {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    margin-bottom: 12px;
+  }
+
+  .damage-illustration-title {
+    font-size: 1.1rem;
+  }
+
+  .damage-illustration-text {
+    font-size: 0.75rem;
+  }
+
+  .damage-illustration-features {
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .damage-feature-item {
+    font-size: 0.75rem;
+  }
+
+  .damage-car-icon {
+    font-size: 3rem;
+    margin-top: 10px;
+  }
+
+  .damage-report-header {
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+  }
+
+  .damage-report-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .damage-report-title {
+    font-size: 1rem;
+  }
+
+  .damage-report-content {
+    max-height: 180px;
+    font-size: 0.8rem;
+  }
+
+  .damage-service-btn {
+    padding: 10px 18px;
+    font-size: 0.8rem;
+    margin-top: 14px;
+  }
+
+  .damage-bg-decoration-1,
+  .damage-bg-decoration-2 {
+    display: none;
+  }
+}
+
+/* Touch device optimization */
+@media (hover: none) {
+  .damage-dropzone:active {
+    border-color: #0a6264;
+    background: linear-gradient(180deg, #eef8f8 0%, #e5f3f3 100%);
+  }
+
+  .damage-analyze-btn:active:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  .damage-preview-remove {
+    opacity: 1;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.damage-upload-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.damage-result-card {
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.2s;
+}
+
+

@@ -1,54 +1,33 @@
 import React from "react";
 import Marquee from "react-fast-marquee";
-import { Link } from "react-router-dom";
+import "./MarqueeOne.css";
+
 const MarqueeOne = () => {
+  const marqueeItems = [
+    { icon: "assets/img/icon/marquee-icon-1-1.svg", text: "Express Car Fix" },
+    { icon: "assets/img/icon/marquee-icon-1-2.svg", text: "Car Care Clinic" },
+    { icon: "assets/img/icon/marquee-icon-1-1.svg", text: "Premium Service" },
+    { icon: "assets/img/icon/marquee-icon-1-2.svg", text: "Expert Mechanics" },
+    { icon: "assets/img/icon/marquee-icon-1-1.svg", text: "Quality Parts" },
+    { icon: "assets/img/icon/marquee-icon-1-2.svg", text: "Fast Repairs" },
+  ];
+
   return (
-    <div className="space bg-smoke">
-      <div className="container-fluid p-0 overflow-hidden">
-        <div className="slider__marquee">
-          <div className="marquee_mode">
-            <Marquee>
-              <div className="item">
-                <Link to="#">
-                  <img
-                    src="assets/img/icon/marquee-icon-1-1.svg"
-                    alt="Fixturbo"
-                  />
-                  <span>Express Car Fix</span>
-                </Link>
+    <section className="marquee-section">
+      <div className="marquee-wrapper">
+        <Marquee speed={50} gradient={false} pauseOnHover={true}>
+          {marqueeItems.map((item, index) => (
+            <div key={index} className="marquee-item">
+              <div className="marquee-icon-wrapper">
+                <img src={item.icon} alt={item.text} className="marquee-icon" />
               </div>
-              <div className="item">
-                <Link to="#">
-                  <img
-                    src="assets/img/icon/marquee-icon-1-2.svg"
-                    alt="Fixturbo"
-                  />
-                  <span className="text-stroke">Car Care Clinic</span>
-                </Link>
-              </div>
-              <div className="item">
-                <Link to="#">
-                  <img
-                    src="assets/img/icon/marquee-icon-1-1.svg"
-                    alt="Fixturbo"
-                  />
-                  <span>Express Car Fix</span>
-                </Link>
-              </div>
-              <div className="item">
-                <Link to="#">
-                  <img
-                    src="assets/img/icon/marquee-icon-1-2.svg"
-                    alt="Fixturbo"
-                  />
-                  <span className="text-stroke">Car Care Clinic</span>
-                </Link>
-              </div>
-            </Marquee>
-          </div>
-        </div>
+              <span className="marquee-text">{item.text}</span>
+              <span className="marquee-separator">✦</span>
+            </div>
+          ))}
+        </Marquee>
       </div>
-    </div>
+    </section>
   );
 };
 

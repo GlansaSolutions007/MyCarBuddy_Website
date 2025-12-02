@@ -318,7 +318,7 @@ const HeaderOne = () => {
                   src="/assets/img/MyCarBuddy-Logo1.webp"
                   alt="MyCarBuddy"
                   style={{
-                    height: "45px",     // FIXED SIZE
+                    height: "50px",     // FIXED SIZE
                     width: "auto",      // ALWAYS KEEP ASPECT RATIO
                     objectFit: "contain",
                     transition: "none", // STOP AUTO SHRINK/GROW ON SCROLL

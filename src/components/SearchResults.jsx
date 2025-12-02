@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./ServiceCards.css";
+import "./SearchResults.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
@@ -8,17 +8,18 @@ import ChooseCarModal from "./ChooseCarModal";
 import AddToCartAnimation from "./AddToCartAnimation";
 import BookServiceModal from "./BookServiceModal"
 import Fuse from "fuse.js";
+import { FaFilter, FaCheck, FaAngleRight, FaArrowRight, FaTimes, FaHeadset, FaCalendarAlt, FaShoppingCart, FaTrash } from "react-icons/fa";
 
-// Function to highlight matching text in yellow
+// Function to highlight matching text
 const highlightText = (text, highlight) => {
   if (!highlight) return text;
   const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
   const parts = text.split(regex);
   return parts.map((part, i) =>
     regex.test(part) ? (
-      <span key={i} style={{ backgroundColor: "yellow" }}>
+      <mark key={i} style={{ backgroundColor: "#fef08a", padding: "0 2px", borderRadius: "2px" }}>
         {part}
-      </span>
+      </mark>
     ) : (
       part
     )
@@ -27,34 +28,25 @@ const highlightText = (text, highlight) => {
 
 const SkeletonLoader = () => {
   return (
-    <div className="container my-4 search-results">
-      <div className="row">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="col-md-6 mb-4">
-            <div className="pricing-card">
-              <div className="pricing-card-price-wrap">
-                <div className="skeleton-card-image" style={{ width: "100%", height: 200, backgroundColor: "#e0e0e0", borderRadius: "0.5rem" }}></div>
-              </div>
-              <div className="pricing-card-details">
-                <div className="skeleton-card-title mb-2" style={{ width: "80%", height: 24, backgroundColor: "#e0e0e0", borderRadius: "0.25rem" }}></div>
-                <div className="skeleton-card-list mb-3">
-                  {[...Array(3)].map((_, j) => (
-                    <div key={j} className="skeleton-list-item mb-1" style={{ width: "90%", height: 16, backgroundColor: "#e0e0e0", borderRadius: "0.25rem" }}></div>
-                  ))}
-                </div>
-                <div className="skeleton-card-price mb-2" style={{ width: "60px", height: 20, backgroundColor: "#e0e0e0", borderRadius: "0.25rem" }}></div>
-                <div className="skeleton-card-button" style={{ width: "120px", height: 36, backgroundColor: "#e0e0e0", borderRadius: "0.25rem" }}></div>
-              </div>
-            </div>
+    <div className="sr-results">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="sr-skeleton-card">
+          <div className="sr-skeleton-image"></div>
+          <div className="sr-skeleton-content">
+            <div className="sr-skeleton-title"></div>
+            <div className="sr-skeleton-line"></div>
+            <div className="sr-skeleton-line"></div>
+            <div className="sr-skeleton-line"></div>
+            <div className="sr-skeleton-btn"></div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
 
 const SearchResults = ({ searchTerm }) => {
-  const [allData, setAllData] = useState([]); // <--- ADD THIS
+  const [allData, setAllData] = useState([]);
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -64,14 +56,15 @@ const SearchResults = ({ searchTerm }) => {
   const [animationEndPos, setAnimationEndPos] = useState({ top: 0, left: 0 });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Filters & Sorting
-  const [selectedCategories, setSelectedCategories] = useState([]); // array of strings
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(0);
   const [effectiveMin, setEffectiveMin] = useState(0);
   const [effectiveMax, setEffectiveMax] = useState(0);
-  const [sortOption, setSortOption] = useState("relevance"); // name_asc, name_desc, price_asc, price_desc
+  const [sortOption, setSortOption] = useState("relevance");
 
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -98,10 +91,8 @@ const SearchResults = ({ searchTerm }) => {
     setEffectiveMax(0);
     setSortOption("relevance");
     const fetchSearchResults = async () => {
-      // NOTE: Removed "if (!searchTerm) return;" so we load data even if search is empty to allow matching
       setLoading(true);
       try {
-        // CHANGED: Removed searchTerm from URL and increased pageSize to fetch ALL data
         const response = await axios.get(
           `${BASE_URL}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?searchTerm=&page=1&pageSize=200`
         );
@@ -119,10 +110,9 @@ const SearchResults = ({ searchTerm }) => {
             includes: pkg.IncludeNames ? pkg.IncludeNames.split(',').map(i => i.trim()) : [],
           }));
 
-        setAllData(formatted); // <--- Store in Master List
-        setPackages(formatted); // <--- Initialize view with everything
+        setAllData(formatted);
+        setPackages(formatted);
 
-        // ... (Keep your price calculation logic here) ...
         if (formatted.length > 0) {
           const prices = formatted.map(p => Number(p.price) || 0);
           const minP = Math.min(...prices);
@@ -237,10 +227,9 @@ const SearchResults = ({ searchTerm }) => {
       .replace(/^-+|-+$/g, "");
   };
 
-  // Derived: unique category list from description (SubCategoryName)
+  // Derived: unique category list
   const categories = useMemo(() => {
     const set = new Set(packages.map(p => p.categoryName).filter(Boolean));
-    console.log(packages);
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [packages]);
 
@@ -254,7 +243,7 @@ const SearchResults = ({ searchTerm }) => {
       result = result.filter(p => set.has(p.categoryName));
     }
 
-    // Price filter - only apply when car is selected
+    // Price filter
     if (selectedCar) {
       result = result.filter(p => {
         const price = Number(p.price) || 0;
@@ -277,14 +266,13 @@ const SearchResults = ({ searchTerm }) => {
         result = [...result].sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
         break;
       default:
-        break; // relevance = API order
+        break;
     }
 
     return result;
   }, [packages, selectedCategories, priceMin, priceMax, sortOption, selectedCar]);
 
   const toggleCategory = (cat) => {
-    console.log(selectedCategories);
     setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
   };
 
@@ -297,307 +285,229 @@ const SearchResults = ({ searchTerm }) => {
     setSortOption("relevance");
   };
 
-  // NEW: Fuse.js Filtering Logic
+  // Fuse.js Filtering
   useEffect(() => {
     if (!allData.length) return;
 
     if (!searchTerm) {
-      setPackages(allData); // If no search, show everything
+      setPackages(allData);
       return;
     }
 
     const fuse = new Fuse(allData, {
       keys: [
         { name: "title", weight: 0.7 },
-        { name: "description", weight: 0.3 }, // Search in SubCategoryName
-        { name: "includes", weight: 0.2 },    // Search in includes list
+        { name: "description", weight: 0.3 },
+        { name: "includes", weight: 0.2 },
       ],
-      threshold: 0.4, // 0.4 allows for spelling mistakes (typos)
+      threshold: 0.4,
       includeScore: true,
     });
 
     const results = fuse.search(searchTerm);
     const items = results.map((result) => result.item);
 
-    setPackages(items); // Update the view with Fuse results
+    setPackages(items);
   }, [searchTerm, allData]);
 
   return (
-    <div className="container my-4">
-      {/* <h4 className="mb-3">Search Results for "{searchTerm}"</h4> */}
+    <section className="sr-section">
+      <div className="container">
+        {/* Mobile Filter Toggle */}
+        <button className="sr-filter-toggle" onClick={() => setSidebarOpen(true)}>
+          <FaFilter />
+          <span>Filter & Sort</span>
+        </button>
 
-      {loading ? (
-        <SkeletonLoader />
-      ) : packages.length === 0 ? (
-        // <p className="text-muted">No packages found for "{searchTerm}".</p>
-        <div className="col-12 text-center my-5">
+        {/* Mobile Sidebar Overlay */}
+        <div 
+          className={`sr-sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+        ></div>
 
-          {/* Top Section */}
-          <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
-              alt="No results"
-              style={{
-                width: "150px",
-                marginBottom: "20px",
-                opacity: "0.8"
-              }}
-            />
-            <h4 style={{ color: "#5a5a5a", fontWeight: "600", marginBottom: "10px" }}>
-              Whoops! No search result found for "{searchTerm}".
-            </h4>
-            <p style={{ color: "#888", marginBottom: "25px" }}>
-              Need help finding the right service? Choose an option below.
-            </p>
-          </div>
-
-          {/* Buttons Box */}
-          <div
-            className="d-flex justify-content-center gap-4 px-4 py-3 mx-auto"
-            style={{
-              backgroundColor: "#f1f1f1",
-              width: "450px",
-              borderRadius: "12px",
-              padding: "20px 25px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
-            }}
-          >
-            {/* Quick Support */}
-            <button
-              className="btn btn-danger fw-bold px-4 py-2"
-              style={{ minWidth: "150px" }}
-              onClick={() => {
-                navigate("/#help");
-              }}
-            >
-              Quick Support
-            </button>
-
-            {/* Quick Booking */}
-            <button
-              className="btn btn-danger fw-bold px-4 py-2"
-              style={{ minWidth: "150px" }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedService();
-                setIsModalOpen(true);
-              }}
-            >
-              Quick Booking
-            </button>
-          </div>
-        </div>
-
-      ) : (
-        <div className="row">
+        <div className="sr-layout">
           {/* Sidebar Filters */}
-          <div className="col-lg-3 mb-4">
-            <div className="card p-3 sticky-top" style={{ top: 90 }}>
-              <h6 className="mb-3">Filters</h6>
+          <aside className={`sr-sidebar ${sidebarOpen ? 'open' : ''}`}>
+            <div className="sr-filter-card">
+              <button className="sr-sidebar-close" onClick={() => setSidebarOpen(false)}>
+                <FaTimes />
+              </button>
+              
+              <div className="sr-filter-header">
+                <h3 className="sr-filter-title">
+                  <FaFilter className="sr-filter-title-icon" />
+                  Filters
+                </h3>
+                <button className="sr-filter-clear" onClick={clearFilters}>
+                  Clear All
+                </button>
+              </div>
 
-              {/* Category Filter */}
-              <div className="mb-3">
-                <div className="d-flex justify-content-between align-items-center">
-                  <strong>Categories</strong>
-                  {/* <span className="badge bg-light text-dark">{categories.length}</span> */}
-                </div>
-                <div className="mt-2" style={{ maxHeight: 220, overflowY: 'auto', padding: '10px 0px' }}>
+              {/* Categories */}
+              <div className="sr-filter-section">
+                <span className="sr-filter-label">Categories</span>
+                <div className="sr-categories-list">
                   {categories.map(cat => (
-                    <div key={cat} className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id={`cat-${cat}`}
-                        checked={selectedCategories.includes(cat)}
-                        onChange={() => toggleCategory(cat)}
-                      />
-                      <label className="form-check-label" htmlFor={`cat-${cat}`}>
-                        {cat}
-                      </label>
+                    <div
+                      key={cat}
+                      className={`sr-category-item ${selectedCategories.includes(cat) ? 'active' : ''}`}
+                      onClick={() => toggleCategory(cat)}
+                    >
+                      <span className="sr-category-checkbox">
+                        {selectedCategories.includes(cat) && <FaCheck />}
+                      </span>
+                      <span className="sr-category-name">{cat}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Price Filter - Only show when car is selected */}
-              {/* {selectedCar && (
-                <div className="mb-3">
-                  <strong>Price Range</strong>
-                  <div className="d-flex gap-2 align-items-center mt-2">
-                    <div className="input-group input-group-sm">
-                      <span className="input-group-text">₹</span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={priceMin}
-                        min={effectiveMin}
-                        max={priceMax}
-                        onChange={e => setPriceMin(Number(e.target.value))}
-                      />
-                    </div>
-                    <span className="text-muted">to</span>
-                    <div className="input-group input-group-sm">
-                      <span className="input-group-text">₹</span>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={priceMax}
-                        min={priceMin}
-                        max={effectiveMax}
-                        onChange={e => setPriceMax(Number(e.target.value))}
-                      />
-                    </div>
-                  </div>
-                  <div className="small text-muted mt-1">Min: ₹{effectiveMin} • Max: ₹{effectiveMax}</div>
-                </div>
-              )} */}
-
-              {/* Sort Options */}
-              <div className="mb-3">
-                <strong>Sort By</strong>
+              {/* Sort */}
+              <div className="sr-filter-section">
+                <span className="sr-filter-label">Sort By</span>
                 <select
-                  className="form-select form-select-sm mt-2"
+                  className="sr-sort-select"
                   value={sortOption}
                   onChange={e => setSortOption(e.target.value)}
                 >
                   <option value="relevance">Relevance</option>
                   <option value="name_asc">Name: A to Z</option>
                   <option value="name_desc">Name: Z to A</option>
-                  {selectedCar ? (<>
-                    {/* <option value="price_asc">Price: Low to High</option> */}
-                    {/* <option value="price_desc">Price: High to Low</option> */}
-                  </>) : (
-                    <></>
-                  )}
                 </select>
               </div>
-
-              <button className="btn btn-warning px-3 py-2" onClick={clearFilters}>Clear Filters</button>
             </div>
-          </div>
+          </aside>
 
           {/* Results */}
-          <div className="col-lg-9 search-results-container">
-            <div className="row">
-              {filteredAndSortedPackages.map((pkg) => {
-                const isInCart = cartItems.some((i) => i.id === pkg.id);
-                return (
-                  <div key={pkg.id} className="col-12 col-md-6 col-lg-4 mb-4">
-                    <div className="pricing-card d-flex flex-column h-100">
+          <div className="sr-results-wrapper">
+            {loading ? (
+              <SkeletonLoader />
+            ) : filteredAndSortedPackages.length === 0 ? (
+              <div className="sr-no-results">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
+                  alt="No results"
+                  className="sr-no-results-image"
+                />
+                <h4 className="sr-no-results-title">
+                  No results found for "{searchTerm}"
+                </h4>
+                <p className="sr-no-results-text">
+                  Try adjusting your filters or search with different keywords
+                </p>
+                <div className="sr-no-results-actions">
+                  <button
+                    className="sr-no-results-btn"
+                    onClick={() => navigate("/#help")}
+                  >
+                    <FaHeadset />
+                    Quick Support
+                  </button>
+                  <button
+                    className="sr-no-results-btn"
+                    onClick={() => {
+                      setSelectedService(null);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    <FaCalendarAlt />
+                    Quick Booking
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="sr-results">
+                {filteredAndSortedPackages.map((pkg) => {
+                  const isInCart = cartItems.some((i) => i.id === pkg.id);
+                  return (
+                    <div key={pkg.id} className="sr-card">
                       <div
-                        className="pricing-card-price-wrap position-relative"
+                        className="sr-card-image-wrapper"
                         onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`)}
-                        style={{ cursor: "pointer" }}
                       >
-                        <div className="pricing-card_icon">
-                          <img
-                            src={pkg.image}
-                            className="img-fluid rounded service-img"
-                            alt={pkg.title}
-                            style={{ width: '100%', height: 190, objectFit: 'cover' }}
-                          />
-                        </div>
-                      </div>
-                      <div className="pricing-card-details d-flex flex-column" style={{ minHeight: 180 }}>
-                        <h4 className="pricing-card_title mb-2">{highlightText(pkg.title, searchTerm)}</h4>
-                        <div className="checklist style2">
-                          <ul className="list-unstyled small mb-2">
-                            {pkg.includes.slice(0, 3).map((item, idx) => (
-                              <li key={idx}>
-                                <i className="fas fa-angle-right"></i> {highlightText(item, searchTerm)}
-                              </li>
-                            ))}
-                            {pkg.includes.length > 3 && (
-                              <li>
-                                <a
-                                  href={`/servicedetails/${slugify(pkg.title)}/${pkg.id}`}
-                                  className="text-danger text-decoration-underline"
-                                >
-                                  View More
-                                </a>
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-
-                        {selectedCar ? (
-                          <>
-                            {/* <div className="ribbon">
-                          ₹{pkg.price}
-                          <p>
-                            <div className="text-muted1 text-decoration-line-through">
-                              ₹{pkg.originalPrice}
-                            </div>
-                          </p>
-                        </div> */}
-
-                            {isInCart ? (
-                              <>
-                                <div className="mt-auto d-flex align-items-center gap-2">
-                                  <button
-                                    className="btn style-border2"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate("/cart");
-                                    }}
-                                  >
-                                    ✔ View Cart
-                                  </button>
-                                  <button
-                                    className="btn style-border2 ml-2"
-                                    onClick={() => removeFromCart(pkg.id)}
-                                  >
-                                    <i className="bi bi-trash" />
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <div className="mt-auto">
-                                {/* <button
-                              className="btn style-border2"
-                              onClick={(e) => handleAddToCartClick(e, pkg)}
-                            >
-                              + ADD TO CART
-                            </button> */}
-                                <Link
-                                  className="btn style4 px-4 py-2"
-                                  onClick={() => {
-                                    setSelectedService(pkg);
-                                    setOpenModal(true);
-                                  }}
-                                >
-                                  Book Service <i className="fas fa-arrow-right ms-2" />
-                                </Link>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <div className="text-muted fst-italic mb-2">
-                              Select your car to see price
-                            </div>
-                            <div className="mt-auto">
-                              <button
-                                className="btn style-border2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowCarModal(true);
-                                }}
-                              >
-                                Choose Your Car
-                              </button>
-                            </div>
-                          </>
+                        <img
+                          src={pkg.image}
+                          alt={pkg.title}
+                          className="sr-card-image"
+                        />
+                        <div className="sr-card-overlay"></div>
+                        {pkg.categoryName && (
+                          <span className="sr-card-badge">{pkg.categoryName}</span>
                         )}
                       </div>
+
+                      <div className="sr-card-content">
+                        <h4 className="sr-card-title">
+                          {highlightText(pkg.title, searchTerm)}
+                        </h4>
+
+                        <ul className="sr-card-includes">
+                          {pkg.includes.slice(0, 3).map((item, idx) => (
+                            <li key={idx}>
+                              <FaAngleRight />
+                              {highlightText(item, searchTerm)}
+                            </li>
+                          ))}
+                          {pkg.includes.length > 3 && (
+                            <li>
+                              <Link
+                                to={`/servicedetails/${slugify(pkg.title)}/${pkg.id}`}
+                                className="sr-card-more"
+                              >
+                                +{pkg.includes.length - 3} more
+                              </Link>
+                            </li>
+                          )}
+                        </ul>
+
+                        <div className="sr-card-footer">
+                          {isInCart ? (
+                            <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                              <button
+                                className="sr-card-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate("/cart");
+                                }}
+                                style={{ flex: 1 }}
+                              >
+                                <FaShoppingCart />
+                                View Cart
+                              </button>
+                              <button
+                                className="sr-card-btn sr-card-btn-remove"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeFromCart(pkg.id);
+                                }}
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              className="sr-card-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedService(pkg);
+                                setIsModalOpen(true);
+                              }}
+                            >
+                              <FaCalendarAlt />
+                              Book Service
+                              <FaArrowRight />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       <ChooseCarModal
         isVisible={showCarModal}
@@ -614,12 +524,14 @@ const SearchResults = ({ searchTerm }) => {
         }}
         onCarSaved={(car) => setSelectedCar(car)}
       />
+
       <AddToCartAnimation
         trigger={animationTrigger}
         startPosition={animationStartPos}
         endPosition={animationEndPos}
         onAnimationEnd={handleAnimationEnd}
       />
+
       {openModal && (
         <div
           style={{
@@ -636,12 +548,11 @@ const SearchResults = ({ searchTerm }) => {
           <div
             style={{
               background: "#ffffff",
-              padding: "20px",
+              padding: "24px",
               width: "95%",
               maxWidth: "450px",
-              borderRadius: "14px",
-              boxShadow: "0px 6px 18px rgba(0,0,0,0.15)",
-              animation: "fadeIn 0.25s ease-in-out",
+              borderRadius: "20px",
+              boxShadow: "0px 10px 40px rgba(0,0,0,0.2)",
             }}
           >
             <h5
@@ -650,22 +561,21 @@ const SearchResults = ({ searchTerm }) => {
                 marginBottom: "8px",
                 color: "#0a6264",
                 fontWeight: 700,
+                fontSize: "1.2rem",
               }}
             >
               Book – {selectedService?.title}
             </h5>
 
-            {/* ✨ New Description Line */}
             <p
               style={{
                 textAlign: "center",
-                fontSize: "12px",
-                marginTop: "-5px",
-                marginBottom: "18px",
-                color: "#555",
+                fontSize: "0.85rem",
+                marginBottom: "20px",
+                color: "#666",
               }}
             >
-              Give few information about you, our team will contact you.
+              Enter your details and our team will contact you
             </p>
 
             <form
@@ -674,74 +584,70 @@ const SearchResults = ({ searchTerm }) => {
                 setOpenModal(false);
               }}
             >
-              {/* Row - Name + Contact */}
-              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+              <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "13px", fontWeight: 600 }}>Name</label>
+                  <label style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px", display: "block", color: "#333" }}>Name</label>
                   <input
                     type="text"
-                    className="form-control"
                     placeholder="Enter your name"
                     required
                     style={{
-                      padding: "8px",
-                      fontSize: "13px",
-                      borderRadius: "6px",
+                      width: "100%",
+                      padding: "12px 14px",
+                      fontSize: "0.9rem",
+                      borderRadius: "10px",
+                      border: "2px solid #e0e0e0",
+                      transition: "border-color 0.3s",
                     }}
                   />
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: "13px", fontWeight: 600 }}>
-                    Phone Number
-                  </label>
+                  <label style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px", display: "block", color: "#333" }}>Phone</label>
                   <input
                     type="text"
-                    className="form-control"
                     placeholder="Phone number"
                     required
                     style={{
-                      padding: "8px",
-                      fontSize: "13px",
-                      borderRadius: "6px",
+                      width: "100%",
+                      padding: "12px 14px",
+                      fontSize: "0.9rem",
+                      borderRadius: "10px",
+                      border: "2px solid #e0e0e0",
                     }}
                   />
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "14px",
-                }}
-              >
+              <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
                 <button
                   type="button"
-                  className="btn"
-                  style={{
-                    background: "#8b8b8bff",
-                    fontSize: "13px",
-                    padding: "8px 20px",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                  }}
                   onClick={() => setOpenModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    background: "#f0f0f0",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontWeight: 600,
+                    color: "#666",
+                    cursor: "pointer",
+                  }}
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="btn"
                   style={{
-                    background: "#0a6264",
-                    color: "#fff",
-                    fontSize: "13px",
-                    padding: "8px 20px",
-                    borderRadius: "6px",
+                    flex: 1,
+                    padding: "12px",
+                    background: "linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%)",
+                    border: "none",
+                    borderRadius: "10px",
                     fontWeight: 600,
+                    color: "#fff",
+                    cursor: "pointer",
                   }}
                 >
                   Submit
@@ -751,12 +657,13 @@ const SearchResults = ({ searchTerm }) => {
           </div>
         </div>
       )}
+
       <BookServiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
       />
-    </div>
+    </section>
   );
 };
 
