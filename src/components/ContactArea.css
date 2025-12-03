@@ -398,12 +398,14 @@
   font-size: 1rem;
   font-weight: 700;
   margin: 0 0 4px 0;
+  color: white;
 }
 
 .contact-quick-content p {
   font-size: 0.9rem;
   margin: 0;
   opacity: 0.9;
+  color: white;
 }
 
 /* ===== Responsive Styles ===== */
@@ -626,5 +628,7 @@
   animation-delay: 0.2s;
   opacity: 0;
 }
+
+
 
 

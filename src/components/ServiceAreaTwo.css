@@ -147,22 +147,18 @@
 .service-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.1) 0%,
-    rgba(0, 0, 0, 0.4) 50%,
-    rgba(10, 98, 100, 0.85) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(10, 98, 100, 0.85) 100%);
   z-index: 2;
   transition: var(--transition-fast);
 }
 
 .service-card-minimal:hover .service-card-overlay {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 98, 100, 0.7) 0%,
-    rgba(10, 98, 100, 0.9) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(10, 98, 100, 0.7) 0%,
+      rgba(10, 98, 100, 0.9) 100%);
 }
 
 /* Card Content - Always Visible */
@@ -293,21 +289,21 @@
 
 /* ===== Support Section ===== */
 .support-section {
-  padding: 60px 0;
+  padding: 50px 0 40px;
 }
 
 .support-card {
   position: relative;
-  border-radius: 24px;
+  border-radius: 18px;
   overflow: hidden;
   transition: var(--transition-smooth);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-height: 320px;
+  min-height: 260px;
 }
 
 .support-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22) !important;
 }
 
 .support-card .bg-image {
@@ -319,7 +315,7 @@
 }
 
 .support-card:hover .bg-image {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .support-card .overlay {
@@ -331,7 +327,7 @@
 .support-card .content {
   position: relative;
   z-index: 2;
-  padding: 40px 30px;
+  padding: 30px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -341,15 +337,15 @@
 }
 
 .support-card .icon-wrapper {
-  width: 70px;
-  height: 70px;
+  width: 58px;
+  height: 58px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: var(--transition-fast);
 }
@@ -360,41 +356,42 @@
 }
 
 .support-card .icon-wrapper i {
-  font-size: 28px;
+  font-size: 24px;
   color: #fff;
 }
 
 .support-card h4 {
   color: #fff;
   font-weight: 700;
-  margin-bottom: 12px;
-  font-size: 1.25rem;
+  margin-bottom: 10px;
+  font-size: 1.15rem;
 }
 
 .support-card p {
   color: rgba(255, 255, 255, 0.85);
-  font-size: 0.95rem;
-  margin-bottom: 24px;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+  line-height: 1.5;
 }
 
 .support-btn {
   display: inline-block;
-  padding: 14px 32px;
+  padding: 12px 26px;
   background: #ffffff;
   color: #1a1a2e !important;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.9rem;
   border-radius: 50px;
   text-decoration: none;
   transition: var(--transition-fast);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .support-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
   background: #f8f9fa;
 }
 
@@ -410,12 +407,12 @@
 
 /* ===== How It Works Section ===== */
 .steps-section {
-  padding: 80px 0;
+  padding: 60px 0 50px;
 }
 
 .step-card {
   position: relative;
-  padding: 30px 20px;
+  padding: 24px 18px;
   text-align: center;
   transition: var(--transition-fast);
 }
@@ -425,28 +422,30 @@
 }
 
 .step-icon-wrapper {
-  width: 120px;
-  height: 120px;
+  width: 95px;
+  height: 95px;
   border-radius: 50%;
   background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
   position: relative;
-  box-shadow: 0 10px 30px rgba(10, 98, 100, 0.3);
-  border: 5px solid #fff;
-  outline: 4px solid rgba(10, 98, 100, 0.1);
+  box-shadow: 0 8px 24px rgba(10, 98, 100, 0.28);
+  border: 4px solid #fff;
+  outline: 3px solid rgba(10, 98, 100, 0.1);
   transition: var(--transition-smooth);
 }
 
 .step-card:hover .step-icon-wrapper {
   transform: scale(1.08);
-  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.4);
+  box-shadow: 0 12px 32px rgba(10, 98, 100, 0.38);
 }
 
 .step-icon-wrapper svg {
   color: #fff;
+  width: 36px !important;
+  height: 36px !important;
   transition: var(--transition-fast);
 }
 
@@ -456,39 +455,39 @@
 
 .step-number {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 36px;
-  height: 36px;
+  top: -4px;
+  right: -4px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1aa1a4 0%, #0a6264 100%);
+  background: linear-gradient(135deg, #ff6666 0%, #cc0000 100%);
   color: #fff;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 2px solid #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
   transition: var(--transition-fast);
 }
 
 .step-card:hover .step-number {
-  transform: scale(1.2);
+  transform: scale(1.18);
 }
 
 .step-connector {
   position: absolute;
-  top: 75px;
+  top: 62px;
   right: -20%;
   width: 40%;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, var(--primary-color), rgba(10, 98, 100, 0.2));
   border-radius: 10px;
 }
 
 .step-title {
-  font-size: 1.15rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: #1a1a2e;
   margin-bottom: 10px;
@@ -501,9 +500,9 @@
 
 .step-description {
   color: #666;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  max-width: 280px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: 260px;
   margin: 0 auto;
 }
 
@@ -521,8 +520,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .no-results h4 {
@@ -563,7 +569,7 @@
   .search-container {
     justify-content: center;
   }
-  
+
   .search-wrapper {
     max-width: 350px;
   }
@@ -571,9 +577,9 @@
   .step-connector {
     display: none;
   }
-  
+
   .support-card {
-    min-height: 280px;
+    min-height: 240px;
   }
 
   .service-card-minimal {
@@ -632,20 +638,25 @@
   }
 
   .support-card .content {
-    padding: 30px 20px;
+    padding: 24px 18px;
   }
 
   .support-card h4 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
   .support-card p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .step-icon-wrapper {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
+  }
+
+  .step-icon-wrapper svg {
+    width: 32px !important;
+    height: 32px !important;
   }
 
   .step-title {
@@ -653,7 +664,7 @@
   }
 
   .step-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -699,32 +710,41 @@
   }
 
   .support-card {
-    min-height: 260px;
+    min-height: 220px;
   }
 
   .support-card .icon-wrapper {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
 
   .support-card .icon-wrapper i {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .support-btn {
-    padding: 12px 24px;
-    font-size: 0.9rem;
+    padding: 10px 20px;
+    font-size: 0.85rem;
   }
 
   .step-icon-wrapper {
-    width: 90px;
-    height: 90px;
+    width: 75px;
+    height: 75px;
+  }
+
+  .step-icon-wrapper svg {
+    width: 30px !important;
+    height: 30px !important;
   }
 
   .step-number {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .step-connector {
+    top: 52px;
   }
 }
 
@@ -752,6 +772,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -762,10 +783,21 @@
   animation: fadeInUp 0.6s ease forwards;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
+.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
 
 /* ===== Utility Classes ===== */
 .gradient-text {
@@ -774,4 +806,3 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-

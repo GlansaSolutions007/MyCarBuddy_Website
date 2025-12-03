@@ -3,114 +3,11 @@ import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { useAlert } from '../context/AlertContext';
 import Swal from "sweetalert2";
-
-const chatStyles = `
-  .new-ticket-card {
-    height: 550px;
-  }
-  .chat-container {
-    height: 400px;
-    overflow-y: auto;
-  }
-  .chat-bubble {
-    padding: 3px 6px;
-    border-radius: 10px;
-    margin-bottom: 4px;
-    max-width: 60%;
-    word-wrap: break-word;
-  }
-  .chat-bubble.system {
-    background-color: #f1f1f1;
-    color: #333;
-    align-self: flex-start;
-    text-align: left;
-  }
-  .chat-bubble.user {
-    background-color: #136d6e;
-    color: white;
-    min-width: 20%;
-    align-self: flex-end;
-    text-align: start;
-    margin-left: auto;
-  }
-  .options {
-    margin-left: 10px;
-    margin-bottom: 5px;
-    margin-top: 0;
-  }
-  .chat-bubble.system h6 {
-    margin-left: 20px;
-    margin-bottom: 2px;
-    font-weight: bold;
-  }
-
-  .chat-bubble.system h5,
-  .chat-bubble.system p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.2;
-  }
-
-  .chat-bubble.user p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.3;
-  }
-
-  .chat-bubble.system h6 {
-  margin: 4px 0 0 0 !important; /* small top gap only */
-  padding: 0 !important;
-  line-height: 1.2;
-}
-  
-  .options .form-check {
-    margin-bottom: 1px;
-  }
-  .options .form-check-label {
-    font-size: 0.8rem;
-    line-height: 0.8;
-    font-weight: normal;
-  }
-  .card-body-ticket {
-    display: flex;
-    flex-direction: column;
-    height: 500px;
-  }
-  .description-section {
-    flex-shrink: 0;
-  }
-  .buttons-section {
-    flex-shrink: 0;
-  }
-
-  .chat-bubble.system h5,
-.chat-bubble.system h6,
-.chat-bubble.system p {
-  font-size: 1.05rem !important; /* slightly larger for clarity */
-  line-height: 1.4;
-}
-
-.chat-bubble.user p,
-.chat-bubble.user {
-  font-size: 0.95rem; /* keep user text smaller */
-  line-height: 1.3;
-}
-
-.chat-bubble.system h6 {
-  font-weight: 600;
-}
-
-.chat-bubble.system,
-.chat-bubble.user {
-  line-height: 1.3;
-}
-`;
-
-// Inject styles into the document head
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = chatStyles;
-document.head.appendChild(styleSheet);
+import "./NewTicket.css";
+import { 
+  FaTicketAlt, FaTimes, FaPaperclip, FaArrowRight, 
+  FaPaperPlane, FaArrowLeft, FaFileAlt 
+} from "react-icons/fa";
 
 const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const [step, setStep] = useState(1);
@@ -130,7 +27,6 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const chatContainerRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
   const bookingRequiredCategories = ['Booking', 'Payment', 'Service'];
 
   const [previewFiles, setPreviewFiles] = useState([]);
@@ -451,224 +347,145 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
   };
 
   return (
-    <div className="card mb-4 new-ticket-card p-2 ">
-      <div className="card-header d-flex justify-content-between align-items-center mb-2">
-        <h6 className="mb-0">New Ticket</h6>
-        <button
-          type="button"
-          className="btn-close"
-          onClick={onClose}
-          aria-label="Close"
-        ></button>
+    <div className="nt-card">
+      {/* Header */}
+      <div className="nt-header">
+        <h3 className="nt-header-title">
+          <span className="nt-header-icon">
+            <FaTicketAlt />
+          </span>
+          New Ticket
+        </h3>
+        <button type="button" className="nt-close-btn" onClick={onClose}>
+          <FaTimes />
+        </button>
       </div>
 
-      <div className="card-body-ticket">
-        <form onSubmit={handleSubmit} className="d-flex flex-column h-100">
-          <div className="chat-container d-flex flex-column" ref={chatContainerRef}>
+      {/* Body */}
+      <div className="nt-body">
+        <form onSubmit={handleSubmit} className="nt-form">
+          <div className="nt-chat-container" ref={chatContainerRef}>
 
             {/* Step 1: Pre-selected Booking (only when selectedTicketBookingId is provided) */}
             {selectedTicketBookingId && step >= 1 && (
-              <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  {/* <div
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5",
-                      fontWeight: "500",
-                      marginTop: "4px",
-                    }}
-                  >
-                    Hii ! I see you're raising a ticket for booking from your bookings {booking.BookingTrackID}. Let's start by choosing a category from your issue.
-                  </div> */}
-                  {/* <h6>Selected Booking</h6> */}
-                  <div className="options">
-                    {(() => {
-                      const booking = bookings.find(b => b.BookingID.toString() === selectedTicketBookingId.toString());
-                      return booking ? (
-                        <div style={{
-                          fontSize: "0.95rem",
-                          lineHeight: "1.5",
-                          fontWeight: "500",
-                        }}>
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="preselectedBooking"
-                            id="preselectedBooking"
-                            checked={true}
-                            readOnly
-                          />
-                           Hii ! I see you're raising a ticket for booking from your bookings {booking.BookingTrackID}.
-
-                          {/* <label className="form-check-label" htmlFor="preselectedBooking">
-                            {booking.BookingTrackID} - {booking.ServiceType}
-                            {" "}Booked on {new Date(booking.BookingDate).toLocaleDateString()} -
-                            {booking.Packages && booking.Packages.length > 0 && (() => {
-                              const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
-                              const limitedText = allPackages.length > 25 ? allPackages.slice(0, 25) + "..." : allPackages;
-                              return (
-                                <>
-                                  {" ("}
-                                  {limitedText}
-                                  {")"}
-                                </>
-                              );
-                            })()}
-                          </label> */}
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
-                </div>
+              <div className="nt-bubble system">
+                {(() => {
+                  const booking = bookings.find(b => b.BookingID.toString() === selectedTicketBookingId.toString());
+                  return booking ? (
+                    <div className="nt-bubble-intro">
+                      <input
+                        type="radio"
+                        name="preselectedBooking"
+                        checked={true}
+                        readOnly
+                        style={{ marginRight: '8px', accentColor: '#0a6264' }}
+                      />
+                      Hi! I see you're raising a ticket for booking <strong>{booking.BookingTrackID}</strong>.
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
 
-            {/* User: Selected Booking (moved up so it appears before the Reason block when preselected) */}
-            {/* {bookingId && (
-              <div className="mb-3 d-flex justify-content-end me-2">
-                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>
-                  {(() => {
-                    const booking = bookings.find(b => b.BookingID.toString() === bookingId);
-                    return booking ? (
-                      <p style={{ color: "white", margin: 0 }}>
-                        Booking {booking.BookingTrackID}
-                      </p>
-                    ) : null;
-                  })()}
-                </div>
-              </div>
-            )} */}
-
             {/* Step 1 (Normal) or Step 2 (Pre-selected): Select Reason */}
-            { ((step >= 1 && !selectedTicketBookingId) || (step >= 2 && selectedTicketBookingId)) && (
-              <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  <div
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5",
-                      fontWeight: "500",
-                      marginTop: "4px", // small space above for balance
-                    }}
-                  >
-                    Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.
-                  </div>
-                  <h6>Choose a category for your issue</h6>
-                  <div className="options">
-                    {reasonTypesLoading ? (
-                      <div className="text-center">
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Loading Issue...
+            {((step >= 1 && !selectedTicketBookingId) || (step >= 2 && selectedTicketBookingId)) && (
+              <div className="nt-bubble system">
+                <div className="nt-bubble-intro">
+                  Hi! I'm here to help you create a support ticket. Let's start by choosing a category for your issue.
+                </div>
+                <div className="nt-bubble-title">Choose a category for your issue</div>
+                <div className="nt-options">
+                  {reasonTypesLoading ? (
+                    <div className="nt-loading">
+                      <div className="nt-loading-spinner"></div>
+                      Loading categories...
+                    </div>
+                  ) : reasonTypes.length > 0 ? (
+                    reasonTypes.map((reasonType) => (
+                      <div 
+                        key={reasonType.value} 
+                        className={`nt-option ${selectedReasonType === reasonType.value ? 'selected' : ''} ${step > 2 ? 'disabled' : ''}`}
+                        onClick={() => step <= 2 && handleReasonChange(reasonType.value)}
+                      >
+                        <input
+                          type="radio"
+                          name="reason"
+                          id={`reason-${reasonType.value}`}
+                          value={reasonType.value}
+                          checked={selectedReasonType === reasonType.value}
+                          onChange={() => {}}
+                          disabled={step > 2}
+                        />
+                        <label className="nt-option-label" htmlFor={`reason-${reasonType.value}`}>
+                          {reasonType.label}
+                        </label>
                       </div>
-                    ) : reasonTypes.length > 0 ? (
-                      reasonTypes.map((reasonType) => (
-                        <div key={reasonType.value} className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="reason"
-                            id={`reason-${reasonType.value}`}
-                            value={reasonType.value}
-                            checked={selectedReasonType === reasonType.value}
-                            onChange={async (e) => {
-                              const value = e.target.value;
-                              // call the handler which will set steps appropriately
-                              handleReasonChange(value);
-                              // NOTE: removed extra setStep(2) here so preselected flow can advance to step 3 inside handler
-                              // handler already handles skipping to subreason when bookings empty
-                            }}
-                            // allow reason selection in both:
-                            // normal (step === 1) and pre-selected (step === 2)
-                            disabled={step > 2}
-                          />
-                          <label className="form-check-label" htmlFor={`reason-${reasonType.value}`}>
-                            {reasonType.label}
-                          </label>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted">No Issue available.</p>
-                    )}
-                  </div>
+                    ))
+                  ) : (
+                    <p className="nt-no-data">No categories available.</p>
+                  )}
                 </div>
               </div>
             )}
 
             {/* User: Selected Reason */}
             {selectedReasonType && (
-              <div className="mb-3 d-flex justify-content-end me-2">
-                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedReasonType} Related</div>
+              <div className="nt-bubble user">
+                <p className="nt-bubble-text">{selectedReasonType} Related</p>
               </div>
             )}
 
             {/* Step 2: Select Booking (only for normal flow, not pre-selected) */}
             {step >= 2 && !selectedTicketBookingId && (
-              <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  <div
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5",
-                      fontWeight: "500",
-                      marginTop: "4px", // small space above for balance
-                    }}
-                  >
-                    Great! You selected <span>{selectedReasonType} Related</span>. Now let's select the booking you want to raise a ticket for.
-                  </div>
-                  <h6>Select Booking</h6>
-                  <div className="options">
-                    {isLoading ? (
-                      <div className="text-center">
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Loading bookings...
-                      </div>
-                    ) : bookings.length > 0 ? (
-                      <div>
-                        {(showAllBookings ? bookings : bookings.slice(0, 5)).map((booking) => (
-                          <div key={booking.BookingTrackID} className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="radio"
-                              name="booking"
-                              id={`booking-${booking.BookingID}`}
-                              value={booking.BookingID}
-                              checked={bookingId === booking.BookingID.toString()}
-                              onChange={(e) => {
-                                handleBookingChange(e.target.value);
-                                setStep(3); // go to sub-reason after selecting booking
-                              }}
-                              disabled={step > 2}
-                            />
-                            <label className="form-check-label" htmlFor={`booking-${booking.BookingID}`}>
-                              {booking.BookingTrackID} - {booking.ServiceType}
-                              {" "} {new Date(booking.BookingDate).toLocaleDateString()} -
-                              {booking.Packages && booking.Packages.length > 0 && (() => {
-                                // Join all package names with commas
-                                const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
-                                // Trim to max 25 characters
-                                const limitedText = allPackages.length > 25 ? allPackages.slice(0, 25) + "..." : allPackages;
-
-                                return (
-                                  <>
-                                    {" ("}
-                                    {limitedText}
-                                    {")"}
-                                  </>
-                                );
-                              })()}
-                            </label>
-                          </div>
-                        ))}
+              <div className="nt-bubble system">
+                <div className="nt-bubble-intro">
+                  Great! You selected <strong>{selectedReasonType} Related</strong>. Now let's select the booking you want to raise a ticket for.
+                </div>
+                <div className="nt-bubble-title">Select Booking</div>
+                <div className="nt-options">
+                  {isLoading ? (
+                    <div className="nt-loading">
+                      <div className="nt-loading-spinner"></div>
+                      Loading bookings...
+                    </div>
+                  ) : bookings.length > 0 ? (
+                    <>
+                      {(showAllBookings ? bookings : bookings.slice(0, 5)).map((booking) => (
+                        <div 
+                          key={booking.BookingTrackID} 
+                          className={`nt-option ${bookingId === booking.BookingID.toString() ? 'selected' : ''} ${step > 2 ? 'disabled' : ''}`}
+                          onClick={() => {
+                            if (step <= 2) {
+                              handleBookingChange(booking.BookingID.toString());
+                              setStep(3);
+                            }
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="booking"
+                            id={`booking-${booking.BookingID}`}
+                            value={booking.BookingID}
+                            checked={bookingId === booking.BookingID.toString()}
+                            onChange={() => {}}
+                            disabled={step > 2}
+                          />
+                          <label className="nt-option-label" htmlFor={`booking-${booking.BookingID}`}>
+                            {booking.BookingTrackID} - {booking.ServiceType}
+                            {" "} {new Date(booking.BookingDate).toLocaleDateString()}
+                            {booking.Packages && booking.Packages.length > 0 && (() => {
+                              const allPackages = booking.Packages.map(pkg => pkg.PackageName).join(", ");
+                              const limitedText = allPackages.length > 25 ? allPackages.slice(0, 25) + "..." : allPackages;
+                              return ` (${limitedText})`;
+                            })()}
+                          </label>
+                        </div>
+                      ))}
+                      <div className="nt-chat-actions">
                         {bookings.length > 5 && (
                           <button
                             type="button"
-                            className="btn btn-outline-primary mt-2 ms-5"
-                            style={{
-                              fontSize: "11px",
-                              padding: "1px 6px", // reduced height
-                              borderRadius: "6px",
-                              lineHeight: "1.2",
-                            }}
+                            className="nt-chat-btn"
                             onClick={() => setShowAllBookings(!showAllBookings)}
                             disabled={step > 2}
                           >
@@ -677,18 +494,10 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                         )}
                         <button
                           type="button"
-                          className="btn btn-outline-secondary mt-2 ms-2"
-                          style={{
-                            fontSize: "11px",
-                            padding: "1px 6px", // reduced height
-                            borderRadius: "6px",
-                            lineHeight: "1.2",
-                          }}
+                          className="nt-chat-btn secondary"
                           onClick={() => {
                             setSkippedBooking(true);
                             setStep(3);
-
-                            // Add a small delay to show "user" message naturally
                             setTimeout(() => {
                               if (chatContainerRef.current) {
                                 chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -700,126 +509,91 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                           Skip selection
                         </button>
                       </div>
-                    ) : (
-                      // No bookings available → move directly to sub-reason
-                      <div>
-                        <p className="text-muted">No bookings found.</p>
-                        <button
-                          type="button"
-                          className="btn btn-link p-0 mt-1"
-                          style={{ fontSize: '12px' }}
-                          onClick={() => setStep(3)}
-                        >
-                          Continue →
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                    </>
+                  ) : (
+                    <div>
+                      <p className="nt-no-data">No bookings found.</p>
+                      <span className="nt-continue-link" onClick={() => setStep(3)}>
+                        Continue <FaArrowRight />
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* User: Skipped booking selection */}
             {skippedBooking && !bookingId && (
-              <div className="mb-3 d-flex justify-content-end me-2">
-                <div
-                  className="chat-bubble user mb-2"
-                  style={{ textAlign: "center" }}
-                >
-                  Skip booking selection
-                </div>
+              <div className="nt-bubble user">
+                <p className="nt-bubble-text">Skip booking selection</p>
               </div>
             )}
 
             {/* Step 3: Select Sub-Reason */}
             {step >= 3 && selectedReasonType && selectedReasonType !== 'Others' && (
-              <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  <div
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5",
-                      fontWeight: "500",
-                      marginTop: "4px",
-                    }}
-                  >
-                    {(() => {
-                      const booking = bookings.find(b => b.BookingID.toString() === bookingId);
-                      if (skippedBooking) {
-                        return (
-                          <span>
-                            No problem! Now please choose a specific reason.
-                          </span>
-                        );
-                      } else if (booking) {
-                        return (
-                          <span>
-                            Great! You selected booking {booking.BookingTrackID}. Now please choose a specific reason.
-                          </span>
-                        );
-                      }
-                      return null;
-                    })()}
-                  </div>
-                  <h6>Choose a specific reason</h6>
-                  <div className="options">
-                    {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
-                      <div key={subReason.id} className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="subReason"
-                          id={`subReason-${subReason.id}`}
-                          value={subReason.id}
-                          checked={selectedSubReasonId === subReason.id}
-                          onChange={() => handleSubReasonChange(subReason)}
-                          disabled={step > 3}
-                        />
-                        <label className="form-check-label" htmlFor={`subReason-${subReason.id}`}>
-                          {subReason.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+              <div className="nt-bubble system">
+                <div className="nt-bubble-intro">
+                  {(() => {
+                    const booking = bookings.find(b => b.BookingID.toString() === bookingId);
+                    if (skippedBooking) {
+                      return "No problem! Now please choose a specific reason.";
+                    } else if (booking) {
+                      return <>Great! You selected booking <strong>{booking.BookingTrackID}</strong>. Now please choose a specific reason.</>;
+                    }
+                    return null;
+                  })()}
+                </div>
+                <div className="nt-bubble-title">Choose a specific reason</div>
+                <div className="nt-options">
+                  {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
+                    <div 
+                      key={subReason.id} 
+                      className={`nt-option ${selectedSubReasonId === subReason.id ? 'selected' : ''} ${step > 3 ? 'disabled' : ''}`}
+                      onClick={() => step <= 3 && handleSubReasonChange(subReason)}
+                    >
+                      <input
+                        type="radio"
+                        name="subReason"
+                        id={`subReason-${subReason.id}`}
+                        value={subReason.id}
+                        checked={selectedSubReasonId === subReason.id}
+                        onChange={() => {}}
+                        disabled={step > 3}
+                      />
+                      <label className="nt-option-label" htmlFor={`subReason-${subReason.id}`}>
+                        {subReason.label}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
             {/* User: Selected Sub-Reason */}
             {selectedSubReason && (
-              <div className="mb-3 d-flex justify-content-end me-2">
-                <div className="chat-bubble user mb-2" style={{ textAlign: "center" }}>{selectedSubReason}</div>
+              <div className="nt-bubble user">
+                <p className="nt-bubble-text">{selectedSubReason}</p>
               </div>
             )}
 
             {/* Step 4: Ask user to describe issue */}
             {step >= 4 && (
-              <div className="mb-3">
-                <div className="chat-bubble system mb-2">
-                  <div
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.5",
-                      fontWeight: "500",
-                      marginTop: "4px", // small space above for balance
-                    }}
-                  >
-                    Great! You selected reason <span>{selectedSubReason}</span>. <br />
-                    Now please describe your issue in detail. The more information you provide, the better we can assist you.
-                  </div>
+              <div className="nt-bubble system">
+                <div className="nt-bubble-intro">
+                  Great! You selected reason <strong>{selectedSubReason || selectedReasonType}</strong>.<br />
+                  Now please describe your issue in detail. The more information you provide, the better we can assist you.
                 </div>
               </div>
             )}
           </div>
 
-          {/* Always visible: Description */}
+          {/* Description Section */}
           {step >= 4 && (
-            <div className="description-section mb-3 mt-20">
-              <label htmlFor="description" className="form-label fw-bold">
-                Description<span className="text-danger">*</span>
+            <div className="nt-description-section">
+              <label className="nt-description-label" htmlFor="description">
+                Description <span className="required">*</span>
               </label>
 
-              {/* Single hidden input for both images and docs */}
               <input
                 id="fileUpload"
                 type="file"
@@ -829,37 +603,12 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                 onChange={(e) => handleFileChange(e)}
               />
 
-              {/* Wrapper for textarea + plus button */}
-              <div style={{ position: "relative" }}>
-                {/* One "+" button — fixed inside textarea */}
-                <label
-                  htmlFor="fileUpload"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  style={{
-                    position: "absolute",
-                    left: "10px",
-                    bottom: "12px",
-                    cursor: "pointer",
-                    fontSize: "25px",
-                    color: isHovered ? "#0d6efd" : "#929292ff", // blue on hover
-                    fontWeight: "bold",
-                    zIndex: 10,
-                    transition: "color 0.2s ease", // smooth transition
-                  }}
-                  title="Upload image or document"
-                >
-                  <i className="bi bi-paperclip"></i>
+              <div className="nt-description-wrapper">
+                <label htmlFor="fileUpload" className="nt-attach-btn" title="Attach images">
+                  <FaPaperclip />
                 </label>
-
-                {/* Textarea */}
                 <textarea
-                  className="form-control"
-                  style={{
-                    minHeight: "75px",
-                    paddingLeft: "45px",
-                    resize: "none",
-                  }}
+                  className="nt-textarea"
                   id="description"
                   rows="2"
                   value={description}
@@ -869,75 +618,24 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                 ></textarea>
               </div>
 
-              {/* Preview Section */}
+              {/* File Previews */}
               {previewFiles.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                    marginTop: "8px",
-                  }}
-                >
+                <div className="nt-file-previews">
                   {previewFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        position: "relative",
-                        width: "55px",
-                        height: "55px",
-                      }}
-                    >
+                    <div key={index} className="nt-file-preview">
                       {file.type.startsWith("image/") ? (
-                        <img
-                          src={file.preview}
-                          alt={`preview-${index}`}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            borderRadius: "6px",
-                            objectFit: "cover",
-                            border: "1px solid #ddd",
-                          }}
-                        />
+                        <img src={file.preview} alt={`preview-${index}`} />
                       ) : (
-                        <div
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            borderRadius: "6px",
-                            border: "1px solid #ddd",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "30px",
-                            backgroundColor: "#f8f9fa",
-                          }}
-                        >
-                          <i className="bi bi-file-earmark-text-fill"></i>
+                        <div className="nt-file-preview-icon">
+                          <FaFileAlt />
                         </div>
                       )}
-
-                      {/* Remove button */}
                       <button
                         type="button"
+                        className="nt-file-remove"
                         onClick={() => removeFile(index)}
-                        style={{
-                          position: "absolute",
-                          top: "-6px",
-                          right: "-6px",
-                          background: "red",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer",
-                          fontSize: "10px",
-                          lineHeight: "15px",
-                        }}
                       >
-                        ×
+                        <FaTimes />
                       </button>
                     </div>
                   ))}
@@ -946,39 +644,37 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
             </div>
           )}
 
-          {/* Buttons */}
-          <div className="buttons-section d-flex gap-2 justify-content-center mb-25">
+          {/* Footer Buttons */}
+          <div className="nt-footer">
             {step > 1 && (
               <button
                 type="button"
-                className="btn btn-secondary px-4 py-3 text-decoration-none"
+                className="nt-btn secondary"
                 onClick={handleBack}
                 disabled={loading}
               >
-                Back
+                <FaArrowLeft /> Back
               </button>
             )}
             <button
               type="submit"
-              className="btn btn-primary px-4 py-3 text-decoration-none"
+              className="nt-btn primary"
               disabled={loading || (selectedReasonType !== 'Others' && step < 4)}
             >
               {loading ? (
                 <>
-                  <span
-                    className="spinner-border spinner-border-sm me-2 text-decoration-none"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
+                  <span className="nt-btn-spinner"></span>
                   Creating...
                 </>
               ) : (
-                'Raise a Ticket'
+                <>
+                  <FaPaperPlane /> Raise Ticket
+                </>
               )}
             </button>
             <button
               type="button"
-              className="btn btn-secondary px-4 py-3 text-decoration-none"
+              className="nt-btn secondary"
               onClick={onClose}
               disabled={loading}
             >

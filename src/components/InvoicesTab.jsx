@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
+import "./InvoicesTab.css";
+import { FaFileInvoiceDollar, FaDownload, FaCalendarAlt, FaReceipt, FaRupeeSign, FaInfoCircle } from "react-icons/fa";
 
 const InvoicesTab = () => {
   const [invoices, setInvoices] = useState([]);
@@ -76,92 +78,139 @@ const InvoicesTab = () => {
   };
 
   return (
-    <div>
-      <h4 className="mb-4 fw-bold">
-        {/* <i className="fas fa-file-invoice-dollar me-2"></i> */}
-        My Invoices
-      </h4>
+    <div className="inv-section">
+      {/* Header */}
+      <div className="inv-header">
+        <h2 className="inv-title">
+          <span className="inv-title-icon">
+            <FaFileInvoiceDollar />
+          </span>
+          My Invoices
+        </h2>
+        {invoices.length > 0 && (
+          <span className="inv-count">{invoices.length} Invoice{invoices.length !== 1 ? 's' : ''}</span>
+        )}
+      </div>
 
       {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2">Loading invoices...</p>
+        <div className="inv-loading">
+          <div className="inv-spinner"></div>
+          <span className="inv-loading-text">Loading invoices...</span>
         </div>
-      ) : invoices.length === 0 ? (
-        <div className="text-center py-5">
+      ) : error ? (
+        <div className="inv-empty">
           <img
-            src="/assets/img/noinvoice.png"
+            src="/assets/img/no-invoice.png"
             alt="No Invoices"
-            style={{ maxWidth: "500px", marginBottom: "20px" }}
-          />
-          <h4>No invoices yet</h4>
-          <p>
-            Looks like you haven't received any invoices yet. Check back after your next service!
-          </p>
-        </div>
-              ) : error ? (
-        <div className="text-center py-5">
-          <img
-            src="/assets/img/noinvoice.png"
-            alt="No Invoices"
-            style={{ maxWidth: "500px", marginBottom: "20px" }}
+            className="inv-empty-img"
           />
           <h4>Failed to load invoices</h4>
           <p>Please try again.</p>
         </div>
+      ) : invoices.length === 0 ? (
+        <div className="inv-empty">
+          <img
+            src="/assets/img/noinvoice.png"
+            alt="No Invoices"
+            className="inv-empty-img"
+          />
+          <h4>No invoices yet</h4>
+          <p>You haven't received any invoices yet. Check back after your next service!</p>
+        </div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead className="table-light">
-              <tr>
-                <th scope="col">Invoice Number</th>
-                <th scope="col">Invoice Date</th>
-                <th scope="col">Booking ID</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((invoice) => (
-                <tr key={invoice.PaymentID}>
-                  <td>
-                    <strong className="text-primary">{invoice.InvoiceNumber}</strong>
-                  </td>
-                  <td>{formatDate(invoice.PaymentDate)}</td>
-                  <td>
-                   {invoice.BookingTrackID}
-                  </td>
-                  <td>
-                    <strong>₹{invoice.AmountPaid.toFixed(2)}</strong>
-                  </td>
-                  <td>
+        <>
+          {/* Mobile Cards View */}
+          <div className="inv-grid">
+            {invoices.map((invoice) => (
+              <div key={invoice.PaymentID} className="inv-card">
+                <div className="inv-card-header">
+                  <div className="inv-card-number">
+                    <div className="inv-card-icon">
+                      <FaFileInvoiceDollar />
+                    </div>
+                    <h4>{invoice.InvoiceNumber}</h4>
+                  </div>
+                  <div className="inv-card-date">
+                    <FaCalendarAlt /> {formatDate(invoice.PaymentDate)}
+                  </div>
+                </div>
+
+                <div className="inv-card-body">
+                  <div className="inv-card-details">
+                    <div className="inv-detail-item">
+                      <div className="inv-detail-label">Booking ID</div>
+                      <div className="inv-detail-value">{invoice.BookingTrackID}</div>
+                    </div>
+                    <div className="inv-detail-item">
+                      <div className="inv-detail-label">Amount Paid</div>
+                      <div className="inv-detail-value amount">₹{invoice.AmountPaid.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  <div className="inv-card-footer">
                     {invoice.FolderPath ? (
                       <button
-                        className="btn btn-outline-primary px-2 py-1"
+                        className="inv-download-btn"
                         onClick={() => handleDownload(invoice.FolderPath, invoice.InvoiceNumber)}
-                        title="Download Invoice"
                       >
-                        <i className="fas fa-download me-1"></i>
-                        Download
+                        <FaDownload /> Download Invoice
                       </button>
                     ) : (
-                      <span className="text-muted small">Not available</span>
+                      <span className="inv-not-available">Invoice not available</span>
                     )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
-      {invoices.length > 0 && (
-        <div className="mt-3 text-muted small">
-          <i className="fas fa-info-circle me-1"></i>
-          Showing {invoices.length} invoice{invoices.length !== 1 ? 's' : ''} with invoice numbers
-        </div>
+          {/* Desktop Table View */}
+          <div className="inv-table-wrapper">
+            <table className="inv-table">
+              <thead>
+                <tr>
+                  <th>Invoice Number</th>
+                  <th>Invoice Date</th>
+                  <th>Booking ID</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((invoice) => (
+                  <tr key={invoice.PaymentID}>
+                    <td>
+                      <span className="inv-table-number">{invoice.InvoiceNumber}</span>
+                    </td>
+                    <td>{formatDate(invoice.PaymentDate)}</td>
+                    <td>{invoice.BookingTrackID}</td>
+                    <td>
+                      <span className="inv-table-amount">₹{invoice.AmountPaid.toFixed(2)}</span>
+                    </td>
+                    <td>
+                      {invoice.FolderPath ? (
+                        <button
+                          className="inv-table-btn"
+                          onClick={() => handleDownload(invoice.FolderPath, invoice.InvoiceNumber)}
+                        >
+                          <FaDownload /> Download
+                        </button>
+                      ) : (
+                        <span className="inv-not-available">Not available</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer Info */}
+          <div className="inv-footer-info">
+            <FaInfoCircle />
+            Showing {invoices.length} invoice{invoices.length !== 1 ? 's' : ''} with invoice numbers
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,0 +1,463 @@
+/* ===== Address Tab - Modern Style ===== */
+
+.at-section {
+  position: relative;
+}
+
+/* ===== Header ===== */
+.at-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.at-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.at-title-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.at-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.25);
+}
+
+.at-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10, 98, 100, 0.35);
+}
+
+/* ===== Loading ===== */
+.at-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.at-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(10, 98, 100, 0.15);
+  border-top-color: #0a6264;
+  border-radius: 50%;
+  animation: at-spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes at-spin {
+  to { transform: rotate(360deg); }
+}
+
+.at-loading-text {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ===== No Addresses ===== */
+.at-empty {
+  text-align: center;
+  padding: 0px 20px 60px;
+}
+
+.at-empty-img {
+  max-width: 250px;
+  margin-bottom: 24px;
+  opacity: 0.85;
+}
+
+.at-empty h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.at-empty p {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* ===== Address Grid ===== */
+.at-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* ===== Address Card ===== */
+.at-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.at-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.12);
+  border-color: rgba(10, 98, 100, 0.15);
+}
+
+.at-card.primary {
+  border-left: 4px solid #0a6264;
+}
+
+.at-card.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0a6264 0%, #1aa1a4 100%);
+}
+
+.at-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+}
+
+.at-card-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.at-card-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.1) 0%, rgba(26, 161, 164, 0.1) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a6264;
+  font-size: 1.2rem;
+}
+
+.at-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.at-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.at-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.at-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.at-action-btn.primary {
+  background: rgba(10, 98, 100, 0.1);
+  color: #0a6264;
+}
+
+.at-action-btn.primary:hover {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.at-action-btn.primary.active {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.at-action-btn.view {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.at-action-btn.view:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.at-action-btn.delete {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.at-action-btn.delete:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.at-card-body {
+  padding: 16px 20px 20px;
+}
+
+.at-card-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.at-card-address svg {
+  color: #0a6264;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+/* ===== Detail View ===== */
+.at-detail {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+.at-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.05) 0%, rgba(26, 161, 164, 0.05) 100%);
+  border-bottom: 1px solid rgba(10, 98, 100, 0.08);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.at-detail-badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.at-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.at-detail-badge.name {
+  background: rgba(10, 98, 100, 0.1);
+  color: #0a6264;
+}
+
+.at-detail-badge.primary {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.at-detail-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #fff;
+  border: 2px solid rgba(10, 98, 100, 0.15);
+  border-radius: 12px;
+  color: #0a6264;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.at-detail-back:hover {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  border-color: transparent;
+}
+
+.at-detail-body {
+  padding: 24px;
+}
+
+.at-detail-address {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.05) 0%, rgba(26, 161, 164, 0.05) 100%);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.at-detail-address svg {
+  color: #0a6264;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.at-detail-map {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid rgba(10, 98, 100, 0.1);
+  aspect-ratio: 16 / 9;
+}
+
+.at-detail-map iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991px) {
+  .at-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .at-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .at-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .at-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .at-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .at-card-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .at-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .at-detail-back {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 575px) {
+  .at-title {
+    font-size: 1.1rem;
+  }
+
+  .at-title-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .at-card {
+    border-radius: 16px;
+  }
+
+  .at-card-header {
+    padding: 16px 16px 0;
+  }
+
+  .at-card-body {
+    padding: 14px 16px 16px;
+  }
+
+  .at-card-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .at-card-title {
+    font-size: 0.95rem;
+  }
+
+  .at-action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .at-detail-body {
+    padding: 16px;
+  }
+
+  .at-detail-address {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+  }
+}
+

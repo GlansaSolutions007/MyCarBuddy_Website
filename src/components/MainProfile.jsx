@@ -184,10 +184,10 @@ const MainProfile = () => {
     <div className="main-profile-section">
       <div className="container">
         {/* Page Header */}
-        <div className="profile-page-header">
-          {/* <span className="profile-page-subtitle">My Account</span> */}
+        {/* <div className="profile-page-header">
+          <span className="profile-page-subtitle">My Account</span>
           <h2 className="profile-page-title">Account Settings</h2>
-        </div>
+        </div> */}
 
         <div className="row">
           {/* Sidebar */}

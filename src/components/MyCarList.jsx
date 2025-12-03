@@ -5,6 +5,8 @@ import BrandPopup from "./BrandPopup";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import Swal from "sweetalert2";
+import "./MyCarList.css";
+import { FaCar, FaStar, FaEye, FaTrash, FaArrowLeft, FaGasPump, FaPlus, FaTachometerAlt, FaCog, FaCalendarAlt, FaIdCard } from "react-icons/fa";
 
 const MyCarList = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -248,57 +250,66 @@ const MyCarList = () => {
   // 📍 View mode
   if (viewCar) {
     return (
-      <div className="container py-4">
-        <div className="card p-4 shadow-sm">
-          <div className="d-flex justify-content-end mb-4">
-            <button
-              className="btn btn-primary mb-3 px-3 py-2"
-              onClick={() => setViewCar(null)}
-            >
-              <i className="bi bi-arrow-left" />
+      <div className="mc-section">
+        <div className="mc-detail">
+          <div className="mc-detail-header">
+            <h3 className="mc-detail-title">
+              <FaCar /> {viewCar.BrandName} {viewCar.ModelName}
+            </h3>
+            <button className="mc-detail-back" onClick={() => setViewCar(null)}>
+              <FaArrowLeft /> Back to Cars
             </button>
           </div>
-          <div className="text-center mb-3">
-            <div className="d-flex justify-content-center gap-4">
-              <div className="">
+
+          <div className="mc-detail-body">
+            <div className="mc-detail-content">
+              <div className="mc-detail-image-section">
                 <img
                   src={`${IMAGE_BASE_URL}${viewCar.VehicleImage}`}
                   alt={viewCar.ModelName}
-                  className="img-fluid rounded"
-                  style={{ maxWidth: "180px", objectFit: "contain" }}
+                  className="mc-detail-image"
                 />
-                <h5 className="text-center">{viewCar.ModelName}</h5>
-                <div className="d-flex justify-content-center align-items-center gap-2">
+                <h4 className="mc-detail-model-name">{viewCar.ModelName}</h4>
+                <div className="mc-detail-fuel">
                   <img
                     src={`${IMAGE_BASE_URL}${viewCar.FuelImage}`}
                     alt={viewCar.FuelTypeName}
-                    className="img-fluid rounded"
-                    style={{ maxWidth: "20px", objectFit: "contain" }}
                   />
-                  <h5 className="text-center mb-0">{viewCar.FuelTypeName}</h5>
+                  {viewCar.FuelTypeName}
                 </div>
               </div>
 
-              <div>
-                <ul className="list-group list-group-flush mt-3">
-                  <li className="list-group-item">
-                    <strong>Vehicle No:</strong> {viewCar.VehicleNumber}
-                  </li>
-
-                  <li className="list-group-item">
-                    <strong>Engine Type:</strong> {viewCar.EngineType}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Transmission:</strong> {viewCar.TransmissionType}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Kilometers Driven:</strong>{" "}
-                    {viewCar.KilometersDriven}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Year of Purchase:</strong> {viewCar.YearOfPurchase}
-                  </li>
-                </ul>
+              <div className="mc-detail-info">
+                <div className="mc-detail-info-item">
+                  <div className="mc-detail-info-label">
+                    <FaIdCard /> Vehicle Number
+                  </div>
+                  <div className="mc-detail-info-value">{viewCar.VehicleNumber || "N/A"}</div>
+                </div>
+                <div className="mc-detail-info-item">
+                  <div className="mc-detail-info-label">
+                    <FaCog /> Engine Type
+                  </div>
+                  <div className="mc-detail-info-value">{viewCar.EngineType || "N/A"}</div>
+                </div>
+                <div className="mc-detail-info-item">
+                  <div className="mc-detail-info-label">
+                    <FaCog /> Transmission
+                  </div>
+                  <div className="mc-detail-info-value">{viewCar.TransmissionType || "N/A"}</div>
+                </div>
+                <div className="mc-detail-info-item">
+                  <div className="mc-detail-info-label">
+                    <FaTachometerAlt /> Kilometers Driven
+                  </div>
+                  <div className="mc-detail-info-value">{viewCar.KilometersDriven || "N/A"}</div>
+                </div>
+                <div className="mc-detail-info-item">
+                  <div className="mc-detail-info-label">
+                    <FaCalendarAlt /> Year of Purchase
+                  </div>
+                  <div className="mc-detail-info-value">{viewCar.YearOfPurchase || "N/A"}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -310,115 +321,88 @@ const MyCarList = () => {
   // 📍 Add Form mode
   if (showAddForm) {
     return (
-      <div className="container py-4">
-        <h4 className="fw-bold mb-4">Add New Car</h4>
+      <div className="mc-section">
+        <div className="mc-form">
+          <h3 className="mc-form-title">
+            <FaPlus /> Add New Car
+          </h3>
 
-        <div className="row g-3">
-          {/* all input fields same as before */}
-
-          <div
-            onClick={() => {
-              setShowBrandPopup(true);
-            }}
-            className={`rounded shadow-sm text-center p-3 car-box ${
-              brand ? "border-primary border-2" : "border"
-            } bg-white hover-shadow`}
-            style={{
-              width: 120,
-              height: 120,
-              cursor: "pointer",
-              transition: "0.3s",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div className="fw-semibold small mb-2 text-dark">Brand</div>
-            {brand ? (
-              <img
-                src={brands.find((b) => b.id === brand)?.logo}
-                alt="Brand Logo"
-                style={{ width: 70, height: 70, objectFit: "contain" }}
-              />
-            ) : (
-              <div className="text-muted small">Choose</div>
-            )}
+          <div style={{ marginBottom: '20px' }}>
+            <div
+              onClick={() => setShowBrandPopup(true)}
+              className={`mc-brand-box ${brand ? "selected" : ""}`}
+            >
+              <span className="mc-brand-label">Brand</span>
+              {brand ? (
+                <img
+                  src={brands.find((b) => b.id === brand)?.logo}
+                  alt="Brand Logo"
+                />
+              ) : (
+                <FaCar style={{ fontSize: '2rem', color: '#0a6264' }} />
+              )}
+            </div>
           </div>
 
-          <div className="col-md-6">
+          <div className="mc-form-grid">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Brand ID"
               name="brandID"
               value={formData.brandID}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Model ID"
               name="modelID"
               value={formData.modelID}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Fuel Type ID"
               name="fuelTypeID"
               value={formData.fuelTypeID}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Registration Number"
               name="registrationNumber"
               value={formData.registrationNumber}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Year of Purchase"
               name="yearOfPurchase"
               value={formData.yearOfPurchase}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Engine Type"
               name="engineType"
               value={formData.engineType}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <input
               type="text"
-              className="form-control"
+              className="mc-form-input"
               placeholder="Kilometers Driven"
               name="kilometerDriven"
               value={formData.kilometerDriven}
               onChange={handleInputChange}
             />
-          </div>
-          <div className="col-md-6">
             <select
-              className="form-select"
+              className="mc-form-select"
               name="transmissionType"
               value={formData.transmissionType}
               onChange={handleInputChange}
@@ -428,17 +412,18 @@ const MyCarList = () => {
               <option value="Automatic">Automatic</option>
             </select>
           </div>
-        </div>
-        <div className="mt-4 d-flex gap-3 justify-content-center">
-          <button className="btn btn-success px-4 py-2" onClick={handleSaveCar}>
-            Save
-          </button>
-          <button
-            className="btn btn-secondary px-4 py-2"
-            onClick={() => setShowAddForm(false)}
-          >
-            Cancel
-          </button>
+
+          <div className="mc-form-actions">
+            <button className="mc-form-btn save" onClick={handleSaveCar}>
+              Save Car
+            </button>
+            <button
+              className="mc-form-btn cancel"
+              onClick={() => setShowAddForm(false)}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -446,124 +431,87 @@ const MyCarList = () => {
 
   // 📍 Car list mode
   return (
-    <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="fw-bold">My Cars</h4>
-        {/* <button className="btn btn-outline-primary d-flex align-items-center gap-2 px-3 py-2" onClick={() => setShowAddForm(true)}>
-          <i className="bi bi-plus-circle" />
-        </button> */}
+    <div className="mc-section">
+      {/* Header */}
+      <div className="mc-header">
+        <h2 className="mc-title">
+          <span className="mc-title-icon">
+            <FaCar />
+          </span>
+          My Cars
+        </h2>
       </div>
 
-      <div className="row g-4">
-        {carList.map((car) => {
-          const isPrimary = car.VehicleID === primaryCarId;
-
-          return (
-            <div className="col-md-6 mb-4" key={car.VehicleID}>
-              <div
-                className={`card h-100 shadow-sm border-0 rounded-3 ${
-                  car.IsPrimary ? "border border-success" : ""
-                }`}
-              >
-                <div className="card-body p-3 d-flex flex-column">
-                  {/* Primary Tag */}
-                  <div
-                    className="d-flex justify-content-end"
-                    onClick={() => handleSetPrimary(car.VehicleID)}
-                    style={{
-                      lineHeight: "1.5",
-                      fontSize: "13px",
-                      cursor: "pointer",
-                      position: "relative",
-                      zIndex: 99,
-                    }}
+      {loading ? (
+        <div className="mc-loading">
+          <div className="mc-spinner"></div>
+          <span className="mc-loading-text">Loading cars...</span>
+        </div>
+      ) : carList.length === 0 ? (
+        <div className="mc-empty">
+          <img
+            src="/assets/img/no-cars.png"
+            alt="No Cars"
+            className="mc-empty-img"
+          />
+          <h4>No cars yet</h4>
+          <p>Looks like you haven't added any cars yet. Add your first car!</p>
+        </div>
+      ) : (
+        <div className="mc-grid">
+          {carList.map((car) => (
+            <div key={car.VehicleID} className={`mc-card ${car.IsPrimary ? "primary" : ""}`}>
+              <div className="mc-card-header">
+                <span
+                  className={`mc-primary-badge ${car.IsPrimary ? "active" : "inactive"}`}
+                  onClick={() => handleSetPrimary(car.VehicleID)}
+                  title="Set as Primary"
+                >
+                  <FaStar /> Primary
+                </span>
+                <div className="mc-card-actions">
+                  <button
+                    className="mc-action-btn view"
+                    onClick={() => setViewCar(car)}
+                    title="View Details"
                   >
-                    {/* <i className={`bi ${isPrimary ? "bi-star-fill text-warning" : "bi-star"} fs-5 cursor-pointer`} title="Toggle Primary" role="button"  /> */}
-                    <span
-                      className={`${
-                        car.IsPrimary
-                          ? "tab-pill tab-green text-white"
-                          : "tab-pill "
-                      }  px-2 py-0`}
-                    >
-                      Primary
-                    </span>
+                    <FaEye />
+                  </button>
+                  <button
+                    className="mc-action-btn delete"
+                    onClick={() => handleDelete(car.VehicleID)}
+                    title="Delete Car"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mc-card-body">
+                <div className="mc-car-content">
+                  <div className="mc-car-image-wrapper">
+                    <img
+                      src={`${IMAGE_BASE_URL}${car.VehicleImage}`}
+                      alt={car.ModelName}
+                      className="mc-car-image"
+                    />
+                    {car.VehicleNumber && (
+                      <div className="mc-car-number">{car.VehicleNumber}</div>
+                    )}
                   </div>
-
-                  {/* Vehicle Details */}
-                  <div className="row g-3">
-                    {/* Vehicle Image */}
-                    <div className="col-md-7 text-center">
-                      <img
-                        src={`${IMAGE_BASE_URL}${car.VehicleImage}`}
-                        alt={car.ModelName}
-                        className="img-fluid rounded"
-                        style={{ maxHeight: "120px", objectFit: "cover" }}
-                      />
-                      <div className="mt-2">
-                        <span className="text-muted border-car py-1 px-2">
-                          {car.VehicleNumber}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Vehicle Info */}
-                    <div className="col-md-5 d-flex flex-column justify-content-between">
-                      <div>
-                        <p className="text-dark fw-semibold mb-1 mt-3">
-                          {car.BrandName}
-                        </p>
-                        <p className="text-dark fw-semibold mb-1">
-                          {car.ModelName}
-                        </p>
-                        <p className="text-muted small mb-1">
-                          {car.FuelTypeName}
-                        </p>
-                      </div>
-
-                      <div className="text-end">
-                        <i
-                          className="bi bi-eye text-primary fs-5 me-2 cursor-pointer"
-                          title="View"
-                          role="button"
-                          onClick={() => setViewCar(car)}
-                        />
-                        <i
-                          className="bi bi-trash text-danger fs-5 cursor-pointer"
-                          title="Delete"
-                          role="button"
-                          onClick={() => handleDelete(car.VehicleID)}
-                        />
-                      </div>
+                  <div className="mc-car-details">
+                    <div className="mc-car-brand">{car.BrandName}</div>
+                    <div className="mc-car-model">{car.ModelName}</div>
+                    <div className="mc-car-fuel">
+                      <FaGasPump /> {car.FuelTypeName}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-    {loading ? (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+          ))}
         </div>
-        <p className="mt-2">Loading cars...</p>
-      </div>
-    ) : (
-      carList.length === 0 && (
-        <div className="text-center py-5">
-          <img
-            src="/assets/img/no-cars.png"
-            alt="No Cars"
-            style={{ maxWidth: "500px", marginBottom: "20px" }}
-          />
-          <h4>No cars yet</h4>
-          <p>Looks like you haven't added any cars yet. Add your first car!</p>
-        </div>
-      )
-    )}
+      )}
 
       {showBrandPopup && (
         <BrandPopup

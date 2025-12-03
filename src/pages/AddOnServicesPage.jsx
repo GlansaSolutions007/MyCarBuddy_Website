@@ -21,7 +21,7 @@ const MyBookingsPage = () => {
       <HeaderOne />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Addon Services"} />
+      <Breadcrumb title={"My Bookings's"} />
 
       {/* MyBookings */}
       <AddOnServicesLayer />

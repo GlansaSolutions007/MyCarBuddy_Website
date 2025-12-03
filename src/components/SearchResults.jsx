@@ -329,51 +329,68 @@ const SearchResults = ({ searchTerm }) => {
           {/* Sidebar Filters */}
           <aside className={`sr-sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sr-filter-card">
-              <button className="sr-sidebar-close" onClick={() => setSidebarOpen(false)}>
-                <FaTimes />
-              </button>
-              
+              {/* Mobile Header */}
               <div className="sr-filter-header">
                 <h3 className="sr-filter-title">
                   <FaFilter className="sr-filter-title-icon" />
                   Filters
                 </h3>
-                <button className="sr-filter-clear" onClick={clearFilters}>
-                  Clear All
-                </button>
-              </div>
-
-              {/* Categories */}
-              <div className="sr-filter-section">
-                <span className="sr-filter-label">Categories</span>
-                <div className="sr-categories-list">
-                  {categories.map(cat => (
-                    <div
-                      key={cat}
-                      className={`sr-category-item ${selectedCategories.includes(cat) ? 'active' : ''}`}
-                      onClick={() => toggleCategory(cat)}
-                    >
-                      <span className="sr-category-checkbox">
-                        {selectedCategories.includes(cat) && <FaCheck />}
-                      </span>
-                      <span className="sr-category-name">{cat}</span>
-                    </div>
-                  ))}
+                <div className="sr-filter-header-actions">
+                  <button className="sr-filter-clear" onClick={clearFilters}>
+                    Clear All
+                  </button>
+                  <button className="sr-sidebar-close" onClick={() => setSidebarOpen(false)}>
+                    <FaTimes />
+                  </button>
                 </div>
               </div>
 
-              {/* Sort */}
-              <div className="sr-filter-section">
-                <span className="sr-filter-label">Sort By</span>
-                <select
-                  className="sr-sort-select"
-                  value={sortOption}
-                  onChange={e => setSortOption(e.target.value)}
-                >
-                  <option value="relevance">Relevance</option>
-                  <option value="name_asc">Name: A to Z</option>
-                  <option value="name_desc">Name: Z to A</option>
-                </select>
+              {/* Filter Body */}
+              <div className="sr-filter-body">
+                {/* Categories */}
+                <div className="sr-filter-section">
+                  <span className="sr-filter-label">Categories</span>
+                  <div className="sr-categories-list">
+                    {categories.map(cat => (
+                      <div
+                        key={cat}
+                        className={`sr-category-item ${selectedCategories.includes(cat) ? 'active' : ''}`}
+                        onClick={() => toggleCategory(cat)}
+                      >
+                        <span className="sr-category-checkbox">
+                          {selectedCategories.includes(cat) && <FaCheck />}
+                        </span>
+                        <span className="sr-category-name">{cat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sort By */}
+                <div className="sr-filter-section sr-filter-sort">
+                  <span className="sr-filter-label">Sort By</span>
+                  <div className="sr-sort-wrapper">
+                    <select
+                      className="sr-sort-select"
+                      value={sortOption}
+                      onChange={e => setSortOption(e.target.value)}
+                    >
+                      <option value="relevance">Relevance</option>
+                      <option value="name_asc">Name: A to Z</option>
+                      <option value="name_desc">Name: Z to A</option>
+                      <option value="price_asc">Price: Low to High</option>
+                      <option value="price_desc">Price: High to Low</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Apply Button - Mobile Only */}
+              <div className="sr-filter-footer">
+                <button className="sr-apply-btn" onClick={() => setSidebarOpen(false)}>
+                  Apply Filters
+                  <FaCheck />
+                </button>
               </div>
             </div>
           </aside>

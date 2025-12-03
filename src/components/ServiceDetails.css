@@ -36,7 +36,7 @@
   display: grid;
   grid-template-columns: 1fr 350px;
   gap: 40px;
-  align-items: start;
+  /* align-items: start; */
 }
 
 /* ===== Main Content ===== */
@@ -1075,6 +1075,10 @@
   color: #fff;
   text-decoration: none;
   font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
   font-weight: 600;
   transition: all 0.3s ease;
 }

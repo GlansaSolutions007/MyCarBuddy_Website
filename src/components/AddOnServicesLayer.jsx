@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import "./AddOnServicesLayer.css";
+import { FaTools, FaCheck, FaCog, FaBoxOpen } from "react-icons/fa";
 
 const AddOnServicesLayer = () => {
     // Static sample data
@@ -23,7 +25,7 @@ const AddOnServicesLayer = () => {
             gstPercent: 18,
             gstAmount: 90,
             totalAmount: 590,
-            description: "Wheel Alignment Importaint Wheel Alignment Importaint",
+            description: "Wheel Alignment Important - Professional alignment service for optimal tire performance",
             quentity: 1,
         },
         {
@@ -34,10 +36,21 @@ const AddOnServicesLayer = () => {
             gstPercent: 18,
             gstAmount: 216,
             totalAmount: 1416,
-            description: "AC Gas Inluded",
+            description: "AC Gas Included - Premium refrigerant for maximum cooling",
             quentity: 7,
         },
     ]);
+
+    // Calculate totals
+    const totals = services.reduce(
+        (acc, srv) => ({
+            price: acc.price + srv.price * srv.quentity,
+            gstAmount: acc.gstAmount + srv.gstAmount * srv.quentity,
+            totalAmount: acc.totalAmount + srv.totalAmount * srv.quentity,
+            quantity: acc.quantity + srv.quentity,
+        }),
+        { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0 }
+    );
 
     // SweetAlert confirmation
     const handleSubmit = () => {
@@ -46,120 +59,163 @@ const AddOnServicesLayer = () => {
             text: "Your Add-on Services have been successfully submitted.",
             icon: "success",
             confirmButtonText: "OK",
-            confirmButtonColor: "#3085d6",
+            confirmButtonColor: "#0a6264",
         });
     };
 
-    // Function to limit description
-    const limitText = (text, limit) => {
-        if (!text) return "";
-        return text.length > limit ? text.substring(0, limit) + "..." : text;
-    };
-
     return (
-        <div className="card p-3 shadow-sm" style={{ borderRadius: "12px" }}>
-            {/* Table Wrapper */}
-            <div
-                style={{
-                    maxHeight: "420px",
-                    overflowY: "auto",
-                    border: "1px solid #e1e5ea",
-                    borderRadius: "10px",
-                    marginTop: "10px",
-                    background: "#fff",
-                }}
-            >
-                <table className="table table-hover table-bordered mb-0 text-center"
-                    style={{ fontSize: "14px" }}
-                >
-                    <thead
-                        style={{
-                            position: "sticky",
-                            top: 0,
-                            background: "#f8f9fb",
-                            zIndex: 5,
-                            fontSize: "14px",
-                            color: "#333",
-                        }}
-                    >
-                        <tr>
-                            <th className="py-2 px-3">S.N</th>
-                            <th className="py-2 px-3">Service Name</th>
-                            <th className="py-2 px-3">Description</th>
-                            <th className="py-2 px-3">Type</th>
-                            <th className="py-2 px-3">Qty.</th>
-                            <th className="py-2 px-3">Price</th>
-                            <th className="py-2 px-3">GST%</th>
-                            <th className="py-2 px-3">GST ₹</th>
-                            <th className="py-2 px-3">Total Amount</th>
-                        </tr>
-                    </thead>
+        <div className="aos-section">
+            {/* Header */}
+            <div className="aos-header">
+                <h2 className="aos-title">
+                    <span className="aos-title-icon">
+                        <FaTools />
+                    </span>
+                    Add-On Booking's
+                </h2>
+                {services.length > 0 && (
+                    <span className="aos-count">
+                        {services.length} Service{services.length !== 1 ? "s" : ""}
+                    </span>
+                )}
+            </div>
 
-                    <tbody>
-                        {services.length > 0 ? (
-                            services.map((srv, idx) => (
-                                <tr key={srv.id}>
-                                    <td className="py-2 px-3">{idx + 1}</td>
+            {services.length === 0 ? (
+                <div className="aos-empty">
+                    <div className="aos-empty-icon">
+                        <FaTools />
+                    </div>
+                    <h4>No Add-On Services</h4>
+                    <p>There are no additional services added to this booking.</p>
+                </div>
+            ) : (
+                <>
+                    {/* Mobile Cards View */}
+                    <div className="aos-grid">
+                        {services.map((srv) => (
+                            <div key={srv.id} className="aos-card">
+                                <div className="aos-card-header">
+                                    <div className="aos-card-info">
+                                        <h4 className="aos-card-name">{srv.name}</h4>
+                                        <span className={`aos-card-type ${srv.type.toLowerCase()}`}>
+                                            {srv.type === "BodyParts" ? (
+                                                <FaBoxOpen />
+                                            ) : (
+                                                <FaCog />
+                                            )}
+                                            {srv.type}
+                                        </span>
+                                    </div>
+                                    <div className="aos-card-qty">
+                                        <span className="aos-card-qty-label">Qty</span>
+                                        <span className="aos-card-qty-value">{srv.quentity}</span>
+                                    </div>
+                                </div>
 
-                                    <td
-                                        className="py-2 px-3"
-                                        style={{
-                                            maxWidth: "180px",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            fontWeight: 500,
-                                            color: "#212529",
-                                        }}
-                                        title={srv.name}
-                                    >
-                                        {srv.name}
-                                    </td>
+                                <div className="aos-card-body">
+                                    {srv.description && (
+                                        <p className="aos-card-desc">{srv.description}</p>
+                                    )}
 
-                                    {/* Description with character limit + tooltip */}
-                                    <td
-                                        className="py-2 px-3"
-                                        style={{
-                                            maxWidth: "240px",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            color: "#555",
-                                        }}
-                                        title={srv.description}
-                                    >
-                                        {limitText(srv.description, 45)}
-                                    </td>
+                                    <div className="aos-card-pricing">
+                                        <div className="aos-price-item">
+                                            <div className="aos-price-label">Price</div>
+                                            <div className="aos-price-value">₹{srv.price}</div>
+                                        </div>
+                                        <div className="aos-price-item">
+                                            <div className="aos-price-label">GST ({srv.gstPercent}%)</div>
+                                            <div className="aos-price-value">₹{srv.gstAmount}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <td className="py-2 px-3 text-secondary">{srv.type}</td>
-                                    <td className="py-2 px-3 text-secondary">{srv.quentity}</td>
-                                    <td className="py-2 px-3 fw-semibold">₹{srv.price}</td>
-                                    <td className="py-2 px-3">{srv.gstPercent}%</td>
-                                    <td className="py-2 px-3">₹{srv.gstAmount}</td>
-                                    <td className="py-2 px-3 fw-semibold text-primary">₹{srv.totalAmount}</td>
+                                <div className="aos-card-footer">
+                                    <div className="aos-total-row">
+                                        <span className="aos-total-label">Total Amount</span>
+                                        <span className="aos-total-value">₹{srv.totalAmount * srv.quentity}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="aos-table-wrapper">
+                        <table className="aos-table">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Service Name</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>GST %</th>
+                                    <th>GST ₹</th>
+                                    <th>Total</th>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td className="text-center py-3" colSpan="8">
-                                    <span className="text-muted">No Add-on Services Found</span>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody>
+                                {services.map((srv, idx) => (
+                                    <tr key={srv.id}>
+                                        <td>{idx + 1}</td>
+                                        <td>
+                                            <span className="aos-table-name" title={srv.name}>
+                                                {srv.name}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className="aos-table-desc" title={srv.description}>
+                                                {srv.description || "-"}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`aos-table-type ${srv.type.toLowerCase()}`}>
+                                                {srv.type}
+                                            </span>
+                                        </td>
+                                        <td>{srv.quentity}</td>
+                                        <td className="aos-table-price">₹{srv.price}</td>
+                                        <td>{srv.gstPercent}%</td>
+                                        <td>₹{srv.gstAmount}</td>
+                                        <td className="aos-table-total">₹{srv.totalAmount * srv.quentity}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            {/* Submit Button */}
-            <div className="d-flex justify-content-end align-items-center mt-3 gap-3">
-                <button
-                    className="btn btn-primary fw-semibold d-flex justify-content-center align-items-center"
-                    style={{ width: "100px", height: "35px", fontSize: "15px" }}
-                    onClick={handleSubmit}
-                >
-                    Confirm
-                </button>
-            </div>
+                    {/* Summary Section */}
+                    <div className="aos-summary">
+                        <div className="aos-summary-title">Order Summary</div>
+                        <div className="aos-summary-grid">
+                            <div className="aos-summary-item">
+                                <div className="aos-summary-label">Total Items</div>
+                                <div className="aos-summary-value">{totals.quantity}</div>
+                            </div>
+                            <div className="aos-summary-item">
+                                <div className="aos-summary-label">Subtotal</div>
+                                <div className="aos-summary-value">₹{totals.price}</div>
+                            </div>
+                            <div className="aos-summary-item">
+                                <div className="aos-summary-label">GST</div>
+                                <div className="aos-summary-value">₹{totals.gstAmount}</div>
+                            </div>
+                            <div className="aos-summary-item">
+                                <div className="aos-summary-label">Grand Total</div>
+                                <div className="aos-summary-value">₹{totals.totalAmount}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="aos-footer">
+                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit}>
+                            <FaCheck /> Confirm Services
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

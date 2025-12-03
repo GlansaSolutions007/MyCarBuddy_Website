@@ -427,7 +427,7 @@ const ServiceAreaHomePage = () => {
       </div>
 
       {/* How It Works Section */}
-      <div className="container steps-section" style={{marginTop: "-60px"}}>
+      <div className="container steps-section">
         <div className="row justify-content-center mb-4">
           <div className="col-lg-8 col-xl-6">
             <div className="title-area text-center">
@@ -469,7 +469,7 @@ const ServiceAreaHomePage = () => {
                     }}
                   >
                     <Icon
-                      size={42}
+                      size={36}
                       color="#fff"
                       style={{
                         transform: isHovered ? 'scale(1.1) rotate(5deg)' : 'scale(1)',

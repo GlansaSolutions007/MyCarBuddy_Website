@@ -239,6 +239,20 @@ const ServiceDetails = () => {
       .replace(/^-+|-+$/g, ""); // trim starting/ending "-"
   };
 
+  const handlePhoneClick = (phone) => {
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      // On mobile, open phone dialer
+      window.location.href = `tel:${phone}`;
+    } else {
+      // On desktop/laptop, open WhatsApp
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
+
   return (
     <>
       {/* Dynamic SEO Meta Tags */}
@@ -430,12 +444,18 @@ const ServiceDetails = () => {
                   Have questions about this service? Our team is ready to help.
                 </p>
                 <div className="sd-contact-phones">
-                  <Link to="tel:7075243939" className="sd-phone-link">
+                  <button 
+                    className="sd-phone-link"
+                    onClick={() => handlePhoneClick("7075243939")}
+                  >
                     <FaPhone /> +91 707-524-3939
-                  </Link>
-                  <Link to="tel:9885653865" className="sd-phone-link">
+                  </button>
+                  <button 
+                    className="sd-phone-link"
+                    onClick={() => handlePhoneClick("9885653865")}
+                  >
                     <FaPhone /> +91 988-565-3865
-                  </Link>
+                  </button>
                 </div>
               </div>
 

@@ -1,0 +1,680 @@
+/* ===== My Cars Section - Modern Style ===== */
+
+.mc-section {
+  position: relative;
+}
+
+/* ===== Header ===== */
+.mc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.mc-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.mc-title-icon {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.mc-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.25);
+}
+
+.mc-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10, 98, 100, 0.35);
+}
+
+/* ===== Loading ===== */
+.mc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.mc-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(10, 98, 100, 0.15);
+  border-top-color: #0a6264;
+  border-radius: 50%;
+  animation: mc-spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes mc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.mc-loading-text {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ===== No Cars ===== */
+.mc-empty {
+  text-align: center;
+  padding: 0px 20px 60px;
+}
+
+.mc-empty-img {
+  max-width: 250px;
+  margin-bottom: 24px;
+  opacity: 0.85;
+}
+
+.mc-empty h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.mc-empty p {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* ===== Car Grid ===== */
+.mc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* ===== Car Card ===== */
+.mc-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.mc-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.12);
+  border-color: rgba(10, 98, 100, 0.15);
+}
+
+.mc-card.primary {
+  border: 2px solid #0a6264;
+}
+
+.mc-card.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0a6264 0%, #1aa1a4 100%);
+}
+
+.mc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+}
+
+.mc-primary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mc-primary-badge.active {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.mc-primary-badge.inactive {
+  background: rgba(10, 98, 100, 0.1);
+  color: #0a6264;
+}
+
+.mc-primary-badge.inactive:hover {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.mc-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.mc-action-btn.view {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.mc-action-btn.view:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.mc-action-btn.delete {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.mc-action-btn.delete:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.mc-card-body {
+  padding: 16px 20px 20px;
+}
+
+.mc-car-content {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.mc-car-image-wrapper {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.mc-car-image {
+  width: 140px;
+  height: 90px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.03) 0%, rgba(26, 161, 164, 0.03) 100%);
+  padding: 8px;
+}
+
+.mc-car-number {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.08) 0%, rgba(26, 161, 164, 0.08) 100%);
+  border: 1px dashed rgba(10, 98, 100, 0.3);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0a6264;
+  letter-spacing: 1px;
+}
+
+.mc-car-details {
+  flex: 1;
+}
+
+.mc-car-brand {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.mc-car-model {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.mc-car-fuel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(10, 98, 100, 0.08);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #0a6264;
+  font-weight: 500;
+}
+
+.mc-car-fuel svg {
+  font-size: 0.75rem;
+}
+
+/* ===== Detail View ===== */
+.mc-detail {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+.mc-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mc-detail-title {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-detail-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mc-detail-back:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.mc-detail-body {
+  padding: 24px;
+}
+
+.mc-detail-content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.mc-detail-image-section {
+  text-align: center;
+}
+
+.mc-detail-image {
+  width: 200px;
+  height: 140px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.05) 0%, rgba(26, 161, 164, 0.05) 100%);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.mc-detail-model-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.mc-detail-fuel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.1) 0%, rgba(26, 161, 164, 0.1) 100%);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #0a6264;
+  font-weight: 600;
+}
+
+.mc-detail-fuel img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.mc-detail-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.mc-detail-info-item {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.03) 0%, rgba(26, 161, 164, 0.03) 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+.mc-detail-info-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-detail-info-label svg {
+  color: #0a6264;
+}
+
+.mc-detail-info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* ===== Add Form ===== */
+.mc-form {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+.mc-form-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-form-title svg {
+  color: #0a6264;
+}
+
+.mc-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mc-form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid rgba(10, 98, 100, 0.12);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.mc-form-input:focus {
+  outline: none;
+  border-color: #0a6264;
+  box-shadow: 0 0 0 4px rgba(10, 98, 100, 0.1);
+}
+
+.mc-form-select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid rgba(10, 98, 100, 0.12);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mc-form-select:focus {
+  outline: none;
+  border-color: #0a6264;
+}
+
+.mc-brand-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border: 2px dashed rgba(10, 98, 100, 0.2);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.03) 0%, rgba(26, 161, 164, 0.03) 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mc-brand-box:hover {
+  border-color: #0a6264;
+  background: rgba(10, 98, 100, 0.08);
+}
+
+.mc-brand-box.selected {
+  border: 2px solid #0a6264;
+  background: rgba(10, 98, 100, 0.08);
+}
+
+.mc-brand-box img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.mc-brand-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.mc-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.mc-form-btn {
+  padding: 12px 30px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.mc-form-btn.save {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.25);
+}
+
+.mc-form-btn.save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10, 98, 100, 0.35);
+}
+
+.mc-form-btn.cancel {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.mc-form-btn.cancel:hover {
+  background: #e0e0e0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991px) {
+  .mc-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .mc-detail-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .mc-detail-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mc-detail-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .mc-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mc-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-car-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .mc-car-details {
+    text-align: center;
+  }
+
+  .mc-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mc-detail-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mc-detail-info {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-form-actions {
+    flex-direction: column;
+  }
+
+  .mc-form-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .mc-title {
+    font-size: 1.1rem;
+  }
+
+  .mc-title-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .mc-card {
+    border-radius: 16px;
+  }
+
+  .mc-card-header {
+    padding: 14px 16px 0;
+  }
+
+  .mc-card-body {
+    padding: 14px 16px 16px;
+  }
+
+  .mc-car-image {
+    width: 120px;
+    height: 80px;
+  }
+
+  .mc-car-model {
+    font-size: 1rem;
+  }
+
+  .mc-action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .mc-detail-body {
+    padding: 16px;
+  }
+
+  .mc-detail-image {
+    width: 160px;
+    height: 110px;
+  }
+
+  .mc-detail-info-item {
+    padding: 14px 16px;
+  }
+}
+
