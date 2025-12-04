@@ -4,6 +4,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
+import { FaTimes, FaMobileAlt, FaShieldAlt, FaArrowRight, FaRedo, FaCar, FaCheckCircle } from "react-icons/fa";
 
 const SignIn = ({ isVisible, onClose, onRegister }) => {
 	const [identifier, setIdentifier] = useState("");
@@ -170,87 +171,173 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 	};
 
 	return (
-		<div className={`sign-in-modal ${isVisible ? "visible" : "hidden"}`}>
-			<div className="modal-content" ref={modalRef}>
-				<button className="modal-close" onClick={onClose}>
-					×
+		<div className={`si-overlay ${isVisible ? "visible" : "hidden"}`} onClick={onClose}>
+			<div className="si-modal" ref={modalRef} onClick={(e) => e.stopPropagation()}>
+				{/* Close Button */}
+				<button className="si-close-btn" onClick={onClose}>
+					<FaTimes />
 				</button>
-				<h5 className="mb-4">Welcome to MyCarBuddy</h5>
-				<form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP}>
-					<div className="mb-3 text-start">
-						<label className="form-label">Mobile Number</label>
-						<div className="input-group">
-							<input
-								type="text"
-								inputMode="numeric"
-								pattern="[0-9]*"
-								className="form-control"
-								placeholder="Enter mobile number"
-								value={identifier}
-								onChange={(e) => {
-									const value = e.target.value.replace(/\D/g, "");
-									if (value.length <= 10) setIdentifier(value);
-								}}
-								maxLength={10}
-								required
-							/>
+
+				{/* Left Panel - Branding */}
+				<div className="si-left-panel">
+					<div className="si-brand">
+						<div className="si-brand-icon">
+							<FaCar />
+						</div>
+						<h2 className="si-brand-title">MyCarBuddy</h2>
+						<p className="si-brand-tagline">Your Trusted Car Care Partner</p>
+					</div>
+					
+					<div className="si-features">
+						<div className="si-feature">
+							<FaCheckCircle />
+							<span>Doorstep Car Service</span>
+						</div>
+						<div className="si-feature">
+							<FaCheckCircle />
+							<span>Certified Mechanics</span>
+						</div>
+						<div className="si-feature">
+							<FaCheckCircle />
+							<span>Transparent Pricing</span>
+						</div>
+						<div className="si-feature">
+							<FaCheckCircle />
+							<span>100% Satisfaction</span>
 						</div>
 					</div>
+				</div>
 
-					{otpSent && (
-						<>
-							<label className="form-label text-start">Enter OTP</label>
-							<div className="mb-3 text-start input-group">
-								<input
-									type="text"
-									className="form-control"
-									placeholder="Enter OTP"
-									value={otp}
-									onChange={(e) => setOtp(e.target.value)}
-									required
-								/>
-								{otpSent && (
-									<div className="input-group-append">
-										<button
-											type="button"
-											onClick={handleSendOTP}
-											disabled={loading}
-											className="btn btn-outline-secondary"
-											title="Resend OTP"
-											style={{ padding: "12px 17px" }}
-										>
-											Resend
-											{/* <i className="fas fa-redo"></i> */}
-										</button>
-									</div>
-								)}
-							</div>
-							{otpSent && !otpExpired && <small className="text-muted">OTP will expire in {timer}s</small>}
-							{otpExpired && <div className="text-danger small mb-2">OTP expired. Please resend.</div>}
-						</>
-					)}
-
-					<div className="text-center mb-3">
-						<button
-							type="submit"
-							className={`btn btn-primary btn-sm line-none ${loading || otpExpired ? "disabled" : ""}`}
-							disabled={loading || otpExpired}
-						>
-							{loading ? "Sending..." : otpSent ? (otpExpired ? "OTP Expired" : "Verify OTP") : "Send OTP"}
-						</button>
+				{/* Right Panel - Form */}
+				<div className="si-right-panel">
+					<div className="si-form-header">
+						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome Back!"}</h3>
+						<p className="si-subtitle">
+							{otpSent 
+								? `Enter the OTP sent to +91 ${identifier}` 
+								: "Sign in with your mobile number"}
+						</p>
 					</div>
 
-					{/* <div className="text-center">
-                        <span>Don’t have an account?</span>{" "}
-                        <button
-                            type="button"
-                            className="btn btn-link p-0"
-                            onClick={onRegister}
-                        >
-                            Register
-                        </button>
-                    </div> */}
-				</form>
+					<form className="si-form" onSubmit={otpSent ? handleVerifyOTP : handleSendOTP}>
+						{/* Mobile Number Input */}
+						<div className={`si-input-group ${otpSent ? "si-disabled" : ""}`}>
+							<div className="si-input-icon">
+								<FaMobileAlt />
+							</div>
+							<div className="si-input-wrapper">
+								<label className="si-label">Mobile Number</label>
+								<div className="si-input-row">
+									<span className="si-country-code">+91</span>
+								<input
+									type="text"
+									inputMode="numeric"
+									pattern="[0-9]*"
+									className="si-input"
+									placeholder="Enter 10-digit number"
+									value={identifier}
+									onChange={(e) => {
+										const value = e.target.value.replace(/\D/g, "");
+										if (value.length <= 10) setIdentifier(value);
+									}}
+									maxLength={10}
+									required
+									disabled={otpSent}
+								/>
+								</div>
+							</div>
+							{otpSent && (
+								<button 
+									type="button" 
+									className="si-edit-btn"
+									onClick={() => {
+										setOtpSent(false);
+										setOtp("");
+										setOtpExpired(false);
+									}}
+								>
+									Edit
+								</button>
+							)}
+						</div>
+
+						{/* OTP Input */}
+						{otpSent && (
+							<div className="si-otp-section">
+								<div className="si-input-group">
+									<div className="si-input-icon">
+										<FaShieldAlt />
+									</div>
+									<div className="si-input-wrapper">
+										<label className="si-label">One-Time Password</label>
+										<input
+											type="text"
+											inputMode="numeric"
+											className="si-input si-otp-input"
+											placeholder="Enter 6-digit OTP"
+											value={otp}
+											onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+											maxLength={6}
+											required
+											autoFocus
+										/>
+									</div>
+								</div>
+
+								<div className="si-otp-footer">
+									{!otpExpired ? (
+										<span className="si-timer">
+											Resend OTP in <strong>{timer}s</strong>
+										</span>
+									) : (
+										<span className="si-expired">OTP expired</span>
+									)}
+								<button
+									type="button"
+									className="si-resend-btn"
+									onClick={handleSendOTP}
+									disabled={loading || (!otpExpired && timer > 0)}
+								>
+									<span className={(loading || (!otpExpired && timer > 0)) ? "si-text-blur" : ""}>
+										<FaRedo />
+										Resend OTP
+									</span>
+								</button>
+								</div>
+							</div>
+						)}
+
+						{/* Submit Button */}
+						<button
+							type="submit"
+							className="si-submit-btn"
+							disabled={loading || (otpSent && otpExpired)}
+						>
+							<span className={(loading || (otpSent && otpExpired)) ? "si-text-blur" : ""}>
+								{loading ? (
+									<>
+										<span className="si-spinner"></span>
+										{otpSent ? "Verifying..." : "Sending OTP..."}
+									</>
+								) : (
+									<>
+										{otpSent ? "Verify & Login" : "Get OTP"}
+										<FaArrowRight />
+									</>
+								)}
+							</span>
+						</button>
+					</form>
+
+					{/* Footer */}
+					<div className="si-footer">
+						<p className="si-terms">
+							By continuing, you agree to our{" "}
+							<a href="/terms">Terms of Service</a> and{" "}
+							<a href="/privacy">Privacy Policy</a>
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

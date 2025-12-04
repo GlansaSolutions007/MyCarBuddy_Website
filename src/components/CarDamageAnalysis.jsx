@@ -143,7 +143,72 @@ const CarDamageAnalysis = () => {
 				</div> */}
 
 				<div className="damage-content-wrapper">
-					{/* Left Side - Upload Section */}
+
+					{/* left Side - Result/Illustration Section */}
+					<div className="damage-result-section">
+						<div className={`damage-result-card ${result ? 'damage-result-card-active' : ''}`}>
+							{result ? (
+								<>
+									{/* Analysis Report */}
+									<div className="damage-report">
+										<div className="damage-report-header">
+											<div className="damage-report-icon-wrapper">
+												<FaSearch />
+											</div>
+											<h3 className="damage-report-title">Analysis Report</h3>
+										</div>
+										<div className="damage-report-content">
+											{result}
+										</div>
+										<button
+											className="damage-service-btn"
+											onClick={() => navigate("/service")}
+										>
+											<span>Go to Services</span>
+											<FaArrowRight className="damage-service-btn-icon" />
+										</button>
+									</div>
+								</>
+							) : (
+								<>
+									{/* Illustration */}
+									<div className="damage-illustration">
+										<div className="damage-illustration-badge">
+											<FaRobot />
+											<span>AI Powered</span>
+										</div>
+										<div className="damage-illustration-content">
+											<h3 className="damage-illustration-title">
+												AI Car Damage Analysis
+											</h3>
+											<p className="damage-illustration-text">
+												Upload your car images and get instant AI-powered damage assessment with detailed reports
+											</p>
+											<div className="damage-illustration-features">
+												<div className="damage-feature-item">
+													<span className="damage-feature-dot"></span>
+													<span>Instant Detection</span>
+												</div>
+												<div className="damage-feature-item">
+													<span className="damage-feature-dot"></span>
+													<span>Detailed Reports</span>
+												</div>
+												<div className="damage-feature-item">
+													<span className="damage-feature-dot"></span>
+													<span>Multiple Images</span>
+												</div>
+											</div>
+										</div>
+										<div className="damage-car-icon">
+											<FaCar />
+										</div>
+									</div>
+								</>
+							)}
+						</div>
+					</div>
+
+					{/* Right Side - Upload Section */}
 					<div className="damage-upload-section">
 						{/* Upload Card */}
 						<div className="damage-upload-card">
@@ -240,69 +305,6 @@ const CarDamageAnalysis = () => {
 						</div>
 					</div>
 
-					{/* Right Side - Result/Illustration Section */}
-					<div className="damage-result-section">
-						<div className={`damage-result-card ${result ? 'damage-result-card-active' : ''}`}>
-							{result ? (
-								<>
-									{/* Analysis Report */}
-									<div className="damage-report">
-										<div className="damage-report-header">
-											<div className="damage-report-icon-wrapper">
-												<FaSearch />
-											</div>
-											<h3 className="damage-report-title">Analysis Report</h3>
-										</div>
-										<div className="damage-report-content">
-											{result}
-										</div>
-										<button
-											className="damage-service-btn"
-											onClick={() => navigate("/service")}
-										>
-											<span>Go to Services</span>
-											<FaArrowRight className="damage-service-btn-icon" />
-										</button>
-									</div>
-								</>
-							) : (
-								<>
-									{/* Illustration */}
-									<div className="damage-illustration">
-										<div className="damage-illustration-badge">
-											<FaRobot />
-											<span>AI Powered</span>
-										</div>
-										<div className="damage-illustration-content">
-											<h3 className="damage-illustration-title">
-												AI Car Damage Analysis
-											</h3>
-											<p className="damage-illustration-text">
-												Upload your car images and get instant AI-powered damage assessment with detailed reports
-											</p>
-											<div className="damage-illustration-features">
-												<div className="damage-feature-item">
-													<span className="damage-feature-dot"></span>
-													<span>Instant Detection</span>
-												</div>
-												<div className="damage-feature-item">
-													<span className="damage-feature-dot"></span>
-													<span>Detailed Reports</span>
-												</div>
-												<div className="damage-feature-item">
-													<span className="damage-feature-dot"></span>
-													<span>Multiple Images</span>
-												</div>
-											</div>
-										</div>
-										<div className="damage-car-icon">
-											<FaCar />
-										</div>
-									</div>
-								</>
-							)}
-						</div>
-					</div>
 				</div>
 			</div>
 

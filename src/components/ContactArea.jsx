@@ -77,6 +77,24 @@ const ContactArea = () => {
     }
   };
 
+  // Format phone number to XXX-XXX-XXXX pattern
+  const formatPhoneNumber = (phone) => {
+    // Remove all non-digit characters
+    let digits = phone.replace(/\D/g, "");
+
+    // If starts with 91 (country code) and has 12 digits, remove the 91
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+
+    // Format as XXX-XXX-XXXX if 10 digits
+    if (digits.length === 10) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+
+    return phone; // Return original if not matching pattern
+  };
+
   return (
     <section className="contact-section">
       <div className="container">
@@ -110,10 +128,12 @@ const ContactArea = () => {
             <div className="contact-info-content">
               <h4 className="contact-info-title">Phone Number</h4>
               <p className="contact-info-text">
+
                 {companyInfo.phones.length > 0 ? (
                   companyInfo.phones.map((phone, index) => (
                     <React.Fragment key={index}>
-                      <a onClick={() => handlePhoneClick(phone)}>{phone}</a>
+                      <span className="country-code-static">+91 </span>
+                      <a onClick={() => handlePhoneClick(phone)}>{formatPhoneNumber(phone)}</a>
                       {index < companyInfo.phones.length - 1 && <br />}
                     </React.Fragment>
                   ))

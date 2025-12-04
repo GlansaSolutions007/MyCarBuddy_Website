@@ -149,7 +149,7 @@ const FooterAreaOne = () => {
               <div className="widget-contact">
                 <div className="contact-item">
                   <i className="fas fa-map-marker-alt contact-icon"></i>
-                  <p className="mb-0" style={{color: "#b3b3b3"}}>
+                  <p className="mb-0" style={{color: "var(--text-light)"}}>
                     Unit #B1, 2nd Floor, Spaces & More Business<br/>
                     Park, Madhapur, Hyderabad, India, 500081
                   </p>
@@ -192,13 +192,13 @@ const FooterAreaOne = () => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-6 text-center text-md-start">
-              <p className="mb-0 copyright-text">
+              <p className="mb-0 copyright-text" style={{color: "var(--text-light)"}}>
                 © {new Date().getFullYear()} <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> | All Rights Reserved
               </p>
             </div>
             <div className="col-md-6 text-center text-md-end mt-2 mt-md-0">
               <div className="footer-links">
-                <Link to="/refund-cancellation" className="text-light text-decoration-none small">
+                <Link to="/refund-cancellation" className="text-decoration-none small" style={{color: "var(--text-light)"}}>
                   Cancellation & Refund Policy
                 </Link>
               </div>

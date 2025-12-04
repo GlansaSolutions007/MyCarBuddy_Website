@@ -275,7 +275,7 @@ $fontsMap: map-merge(
 button:disabled,
 button[disabled]{
   border: none !important;
-  text-decoration: line-through;
+  // text-decoration: line-through;
 }
 .progress-bar{
   background-color: #116d6e !important;
@@ -361,7 +361,7 @@ font-size: 12px;
 
 .btn.btn-confirm:disabled, .btn.btn-confirm[disabled]{
   border: none !important;
-  text-decoration: line-through !important;
+  // text-decoration: line-through !important;
   background: #d5d3d3 !important;  
 }
 

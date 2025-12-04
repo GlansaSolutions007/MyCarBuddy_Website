@@ -177,7 +177,12 @@ const NotificationDropdown = () => {
   if (!decryptedUserId) return null;
 
   return (
-    <div className="notif-container" ref={dropdownRef}>
+    <div 
+      className="notif-container" 
+      ref={dropdownRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       {/* Notification Bell Icon */}
       <button
         className="notif-bell"
@@ -194,8 +199,7 @@ const NotificationDropdown = () => {
       </button>
 
       {/* Dropdown */}
-      {isOpen && (
-        <div className="notif-dropdown">
+      <div className={`notif-dropdown ${isOpen ? 'active' : ''}`}>
           {/* Header */}
           <div className="notif-header">
             <div className="notif-header-left">
@@ -284,7 +288,6 @@ const NotificationDropdown = () => {
             </div>
           )}
         </div>
-      )}
     </div>
   );
 };

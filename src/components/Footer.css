@@ -318,7 +318,7 @@
 
 /* Set all footer links under Quick Links & Popular Services to gray */
 .footer-wrapper .menu-all-pages-container li a {
-    color: #b3b3b3 !important;
+    color: var(--text-light) !important;
     /* light gray */
 }
 

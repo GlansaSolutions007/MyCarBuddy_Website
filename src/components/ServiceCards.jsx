@@ -330,37 +330,18 @@ export default function ServiceCards() {
                   <div className="sc-card-content">
                     <h3 className="sc-card-title">{pkg.title}</h3>
                     
-                    {/* Includes List */}
+                    {/* Includes List - Show only 2 items */}
                     <ul className="sc-card-includes">
-                      {(() => {
-                        const maxLines = 4;
-                        const approxCharsPerLine = 30;
-                        let totalLines = 0;
-                        const visibleItems = [];
-
-                        for (let i = 0; i < pkg.includes.length; i++) {
-                          const item = pkg.includes[i];
-                          const linesNeeded = Math.ceil(item.length / approxCharsPerLine);
-
-                          if (totalLines + linesNeeded <= maxLines) {
-                            visibleItems.push(item);
-                            totalLines += linesNeeded;
-                          } else {
-                            break;
-                          }
-                        }
-
-                        return visibleItems.map((item, idx) => (
-                          <li key={idx} className="sc-card-include-item">
-                            <FaCheck className="sc-include-icon" />
-                            <span>{item}</span>
-                          </li>
-                        ));
-                      })()}
+                      {pkg.includes.slice(0, 2).map((item, idx) => (
+                        <li key={idx} className="sc-card-include-item">
+                          <FaCheck className="sc-include-icon" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
                     </ul>
 
-                    {pkg.includes.length > 4 && (
-                      <span className="sc-view-more">+{pkg.includes.length - 4} more services</span>
+                    {pkg.includes.length > 2 && (
+                      <span className="sc-view-more">+{pkg.includes.length - 2} more services</span>
                     )}
 
                     {/* Card Actions */}

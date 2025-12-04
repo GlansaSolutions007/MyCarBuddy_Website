@@ -357,34 +357,228 @@
   transform: scale(1.05);
 }
 
-/* Contact Button */
+/* Contact Button Wrapper */
+.mcb-contact-wrapper {
+  position: relative;
+}
+
+/* Contact Button - Premium Highlighted */
 .mcb-contact-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px;
-  background: var(--mcb-white);
-  border: 2px solid var(--mcb-primary);
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #e11d48 0%, #f43f5e 40%, #fb7185 100%);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 25px;
-  color: var(--mcb-primary);
+  color: #fff;
   cursor: pointer;
-  transition: var(--mcb-transition);
+  transition: all 0.3s ease;
+  /* box-shadow: 
+    0 4px 15px rgba(225, 29, 72, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2); */
+  position: relative;
+  overflow: hidden;
+}
+
+.mcb-contact-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.mcb-contact-btn:hover::before {
+  left: 100%;
 }
 
 .mcb-contact-btn:hover {
-  background: var(--mcb-primary);
-  color: var(--mcb-white);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(17, 109, 110, 0.25);
+  background: linear-gradient(135deg, #be123c 0%, #e11d48 40%, #f43f5e 100%);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 8px 30px rgba(216, 156, 169, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.mcb-contact-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Contact Tooltip - Modern Design */
+.mcb-contact-tooltip {
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%) translateY(15px) scale(0.95);
+  /* background: linear-gradient(145deg, #be123c 0%, #e11d48 50%, #f43f5e 100%); */
+  background: linear-gradient(145deg, #000000 0%, #292929 50%, #383838 100%);
+  color: #fff;
+  padding: 0;
+  border-radius: 18px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+  box-shadow: 
+    0 20px 50px rgba(114, 114, 114, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    0 -20px 40px rgba(238, 200, 206, 0.15) inset;
+  overflow: hidden;
+  min-width: 300px;
+}
+
+.mcb-contact-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
+  border-radius: 4px;
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mcb-tooltip-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.mcb-tooltip-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  position: relative;
+  z-index: 1;
+}
+
+.mcb-contact-wrapper:hover .mcb-contact-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.mcb-tooltip-icon-wrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.mcb-tooltip-icon {
+  font-size: 26px;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  animation: iconFloat 3s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.05); }
+}
+
+.mcb-tooltip-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  animation: ringPulse 2s ease-out infinite;
+}
+
+@keyframes ringPulse {
+  0% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.mcb-tooltip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mcb-tooltip-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mcb-tooltip-desc {
+  font-size: 12.5px;
+  font-weight: 400;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.mcb-tooltip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mcb-badge-dot {
+  width: 6px;
+  height: 6px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.3); }
 }
 
 .mcb-contact-icon {
-  animation: mcbBounce 2s infinite;
+  color: #f4f800;
+  animation: phoneShake 2s infinite;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
 }
 
-@keyframes mcbBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+@keyframes phoneShake {
+  0%, 100% { transform: rotate(0deg); }
+  5% { transform: rotate(15deg); }
+  10% { transform: rotate(-15deg); }
+  15% { transform: rotate(12deg); }
+  20% { transform: rotate(-12deg); }
+  25% { transform: rotate(0deg); }
 }
 
 .mcb-contact-text {
@@ -405,30 +599,9 @@
   font-weight: 700;
 }
 
-/* Notification Button */
+/* Notification Button Wrapper */
 .mcb-notification-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: #f5f9f9;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: var(--mcb-transition);
   position: relative;
-}
-
-.mcb-notification-btn:hover {
-  border-color: var(--mcb-primary-light);
-  background: var(--mcb-white);
-}
-
-.mcb-notification-btn .position-relative {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* User Button */
@@ -484,6 +657,162 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--mcb-primary);
+}
+
+/* User Dropdown */
+.mcb-user-wrapper {
+  position: relative;
+}
+
+.mcb-user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.mcb-user-wrapper:hover .mcb-user-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.mcb-user-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.mcb-user-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #3d3d3d 0%, #777979 100%);
+  color: #fff;
+}
+
+.mcb-dropdown-avatar {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.mcb-dropdown-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mcb-dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcb-dropdown-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mcb-dropdown-phone {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mcb-user-dropdown-body {
+  padding: 8px;
+}
+
+.mcb-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.mcb-dropdown-item i {
+  width: 18px;
+  color: #0a6264;
+  font-size: 14px;
+}
+
+.mcb-dropdown-item:hover {
+  background: #f0fdfa;
+  color: #0a6264;
+}
+
+.mcb-dropdown-item:hover i {
+  transform: scale(1.1);
+}
+
+.mcb-user-dropdown-footer {
+  padding: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.mcb-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mcb-logout-btn i {
+  font-size: 14px;
+}
+
+.mcb-logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
 }
 
 /* Mobile Toggle */
@@ -908,7 +1237,7 @@
     display: flex;
   }
 
-  .mcb-contact-btn {
+  .mcb-contact-wrapper {
     display: none;
   }
 
@@ -926,6 +1255,10 @@
     padding: 8px 0;
   }
 
+  .mcb-user-dropdown {
+    display: none;
+  }
+
   .mcb-logo img {
     height: 45px;
   }
@@ -938,10 +1271,6 @@
     padding: 3px;
   }
 
-  .mcb-notification-btn {
-    width: 36px;
-    height: 36px;
-  }
 }
 
 @media (max-width: 767px) {
@@ -983,10 +1312,6 @@
     font-size: 16px;
   }
 
-  .mcb-notification-btn {
-    width: 34px;
-    height: 34px;
-  }
 }
 
 @media (max-width: 575px) {

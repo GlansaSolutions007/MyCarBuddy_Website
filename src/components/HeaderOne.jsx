@@ -6,7 +6,7 @@ import ProfileModal from "./ProfileModal";
 import { useCart } from "../context/CartContext";
 import { useAlert } from "../context/AlertContext";
 import axios from "axios";
-import { FaSearch, FaCar, FaChevronDown, FaTimes, FaBars } from "react-icons/fa";
+import { FaSearch, FaCar, FaChevronDown, FaTimes, FaBars, FaHeadset } from "react-icons/fa";
 import { Phone, MapPin, Mail } from "lucide-react";
 import "./HeaderOne.css";
 import NotificationDropdown from "./NotificationDropdown";
@@ -375,11 +375,29 @@ const HeaderOne = () => {
                 </div>
 
                 {/* Contact Button */}
-                <div className="mcb-contact-btn" onClick={handleContactClick}>
-                  <Phone size={18} className="mcb-contact-icon" />
-                  <div className="mcb-contact-text">
-                    <span className="mcb-contact-label">Call Us</span>
-                    <span className="mcb-contact-number">+91 707-524-3939</span>
+                <div className="mcb-contact-wrapper">
+                  <div className="mcb-contact-btn" onClick={handleContactClick}>
+                    <Phone size={18} className="mcb-contact-icon" />
+                    <div className="mcb-contact-text">
+                      <span className="mcb-contact-label">Free Call Support</span>
+                      <span className="mcb-contact-number">+91 707-524-3939</span>
+                    </div>
+                  </div>
+                  <div className="mcb-contact-tooltip">
+                    <div className="mcb-tooltip-glow"></div>
+                    <div className="mcb-tooltip-content">
+                      <div className="mcb-tooltip-icon-wrap">
+                        <FaHeadset className="mcb-tooltip-icon" />
+                        <span className="mcb-tooltip-pulse"></span>
+                      </div>
+                      <div className="mcb-tooltip-info">
+                        <span className="mcb-tooltip-title">Get Our Expert Help?</span>
+                        <span className="mcb-tooltip-desc">One tap to connect with our <br />car care specialists!</span>
+                        {/* <span className="mcb-tooltip-badge">
+                          <span className="mcb-badge-dot"></span>
+                          Always Here to Help • Free Consultation</span> */}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -391,24 +409,81 @@ const HeaderOne = () => {
                 )}
 
                 {/* User Button */}
-                <div className="mcb-user-btn" onClick={handleUserClick}>
-                  <div className="mcb-user-avatar">
-                    {user?.name || user?.identifier ? (
-                      profileImage ? (
-                        <img
-                          src={`${process.env.REACT_APP_CARBUDDY_IMAGE_URL}${profileImage}`}
-                          alt="Profile"
-                          onError={(e) => { e.target.onerror = null; e.target.src = "/assets/img/avatar.png"; }}
-                        />
-                      ) : renderUserInitials()
-                    ) : (
-                      <i className="fas fa-user" style={{ fontSize: 12 }} />
-                    )}
+                <div className="mcb-user-wrapper">
+                  <div className="mcb-user-btn" onClick={handleUserClick}>
+                    <div className="mcb-user-avatar">
+                      {user?.name || user?.identifier ? (
+                        profileImage ? (
+                          <img
+                            src={`${process.env.REACT_APP_CARBUDDY_IMAGE_URL}${profileImage}`}
+                            alt="Profile"
+                            onError={(e) => { e.target.onerror = null; e.target.src = "/assets/img/avatar.png"; }}
+                          />
+                        ) : renderUserInitials()
+                      ) : (
+                        <i className="fas fa-user" style={{ fontSize: 12 }} />
+                      )}
+                    </div>
+                    <div className="mcb-user-info">
+                      <span className="mcb-user-label">{user?.name || user?.identifier ? "Hello," : "Sign In"}</span>
+                      <span className="mcb-user-name">{user?.name || user?.identifier || "Account"}</span>
+                    </div>
                   </div>
-                  <div className="mcb-user-info">
-                    <span className="mcb-user-label">{user?.name || user?.identifier ? "Hello," : "Sign In"}</span>
-                    <span className="mcb-user-name">{user?.name || user?.identifier || "Account"}</span>
-                  </div>
+                  
+                  {/* User Dropdown on Hover */}
+                  {(user?.name || user?.identifier) && (
+                    <div className="mcb-user-dropdown">
+                      <div className="mcb-user-dropdown-header">
+                        <div className="mcb-dropdown-avatar">
+                          {profileImage ? (
+                            <img
+                              src={`${process.env.REACT_APP_CARBUDDY_IMAGE_URL}${profileImage}`}
+                              alt="Profile"
+                              onError={(e) => { e.target.onerror = null; e.target.src = "/assets/img/avatar.png"; }}
+                            />
+                          ) : (
+                            <span>{renderUserInitials()}</span>
+                          )}
+                        </div>
+                        <div className="mcb-dropdown-user-info">
+                          <span className="mcb-dropdown-name">{user?.name || "User"}</span>
+                          <span className="mcb-dropdown-phone">{user?.phone || user?.identifier}</span>
+                        </div>
+                      </div>
+                      <div className="mcb-user-dropdown-body">
+                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile")}>
+                          <i className="fas fa-user-circle"></i>
+                          <span>My Profile</span>
+                        </button>
+                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=bookings")}>
+                          <i className="fas fa-calendar-check"></i>
+                          <span>My Bookings</span>
+                        </button>
+                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=cars")}>
+                          <i className="fas fa-car"></i>
+                          <span>My Cars</span>
+                        </button>
+                      </div>
+                      <div className="mcb-user-dropdown-footer">
+                        <button 
+                          className="mcb-logout-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            localStorage.removeItem("user");
+                            localStorage.removeItem("selectedCarDetails");
+                            setUser(null);
+                            setSelectedCar(null);
+                            window.dispatchEvent(new Event("userProfileUpdated"));
+                            showAlert("Success", "Logged out successfully", 2000, "success");
+                            navigate("/");
+                          }}
+                        >
+                          <i className="fas fa-sign-out-alt"></i>
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Mobile Toggle */}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ServiceAreaTwo.css";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaPhoneAlt, FaRobot, FaArrowRight } from "react-icons/fa";
 import { Calendar, MapPin, CheckCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import { useAlert } from "../context/AlertContext";
@@ -380,7 +380,7 @@ const ServiceAreaHomePage = () => {
                 <div className="icon-wrapper">
                   <i className="bi bi-telephone"></i>
                 </div>
-                <h4>Quick Call Support</h4>
+                <h4>Quick Call Support - (+91 707-524-3939)</h4>
                 <p>
                   Connect directly with our support team for immediate help.
                   <br />
@@ -390,7 +390,9 @@ const ServiceAreaHomePage = () => {
                   className="support-btn"
                   onClick={handleContactClick}
                 >
-                  Call Now - (+91 707-524-3939)
+                  <FaPhoneAlt />
+                  Get Free Call Support
+                  <FaArrowRight className="btn-arrow" />
                 </button>
               </div>
             </div>
@@ -418,7 +420,9 @@ const ServiceAreaHomePage = () => {
                   className="support-btn"
                   onClick={() => navigate("/car-damage-analysis")}
                 >
-                  Chat Now
+                  <FaRobot />
+                  Chat with AI
+                  <FaArrowRight className="btn-arrow" />
                 </button>
               </div>
             </div>

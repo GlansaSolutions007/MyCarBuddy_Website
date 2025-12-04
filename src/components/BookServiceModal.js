@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useAlert } from "../context/AlertContext"; // Adjust path to your context
+import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
+import { 
+  FaTimes, 
+  FaTools, 
+  FaCheckCircle, 
+  FaClipboardCheck,
+  FaArrowRight,
+  FaCreditCard,
+  FaUser,
+  FaPhone,
+  FaComment,
+  FaShieldAlt,
+  FaRedo
+} from "react-icons/fa";
+import "./BookServiceModal.css";
 
 const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   // --- STATES ---
@@ -80,25 +94,31 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   };
 
   const handlePayment = () => {
-    // Placeholder for Razorpay integration
     const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY, // Replace with your Razorpay test key
-      amount: 49900, // ₹499 in paise
+      key: process.env.REACT_APP_RAZORPAY_KEY,
+      amount: 39900, // ₹399 in paise
       currency: 'INR',
-      name: 'CarBuddy Inspection',
-      description: 'Inspection Fee',
+      name: 'MyCarBuddy',
+      description: 'Car Inspection Fee',
+      image: '/assets/img/logo.png',
       handler: function (response) {
-        // Handle success
         Swal.fire({
           title: "Payment Successful!",
-          text: "Your inspection payment has been processed.",
+          html: `
+            <div style="text-align: center; padding: 10px 0;">
+              <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
+              <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
+              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
+            </div>
+          `,
           icon: "success",
           confirmButtonColor: "#0a6264",
         });
+        onClose();
       },
       prefill: {
         name: fullName,
-        email: '', // Add email if available
+        email: '',
         contact: identifier,
       },
       theme: {
@@ -106,6 +126,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       },
     };
     const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+      Swal.fire({
+        title: "Payment Failed",
+        text: response.error.description || "Something went wrong. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0a6264",
+      });
+    });
     rzp.open();
   };
 
@@ -118,19 +146,22 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     };
 
     await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
-
     window.dispatchEvent(new Event("userProfileUpdated"));
 
     Swal.fire({
       title: "Thank You!",
-      text: "Thank you! Your enquiry has been submitted. Our support team will reach out to you soon.",
+      html: `
+        <div style="text-align: center; padding: 10px 0;">
+          <p style="margin-bottom: 10px; color: #374151;">Your enquiry has been submitted!</p>
+          <p style="color: #6b7280; font-size: 14px;">Our support team will reach out to you soon.</p>
+        </div>
+      `,
       icon: "success",
       confirmButtonColor: "#0a6264",
     });
 
     onClose();
   };
-
 
   const handleSendOTP = async () => {
     if (!identifier) {
@@ -198,11 +229,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   const handleLoggedInSubmit = async () => {
     setLoading(true);
     try {
-      const decryptedCustId = CryptoJS.AES.decrypt(
-        user.id,
-        secretKey
-      ).toString(CryptoJS.enc.Utf8);
-
       if (inspection) {
         handlePayment();
       } else {
@@ -216,294 +242,302 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     }
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (isLoggedIn) {
+      handleLoggedInSubmit();
+    } else {
+      otpStep ? handleVerifyOTP() : handleSendOTP();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-        padding: "15px",
-        animation: "fadeIn 0.3s ease-in-out",
-      }}
-    >
-      <style>
-        {`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modern-input:focus { border-color: #0a6264 !important; box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.1) !important; outline: none; }
-        .modern-input:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; border-color: #e5e7eb; }
-        `}
-      </style>
+    <div className="bsm-overlay" onClick={onClose}>
+      <div className="bsm-modal" onClick={(e) => e.stopPropagation()}>
+        
+        {/* Close Button */}
+        <button className="bsm-close-btn" onClick={onClose}>
+          <FaTimes />
+        </button>
 
-      <div
-        style={{
-          background: "#ffffff",
-          padding: "25px",
-          width: "100%",
-          maxWidth: "450px",
-          borderRadius: "20px",
-          boxShadow: "0px 10px 40px rgba(0,0,0,0.2)",
-          animation: "slideUp 0.3s ease-out",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
+        {/* STEP 1: Inspection Choice */}
         {currentStep === "inspection" && (
-          <div style={{ position: "relative", paddingTop: "20px" }}>
+          <div className="bsm-content">
+            {/* Left Panel */}
+            <div className="bsm-left-panel">
+              <div className="bsm-left-header">
+                <div className="bsm-header-icon">
+                  <FaClipboardCheck />
+                </div>
+                <h2 className="bsm-left-title">Why Inspection?</h2>
+                <p className="bsm-left-subtitle">Before we proceed with the service</p>
+              </div>
 
-            {/* ❌ CLOSE BUTTON (TOP RIGHT) */}
-            <button
-              onClick={onClose}
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-                background: "transparent",
-                border: "none",
-                fontSize: "30px",
-                color: "#374151",
-                cursor: "pointer",
-              }}
-            >
-              ×
-            </button>
-
-            {/* TITLE */}
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h5 style={{ color: "#0a6264", fontWeight: 800, fontSize: "22px" }}>
-                Inspection Required Before Service
-              </h5>
+              <div className="bsm-left-benefits">
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Accurate diagnosis of issues</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Avoid unnecessary repairs</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Technician visits your location</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Correct estimate upfront</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>No surprise charges</span>
+                </div>
+              </div>
             </div>
 
-            {/* LARGE INFO BLOCK */}
-            <div
-              style={{
-                background: "#f0fdfa",
-                border: "1px solid #99f6e4",
-                padding: "18px",
-                borderRadius: "12px",
-                marginBottom: "25px",
-                textAlign: "left",
-                color: "#0a6264",
-                fontSize: "15px",
-                lineHeight: "1.5",
-              }}
-            >
-              <strong>Why Inspection?</strong>
-              <ul style={{ marginTop: "10px", paddingLeft: "18px" }}>
-                <li>Ensures accurate diagnosis of your car’s issue</li>
-                <li>Helps avoid unnecessary repairs or wrong part replacement</li>
-                <li>Technician visits your location for inspection</li>
-                <li>Helps us give correct estimate before actual service</li>
-              </ul>
-              <p style={{ marginTop: "12px", fontSize: "15px", lineHeight: "1.6", color: "#444" }}>
-                <strong>Inspection Fee: ₹299</strong> — Mandatory Step to Ensure Accurate Repair & Avoid Extra Charges.
-              </p>
-            </div>
+            {/* Right Panel */}
+            <div className="bsm-right-panel">
+              <div className="bsm-right-header">
+                <h3 className="bsm-title">Inspection Required</h3>
+                <p className="bsm-subtitle">Mandatory step for accurate service</p>
+              </div>
 
-            {/* BUTTONS */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <button
-                onClick={handleInspectionYes}
-                style={{
-                  padding: "12px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "#0a6264",
-                  color: "#fff",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                }}
-              >
-                Continue with Inspection (Recommended)
-              </button>
+              {/* Info Card */}
+              <div className="bsm-info-card">
+                <h4 className="bsm-info-title">
+                  <FaShieldAlt />
+                  What's Included?
+                </h4>
+                <ul className="bsm-info-list">
+                  <li>Complete car health checkup</li>
+                  <li>Expert diagnosis by certified technician</li>
+                  <li>Transparent report with photos</li>
+                  <li>Accurate repair estimate</li>
+                </ul>
+                <div className="bsm-info-price">
+                  <span className="bsm-price-label">Inspection Fee:</span>
+                  <span className="bsm-price-old">₹599</span>
+                  <span className="bsm-price-value">₹399</span>
+                </div>
+              </div>
 
-              <button
-                onClick={handleInspectionNo}
-                style={{
-                  padding: "12px",
-                  borderRadius: "10px",
-                  border: "2px solid #d1d5db",
-                  background: "#fff",
-                  color: "#374151",
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                }}
-              >
-                Skip & Continue
-              </button>
+              {/* Actions */}
+              <div className="bsm-actions">
+                <button className="bsm-btn bsm-btn-primary" onClick={handleInspectionYes}>
+                  <FaCreditCard />
+                  Continue with Inspection
+                  <FaArrowRight className="bsm-btn-arrow" />
+                </button>
+                <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
+                  Skip & Submit Enquiry
+                </button>
+              </div>
+
+              {/* Trust */}
+              <div className="bsm-trust">
+                <span>✓ 10,000+ Customers</span>
+                <span>✓ Certified Mechanics</span>
+              </div>
             </div>
           </div>
         )}
 
+        {/* STEP 2: Booking Form */}
         {currentStep === "booking" && (
-          <>
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h5 style={{ color: "#0a6264", fontWeight: 800, fontSize: "20px" }}>
-                {otpStep ? "Verify Identity" : "Quick Enquiry"}
-              </h5>
-              <p style={{ margin: 0, fontSize: "12px", color: "#6b7280" }}>
-                {selectedService?.title ? (
-                  <span>Service: <strong style={{ color: "#0a6264" }}>{selectedService.title}</strong></span>
-                ) : (
-                  "Please fill in your details"
-                )}
-              </p>
+          <div className="bsm-content">
+            {/* Left Panel */}
+            <div className="bsm-left-panel">
+              <div className="bsm-left-header">
+                <div className="bsm-header-icon">
+                  <FaTools />
+                </div>
+                <h2 className="bsm-left-title">
+                  {inspection ? "Book Inspection" : "Quick Enquiry"}
+                </h2>
+                <p className="bsm-left-subtitle">
+                  {inspection 
+                    ? "Pay ₹399 & book your slot" 
+                    : "We'll get back to you soon"}
+                </p>
+              </div>
+
+              <div className="bsm-left-benefits">
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>100% Secure Payment</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Expert Technicians</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Doorstep Service</span>
+                </div>
+                <div className="bsm-left-benefit">
+                  <FaCheckCircle />
+                  <span>Transparent Pricing</span>
+                </div>
+              </div>
             </div>
 
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (isLoggedIn) {
-                handleLoggedInSubmit();
-              } else {
-                otpStep ? handleVerifyOTP() : handleSendOTP();
-              }
-            }}>
-              <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-                <div style={{ marginBottom: "12px" }}>
-                  <label style={{ fontSize: "11px", fontWeight: 700 }}>Name</label>
-                  <input
-                    type="text"
-                    className="modern-input"
-                    required
-                    value={fullName}
-                    readOnly={isLoggedIn}
-                    disabled={otpStep}
-                    onChange={(e) => setFullName(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                    }}
-                  />
-                </div>
-                <div style={{ marginBottom: "12px" }}>
-                  <label style={{ fontSize: "11px", fontWeight: 700 }}>Phone</label>
-                  <input
-                    type="tel"
-                    className="modern-input"
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, ""))}
-                    readOnly={isLoggedIn}
-                    disabled={otpStep}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                    }}
-                  />
-                </div>
+            {/* Right Panel */}
+            <div className="bsm-right-panel">
+              <div className="bsm-right-header">
+                <h3 className="bsm-title">
+                  {otpStep ? "Verify OTP" : "Your Details"}
+                </h3>
+                <p className="bsm-subtitle">
+                  {otpStep 
+                    ? `Enter OTP sent to +91 ${identifier}` 
+                    : "Fill in your information"}
+                </p>
+                {selectedService?.title && (
+                  <span className="bsm-service-badge">
+                    {selectedService.title}
+                  </span>
+                )}
               </div>
 
-              <div style={{ marginBottom: "12px" }}>
-                <label style={{ fontSize: "11px", fontWeight: 700 }}>Message</label>
-                <textarea
-                  className="modern-input"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  disabled={otpStep}
-                  style={{
-                    width: "100%",
-                    padding: "6px",
-                    minHeight: "28px",
-                    borderRadius: "6px",
-                    border: "1px solid #e5e7eb"
-                  }}
-                />
-              </div>
-
-              {!isLoggedIn && (
-                <div style={{
-                  maxHeight: otpStep ? "120px" : "0px",
-                  opacity: otpStep ? 1 : 0,
-                  overflow: "hidden",
-                  transition: "all 0.3s ease-in-out",
-                  marginBottom: otpStep ? "15px" : "0"
-                }}>
-                  <div style={{
-                    background: "rgba(10, 98, 100, 0.04)",
-                    padding: "12px",
-                    borderRadius: "10px",
-                    border: "1px dashed #0a6264",
-                    textAlign: "center"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                      <span style={{ fontSize: "12px", fontWeight: 700, color: "#0a6264" }}>Enter OTP Code</span>
-                      <span style={{ fontSize: "11px", color: "#6b7280" }}>
-                        {timer > 0 ? `00:${timer}` : <span onClick={handleSendOTP} style={{ cursor: "pointer" }}>Resend</span>}
-                      </span>
-                    </div>
+              <form className="bsm-form" onSubmit={handleFormSubmit}>
+                {/* Name & Phone Row */}
+                <div className="bsm-form-row">
+                  <div className="bsm-form-group">
+                    <label className="bsm-label">
+                      <FaUser style={{ marginRight: 6 }} />
+                      Your Name
+                    </label>
                     <input
                       type="text"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      maxLength={6}
-                      placeholder="• • • • • •"
-                      required={otpStep}
-                      className="modern-input"
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        fontSize: "16px",
-                        textAlign: "center",
-                        letterSpacing: "5px",
-                        fontWeight: "bold",
-                        borderRadius: "6px",
-                        border: "1px solid #d1d5db",
-                        color: "#0a6264",
-                        background: "#fff"
-                      }}
+                      className="bsm-input"
+                      placeholder="Enter full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      disabled={isLoggedIn || otpStep}
+                      required
+                    />
+                  </div>
+                  <div className="bsm-form-group">
+                    <label className="bsm-label">
+                      <FaPhone style={{ marginRight: 6 }} />
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      className="bsm-input"
+                      placeholder="10-digit mobile"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      disabled={isLoggedIn || otpStep}
+                      required
                     />
                   </div>
                 </div>
-              )}
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginTop: "5px" }}>
-                <button
-                  type="button"
-                  onClick={() => otpStep ? setOtpStep(false) : setCurrentStep("inspection")}
-                  style={{
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    background: "#fff"
-                  }}
-                >
-                  {otpStep ? "Back" : "Back"}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    padding: "10px",
-                    borderRadius: "8px",
-                    border: "none",
-                    background: loading ? "#6b7280" : "#0a6264",
-                    color: "#fff"
-                  }}
-                >
-                  {loading
-                    ? "Processing..."
-                    : isLoggedIn
-                      ? "Submit Enquiry"
-                      : otpStep
-                        ? "Submit Enquiry"
-                        : "Verify Number"}
-                </button>
+                {/* Message */}
+                <div className="bsm-form-group">
+                  <label className="bsm-label">
+                    <FaComment style={{ marginRight: 6 }} />
+                    What are you looking for? (Optional)
+                  </label>
+                  <textarea
+                    className="bsm-textarea"
+                    placeholder="Describe your car issue..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    disabled={otpStep}
+                  />
+                </div>
+
+                {/* OTP Section */}
+                {!isLoggedIn && otpStep && (
+                  <div className="bsm-otp-section">
+                    <div className="bsm-otp-header">
+                      <span className="bsm-otp-label">Enter OTP Code</span>
+                      {timer > 0 ? (
+                        <span className="bsm-otp-timer">
+                          Expires in <strong>{timer}s</strong>
+                        </span>
+                      ) : (
+                        <span className="bsm-otp-expired">
+                          Expired - 
+                          <button 
+                            type="button" 
+                            className="bsm-otp-resend"
+                            onClick={handleSendOTP}
+                          >
+                            <FaRedo style={{ marginRight: 4 }} />
+                            Resend
+                          </button>
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      className="bsm-otp-input"
+                      placeholder="• • • • • •"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      maxLength={6}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                )}
+
+                {/* Form Actions */}
+                <div className="bsm-form-actions">
+                  <button
+                    type="button"
+                    className="bsm-btn bsm-btn-secondary"
+                    onClick={() => otpStep ? setOtpStep(false) : setCurrentStep("inspection")}
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="bsm-btn bsm-btn-primary"
+                    disabled={loading || (otpStep && otpExpired)}
+                  >
+                    <span className={loading ? "bsm-text-blur" : ""}>
+                      {loading ? (
+                        isLoggedIn 
+                          ? (inspection ? "Processing..." : "Submitting...") 
+                          : (otpStep ? "Verifying..." : "Sending OTP...")
+                      ) : isLoggedIn ? (
+                        <>
+                          {inspection ? "Pay ₹399 & Book" : "Submit Enquiry"}
+                          <FaArrowRight className="bsm-btn-arrow" />
+                        </>
+                      ) : otpStep ? (
+                        <>
+                          {inspection ? "Verify & Pay ₹399" : "Verify & Submit"}
+                          <FaArrowRight className="bsm-btn-arrow" />
+                        </>
+                      ) : (
+                        <>
+                          Get OTP
+                          <FaArrowRight className="bsm-btn-arrow" />
+                        </>
+                      )}
+                    </span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Trust */}
+              <div className="bsm-trust">
+                <span>✓ Secure & Private</span>
+                <span>✓ No Spam Calls</span>
               </div>
-            </form>
-          </>
+            </div>
+          </div>
         )}
+
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import "./HeroSection.css"; // Imports the new CSS
+import InspectionPopup from "./InspectionPopup";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showInspectionPopup, setShowInspectionPopup] = useState(false);
 
   // --- SLIDE DATA CONFIGURATION ---
   // Add as many slides as you want here.
@@ -15,7 +16,7 @@ const HeroSection = () => {
       title: "Premium Car Care at Home — No Garage Visits Needed",
       description:
         "Expert mechanics arrive at your location for repairs, inspections, AC service, and maintenance. Transparent pricing and trusted service every time.",
-      buttonText: "Explore Services",
+      buttonText: "Get Door Step Inspection",
       buttonLink: "/service"
     },
     {
@@ -25,7 +26,7 @@ const HeroSection = () => {
       title: "Accurate Inspection Before Any Repair",
       description:
         "We diagnose issues with precision to avoid unnecessary repairs. Get genuine solutions, clear estimates, and reliable support from certified experts.",
-      buttonText: "Book Inspection",
+      buttonText: "Get Door Step Inspection",
       buttonLink: "/service"
     },
     {
@@ -35,7 +36,7 @@ const HeroSection = () => {
       title: "Professional Car Repair You Can Count On",
       description:
         "From AC servicing and brake repair to denting-painting and detailing — we deliver dealership-level service with doorstep convenience.",
-      buttonText: "Get Started",
+      buttonText: "Get Door Step Inspection",
       buttonLink: "/service"
     },
   ];
@@ -97,12 +98,15 @@ const HeroSection = () => {
               <p className="hero-desc">{slide.description}</p>
 
               <div className="hero-btns">
-                <Link to={slide.buttonLink} className="btn-primary-custom">
+                <button 
+                  onClick={() => setShowInspectionPopup(true)} 
+                  className="btn-primary-custom"
+                >
                   {slide.buttonText}
-                </Link>
+                </button>
 
                 <button onClick={handleContactClick} className="btn-outline-custom">
-                  Call Now
+                  Get Free Inspection on Call
                 </button>
               </div>
 
@@ -121,6 +125,12 @@ const HeroSection = () => {
           ></div>
         ))}
       </div>
+
+      {/* Inspection Popup */}
+      <InspectionPopup 
+        isOpen={showInspectionPopup} 
+        onClose={() => setShowInspectionPopup(false)} 
+      />
     </section>
   );
 };

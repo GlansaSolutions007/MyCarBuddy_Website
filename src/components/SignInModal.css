@@ -1,48 +1,598 @@
-.sign-in-modal {
+/* ===== SignIn Modal - Modern Design ===== */
+
+/* Overlay */
+.si-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.5s ease, opacity 0.5s ease;
-  z-index: 999;
+  z-index: 9999;
+  padding: 20px;
+  transition: all 0.3s ease;
 }
 
-.sign-in-modal.hidden {
-  transform: translateY(100%);
+.si-overlay.hidden {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
-.sign-in-modal.visible {
-  transform: translateY(0%);
+.si-overlay.visible {
   opacity: 1;
+  visibility: visible;
 }
 
-.modal-content {
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
+/* Modal */
+.si-modal {
+  display: flex;
+  width: 100%;
+  max-width: 880px;
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: siSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.modal-close {
+
+@keyframes siSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Close Button */
+.si-close-btn {
   position: absolute;
-  top: 12px;
+  top: 16px;
   right: 16px;
-  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.si-close-btn:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* Left Panel - Branding */
+.si-left-panel {
+  flex: 0 0 45%;
+  background: linear-gradient(145deg, #0a6264 0%, #1aa1a4 100%);
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.si-left-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+}
+
+.si-left-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+}
+
+.si-brand {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.si-brand-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 32px;
+  color: #fff;
+}
+
+.si-brand-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.si-brand-tagline {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.si-features {
+  position: relative;
+  z-index: 1;
+}
+
+.si-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: #fff;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.si-feature:last-child {
+  border-bottom: none;
+}
+
+.si-feature svg {
+  color: #fbbf24;
+  font-size: 14px;
+}
+
+/* Right Panel - Form */
+.si-right-panel {
+  flex: 1;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.si-form-header {
+  margin-bottom: 30px;
+}
+
+.si-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+}
+
+.si-subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Form */
+.si-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Input Group */
+.si-input-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.si-input-group:focus-within {
+  border-color: #0a6264;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(10, 98, 100, 0.1);
+}
+
+.si-input-group.si-disabled {
+  background: #f1f5f9;
+}
+
+.si-input-group.si-disabled .si-input {
+  color: #6b7280;
+}
+
+.si-input-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+}
+
+.si-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.si-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.si-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.si-country-code {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.si-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  outline: none;
+  font-family: inherit;
+}
+
+.si-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.si-input:disabled {
+  color: #6b7280;
+}
+
+.si-otp-input {
+  letter-spacing: 8px;
+  font-size: 1.2rem;
+}
+
+.si-edit-btn {
+  padding: 6px 14px;
+  background: #f0fdfa;
+  border: 1px solid #0a6264;
+  border-radius: 8px;
+  color: #0a6264;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.si-edit-btn:hover {
+  background: #0a6264;
+  color: #fff;
+}
+
+/* OTP Section */
+.si-otp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.si-otp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.si-timer {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.si-timer strong {
+  color: #0a6264;
+}
+
+.si-expired {
+  font-size: 0.85rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.si-resend-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
   background: transparent;
   border: none;
+  color: #0a6264;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  color: #333;
+  transition: all 0.2s ease;
 }
 
-.modal-close:hover {
-  color: #000;
+.si-resend-btn:hover:not(:disabled) {
+  background: #f0fdfa;
+  border-radius: 8px;
+}
+
+.si-resend-btn:disabled {
+  cursor: not-allowed;
+}
+
+.si-resend-btn .si-text-blur {
+  color: #9ca3af;
+}
+
+.si-resend-btn svg {
+  font-size: 12px;
+}
+
+/* Submit Button */
+.si-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(10, 98, 100, 0.3);
+  margin-top: 10px;
+}
+
+.si-submit-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(10, 98, 100, 0.4);
+}
+
+.si-submit-btn:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Text Blur for Disabled State */
+.si-text-blur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  filter: blur(0.8px);
+  opacity: 0.7;
+}
+
+.si-submit-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.si-submit-btn:hover:not(:disabled) svg {
+  transform: translateX(4px);
+}
+
+/* Spinner */
+.si-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  /* animation: siSpin 0.8s linear infinite; */
+}
+
+@keyframes siSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Footer */
+.si-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.si-terms {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.si-terms a {
+  color: #0a6264;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.si-terms a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .si-modal {
+    flex-direction: column;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .si-left-panel {
+    flex: none;
+    padding: 30px 25px;
+  }
+
+  .si-brand {
+    margin-bottom: 20px;
+  }
+
+  .si-brand-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    margin-bottom: 14px;
+  }
+
+  .si-brand-title {
+    font-size: 1.4rem;
+  }
+
+  .si-brand-tagline {
+    font-size: 0.85rem;
+  }
+
+  .si-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .si-feature {
+    flex: 0 0 calc(50% - 4px);
+    padding: 8px 0;
+    font-size: 0.8rem;
+    border-bottom: none;
+  }
+
+  .si-feature svg {
+    font-size: 12px;
+  }
+
+  .si-right-panel {
+    padding: 30px 25px;
+  }
+
+  .si-title {
+    font-size: 1.4rem;
+  }
+
+  .si-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .si-input-group {
+    padding: 12px 14px;
+  }
+
+  .si-input-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 14px;
+  }
+
+  .si-submit-btn {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  .si-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .si-overlay {
+    padding: 15px;
+  }
+
+  .si-modal {
+    border-radius: 20px;
+  }
+
+  .si-left-panel {
+    padding: 25px 20px;
+  }
+
+  .si-brand-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .si-brand-title {
+    font-size: 1.2rem;
+  }
+
+  .si-feature {
+    flex: 0 0 100%;
+    padding: 6px 0;
+  }
+
+  .si-right-panel {
+    padding: 25px 20px;
+  }
+
+  .si-form-header {
+    margin-bottom: 20px;
+  }
+
+  .si-title {
+    font-size: 1.25rem;
+  }
+
+  .si-form {
+    gap: 16px;
+  }
+
+  .si-otp-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .si-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
 }

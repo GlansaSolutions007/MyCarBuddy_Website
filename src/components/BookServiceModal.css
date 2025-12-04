@@ -1,0 +1,612 @@
+/* src/components/BookServiceModal.css */
+
+/* Overlay */
+.bsm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: bsmFadeIn 0.3s ease;
+}
+
+@keyframes bsmFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal */
+.bsm-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 24px;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  animation: bsmSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+@keyframes bsmSlideUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Horizontal Layout */
+.bsm-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Close Button */
+.bsm-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  font-size: 16px;
+  z-index: 10;
+}
+
+.bsm-close-btn:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* Left Panel */
+.bsm-left-panel {
+  background: linear-gradient(145deg, #0a6264 0%, #1aa1a4 100%);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bsm-left-panel::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+}
+
+.bsm-left-header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.bsm-header-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 16px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #fff;
+}
+
+.bsm-left-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.bsm-left-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 24px;
+}
+
+.bsm-left-benefits {
+  position: relative;
+  z-index: 1;
+}
+
+.bsm-left-benefit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  color: #fff;
+  font-size: 0.88rem;
+}
+
+.bsm-left-benefit svg {
+  color: #fbbf24;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Right Panel */
+.bsm-right-panel {
+  padding: 35px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.bsm-right-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.bsm-right-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.bsm-right-panel::-webkit-scrollbar-thumb {
+  background: #0a6264;
+  border-radius: 3px;
+}
+
+.bsm-right-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.bsm-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.bsm-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.bsm-service-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 20px;
+  color: #0a6264;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* Info Card (Inspection Step) */
+.bsm-info-card {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  border: 2px solid #99f6e4;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.bsm-info-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0a6264;
+  margin: 0 0 12px;
+}
+
+.bsm-info-title svg {
+  font-size: 18px;
+}
+
+.bsm-info-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.bsm-info-list li {
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.bsm-info-list li:last-child {
+  margin-bottom: 0;
+}
+
+.bsm-info-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #99f6e4;
+}
+
+.bsm-price-label {
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.bsm-price-old {
+  font-size: 1rem;
+  color: #9ca3af;
+  /* text-decoration: line-through; */
+}
+
+.bsm-price-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0a6264;
+}
+
+/* Action Buttons */
+.bsm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bsm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.bsm-btn-primary {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(10, 98, 100, 0.3);
+}
+
+.bsm-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(10, 98, 100, 0.4);
+}
+
+.bsm-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bsm-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.bsm-btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.bsm-btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+.bsm-btn-primary:hover .bsm-btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Form Styles */
+.bsm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bsm-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bsm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bsm-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bsm-input,
+.bsm-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  background: #fff;
+}
+
+.bsm-input:focus,
+.bsm-textarea:focus {
+  outline: none;
+  border-color: #0a6264;
+  box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.1);
+}
+
+.bsm-input::placeholder,
+.bsm-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.bsm-input:disabled,
+.bsm-textarea:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.bsm-textarea {
+  resize: none;
+  min-height: 70px;
+}
+
+/* OTP Section */
+.bsm-otp-section {
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.05) 0%, rgba(26, 161, 164, 0.05) 100%);
+  border: 2px dashed #0a6264;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  animation: bsmSlideDown 0.3s ease;
+}
+
+@keyframes bsmSlideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+.bsm-otp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bsm-otp-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0a6264;
+}
+
+.bsm-otp-timer {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.bsm-otp-timer strong {
+  color: #0a6264;
+}
+
+.bsm-otp-expired {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.bsm-otp-resend {
+  background: none;
+  border: none;
+  color: #0a6264;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.bsm-otp-resend:hover {
+  color: #064e4f;
+}
+
+.bsm-otp-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 8px;
+  color: #0a6264;
+  background: #fff;
+}
+
+.bsm-otp-input:focus {
+  outline: none;
+  border-color: #0a6264;
+  box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.1);
+}
+
+/* Form Actions */
+.bsm-form-actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Trust Badge */
+.bsm-trust {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.bsm-trust span {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Spinner */
+.bsm-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: bsmSpin 0.8s linear infinite;
+}
+
+@keyframes bsmSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Text Blur for Disabled/Loading State */
+.bsm-text-blur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  filter: blur(0.8px);
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bsm-modal {
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .bsm-content {
+    grid-template-columns: 1fr;
+  }
+
+  .bsm-left-panel {
+    padding: 25px 20px;
+  }
+
+  .bsm-left-title {
+    font-size: 1.2rem;
+  }
+
+  .bsm-left-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .bsm-left-benefit {
+    padding: 6px 0;
+    font-size: 0.8rem;
+  }
+
+  .bsm-header-icon {
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+  }
+
+  .bsm-right-panel {
+    padding: 25px 20px;
+    max-height: none;
+  }
+
+  .bsm-title {
+    font-size: 1.2rem;
+  }
+
+  .bsm-form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .bsm-form-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .bsm-btn {
+    padding: 12px 18px;
+    font-size: 0.9rem;
+  }
+
+  .bsm-trust {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .bsm-info-card {
+    padding: 16px;
+  }
+
+  .bsm-info-list li {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bsm-overlay {
+    padding: 15px;
+  }
+
+  .bsm-left-panel {
+    padding: 20px 16px;
+  }
+
+  .bsm-right-panel {
+    padding: 20px 16px;
+  }
+
+  .bsm-info-price {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
