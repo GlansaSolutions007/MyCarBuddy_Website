@@ -9,6 +9,7 @@ import axios from "axios";
 import { FaSearch, FaCar, FaChevronDown, FaTimes, FaBars } from "react-icons/fa";
 import { Phone, MapPin, Mail } from "lucide-react";
 import "./HeaderOne.css";
+import NotificationDropdown from "./NotificationDropdown";
 
 const API_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
@@ -381,6 +382,13 @@ const HeaderOne = () => {
                     <span className="mcb-contact-number">+91 707-524-3939</span>
                   </div>
                 </div>
+
+                {/* Notification Button */}
+                {(user?.name || user?.identifier) && (
+                  <div className="mcb-notification-btn">
+                    <NotificationDropdown />
+                  </div>
+                )}
 
                 {/* User Button */}
                 <div className="mcb-user-btn" onClick={handleUserClick}>
