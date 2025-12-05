@@ -185,7 +185,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 							<FaCar />
 						</div>
 						<h2 className="si-brand-title">MyCarBuddy</h2>
-						<p className="si-brand-tagline">Your Trusted Car Care Partner</p>
+						<p className="si-brand-tagline">Your Trusted Car Care Partner <span style={{color: "#fbbf24", fontWeight: "bold" }}>at your Doorstep</span></p>
 					</div>
 					
 					<div className="si-features">

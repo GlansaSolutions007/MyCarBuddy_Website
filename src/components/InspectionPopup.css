@@ -51,7 +51,7 @@
 
 /* Left Side - Visual */
 .ip-left-panel {
-  background: linear-gradient(145deg, #f1a311 0%, #ddba47 100%);
+  background: linear-gradient(145deg, #ff8a00  0%, #ffb347  100%);
   padding: 40px 30px;
   display: flex;
   flex-direction: column;
@@ -500,6 +500,106 @@
 .ip-note svg {
   flex-shrink: 0;
   font-size: 12px;
+}
+
+/* OTP Section */
+.ip-otp-section {
+  background: linear-gradient(135deg, #f0fdfa 0%, #e0f7f5 100%);
+  border: 2px solid #99f6e4;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.ip-otp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ip-otp-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0a6264;
+}
+
+.ip-otp-timer {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.ip-otp-timer strong {
+  color: #0a6264;
+}
+
+.ip-otp-expired {
+  font-size: 0.8rem;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ip-otp-resend {
+  background: none;
+  border: none;
+  color: #0a6264;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.ip-otp-resend:hover {
+  background: rgba(10, 98, 100, 0.1);
+}
+
+.ip-otp-input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #0a6264;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 10px;
+  text-align: center;
+  color: #0a6264;
+  background: #fff;
+  transition: all 0.2s ease;
+  font-family: monospace;
+}
+
+.ip-otp-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(10, 98, 100, 0.15);
+}
+
+.ip-otp-input::placeholder {
+  letter-spacing: 8px;
+  color: #d1d5db;
+}
+
+/* Disabled States */
+.ip-input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.ip-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Text Blur for Loading State */
+.ip-text-blur {
+  filter: blur(0.5px);
+  opacity: 0.9;
 }
 
 /* Responsive - Stack on Mobile */

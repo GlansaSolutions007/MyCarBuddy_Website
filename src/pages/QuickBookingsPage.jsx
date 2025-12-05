@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import HeaderOne from "../components/HeaderOne";
 import FooterAreaOne from "../components/FooterAreaOne";
 import Breadcrumb from "../components/Breadcrumb";
-import AddOnServicesLayer from "../components/AddOnServicesLayer";
+import QuickBookingsLayer from "../components/QuickBookingsLayer";
 import Preloader from "../helper/Preloader";
 
-const MyBookingsPage = () => {
+const QuickBookings = () => {
   let [active, setActive] = useState(true);
   useEffect(() => {
     setTimeout(function () {
@@ -24,7 +24,7 @@ const MyBookingsPage = () => {
       <Breadcrumb title={"My Bookings's"} />
 
       {/* MyBookings */}
-      <AddOnServicesLayer />
+      <QuickBookingsLayer />
 
       {/* Footer Area One */}
       <FooterAreaOne />
@@ -32,4 +32,4 @@ const MyBookingsPage = () => {
   );
 };
 
-export default MyBookingsPage;
+export default QuickBookings;

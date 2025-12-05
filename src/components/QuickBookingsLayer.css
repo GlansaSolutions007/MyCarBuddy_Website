@@ -2,7 +2,7 @@
 
 .aos-section {
   position: relative; 
-  margin:10px 10px 100px 10px;
+  margin:30px 30px 100px 30px;
 }
 
 /* ===== Header ===== */
@@ -513,6 +513,7 @@
     font-size: 0.85rem;
   }
 }
+
 
 
 

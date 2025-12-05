@@ -197,18 +197,27 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
+        if (!id) return;
+        
         const response = await axios.get(
-          `${BaseURL}FAQS/Packages?PackageID=${id}`
+          `${BaseURL}FAQS/Packages?PackageID=${id}&Type=package`
         );
-        setFaqs(response.data[0]?.FAQS || []);
+        
+        // Get FAQs from PackageFAQS array
+        const packageFaqs = response.data?.PackageFAQS || [];
+        
+        if (packageFaqs.length > 0 && packageFaqs[0]?.FAQS) {
+          setFaqs(packageFaqs[0].FAQS);
+        } else {
+          setFaqs([]);
+        }
       } catch (error) {
         console.error("Error fetching FAQs:", error);
+        setFaqs([]);
       }
     };
 
-    if (id) {
-      fetchFaqs();
-    }
+    fetchFaqs();
   }, [id]);
 
   const service = services.find((s) => s.id === parseInt(id));
@@ -321,7 +330,7 @@ const ServiceDetails = () => {
               <div className="sd-action-bar">
                 <button className="sd-btn sd-btn-outline" onClick={() => navigate("/#help")}>
                   <FaHeadset />
-                  <span>Quick Support</span>
+                  <span>Free Quick Support</span>
                 </button>
 
                 {isInCart ? (
@@ -439,7 +448,7 @@ const ServiceDetails = () => {
                 <div className="sd-contact-icon">
                   <FaPhone />
                 </div>
-                <h4 className="sd-contact-title">Need Help?</h4>
+                <h4 className="sd-contact-title">Need Free Help?</h4>
                 <p className="sd-contact-text">
                   Have questions about this service? Our team is ready to help.
                 </p>

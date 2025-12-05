@@ -260,7 +260,7 @@
 .bsm-price-old {
   font-size: 1rem;
   color: #9ca3af;
-  /* text-decoration: line-through; */
+  text-decoration: line-through;
 }
 
 .bsm-price-value {

@@ -287,9 +287,24 @@ const HeaderOne = () => {
                 <a href="mailto:info@mycarbuddy.in">info@mycarbuddy.in</a>
               </div>
               <div className="mcb-top-divider" />
-              <div className="mcb-top-item" onClick={handleCityPicker}>
-                <MapPin size={13} />
-                <span>{isServiceAvailable === false ? "Service unavailable" : locationText || "Pick your city"}</span>
+              <div className="mcb-city-wrapper">
+                <div className="mcb-top-item" onClick={handleCityPicker}>
+                  <MapPin size={13} />
+                  <span>{isServiceAvailable === false ? "Service unavailable" : locationText || "Pick your city"}</span>
+                </div>
+                <div className="mcb-city-tooltip">
+                  <div className="mcb-tooltip-glow"></div>
+                  <div className="mcb-tooltip-content">
+                    <div className="mcb-tooltip-icon-wrap">
+                      <MapPin size={24} className="mcb-tooltip-icon" />
+                      <span className="mcb-tooltip-pulse"></span>
+                    </div>
+                    <div className="mcb-tooltip-info">
+                      <span className="mcb-tooltip-title">Select Your City</span>
+                      <span className="mcb-tooltip-desc">Choose your location for<br />nearby services & offers!</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="mcb-top-divider" />
               <div className="mcb-top-item" onClick={handleContactClick}>

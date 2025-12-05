@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ServiceCards.css";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaCheck, FaShoppingCart, FaTrash, FaCalendarAlt, FaBoxOpen } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaCheck, FaShoppingCart, FaTrash, FaCalendarAlt, FaBoxOpen, FaQuestionCircle } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -72,7 +72,7 @@ export default function ServiceCards() {
   const [selectedService, setSelectedService] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [selectedService, setSelectedService] = useState(null);
+  const [faqs, setFaqs] = useState([]);
 
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
@@ -147,7 +147,7 @@ export default function ServiceCards() {
             title: pkg.PackageName,
             description: pkg.SubCategoryName,
             image: `${baseUrlImage}${pkg.PackageImage}`,
-            tag: "Featured Package",
+            tag: "Expert Service",
             duration: "4 Hrs Taken",
             price: pkg.Serv_Off_Price,
             originalPrice: pkg.Serv_Reg_Price,
@@ -175,6 +175,39 @@ export default function ServiceCards() {
   useEffect(() => {
     setPackages([]);
   }, [activeTab]);
+
+  // Fetch FAQs for the category
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      if (!categoryId) return;
+      
+      try {
+        const response = await axios.get(
+          `${BASE_URL}FAQS/Packages?CategoryID=${categoryId}&Type=category`
+        );
+        
+        // Get FAQs from CategoryFAQS array
+        const categoryFaqs = response.data?.CategoryFAQS || [];
+        
+        // Find FAQs for the current category
+        const currentCategoryFaqs = categoryFaqs.find(c => c.CategoryID === parseInt(categoryId));
+        
+        if (currentCategoryFaqs?.FAQS) {
+          setFaqs(currentCategoryFaqs.FAQS);
+        } else if (categoryFaqs.length > 0) {
+          // If no specific category FAQs found, use first category's FAQs
+          setFaqs(categoryFaqs[0]?.FAQS || []);
+        } else {
+          setFaqs([]);
+        }
+      } catch (error) {
+        console.error("Error fetching FAQs:", error);
+        setFaqs([]);
+      }
+    };
+
+    fetchFaqs();
+  }, [categoryId, BASE_URL]);
 
   const scroll = (direction) => {
     const container = scrollRef.current;
@@ -386,6 +419,65 @@ export default function ServiceCards() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* FAQ Section with Image */}
+        {faqs.length > 0 && (
+          <div className="sc-faq-wrapper">
+            {/* Image Side */}
+            <div className="sc-faq-image-side">
+              <div className="sc-faq-image-wrapper">
+                <div className="sc-faq-image">
+                  <img
+                    src="/assets/img/normal/faq-thumb-2-1.webp"
+                    alt="Car Service FAQ"
+                  />
+                </div>
+                {/* Floating Badge */}
+                <div className="sc-faq-badge">
+                  <div className="sc-faq-badge-icon">
+                    <FaQuestionCircle />
+                  </div>
+                  <div className="sc-faq-badge-text">
+                    Got Questions?<br />We Have Answers!
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FAQ Side */}
+            <div className="sc-faq-content-side">
+              <div className="sc-faq-section">
+                <h3 className="sc-faq-title">
+                  <FaQuestionCircle className="sc-faq-title-icon" />
+                  Frequently Asked Questions
+                </h3>
+                <div className="sc-faq-grid sc-faq-scrollable">
+                  {faqs.map((faq, idx) => (
+                    <div key={faq.FAQID || idx} className="sc-faq-card">
+                      <button
+                        className="sc-faq-question"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target={`#scFaqCollapse${idx}`}
+                      >
+                        <span className="sc-faq-number">{String(idx + 1).padStart(2, '0')}</span>
+                        <span className="sc-faq-question-text">
+                          {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
+                        </span>
+                        <span className="sc-faq-chevron">
+                          <i className="fas fa-chevron-down" />
+                        </span>
+                      </button>
+                      <div id={`scFaqCollapse${idx}`} className="collapse sc-faq-answer">
+                        <p>{faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

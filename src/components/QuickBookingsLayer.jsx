@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import "./AddOnServicesLayer.css";
+import "./QuickBookingsLayer.css";
 import { FaTools, FaCheck, FaCog, FaBoxOpen } from "react-icons/fa";
 
-const AddOnServicesLayer = () => {
+const QuickBookingsLayer = () => {
     // Static sample data
     const [services, setServices] = useState([
         {
@@ -220,4 +220,4 @@ const AddOnServicesLayer = () => {
     );
 };
 
-export default AddOnServicesLayer;
+export default QuickBookingsLayer;

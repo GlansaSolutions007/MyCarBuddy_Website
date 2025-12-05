@@ -1,0 +1,903 @@
+/* ===== Case Studies - Beautiful Modern Design ===== */
+
+:root {
+  --cs-primary: #0a6264;
+  --cs-primary-light: #1aa1a4;
+  --cs-accent: #10b981;
+  --cs-dark: #1a1a2e;
+  --cs-text: #374151;
+  --cs-muted: #6b7280;
+  --cs-light: #f8fffe;
+  --cs-white: #ffffff;
+  --cs-gradient: linear-gradient(135deg, #004347 0%, #a8a6a6 100%);
+  --cs-shadow: 0 10px 40px rgba(74, 86, 87, 0.12);
+}
+
+.cs-page {
+  background: var(--cs-light);
+}
+
+/* ===== Hero ===== */
+.cs-hero {
+  position: relative;
+  padding: 130px 0 90px;
+  overflow: hidden;
+}
+
+.cs-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--cs-gradient);
+}
+
+.cs-hero-bg::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.cs-hero-wave {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--cs-light);
+  clip-path: ellipse(60% 100% at 50% 100%);
+}
+
+.cs-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--cs-white);
+}
+
+.cs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: black;
+}
+
+.cs-badge svg {
+  animation: thumbJump 1s ease-in-out infinite;
+}
+
+@keyframes thumbJump {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-6px) rotate(-10deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(10deg);
+  }
+}
+
+.cs-hero-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin: 0 0 16px;
+  line-height: 1.2;
+}
+
+.cs-hero-title span {
+  background: linear-gradient(90deg, #ffd700, #ffaa00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cs-hero-desc {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 500px;
+  margin: 0 auto;
+  color: white;
+}
+
+/* ===== Quick Stats ===== */
+.cs-quick-stats {
+  margin-top: -30px;
+  position: relative;
+  z-index: 10;
+  padding: 0 16px;
+}
+
+.cs-stats-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--cs-white);
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: var(--cs-shadow);
+}
+
+.cs-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #e6f7f5 100%);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  color: var(--cs-text);
+}
+
+.cs-stat-pill svg {
+  color: var(--cs-primary);
+  font-size: 16px;
+}
+
+.cs-stat-pill strong {
+  color: var(--cs-primary);
+}
+
+/* ===== Filter ===== */
+.cs-filter {
+  padding: 40px 0 30px;
+}
+
+.cs-filter-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cs-filter-pill {
+  padding: 10px 20px;
+  background: var(--cs-white);
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--cs-text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cs-filter-pill:hover {
+  border-color: var(--cs-primary);
+  color: var(--cs-primary);
+}
+
+.cs-filter-pill.active {
+  background: var(--cs-gradient);
+  border-color: transparent;
+  color: var(--cs-white);
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.3);
+}
+
+/* ===== Cards Grid ===== */
+.cs-cards {
+  padding: 20px 0 70px;
+}
+
+.cs-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ===== Card Design ===== */
+.cs-card {
+  background: var(--cs-white);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  transition: all 0.4s ease;
+  animation: fadeIn 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(10, 98, 100, 0.18);
+}
+
+/* Card Image */
+.cs-card-image {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.cs-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.cs-card:hover .cs-card-image img {
+  transform: scale(1.08);
+}
+
+.cs-card-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 6px 14px;
+  background: var(--cs-white);
+  color: var(--cs-primary);
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.cs-card-saved {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: var(--cs-white);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Card Body */
+.cs-card-body {
+  padding: 20px;
+}
+
+.cs-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cs-card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cs-dark);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.cs-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #fef3c7;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #d97706;
+  white-space: nowrap;
+}
+
+.cs-rating svg {
+  font-size: 11px;
+}
+
+.cs-car-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--cs-primary);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.cs-car-info svg {
+  font-size: 14px;
+}
+
+/* Before → After Transform - Modern Design */
+.cs-transform {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+.cs-before, .cs-after {
+  flex: 1;
+  padding: 16px 14px;
+  text-align: center;
+  position: relative;
+}
+
+.cs-before {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.cs-before::before {
+  content: '✗';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.cs-after {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+}
+
+.cs-after::before {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.cs-label {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.cs-before .cs-label {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.cs-after .cs-label {
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+}
+
+.cs-before p, .cs-after p {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--cs-dark);
+  line-height: 1.4;
+}
+
+.cs-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-width: 40px;
+  background: linear-gradient(180deg, #0a6264 0%, #1aa1a4 100%);
+  color: var(--cs-white);
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cs-arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: translateX(-100%);
+  animation: arrowShine 2s ease-in-out infinite;
+}
+
+@keyframes arrowShine {
+  0% { transform: translateX(-100%); }
+  50%, 100% { transform: translateX(100%); }
+}
+
+.cs-arrow svg {
+  animation: arrowPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+/* Card Footer */
+.cs-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.cs-meta {
+  display: flex;
+  gap: 12px;
+}
+
+.cs-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--cs-muted);
+}
+
+.cs-meta svg {
+  font-size: 11px;
+  color: var(--cs-primary);
+}
+
+.cs-customer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cs-accent);
+}
+
+.cs-customer svg {
+  font-size: 12px;
+}
+
+/* No Results */
+.cs-no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--cs-muted);
+}
+
+.cs-no-results svg {
+  font-size: 48px;
+  opacity: 0.3;
+  margin-bottom: 16px;
+}
+
+.cs-no-results h3 {
+  font-size: 1.2rem;
+  color: var(--cs-dark);
+  margin: 0 0 8px;
+}
+
+.cs-no-results p {
+  margin: 0 0 20px;
+}
+
+.cs-no-results button {
+  padding: 12px 28px;
+  background: var(--cs-gradient);
+  color: var(--cs-white);
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cs-no-results button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(10, 98, 100, 0.3);
+}
+
+/* ===== Benefits ===== */
+.cs-benefits {
+  padding: 60px 0;
+  background: linear-gradient(180deg, var(--cs-light) 0%, #e6f7f7 100%);
+}
+
+.cs-section-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--cs-dark);
+  margin: 0 0 40px;
+}
+
+.cs-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.cs-benefit {
+  background: var(--cs-white);
+  padding: 28px 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.cs-benefit:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(10, 98, 100, 0.12);
+}
+
+.cs-benefit-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  background: var(--cs-gradient);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-white);
+  font-size: 24px;
+}
+
+.cs-benefit h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--cs-dark);
+  margin: 0 0 8px;
+}
+
+.cs-benefit p {
+  font-size: 0.85rem;
+  color: var(--cs-muted);
+  margin: 0;
+}
+
+/* ===== CTA ===== */
+.cs-cta {
+  padding: 20px 0 80px;
+}
+
+.cs-cta-card {
+  background: var(--cs-gradient);
+  border-radius: 24px;
+  padding: 50px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cs-cta-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+
+.cs-cta-text {
+  position: relative;
+  z-index: 1;
+}
+
+.cs-cta-text h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--cs-white);
+  margin: 0 0 8px;
+}
+
+.cs-cta-text p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.85);
+  margin: 0;
+}
+
+.cs-cta-btns {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.cs-btn-primary, .cs-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.cs-btn-arrow {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.cs-btn-primary:hover .cs-btn-arrow,
+.cs-btn-secondary:hover .cs-btn-arrow {
+  transform: translateX(5px);
+}
+
+.cs-btn-primary {
+  background: var(--cs-white);
+  color: var(--cs-primary);
+}
+
+.cs-btn-primary:hover {
+  background: var(--cs-dark);
+  color: var(--cs-white);
+  transform: translateY(-2px);
+}
+
+.cs-btn-secondary {
+  background: transparent;
+  color: var(--cs-white);
+  border: 2px solid rgba(255,255,255,0.4);
+}
+
+.cs-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--cs-white);
+  color: var(--cs-white);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1200px) {
+  .cs-benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .cs-stats-bar {
+    gap: 10px;
+    padding: 18px 20px;
+  }
+
+  .cs-stat-pill {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .cs-cta-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .cs-hero {
+    padding: 100px 0 70px;
+  }
+
+  .cs-hero-wave {
+    height: 40px;
+  }
+
+  .cs-quick-stats {
+    margin-top: -25px;
+  }
+
+  .cs-stats-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cs-stat-pill {
+    flex: 0 0 auto;
+  }
+
+  .cs-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .cs-card-image {
+    height: 140px;
+  }
+
+  .cs-card-body {
+    padding: 16px;
+  }
+
+  .cs-card-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .cs-transform {
+    flex-direction: column;
+  }
+
+  .cs-arrow {
+    width: 100%;
+    min-width: 100%;
+    height: 32px;
+  }
+  
+  .cs-arrow svg {
+    transform: rotate(90deg);
+  }
+  
+  @keyframes arrowPulse {
+    0%, 100% { transform: rotate(90deg) translateX(0); }
+    50% { transform: rotate(90deg) translateX(3px); }
+  }
+
+  .cs-benefits-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .cs-benefit {
+    padding: 20px 16px;
+  }
+
+  .cs-cta-card {
+    padding: 35px 25px;
+    border-radius: 20px;
+  }
+
+  .cs-cta-btns {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cs-btn-primary, .cs-btn-secondary {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .cs-hero {
+    padding: 90px 0 60px;
+  }
+
+  .cs-badge {
+    font-size: 0.75rem;
+    padding: 8px 18px;
+  }
+
+  .cs-hero-desc {
+    font-size: 0.95rem;
+  }
+
+  .cs-stats-bar {
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .cs-stat-pill {
+    padding: 6px 12px;
+    font-size: 0.72rem;
+  }
+
+  .cs-filter-bar {
+    gap: 8px;
+  }
+
+  .cs-filter-pill {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .cs-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-card-image {
+    height: 160px;
+  }
+
+  .cs-transform {
+    flex-direction: row;
+  }
+
+  .cs-arrow {
+    width: 36px;
+    min-width: 36px;
+    height: auto;
+  }
+  
+  .cs-arrow svg {
+    transform: none;
+  }
+  
+  .cs-before::before,
+  .cs-after::before {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+    top: 6px;
+    right: 6px;
+  }
+  
+  .cs-label {
+    font-size: 0.55rem;
+    padding: 3px 8px;
+  }
+  
+  .cs-before p, .cs-after p {
+    font-size: 0.8rem;
+  }
+
+  .cs-benefits {
+    padding: 50px 0;
+  }
+
+  .cs-section-title {
+    font-size: 1.3rem;
+  }
+
+  .cs-benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .cs-benefit {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .cs-benefit-icon {
+    margin: 0;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    font-size: 20px;
+  }
+
+  .cs-benefit h4 {
+    margin-bottom: 4px;
+  }
+}

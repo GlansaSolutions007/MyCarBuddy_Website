@@ -21,6 +21,7 @@ import MyBookingsPage from "./pages/MyBookingsPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import RefundPage from "./pages/RefundPage";
+import CaseStudiesPage from "./pages/CaseStudiesPage";
 import ServiceInDetailsPage from "./pages/ServiceInDetailsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ReschedulePage from "./pages/ReschedulePage";
@@ -29,7 +30,7 @@ import SearchPage from "./pages/SearchPage";
 import AppRedirectPage from "./pages/AppRedirectPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
-import AddOnServicesLayer from "./pages/AddOnServicesPage";
+import QuickBookings from "./pages/QuickBookingsPage";
 
 function App() {
   useEffect(() => {
@@ -61,13 +62,14 @@ function App() {
           <Route exact path="/terms" element={<TermsPage />} />
           <Route exact path="/privacy" element={<PrivacyPage />} />
           <Route exact path="/refund-cancellation" element={<RefundPage />} />
+          <Route exact path="/case-studies" element={<CaseStudiesPage />} />
           <Route exact path="/reschedule" element={<ReschedulePage />} />
           <Route exact path="/car-damage-analysis" element={<CarDamageAnalysisPage />} />
           <Route exact path="/search" element={<SearchPage />} />
           <Route exact path="/redirect" element={<AppRedirectPage />} />
           <Route exact path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/redirect-to-payment/:encodedUrl" element={<RedirectToPayment />} />
-          <Route path="/addon-services" element={<AddOnServicesLayer />} />
+          <Route path="/quick-bookings" element={<QuickBookings />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>

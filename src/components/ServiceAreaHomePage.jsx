@@ -14,21 +14,21 @@ import Fuse from "fuse.js";
 const steps = [
   {
     icon: Calendar,
-    title: "Pick How You Want Help",
+    title: "Book Your Service",
     description:
-      "Choose between quick call support or AI chat based on your convenience.",
+      "Schedule your interior or exterior wash online or via phone. Choose a time and location that's most convenient for you — home, office, or anywhere.",
   },
   {
     icon: MapPin,
-    title: "Instant Connection",
+    title: "We Come to You",
     description:
-      "No waiting—connect with a real specialist or our AI assistant instantly.",
+      "Our fully equipped mobile team arrives with eco-friendly products and professional tools to give your car a gentle yet thorough wash.",
   },
   {
     icon: CheckCircle,
-    title: "Fast Resolution",
+    title: "Enjoy the Shine",
     description:
-      "Get your questions answered and issues resolved quickly and efficiently.",
+      "Sit back and relax while we make your car sparkle inside and out. We leave you with a fresh, spotless, and protected vehicle ready to impress.",
   },
 ];
 
@@ -391,7 +391,7 @@ const ServiceAreaHomePage = () => {
                   onClick={handleContactClick}
                 >
                   <FaPhoneAlt />
-                  Get Free Call Support
+                  <span>Get Free Call Support</span>
                   <FaArrowRight className="btn-arrow" />
                 </button>
               </div>
@@ -421,7 +421,7 @@ const ServiceAreaHomePage = () => {
                   onClick={() => navigate("/car-damage-analysis")}
                 >
                   <FaRobot />
-                  Chat with AI
+                  <span>Chat with AI</span>
                   <FaArrowRight className="btn-arrow" />
                 </button>
               </div>

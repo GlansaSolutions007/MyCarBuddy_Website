@@ -16,7 +16,7 @@ const HeroSection = () => {
       title: "Premium Car Care at Home — No Garage Visits Needed",
       description:
         "Expert mechanics arrive at your location for repairs, inspections, AC service, and maintenance. Transparent pricing and trusted service every time.",
-      buttonText: "Get Door Step Inspection",
+      buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
     {
@@ -26,7 +26,7 @@ const HeroSection = () => {
       title: "Accurate Inspection Before Any Repair",
       description:
         "We diagnose issues with precision to avoid unnecessary repairs. Get genuine solutions, clear estimates, and reliable support from certified experts.",
-      buttonText: "Get Door Step Inspection",
+      buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
     {
@@ -36,7 +36,7 @@ const HeroSection = () => {
       title: "Professional Car Repair You Can Count On",
       description:
         "From AC servicing and brake repair to denting-painting and detailing — we deliver dealership-level service with doorstep convenience.",
-      buttonText: "Get Door Step Inspection",
+      buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
   ];
@@ -98,15 +98,16 @@ const HeroSection = () => {
               <p className="hero-desc">{slide.description}</p>
 
               <div className="hero-btns">
-                <button 
-                  onClick={() => setShowInspectionPopup(true)} 
+                <button
+                  onClick={() => setShowInspectionPopup(true)}
                   className="btn-primary-custom"
                 >
                   {slide.buttonText}
                 </button>
 
                 <button onClick={handleContactClick} className="btn-outline-custom">
-                  Get Free Inspection on Call
+                  {/* Get Free Inspection on Call */}
+                  Call for Free Consultation
                 </button>
               </div>
 
@@ -127,9 +128,9 @@ const HeroSection = () => {
       </div>
 
       {/* Inspection Popup */}
-      <InspectionPopup 
-        isOpen={showInspectionPopup} 
-        onClose={() => setShowInspectionPopup(false)} 
+      <InspectionPopup
+        isOpen={showInspectionPopup}
+        onClose={() => setShowInspectionPopup(false)}
       />
     </section>
   );
