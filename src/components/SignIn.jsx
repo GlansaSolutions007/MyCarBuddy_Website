@@ -106,6 +106,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 					id: CryptoJS.AES.encrypt(response.data?.custID.toString(), secretKey).toString(),
 					name: response.data?.name || "GUEST",
 					phone: identifier,
+					email: response.data?.email || "",   // 👈 Add this line
 					token: response.data?.token,
 					profileImage: response?.data?.profileImage,
 				})
@@ -185,9 +186,9 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 							<FaCar />
 						</div>
 						<h2 className="si-brand-title">My Car Buddy</h2>
-						<p className="si-brand-tagline">Your Trusted Car Care Partner <span style={{color: "#fbbf24", fontWeight: "bold" }}>at your Doorstep</span></p>
+						<p className="si-brand-tagline">Your Trusted Car Care Partner <span style={{ color: "#fbbf24", fontWeight: "bold" }}>at your Doorstep</span></p>
 					</div>
-					
+
 					<div className="si-features">
 						<div className="si-feature">
 							<FaCheckCircle />
@@ -213,8 +214,8 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 					<div className="si-form-header">
 						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome Back!"}</h3>
 						<p className="si-subtitle">
-							{otpSent 
-								? `Enter the OTP sent to +91 ${identifier}` 
+							{otpSent
+								? `Enter the OTP sent to +91 ${identifier}`
 								: "Sign in with your mobile number"}
 						</p>
 					</div>
@@ -229,26 +230,26 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 								<label className="si-label">Mobile Number</label>
 								<div className="si-input-row">
 									<span className="si-country-code">+91</span>
-								<input
-									type="text"
-									inputMode="numeric"
-									pattern="[0-9]*"
-									className="si-input"
-									placeholder="Enter 10-digit number"
-									value={identifier}
-									onChange={(e) => {
-										const value = e.target.value.replace(/\D/g, "");
-										if (value.length <= 10) setIdentifier(value);
-									}}
-									maxLength={10}
-									required
-									disabled={otpSent}
-								/>
+									<input
+										type="text"
+										inputMode="numeric"
+										pattern="[0-9]*"
+										className="si-input"
+										placeholder="Enter 10-digit number"
+										value={identifier}
+										onChange={(e) => {
+											const value = e.target.value.replace(/\D/g, "");
+											if (value.length <= 10) setIdentifier(value);
+										}}
+										maxLength={10}
+										required
+										disabled={otpSent}
+									/>
 								</div>
 							</div>
 							{otpSent && (
-								<button 
-									type="button" 
+								<button
+									type="button"
 									className="si-edit-btn"
 									onClick={() => {
 										setOtpSent(false);
@@ -292,17 +293,17 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 									) : (
 										<span className="si-expired">OTP expired</span>
 									)}
-								<button
-									type="button"
-									className="si-resend-btn"
-									onClick={handleSendOTP}
-									disabled={loading || (!otpExpired && timer > 0)}
-								>
-									<span className={(loading || (!otpExpired && timer > 0)) ? "si-text-blur" : ""}>
-										<FaRedo />
-										Resend OTP
-									</span>
-								</button>
+									<button
+										type="button"
+										className="si-resend-btn"
+										onClick={handleSendOTP}
+										disabled={loading || (!otpExpired && timer > 0)}
+									>
+										<span className={(loading || (!otpExpired && timer > 0)) ? "si-text-blur" : ""}>
+											<FaRedo />
+											Resend OTP
+										</span>
+									</button>
 								</div>
 							</div>
 						)}

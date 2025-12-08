@@ -4,10 +4,10 @@ import Swal from "sweetalert2";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
-import { 
-  FaTimes, 
-  FaTools, 
-  FaCheckCircle, 
+import {
+  FaTimes,
+  FaTools,
+  FaCheckCircle,
   FaClipboardCheck,
   FaArrowRight,
   FaCreditCard,
@@ -94,56 +94,146 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     setCurrentStep("booking");
   };
 
-  const handlePayment = () => {
-    const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY,
-      amount: 39900, // ₹399 in paise
-      currency: 'INR',
-      name: 'MyCarBuddy',
-      description: 'Car Inspection Fee',
-      image: '/assets/img/logo.png',
-      handler: function (response) {
-        Swal.fire({
-          title: "Payment Successful!",
-          html: `
+
+
+  // const handlePayment = () => {
+  //   const options = {
+  //     key: process.env.REACT_APP_RAZORPAY_KEY,
+  //     amount: 39900, // ₹399 in paise
+  //     currency: 'INR',
+  //     name: 'MyCarBuddy',
+  //     description: 'Car Inspection Fee',
+  //     image: '/assets/img/logo.png',
+  //     handler: function (response) {
+  //       Swal.fire({
+  //         title: "Payment Successful!",
+  //         html: `
+  //           <div style="text-align: center; padding: 10px 0;">
+  //             <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
+  //             <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
+  //             <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
+  //           </div>
+  //         `,
+  //         icon: "success",
+  //         confirmButtonColor: "#0a6264",
+  //       });
+  //       onClose();
+  //     },
+  //     prefill: {
+  //       name: fullName,
+  //       email: '',
+  //       contact: identifier,
+  //     },
+  //     theme: {
+  //       color: '#0a6264',
+  //     },
+  //   };
+  //   const rzp = new window.Razorpay(options);
+  //   rzp.on('payment.failed', function (response) {
+  //     Swal.fire({
+  //       title: "Payment Failed",
+  //       text: response.error.description || "Something went wrong. Please try again.",
+  //       icon: "error",
+  //       confirmButtonColor: "#0a6264",
+  //     });
+  //   });
+  //   rzp.open();
+  // };
+
+
+
+
+
+  const handlePayment = async () => {
+    try {
+      // 1️⃣ First create order by calling backend
+      const leadPayload = {
+        fullName,
+        phoneNumber: identifier,
+        email: user?.email || "",
+        platform: "Web",
+        amount: 399,
+        description: `${selectedService?.title || "General Enquiry"} - ${description}`
+      };
+
+      const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
+
+      const orderId = res.data.razorpayOrder.orderID;
+      const razorKey = res.data.razorpayOrder.key;
+      const amount = res.data.amount * 100; // Razorpay requires paise
+
+      // 2️⃣ Open Razorpay Checkout using backend key & orderID
+      const options = {
+        key: razorKey,               // Use key from backend
+        amount: amount,              // in paise
+        currency: "INR",
+        name: "MyCarBuddy",
+        description: "Car Inspection Fee",
+        order_id: orderId,           // Razorpay order ID from backend
+
+        handler: function (response) {
+          Swal.fire({
+            title: "Payment Successful!",
+            html: `
             <div style="text-align: center; padding: 10px 0;">
-              <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
-              <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
-              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
+              <p style="margin-bottom: 10px; color: #374151;">
+                Your inspection has been booked!
+              </p>
+              <p style="color: #6b7280; font-size: 14px;">
+                Our expert technician will contact you shortly.
+              </p>
+              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+                Payment ID: ${response.razorpay_payment_id}
+              </p>
             </div>
           `,
-          icon: "success",
+            icon: "success",
+            confirmButtonColor: "#0a6264",
+          });
+          onClose();
+        },
+
+        prefill: {
+          name: fullName,
+          contact: identifier,
+        },
+
+        theme: {
+          color: "#0a6264",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+
+      rzp.on("payment.failed", function (response) {
+        Swal.fire({
+          title: "Payment Failed",
+          text: response.error.description || "Something went wrong.",
+          icon: "error",
           confirmButtonColor: "#0a6264",
         });
-        onClose();
-      },
-      prefill: {
-        name: fullName,
-        email: '',
-        contact: identifier,
-      },
-      theme: {
-        color: '#0a6264',
-      },
-    };
-    const rzp = new window.Razorpay(options);
-    rzp.on('payment.failed', function (response) {
-      Swal.fire({
-        title: "Payment Failed",
-        text: response.error.description || "Something went wrong. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#0a6264",
       });
-    });
-    rzp.open();
+
+      rzp.open();
+    } catch (err) {
+      console.error("Payment Order Error:", err);
+      Swal.fire("Error", "Unable to initiate payment", "error");
+    }
   };
+
+
+
+
+
+
 
   const normalSubmit = async () => {
     const leadPayload = {
       fullName,
       phoneNumber: identifier,
-      email: "",
+      email: user?.email || "",
       platform: "Web",
+      amount: 399,  
       description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
 
@@ -258,7 +348,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   return (
     <div className="bsm-overlay" onClick={onClose}>
       <div className="bsm-modal" onClick={(e) => e.stopPropagation()}>
-        
+
         {/* Close Button */}
         <button className="bsm-close-btn" onClick={onClose}>
           <FaTimes />
@@ -361,8 +451,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                   {inspection ? "Book Inspection" : "Quick Enquiry"}
                 </h2>
                 <p className="bsm-left-subtitle">
-                  {inspection 
-                    ? "Pay ₹399 & book your slot" 
+                  {inspection
+                    ? "Pay ₹399 & book your slot"
                     : "We'll get back to you soon"}
                 </p>
               </div>
@@ -394,8 +484,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                   {otpStep ? "Verify OTP" : "Your Details"}
                 </h3>
                 <p className="bsm-subtitle">
-                  {otpStep 
-                    ? `Enter OTP sent to +91 ${identifier}` 
+                  {otpStep
+                    ? `Enter OTP sent to +91 ${identifier}`
                     : "Fill in your information"}
                 </p>
                 {selectedService?.title && (
@@ -466,9 +556,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                         </span>
                       ) : (
                         <span className="bsm-otp-expired">
-                          Expired - 
-                          <button 
-                            type="button" 
+                          Expired -
+                          <button
+                            type="button"
                             className="bsm-otp-resend"
                             onClick={handleSendOTP}
                           >
@@ -507,8 +597,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                   >
                     <span className={loading ? "bsm-text-blur" : ""}>
                       {loading ? (
-                        isLoggedIn 
-                          ? (inspection ? "Processing..." : "Submitting...") 
+                        isLoggedIn
+                          ? (inspection ? "Processing..." : "Submitting...")
                           : (otpStep ? "Verifying..." : "Sending OTP...")
                       ) : isLoggedIn ? (
                         <>
