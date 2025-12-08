@@ -56,6 +56,7 @@ const ServiceDetails = () => {
   const [seoMeta, setSeoMeta] = useState(null);
   const [categories, setCategories] = useState([]);
   const [faqs, setFaqs] = useState([]);
+  const [explanations, setExplanations] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -218,6 +219,32 @@ const ServiceDetails = () => {
     };
 
     fetchFaqs();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchExplanations = async () => {
+      try {
+        if (!id) return;
+        
+        const response = await axios.get(
+          `${BaseURL}Explanations/Packages?PackageID=${id}&Type=package`
+        );
+        
+        // Get Explanations from PackageFAQS array
+        const packageExplanations = response.data?.PackageFAQS || [];
+        
+        if (packageExplanations.length > 0 && packageExplanations[0]?.FAQS) {
+          setExplanations(packageExplanations[0].FAQS);
+        } else {
+          setExplanations([]);
+        }
+      } catch (error) {
+        console.error("Error fetching Explanations:", error);
+        setExplanations([]);
+      }
+    };
+
+    fetchExplanations();
   }, [id]);
 
   const service = services.find((s) => s.id === parseInt(id));
@@ -485,8 +512,8 @@ const ServiceDetails = () => {
                   <div className="sd-why-item">
                     <span className="sd-why-number">02</span>
                     <div className="sd-why-content">
-                      <h5>Genuine Parts</h5>
-                      <p>We use only OEM and high-quality aftermarket parts for all repairs.</p>
+                      <h5>Doorstep Service</h5>
+                      <p>Professional car servicing delivered right at your home or office.</p>
                     </div>
                   </div>
                   <div className="sd-why-item">
@@ -505,6 +532,27 @@ const ServiceDetails = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Explanations Section */}
+              {explanations.length > 0 && (
+                <div className="sd-explanations">
+                  <h4 className="sd-sidebar-title">
+                    <FaQuestionCircle className="sd-sidebar-title-icon" />
+                    Service Details
+                  </h4>
+                  <div className="sd-explanations-list">
+                    {explanations.map((exp, idx) => (
+                      <div key={exp.FAQID || idx} className="sd-explanation-item">
+                        <div className="sd-explanation-header">
+                          <span className="sd-explanation-number">{String(idx + 1).padStart(2, '0')}</span>
+                          <h5 className="sd-explanation-question">{exp.Question}</h5>
+                        </div>
+                        <p className="sd-explanation-answer">{exp.Answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
             </aside>
           </div>

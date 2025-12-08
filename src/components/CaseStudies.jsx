@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  FaCarSide, 
-  FaCheckCircle, 
-  FaArrowRight, 
-  FaClock, 
+import BookServiceModal from "./BookServiceModal"
+import {
+  FaCarSide,
+  FaCheckCircle,
+  FaArrowRight,
+  FaClock,
   FaMapMarkerAlt,
   FaStar,
   FaTools,
@@ -113,10 +114,25 @@ const categories = ["All", "Engine", "AC Service", "Denting", "Detailing", "Brak
 
 const CaseStudies = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
-  const filteredStudies = activeCategory === "All" 
-    ? caseStudiesData 
+  const filteredStudies = activeCategory === "All"
+    ? caseStudiesData
     : caseStudiesData.filter(study => study.category === activeCategory);
+
+  const handleContactClick = () => {
+    const phone = "7075243939";
+    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
+      navigator.userAgent
+    );
+
+    if (isMobile) {
+      window.location.href = `tel:+91${phone}`;
+    } else {
+      window.open(`https://wa.me/91${phone}`, "_blank");
+    }
+  };
 
   return (
     <div className="cs-page">
@@ -145,11 +161,11 @@ const CaseStudies = () => {
           <div className="cs-stats-bar">
             <div className="cs-stat-pill">
               <FaCarSide />
-              <span><strong>10,000+</strong> Cars Fixed</span>
+              <span><strong>1,000+</strong> Cars Fixed</span>
             </div>
             <div className="cs-stat-pill">
               <FaStar />
-              <span><strong>4.9</strong> Rating</span>
+              <span><strong>4.8</strong> Rating</span>
             </div>
             <div className="cs-stat-pill">
               <FaUserCheck />
@@ -185,8 +201,8 @@ const CaseStudies = () => {
         <div className="container">
           <div className="cs-cards-grid">
             {filteredStudies.map((study, index) => (
-              <div 
-                key={study.id} 
+              <div
+                key={study.id}
                 className="cs-card"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -268,8 +284,8 @@ const CaseStudies = () => {
               <div className="cs-benefit-icon">
                 <FaShieldAlt />
               </div>
-              <h4>Genuine Parts</h4>
-              <p>100% OEM quality parts</p>
+              <h4>Expert Car Service</h4>
+              <p>Reliable, fast and high-quality workmanship</p>
             </div>
             <div className="cs-benefit">
               <div className="cs-benefit-icon">
@@ -305,16 +321,31 @@ const CaseStudies = () => {
               <p>Book a service today and experience the difference</p>
             </div>
             <div className="cs-cta-btns">
-              <Link to="/service" className="cs-btn-primary">
+              <Link
+                className="cs-btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedService();
+                  setIsModalOpen(true);
+                }}
+              >
                 Book Service <FaArrowRight className="cs-btn-arrow" />
               </Link>
-              <Link to="/contact" className="cs-btn-secondary">
-                Contact Us <FaArrowRight className="cs-btn-arrow" />
-              </Link>
+
+              <button className="cs-btn-secondary" onClick={handleContactClick}>
+                Free Call Support <FaArrowRight className="cs-btn-arrow" />
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Book Service Modal */}
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+      />
     </div>
   );
 };

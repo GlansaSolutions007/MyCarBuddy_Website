@@ -3,15 +3,28 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "../context/AlertContext";
 import Swal from "sweetalert2";
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaArrowLeft,
+  FaArrowRight,
+  FaSun,
+  FaCloudSun,
+  FaMoon,
+  FaCheck,
+  FaPhone,
+  FaEdit
+} from "react-icons/fa";
+import "./Reschedule.css";
 
 const Reschedule = () => {
   const [bookingId, setBookingId] = useState(null);
   const [bookingData, setBookingData] = useState(null);
   const [newDate, setNewDate] = useState("");
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [reason, setReason] = useState("");
-  const [timeSlots, setTimeSlots] = useState([]);
   const [showReschedule, setShowReschedule] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,14 +34,10 @@ const Reschedule = () => {
   const token = user?.token;
   const API_BASE = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
-   const [showResumeForm, setShowResumeForm] = useState(false);
-    const [resumeDate, setResumeDate] = useState("");
-    const [resumeMorningSlots, setResumeMorningSlots] = useState([]);
-    const [resumeAfternoonSlots, setResumeAfternoonSlots] = useState([]);
-    const [resumeEveningSlots, setResumeEveningSlots] = useState([]);
-    const [selectedResumeTimes, setSelectedResumeTimes] = useState([]);
-    const [resumePaymentMethod, setResumePaymentMethod] = useState("");
-    const [isSubmittingResume, setIsSubmittingResume] = useState(false);
+  const [resumeMorningSlots, setResumeMorningSlots] = useState([]);
+  const [resumeAfternoonSlots, setResumeAfternoonSlots] = useState([]);
+  const [resumeEveningSlots, setResumeEveningSlots] = useState([]);
+  const [selectedResumeTimes, setSelectedResumeTimes] = useState([]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -50,6 +59,7 @@ const Reschedule = () => {
 
   const fetchBookingDetails = async (id) => {
     try {
+      setIsLoading(true);
       const res = await axios.get(`${API_BASE}Bookings/BookingId?Id=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -59,128 +69,57 @@ const Reschedule = () => {
     } catch (error) {
       console.error("Error fetching booking details:", error);
       showAlert("Failed to load booking details.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-//   const fetchTimeSlots = async () => {
-//     try {
-//       const res = await axios.get(`${API_BASE}TimeSlot`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       setTimeSlots(res.data || []);
-//     } catch (error) {
-//       console.error("Error fetching time slots:", error);
-//     }
-//   };
+  const fetchResumeTimeSlots = async (dateStr) => {
+    try {
+      const res = await axios.get(`${API_BASE}TimeSlot`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
 
-   const fetchResumeTimeSlots = async (dateStr) => {
-      try {
-        const res = await axios.get(`${API_BASE}TimeSlot`, {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        });
+      const timeSlots = res.data || [];
+      const sorted = timeSlots
+        .filter((s) => s?.Status === true)
+        .sort((a, b) => a.StartTime.localeCompare(b.StartTime));
 
-        const timeSlots = res.data || [];
-        const sorted = timeSlots
-          .filter((s) => s?.Status === true)
-          .sort((a, b) => a.StartTime.localeCompare(b.StartTime));
+      const categorized = { morning: [], afternoon: [], evening: [] };
 
-        const categorized = { morning: [], afternoon: [], evening: [] };
+      const now = new Date();
+      const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      const isToday = dateStr && new Date(dateStr).toDateString() === now.toDateString();
 
-        const now = new Date();
-        const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-        const isToday = dateStr && new Date(dateStr).toDateString() === now.toDateString();
+      sorted.forEach(({ StartTime, EndTime }) => {
+        const [sh, sm] = StartTime.split(":").map(Number);
+        const [eh, em] = EndTime.split(":").map(Number);
 
-        sorted.forEach(({ StartTime, EndTime }) => {
-          const [sh, sm] = StartTime.split(":").map(Number);
-          const [eh, em] = EndTime.split(":").map(Number);
+        const startDate = new Date(dateStr);
+        startDate.setHours(sh, sm, 0, 0);
+        const endDate = new Date(dateStr);
+        endDate.setHours(eh, em, 0, 0);
 
-          const startDate = new Date(dateStr);
-          startDate.setHours(sh, sm, 0, 0);
-          const endDate = new Date(dateStr);
-          endDate.setHours(eh, em, 0, 0);
+        const isExpired = isToday && startDate <= twoHoursLater;
 
-          // Check if slot is at least 2 hours from now
-          const isExpired = isToday && startDate <= twoHoursLater;
+        const fmt = (d) =>
+          d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+        const label = `${fmt(startDate)} - ${fmt(endDate)}`;
 
-          const fmt = (d) =>
-            d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-          const label = `${fmt(startDate)} - ${fmt(endDate)}`;
+        const slot = { label, disabled: isExpired };
+        if (sh < 12) categorized.morning.push(slot);
+        else if (sh < 16) categorized.afternoon.push(slot);
+        else categorized.evening.push(slot);
+      });
 
-          const slot = { label, disabled: isExpired };
-          if (sh < 12) categorized.morning.push(slot);
-          else if (sh < 16) categorized.afternoon.push(slot);
-          else categorized.evening.push(slot);
-        });
-
-        setResumeMorningSlots(categorized.morning);
-        setResumeAfternoonSlots(categorized.afternoon);
-        setResumeEveningSlots(categorized.evening);
-      } catch (err) {
-        console.error("Error fetching time slots:", err);
-      }
-    };
-    
-
-
-    // const fetchResumeTimeSlots = async (dateStr) => {
-    //   try {
-    //     const res = await axios.get(`${BaseURL}TimeSlot`, {
-    //       headers: {
-    //         Authorization: `Bearer ${user?.token}`,
-    //       },
-    //     });
-  
-    //     const timeSlots = res.data || [];
-    //     const sorted = timeSlots
-    //       .filter((s) => s?.Status === true)
-    //       .sort((a, b) => a.StartTime.localeCompare(b.StartTime));
-  
-    //     const categorized = { morning: [], afternoon: [], evening: [] };
-  
-    //     const now = new Date();
-    //     const isToday = dateStr && new Date(dateStr).toDateString() === now.toDateString();
-  
-    //     sorted.forEach(({ StartTime, EndTime }) => {
-    //       const [sh, sm] = StartTime.split(":").map(Number);
-    //       const [eh, em] = EndTime.split(":").map(Number);
-  
-    //       const startDate = new Date(dateStr);
-    //       startDate.setHours(sh, sm, 0, 0);
-    //       const endDate = new Date(dateStr);
-    //       endDate.setHours(eh, em, 0, 0);
-    //       const isExpired = isToday && endDate <= now;
-  
-    //       const fmt = (d) =>
-    //         d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-    //       const label = `${fmt(startDate)} - ${fmt(endDate)}`;
-  
-    //       const slot = { label, disabled: isExpired };
-    //       if (sh < 12) categorized.morning.push(slot);
-    //       else if (sh < 16) categorized.afternoon.push(slot);
-    //       else categorized.evening.push(slot);
-    //     });
-  
-    //     setResumeMorningSlots(categorized.morning);
-    //     setResumeAfternoonSlots(categorized.afternoon);
-    //     setResumeEveningSlots(categorized.evening);
-    //   } catch (err) {
-    //     console.error("Error fetching time slots:", err);
-    //   }
-    // };
-
-  const formatTime = (timeStr) => {
-    const [hours, minutes] = timeStr.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
-
-  const formatTimeSlot = (slot) => {
-    const [start, end] = slot.split(' - ');
-    return `${formatTime(start)} - ${formatTime(end)}`;
+      setResumeMorningSlots(categorized.morning);
+      setResumeAfternoonSlots(categorized.afternoon);
+      setResumeEveningSlots(categorized.evening);
+    } catch (err) {
+      console.error("Error fetching time slots:", err);
+    }
   };
 
   const handleReschedule = async () => {
@@ -194,21 +133,22 @@ const Reschedule = () => {
     }
 
     const timeSlotsText = selectedResumeTimes.join(", ");
-    
+
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: `Do you want to reschedule your booking to ${newDate} at ${timeSlotsText}?`,
+      title: 'Confirm Reschedule',
+      text: `Reschedule to ${new Date(newDate).toLocaleDateString('en-GB')} at ${timeSlotsText}?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#20c997',
-      cancelButtonColor: '#dc3545',
-      confirmButtonText: 'Yes, reschedule!',
+      confirmButtonColor: '#0a6264',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Reschedule',
       cancelButtonText: 'Cancel'
     });
 
     if (!result.isConfirmed) return;
 
     try {
+      setIsSubmitting(true);
       await axios.post(`${API_BASE}Reschedules`, {
         bookingID: bookingId,
         reason: reason,
@@ -218,6 +158,7 @@ const Reschedule = () => {
         requestedBy: 1,
         Status: ''
       }, { headers: { Authorization: `Bearer ${token}` } });
+      
       showAlert("success", "Booking rescheduled successfully!", 3000, "success");
       setShowReschedule(false);
       setNewDate("");
@@ -227,133 +168,205 @@ const Reschedule = () => {
     } catch (error) {
       showAlert("Failed to reschedule booking.");
       console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="container py-4">
-      {bookingData && showReschedule && (
-        <div className="row justify-content-center">
-          <div className="col-md-8">
-            <div className="card shadow-lg p-4">
-              <h4 className="mb-4">Reschedule Your Booking</h4>
-              <div className="mb-3">
-                <strong>Current Booking Date:</strong> {new Date(bookingData.BookingDate).toLocaleDateString()}
-              </div>
-              <div className="mb-3">
-                <strong>Current Time Slot:</strong> {bookingData.TimeSlot}
-              </div>
-              <div className="mt-3">
-                <label className="form-label mt-2">Reschedule Date :</label>
-                <input
-                  type="date"
-                  className="form-control mb-2"
-                  value={newDate}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => setNewDate(e.target.value)}
-                />
-                {/* <label className="form-label mt-2">Time Slots :</label> */}
+  const handleSlotToggle = (label) => {
+    setSelectedResumeTimes((prev) =>
+      prev.includes(label)
+        ? prev.filter((x) => x !== label)
+        : [...prev, label]
+    );
+  };
 
-                <label className="form-label">Select time slots (multi-select)</label>
-          <div className="row">
-            <div className="col-md-4">
-              <div className="fw-semibold mb-2">Morning</div>
-              {resumeMorningSlots.length === 0 && <div className="text-muted small">No slots</div>}
-              {resumeMorningSlots.map((s) => (
-                <div className="form-check" key={`m-${s.label}`}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`m-${s.label}`}
-                    disabled={s.disabled}
-                    checked={selectedResumeTimes.includes(s.label)}
-                    onChange={(e) => {
-                      setSelectedResumeTimes((prev) =>
-                        e.target.checked
-                          ? [...prev, s.label]
-                          : prev.filter((x) => x !== s.label)
-                      );
-                    }}
-                  />
-                  <label className="form-check-label" htmlFor={`m-${s.label}`}>{s.label}</label>
-                </div>
-              ))}
+  const renderSlotCategory = (title, icon, slots) => (
+    <div className="rs-slot-category">
+      <div className="rs-slot-title">
+        {icon}
+        {title}
+      </div>
+      {slots.length === 0 ? (
+        <div className="rs-no-slots">No slots available</div>
+      ) : (
+        <div className="rs-slot-list">
+          {slots.map((s) => (
+            <div className="rs-slot-item" key={s.label}>
+              <input
+                type="checkbox"
+                className="rs-slot-checkbox"
+                id={`slot-${s.label}`}
+                disabled={s.disabled}
+                checked={selectedResumeTimes.includes(s.label)}
+                onChange={() => handleSlotToggle(s.label)}
+              />
+              <label className="rs-slot-label" htmlFor={`slot-${s.label}`}>
+                <span className="rs-slot-check">
+                  {selectedResumeTimes.includes(s.label) && <FaCheck />}
+                </span>
+                {s.label} 
+              </label>
             </div>
-            <div className="col-md-4">
-              <div className="fw-semibold mb-2">Afternoon</div>
-              {resumeAfternoonSlots.length === 0 && <div className="text-muted small">No slots</div>}
-              {resumeAfternoonSlots.map((s) => (
-                <div className="form-check" key={`a-${s.label}`}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`a-${s.label}`}
-                    disabled={s.disabled}
-                    checked={selectedResumeTimes.includes(s.label)}
-                    onChange={(e) => {
-                      setSelectedResumeTimes((prev) =>
-                        e.target.checked
-                          ? [...prev, s.label]
-                          : prev.filter((x) => x !== s.label)
-                      );
-                    }}
-                  />
-                  <label className="form-check-label" htmlFor={`a-${s.label}`}>{s.label}</label>
-                </div>
-              ))}
-            </div>
-            <div className="col-md-4">
-              <div className="fw-semibold mb-2">Evening</div>
-              {resumeEveningSlots.length === 0 && <div className="text-muted small">No slots</div>}
-              {resumeEveningSlots.map((s) => (
-                <div className="form-check" key={`e-${s.label}`}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`e-${s.label}`}
-                    disabled={s.disabled}
-                    checked={selectedResumeTimes.includes(s.label)}
-                    onChange={(e) => {
-                      setSelectedResumeTimes((prev) =>
-                        e.target.checked
-                          ? [...prev, s.label]
-                          : prev.filter((x) => x !== s.label)
-                      );
-                    }}
-                  />
-                  <label className="form-check-label" htmlFor={`e-${s.label}`}>{s.label}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-                <label className="form-label mt-2">Reschedule Reason</label>
-                <textarea
-                  className="form-control"
-                  placeholder="Reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                ></textarea>
-                <div className="d-flex gap-2 mt-3">
-                  <button
-                    className="btn btn-primary px-4 py-2"
-                    onClick={handleReschedule}
-                  >
-                    Submit
-                  </button>
-                  <a 
-                    href="tel:7075243939" 
-                    className="btn btn-outline-success px-4 py-2 d-flex align-items-center gap-2"
-                  >
-                    <i className="bi bi-telephone"></i>
-                    Contact Support
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       )}
+    </div>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="rs-section">
+        <div className="container">
+          <div className="rs-loading">
+            <div className="rs-spinner"></div>
+            <div className="rs-loading-text">Loading booking details...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rs-section">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-lg-10 col-xl-9">
+            {bookingData && showReschedule && (
+              <div className="rs-card">
+                {/* Header */}
+                <div className="rs-header">
+                  <div className="rs-header-content">
+                    <div className="rs-title-wrap">
+                      <div className="rs-icon-wrap">
+                        <FaEdit />
+                      </div>
+                      <div>
+                        <h1 className="rs-title">Reschedule Booking</h1>
+                        <p className="rs-subtitle">
+                          Choose a new date and time for your service
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      className="rs-back-btn"
+                      onClick={() => navigate("/profile?tab=mybookings")}
+                    >
+                      <FaArrowLeft /> Back to Bookings
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="rs-body">
+                  {/* Current Booking Info */}
+                  <div className="rs-current-info">
+                    <div className="rs-info-card">
+                      <div className="rs-info-label">
+                        <FaCalendarAlt /> Current Date
+                      </div>
+                      <div className="rs-info-value">
+                        {new Date(bookingData.BookingDate).toLocaleDateString('en-GB', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                    <div className="rs-info-card">
+                      <div className="rs-info-label">
+                        <FaClock /> Current Time Slot
+                      </div>
+                      <div className="rs-info-value">
+                        {bookingData.TimeSlot || "Not specified"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* New Date Selection */}
+                  <div className="rs-form-section">
+                    <div className="rs-form-label">
+                      <span className="rs-form-label-icon">
+                        <FaCalendarAlt />
+                      </span>
+                      Select New Date
+                    </div>
+                    <input
+                      type="date"
+                      className="rs-date-input"
+                      value={newDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => {
+                        setNewDate(e.target.value);
+                        setSelectedResumeTimes([]);
+                      }}
+                    />
+                  </div>
+
+                  {/* Time Slots */}
+                  <div className="rs-form-section">
+                    <div className="rs-form-label">
+                      <span className="rs-form-label-icon">
+                        <FaClock />
+                      </span>
+                      Select Time Slots
+                    </div>
+                    <div className="rs-slots-grid">
+                      {renderSlotCategory("Morning", <FaSun />, resumeMorningSlots)}
+                      {renderSlotCategory("Afternoon", <FaCloudSun />, resumeAfternoonSlots)}
+                      {renderSlotCategory("Evening", <FaMoon />, resumeEveningSlots)}
+                    </div>
+                  </div>
+
+                  {/* Reason */}
+                  <div className="rs-form-section">
+                    <div className="rs-form-label">
+                      <span className="rs-form-label-icon">
+                        <FaEdit />
+                      </span>
+                      Reason for Reschedule (Optional)
+                    </div>
+                    <textarea
+                      className="rs-textarea"
+                      placeholder="Tell us why you need to reschedule..."
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="rs-actions">
+                    <button
+                      className="rs-btn rs-btn-primary"
+                      onClick={handleReschedule}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="rs-spinner" style={{ width: 20, height: 20, borderWidth: 2, margin: 0 }}></span>
+                          Rescheduling...
+                        </>
+                      ) : (
+                        <>
+                          Confirm Reschedule
+                          <FaArrowRight className="rs-btn-arrow" />
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href="tel:7075243939"
+                      className="rs-btn rs-btn-secondary"
+                    >
+                      <FaPhone /> Contact Support
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

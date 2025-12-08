@@ -57,7 +57,7 @@ const FaqAreaTwo = () => {
         {/* Section Header */}
         <div className="faq-header">
           <span className="faq-subtitle">FAQ</span>
-          <h2 className="faq-title">Your Car Service Questions Answered</h2>
+          <h2 className="faq-title">Your Questions About Car Care, Answered</h2>
         </div>
 
         <div className="row align-items-center">

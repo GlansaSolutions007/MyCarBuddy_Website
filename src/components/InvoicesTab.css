@@ -12,6 +12,7 @@
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
+  margin: 10px;
 }
 
 .inv-title {

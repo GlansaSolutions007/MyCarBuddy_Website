@@ -50,7 +50,7 @@ useEffect(() => {
           body: JSON.stringify({
             model: 'openai/gpt-oss-120b',
             messages: [
-              { role: "system", content: prompt || "You are MyCarBuddy AI Assistant. Only answer about car services, bookings, and FAQs. If user asks unrelated, politely redirect." },
+              { role: "system", content: prompt || "You are My Car Buddy AI Assistant. Only answer about car services, bookings, and FAQs. If user asks unrelated, politely redirect." },
               { role: "user", content: input }
             ],
             temperature: 0,

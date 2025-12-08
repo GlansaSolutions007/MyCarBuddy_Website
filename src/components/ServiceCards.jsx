@@ -73,6 +73,7 @@ export default function ServiceCards() {
   const [openModal, setOpenModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [faqs, setFaqs] = useState([]);
+  const [explanations, setExplanations] = useState([]);
 
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
@@ -207,6 +208,38 @@ export default function ServiceCards() {
     };
 
     fetchFaqs();
+  }, [categoryId, BASE_URL]);
+
+  // Fetch Explanations for the category
+  useEffect(() => {
+    const fetchExplanations = async () => {
+      if (!categoryId) return;
+      
+      try {
+        const response = await axios.get(
+          `${BASE_URL}Explanations/Packages?CategoryID=${categoryId}&Type=category`
+        );
+        
+        // Get Explanations from CategoryFAQS array
+        const categoryExplanations = response.data?.CategoryFAQS || [];
+        
+        // Find Explanations for the current category
+        const currentCategoryExplanations = categoryExplanations.find(c => c.CategoryID === parseInt(categoryId));
+        
+        if (currentCategoryExplanations?.FAQS) {
+          setExplanations(currentCategoryExplanations.FAQS);
+        } else if (categoryExplanations.length > 0) {
+          setExplanations(categoryExplanations[0]?.FAQS || []);
+        } else {
+          setExplanations([]);
+        }
+      } catch (error) {
+        console.error("Error fetching Explanations:", error);
+        setExplanations([]);
+      }
+    };
+
+    fetchExplanations();
   }, [categoryId, BASE_URL]);
 
   const scroll = (direction) => {
@@ -365,7 +398,7 @@ export default function ServiceCards() {
                     
                     {/* Includes List - Show only 2 items */}
                     <ul className="sc-card-includes">
-                      {pkg.includes.slice(0, 2).map((item, idx) => (
+                      {pkg.includes.slice(0, 3).map((item, idx) => (
                         <li key={idx} className="sc-card-include-item">
                           <FaCheck className="sc-include-icon" />
                           <span>{item}</span>
@@ -373,8 +406,8 @@ export default function ServiceCards() {
                       ))}
                     </ul>
 
-                    {pkg.includes.length > 2 && (
-                      <span className="sc-view-more">+{pkg.includes.length - 2} more services</span>
+                    {pkg.includes.length > 3 && (
+                      <span className="sc-view-more">+{pkg.includes.length - 3} more services</span>
                     )}
 
                     {/* Card Actions */}
@@ -477,6 +510,27 @@ export default function ServiceCards() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Explanations Section */}
+        {explanations.length > 0 && (
+          <div className="sc-explanations-section">
+            <h3 className="sc-explanations-title">
+              <FaQuestionCircle className="sc-explanations-title-icon" />
+              Service Details & Information
+            </h3>
+            <div className="sc-explanations-grid">
+              {explanations.map((exp, idx) => (
+                <div key={exp.FAQID || idx} className="sc-explanation-card">
+                  <div className="sc-explanation-header">
+                    <span className="sc-explanation-number">{String(idx + 1).padStart(2, '0')}</span>
+                    <h4 className="sc-explanation-question">{exp.Question}</h4>
+                  </div>
+                  <p className="sc-explanation-answer">{exp.Answer}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -13,29 +13,29 @@ const HeroSection = () => {
       id: 1,
       image: "assets/img/hero/bannerdesign1.png",
       subtitle: "Doorstep Car Service & Repair",
-      title: "Premium Car Care at Home — No Garage Visits Needed",
+      title: "Premium Car Care at Your Doorstep",
       description:
-        "Expert mechanics arrive at your location for repairs, inspections, AC service, and maintenance. Transparent pricing and trusted service every time.",
+        "My Car Buddy delivers reliable doorstep car service you can trust—quick, transparent, and hassle-free. Just book, relax, and let My Car Buddy take care of everything.",
       buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
     {
       id: 2,
       image: "assets/img/hero/bannerdesign2.png",
-      subtitle: "Trusted by Car Owners",
-      title: "Accurate Inspection Before Any Repair",
+      subtitle: "Skilled Technicians • Quality Service",
+      title: "Certified & Transparent Car Inspection",
       description:
-        "We diagnose issues with precision to avoid unnecessary repairs. Get genuine solutions, clear estimates, and reliable support from certified experts.",
+        "Get a transparent, detail-oriented diagnosis before any repair. We ensure honest reporting, genuine solutions, and complete peace of mind.",
       buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
     {
       id: 3,
       image: "assets/img/hero/bannerdesign3.png",
-      subtitle: "Skilled Technicians • Quality Parts",
-      title: "Professional Car Repair You Can Count On",
+      subtitle: "Trusted by Car Owners",
+      title: "Complete Car Service Made Simple",
       description:
-        "From AC servicing and brake repair to denting-painting and detailing — we deliver dealership-level service with doorstep convenience.",
+        "Expert technicians, clear communication, and effortless doorstep service—car care made truly simple with My Car Buddy.",
       buttonText: "Get Doorstep Inspection",
       buttonLink: "/service"
     },
@@ -67,7 +67,7 @@ const HeroSection = () => {
   return (
     <section className="hero-section">
       {/* SEO Tags Hidden */}
-      <h1 className="d-none">MyCarBuddy Car Services</h1>
+      <h1 className="d-none">My Car Buddy Car Services</h1>
 
       {slides.map((slide, index) => (
         <div

@@ -29,7 +29,7 @@ const CTAAreaOne = () => {
 
   return (
     <div className="cta-area-1">
-      <div className="cta1-bg-thumb">
+      <div className="cta1-bg-thumb" style={{width: "100%"}}>
         <img src="assets/img/bg/cta-bg1-1.png" alt="Fixturbo"/>
       </div>
       <div className="container">
@@ -37,21 +37,21 @@ const CTAAreaOne = () => {
           <div className="row justify-content-md-between align-items-center">
             <div className="col-lg-6 col-md-8">
               <div className="title-area mb-md-0">
-                <span className="sub-title style2 text-white">Contact us</span>
+                <span className="sub-title style2 text-white">Case Studies</span>
                 <h2 className="sec-title text-white mb-0">
-                  Where Engines Roar and Problems Soar
+                  Real Car Repair Stories, Real Results
                 </h2>
               </div>
             </div>
             <div className="col-md-auto">
               <div className="title-area mb-0">
                 <Link 
-                  to="/contact"
+                  to="/case-studies"
                   style={buttonStyle}
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
-                  View More <FaArrowRight style={arrowStyle} />
+                  View All Case Studies <FaArrowRight style={arrowStyle} />
                 </Link>
               </div>
             </div>

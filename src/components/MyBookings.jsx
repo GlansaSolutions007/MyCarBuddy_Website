@@ -348,35 +348,35 @@ const MyBookings = () => {
         setSelectedBooking((prev) =>
           prev
             ? {
-                ...prev,
-                BookingStatus:
-                  prev.BookingStatus === "Cancelled"
-                    ? prev.BookingStatus
-                    : "Refunded",
-                Payments: Array.isArray(prev.Payments)
-                  ? [
-                      {
-                        ...prev.Payments[0],
-                        isRefunded: true,
-                        IsRefunded1: true,
-                        RefundStatus: null,
-                      },
-                      ...prev.Payments.slice(1),
-                    ]
-                  : prev.Payments,
-              }
+              ...prev,
+              BookingStatus:
+                prev.BookingStatus === "Cancelled"
+                  ? prev.BookingStatus
+                  : "Refunded",
+              Payments: Array.isArray(prev.Payments)
+                ? [
+                  {
+                    ...prev.Payments[0],
+                    isRefunded: true,
+                    IsRefunded1: true,
+                    RefundStatus: null,
+                  },
+                  ...prev.Payments.slice(1),
+                ]
+                : prev.Payments,
+            }
             : prev
         );
         setBookings((prev) =>
           prev.map((b) =>
             b.BookingID === selectedBooking.BookingID
               ? {
-                  ...b,
-                  BookingStatus:
-                    b.BookingStatus === "Cancelled"
-                      ? b.BookingStatus
-                      : "Refunded",
-                }
+                ...b,
+                BookingStatus:
+                  b.BookingStatus === "Cancelled"
+                    ? b.BookingStatus
+                    : "Refunded",
+              }
               : b
           )
         );
@@ -488,7 +488,7 @@ const MyBookings = () => {
         // Calculate discount amount
         couponAmount = Number(
           getBookingOriginalTotal(selectedBooking) -
-            getBookingFinalTotalWithCoupon(selectedBooking)
+          getBookingFinalTotalWithCoupon(selectedBooking)
         ).toFixed(2);
 
         // Calculate new base amount after discount
@@ -708,9 +708,8 @@ const MyBookings = () => {
       currency: "INR",
       name: "MyCarBuddy a product by Glansa Solutions Pvt. Ltd.",
       order_id: data?.razorpay?.orderID,
-      description: `Payment for ${
-        selectedBooking?.BookingTrackID || selectedBooking?.BookingID
-      }`,
+      description: `Payment for ${selectedBooking?.BookingTrackID || selectedBooking?.BookingID
+        }`,
       image: "/assets/img/MyCarBuddy-Logo1.png",
       handler: function (response) {
         // Wait for 5 seconds before calling confirm-payment (backend settlement time)
@@ -1101,552 +1100,556 @@ const MyBookings = () => {
           </div>
         )}
 
-      {!selectedBooking && (
-        <div className="mb-scroll-container bookings-scroll-container">
-          {isLoading ? (
-            <>
-              <BookingSkeleton />
-              <BookingSkeleton />
-              <BookingSkeleton />
-            </>
-          ) : Array.isArray(filteredBookings) && filteredBookings.length > 0 ? (
-            filteredBookings.slice(0, visibleCount).map((booking) => {
-              const tracking = Array.isArray(booking.TechnicianTracking)
-                ? booking.TechnicianTracking[0]
-                : {};
+        {!selectedBooking && (
+          <div className="mb-scroll-container bookings-scroll-container">
+            {isLoading ? (
+              <>
+                <BookingSkeleton />
+                <BookingSkeleton />
+                <BookingSkeleton />
+              </>
+            ) : Array.isArray(filteredBookings) && filteredBookings.length > 0 ? (
+              filteredBookings.slice(0, visibleCount).map((booking) => {
+                const tracking = Array.isArray(booking.TechnicianTracking)
+                  ? booking.TechnicianTracking[0]
+                  : {};
 
-              const statusTimeline = [
-                { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
-                ...(booking?.Reschedules?.length
-                  ? booking.Reschedules.map((r, index) => ({
+                const statusTimeline = [
+                  { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
+                  ...(booking?.Reschedules?.length
+                    ? booking.Reschedules.map((r, index) => ({
                       label: `Rescheduled`,
                       date: r.NewSchedule,
                       icon: <FaRedo />,
                     }))
-                  : []),
-                { label: "Buddy Assigned", date: booking.TechAssignDate, icon: <FaUserCheck /> },
-                { label: "Buddy Started", date: tracking?.JourneyStartedAt, icon: <FaPlay /> },
-                { label: "Buddy Reached", date: tracking?.ReachedAt, icon: <FaMapPin /> },
-                { label: "Service Started", date: tracking?.ServiceStartedAt, icon: <FaTools /> },
-                { label: "Completed", date: tracking?.ServiceEndedAt, icon: <FaCheck /> },
-              ];
+                    : []),
+                  { label: "Buddy Assigned", date: booking.TechAssignDate, icon: <FaUserCheck /> },
+                  { label: "Buddy Started", date: tracking?.JourneyStartedAt, icon: <FaPlay /> },
+                  { label: "Buddy Reached", date: tracking?.ReachedAt, icon: <FaMapPin /> },
+                  { label: "Service Started", date: tracking?.ServiceStartedAt, icon: <FaTools /> },
+                  { label: "Completed", date: tracking?.ServiceEndedAt, icon: <FaCheck /> },
+                ];
 
-              const fullTimeline = [
-                ...statusTimeline,
-                ...(booking.BookingStatus === "Cancelled"
-                  ? [{ label: "Cancelled", date: new Date(), icon: <FaTimes /> }]
-                  : []),
-                ...(booking.BookingStatus === "Failed"
-                  ? [{ label: "Failed", date: new Date(), icon: <FaExclamationTriangle /> }]
-                  : []),
-              ];
+                const fullTimeline = [
+                  ...statusTimeline,
+                  ...(booking.BookingStatus === "Cancelled"
+                    ? [{ label: "Cancelled", date: new Date(), icon: <FaTimes /> }]
+                    : []),
+                  ...(booking.BookingStatus === "Failed"
+                    ? [{ label: "Failed", date: new Date(), icon: <FaExclamationTriangle /> }]
+                    : []),
+                ];
 
-              return (
-                <div key={booking.BookingID} className="mb-booking-card">
-                  {/* Card Header */}
-                  <div className="mb-card-header">
-                    <div className="mb-booking-id">
-                      <div className="mb-booking-icon">
-                        <FaReceipt />
-                      </div>
-                      <div className="mb-booking-info">
-                        <h4>#{booking.BookingTrackID}</h4>
-                        <span>
+                return (
+                  <div key={booking.BookingID} className="mb-booking-card">
+                    {/* Card Header */}
+                    <div className="mb-card-header">
+                      <div className="mb-booking-id">
+                        <div className="mb-booking-icon">
+                          <FaReceipt />
+                        </div>
+                        <div className="mb-booking-info">
+                          <h4>BID : #{booking.BookingTrackID} (<span>
+                            {booking.BookingDate
+                              ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
+                              : "N/A"}
+                          </span>)</h4>
+                          {/* <span>
                           {booking.BookingDate
                             ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
                             : "N/A"}
-                        </span>
+                        </span> */}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mb-card-badges">
-                      {booking.BookingStatus !== "Completed" &&
-                      booking.BookingStatus !== "Cancelled" &&
-                      booking.BookingStatus !== "Failed" ? (
-                        <>
-                          <span className={`mb-badge mb-badge-payment ${booking.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "pending"}`}>
-                            {booking.Payments?.[0]?.PaymentStatus || "Pending"}
-                          </span>
-                          <span className="mb-badge mb-badge-otp">
-                            OTP: {booking.CompletedOTP || booking.BookingOTP}
-                          </span>
-                        </>
-                      ) : null}
-                    </div>
+                      {/* <div className="mb-card-badges">
+                        {booking.BookingStatus !== "Completed" &&
+                          booking.BookingStatus !== "Cancelled" &&
+                          booking.BookingStatus !== "Failed" ? (
+                          <>
+                            <span className={`mb-badge mb-badge-payment ${booking.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "pending"}`}>
+                              {booking.Payments?.[0]?.PaymentStatus || "Pending"}
+                            </span>
+                            <span className="mb-badge mb-badge-otp">
+                              OTP: {booking.CompletedOTP || booking.BookingOTP}
+                            </span>
+                          </>
+                        ) : null}
+                      </div> */}
 
-                    <button
-                      className="mb-view-btn"
-                      onClick={() => setSelectedBooking(booking)}
-                    >
-                      <FaEye /> View
-                    </button>
-                  </div>
-
-                  {/* Timeline */}
-                  <div className="mb-timeline">
-                    {/* Desktop Timeline */}
-                    <div className="mb-timeline-desktop">
-                      {fullTimeline.map((step, index, arr) => {
-                        const isCompleted = !!step.date;
-                        const isBad = step.label === "Cancelled" || step.label === "Failed";
-                        
-                        return (
-                          <div key={`${booking.BookingID}-h-${index}`} className="mb-timeline-step">
-                            <div className="mb-timeline-content">
-                              <div className={`mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
-                                {step.icon}
-                              </div>
-                              <div className="mb-timeline-label">{step.label}</div>
-                              <div className="mb-timeline-date">
-                                {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
-                              </div>
-                            </div>
-                            {index < arr.length - 1 && (
-                              <div className={`mb-timeline-line ${isCompleted && !isBad ? "completed" : "pending"}`}></div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Mobile Timeline */}
-                    <div className="mb-timeline-mobile">
-                      {fullTimeline.map((step, index, arr) => {
-                        const isCompleted = !!step.date;
-                        const isBad = step.label === "Cancelled" || step.label === "Failed";
-                        
-                        return (
-                          <div key={`${booking.BookingID}-v-${index}`} className="mb-timeline-mobile-step">
-                            <div className={`mb-timeline-mobile-icon mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
-                              {step.icon}
-                            </div>
-                            {index < arr.length - 1 && <div className="mb-timeline-mobile-line"></div>}
-                            <div className="mb-timeline-mobile-content">
-                              <div className="mb-timeline-mobile-label">{step.label}</div>
-                              <div className="mb-timeline-mobile-date">
-                                {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Alert */}
-                  {booking?.Payments &&
-                  (booking.BookingStatus === "Pending" ||
-                    booking.BookingStatus === "Confirmed" ||
-                    booking.BookingStatus === "JourneyStarted") ? (
-                    <div className="mb-card-alert warning">
-                      <span className="mb-card-alert-text">
-                        {booking?.Reschedules && booking.Reschedules.length >= 2
-                          ? "Maximum reschedule limit reached. Contact support."
-                          : "Need a different time? Reschedule your booking."}
-                      </span>
-                      {booking?.Reschedules && booking.Reschedules.length >= 2 ? (
-                        <a href="tel:7075243939" className="mb-card-alert-btn primary" style={{ textDecoration: 'none' }}>
-                          <FaPhone /> Contact Support
-                        </a>
-                      ) : (
-                        <button
-                          className="mb-card-alert-btn warning"
-                          onClick={() => navigate(`/reschedule?bookingId=${booking.BookingID}`)}
-                        >
-                          Reschedule
-                        </button>
-                      )}
-                    </div>
-                  ) : !booking?.Payments ? (
-                    <div className="mb-card-alert warning">
-                      <span className="mb-card-alert-text">
-                        Payment pending. Resume your booking to complete payment.
-                      </span>
                       <button
-                        className="mb-card-alert-btn primary"
-                        onClick={() => {
-                          setSelectedBooking(booking);
-                          handleOpenResume();
-                        }}
+                        className="mb-view-btn"
+                        onClick={() => setSelectedBooking(booking)}
                       >
-                        Resume Booking
+                        <FaEye /> View
                       </button>
                     </div>
-                  ) : null}
-                </div>
-              );
-            })
-          ) : (
-            <div className="mb-no-bookings">
-              <img
-                src="/assets/img/not-booked.png"
-                alt="No Bookings"
-                className="mb-no-bookings-img"
-              />
-              <h4>No bookings yet</h4>
-              <p>Looks like you haven't booked any services yet. Book your first service!</p>
-            </div>
-          )}
 
-          {/* Loading More */}
-          {isLoadingMore && (
-            <div className="mb-loading-more">
-              <div className="mb-spinner"></div>
-              <div className="text-muted">Loading more bookings...</div>
-            </div>
-          )}
+                    {/* Timeline */}
+                    <div className="mb-timeline">
+                      {/* Desktop Timeline */}
+                      <div className="mb-timeline-desktop">
+                        {fullTimeline.map((step, index, arr) => {
+                          const isCompleted = !!step.date;
+                          const isBad = step.label === "Cancelled" || step.label === "Failed";
 
-          {/* End of Results */}
-          {visibleCount >= filteredBookings.length && filteredBookings.length > 0 && (
-            <div className="text-center py-3">
-              <div className="text-muted">
-                <FaCheckCircle className="me-2" />
-                You've reached the end of your bookings
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+                          return (
+                            <div key={`${booking.BookingID}-h-${index}`} className="mb-timeline-step">
+                              <div className="mb-timeline-content">
+                                <div className={`mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
+                                  {step.icon}
+                                </div>
+                                <div className="mb-timeline-label">{step.label}</div>
+                                <div className="mb-timeline-date">
+                                  {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
+                                </div>
+                              </div>
+                              {index < arr.length - 1 && (
+                                <div className={`mb-timeline-line ${isCompleted && !isBad ? "completed" : "pending"}`}></div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
 
-      {selectedBooking && (
-        <div className="mb-detail-card">
-          {/* Detail Header */}
-          <div className="mb-detail-header">
-            <div className="mb-detail-header-top">
-              <button className="mb-detail-back-btn" onClick={handleBack}>
-                <FaArrowLeft /> Back
-              </button>
+                      {/* Mobile Timeline */}
+                      <div className="mb-timeline-mobile">
+                        {fullTimeline.map((step, index, arr) => {
+                          const isCompleted = !!step.date;
+                          const isBad = step.label === "Cancelled" || step.label === "Failed";
 
-              <div className="mb-detail-actions">
-                {selectedBooking?.Payments ? (
-                  selectedBooking.BookingStatus !== "Completed" &&
-                  selectedBooking.BookingStatus !== "Cancelled" &&
-                  selectedBooking.BookingStatus !== "Refunded" &&
-                  selectedBooking.BookingStatus !== "Failed" &&
-                  !showCancelSection ? (
-                    <>
-                      {(() => {
-                        const fullTracking = Array.isArray(selectedBooking?.TechnicianTracking)
-                          ? selectedBooking.TechnicianTracking[0]
-                          : {};
-                        const hasServiceStartedFull = !!fullTracking?.ServiceStartedAt;
-                        const canReschedule = !hasServiceStartedFull && selectedBooking?.Reschedules && selectedBooking.Reschedules.length < 2;
+                          return (
+                            <div key={`${booking.BookingID}-v-${index}`} className="mb-timeline-mobile-step">
+                              <div className={`mb-timeline-mobile-icon mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
+                                {step.icon}
+                              </div>
+                              {index < arr.length - 1 && <div className="mb-timeline-mobile-line"></div>}
+                              <div className="mb-timeline-mobile-content">
+                                <div className="mb-timeline-mobile-label">{step.label}</div>
+                                <div className="mb-timeline-mobile-date">
+                                  {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-                        return canReschedule ? (
-                          <button
-                            className="mb-detail-action-btn warning"
-                            onClick={() => navigate(`/reschedule?bookingId=${selectedBooking.BookingID}`)}
-                          >
-                            <FaRedo /> Reschedule
-                          </button>
-                        ) : !hasServiceStartedFull && selectedBooking?.Reschedules && selectedBooking.Reschedules.length >= 2 ? (
-                          <a
-                            href="tel:7075243939"
-                            className="mb-detail-action-btn warning"
-                            style={{ textDecoration: 'none' }}
-                          >
+                    {/* Alert */}
+                    {/* {booking?.Payments &&
+                      (booking.BookingStatus === "Pending" ||
+                        booking.BookingStatus === "Confirmed" ||
+                        booking.BookingStatus === "JourneyStarted") ? (
+                      <div className="mb-card-alert warning">
+                        <span className="mb-card-alert-text">
+                          {booking?.Reschedules && booking.Reschedules.length >= 2
+                            ? "Maximum reschedule limit reached. Contact support."
+                            : "Need a different time? Reschedule your booking."}
+                        </span>
+                        {booking?.Reschedules && booking.Reschedules.length >= 2 ? (
+                          <a href="tel:7075243939" className="mb-card-alert-btn primary" style={{ textDecoration: 'none' }}>
                             <FaPhone /> Contact Support
                           </a>
-                        ) : null;
-                      })()}
-                      {(selectedBooking.BookingStatus === "Pending" ||
-                        selectedBooking.BookingStatus === "Confirmed" ||
-                        selectedBooking.BookingStatus === "JourneyStarted") && (
-                        <button className="mb-detail-action-btn warning" onClick={() => openCancelModal()}>
-                          <FaTimes /> Cancel
+                        ) : (
+                          <button
+                            className="mb-card-alert-btn warning"
+                            onClick={() => navigate(`/reschedule?bookingId=${booking.BookingID}`)}
+                          >
+                            Reschedule
+                          </button>
+                        )}
+                      </div>
+                    ) : !booking?.Payments ? (
+                      <div className="mb-card-alert warning">
+                        <span className="mb-card-alert-text">
+                          Payment pending. Resume your booking to complete payment.
+                        </span>
+                        <button
+                          className="mb-card-alert-btn primary"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            handleOpenResume();
+                          }}
+                        >
+                          Resume Booking
                         </button>
-                      )}
-                    </>
-                  ) : null
-                ) : selectedBooking.BookingStatus !== "Failed" &&
-                  selectedBooking.BookingStatus !== "Completed" &&
-                  selectedBooking.BookingStatus !== "Cancelled" &&
-                  selectedBooking.BookingStatus !== "Refunded" &&
-                  !showResumeForm ? (
-                  <button className="mb-detail-action-btn warning" onClick={handleOpenResume}>
-                    <FaPlay /> Resume Booking
-                  </button>
-                ) : null}
-                {selectedBooking.BookingStatus !== "Cancelled" && (
-                  <button className="mb-detail-action-btn warning" onClick={() => setShowNewTicket(true)}>
-                    <FaTicketAlt /> Raise Ticket
-                  </button>
-                )}
+                      </div>
+                    ) : null} */}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="mb-no-bookings">
+                <img
+                  src="/assets/img/not-booked.png"
+                  alt="No Bookings"
+                  className="mb-no-bookings-img"
+                />
+                <h4>No bookings yet</h4>
+                <p>Looks like you haven't booked any services yet. Book your first service!</p>
               </div>
-            </div>
-
-            <div className="mb-detail-info">
-              <div className="mb-detail-info-item">
-                <label>Booking ID</label>
-                <h3>#{selectedBooking.BookingTrackID}</h3>
-              </div>
-              <div className="mb-detail-info-item">
-                <label>Date & Time</label>
-                <span>
-                  {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
-                  {selectedBooking.TimeSlot?.includes(",")
-                    ? selectedBooking.TimeSlot.split(",").map((t, i) => (
-                        <span key={i}>{t.trim()}{i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}</span>
-                      ))
-                    : selectedBooking.TimeSlot || "N/A"}
-                </span>
-              </div>
-            </div>
-
-            <div className="mb-detail-location">
-              <FaMapMarkerAlt />
-              {selectedBooking.CityName}, {selectedBooking.StateName}
-            </div>
-          </div>
-
-          {/* Detail Body */}
-          <div className="mb-detail-body">
-            {/* NewTicket Component */}
-            {showNewTicket && (
-              <NewTicket
-                onClose={() => setShowNewTicket(false)}
-                onTicketCreated={() => {
-                  setShowNewTicket(false);
-                }}
-                selectedTicketBookingId={selectedBooking?.BookingID}
-              />
             )}
 
-            {/* Resume Booking Form or Details */}
-            {showResumeForm ? (
-            <div className="border rounded-4 p-3 mb-4">
-              <h6 className="mb-3">Resume booking</h6>
-              <div className="row g-3">
-                <div className="col-md-4">
-                  <label className="form-label">Select date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={resumeDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => {
-                      setResumeDate(e.target.value);
-                      setSelectedResumeTimes([]);
-                    }}
-                  />
+            {/* Loading More */}
+            {isLoadingMore && (
+              <div className="mb-loading-more">
+                <div className="mb-spinner"></div>
+                <div className="text-muted">Loading more bookings...</div>
+              </div>
+            )}
+
+            {/* End of Results */}
+            {visibleCount >= filteredBookings.length && filteredBookings.length > 0 && (
+              <div className="text-center py-3">
+                <div className="text-muted">
+                  <FaCheckCircle className="me-2" />
+                  You've reached the end of your bookings
                 </div>
-                <div className="col-md-8">
-                  <label className="form-label">Payment method</label>
-                  <div className="d-flex align-items-center gap-4 mt-1">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="resumePaymentMethod"
-                        id="pm-razorpay"
-                        value="razorpay"
-                        checked={resumePaymentMethod === "razorpay"}
-                        onChange={(e) => setResumePaymentMethod(e.target.value)}
-                      />
-                      <label className="form-check-label" htmlFor="pm-razorpay">
-                        razorpay
-                      </label>
-                    </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="resumePaymentMethod"
-                        id="pm-cos"
-                        value="COS"
-                        checked={resumePaymentMethod === "COS"}
-                        onChange={(e) => setResumePaymentMethod(e.target.value)}
-                      />
-                      <label className="form-check-label" htmlFor="pm-cos">
-                        COS
-                      </label>
-                    </div>
-                  </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {selectedBooking && (
+          <div className="mb-detail-card">
+            {/* Detail Header */}
+            <div className="mb-detail-header">
+              <div className="mb-detail-header-top">
+                <button className="mb-detail-back-btn" onClick={handleBack}>
+                  <FaArrowLeft /> Back
+                </button>
+
+                <div className="mb-detail-actions">
+                  {selectedBooking?.Payments ? (
+                    selectedBooking.BookingStatus !== "Completed" &&
+                      selectedBooking.BookingStatus !== "Cancelled" &&
+                      selectedBooking.BookingStatus !== "Refunded" &&
+                      selectedBooking.BookingStatus !== "Failed" &&
+                      !showCancelSection ? (
+                      <>
+                        {(() => {
+                          const fullTracking = Array.isArray(selectedBooking?.TechnicianTracking)
+                            ? selectedBooking.TechnicianTracking[0]
+                            : {};
+                          const hasServiceStartedFull = !!fullTracking?.ServiceStartedAt;
+                          const canReschedule = !hasServiceStartedFull && selectedBooking?.Reschedules && selectedBooking.Reschedules.length < 2;
+
+                          return canReschedule ? (
+                            <button
+                              className="mb-detail-action-btn warning"
+                              onClick={() => navigate(`/reschedule?bookingId=${selectedBooking.BookingID}`)}
+                            >
+                              <FaRedo /> Reschedule
+                            </button>
+                          ) : !hasServiceStartedFull && selectedBooking?.Reschedules && selectedBooking.Reschedules.length >= 2 ? (
+                            <a
+                              href="tel:7075243939"
+                              className="mb-detail-action-btn warning"
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <FaPhone /> Contact Support
+                            </a>
+                          ) : null;
+                        })()}
+                        {(selectedBooking.BookingStatus === "Pending" ||
+                          selectedBooking.BookingStatus === "Confirmed" ||
+                          selectedBooking.BookingStatus === "JourneyStarted") && (
+                            <button className="mb-detail-action-btn warning" onClick={() => openCancelModal()}>
+                              <FaTimes /> Cancel
+                            </button>
+                          )}
+                      </>
+                    ) : null
+                  ) : selectedBooking.BookingStatus !== "Failed" &&
+                    selectedBooking.BookingStatus !== "Completed" &&
+                    selectedBooking.BookingStatus !== "Cancelled" &&
+                    selectedBooking.BookingStatus !== "Refunded" &&
+                    !showResumeForm ? (
+                    <button className="mb-detail-action-btn warning" onClick={handleOpenResume}>
+                      <FaPlay /> Resume Booking
+                    </button>
+                  ) : null}
+                  {selectedBooking.BookingStatus !== "Cancelled" && (
+                    <button className="mb-detail-action-btn warning" onClick={() => setShowNewTicket(true)}>
+                      <FaTicketAlt /> Raise Ticket
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="mt-3">
-                <label className="form-label">
-                  Select time slots (multi-select)
-                </label>
-                <div className="row">
-                  <div className="col-md-4">
-                    <div className="fw-semibold mb-2">Morning</div>
-                    {resumeMorningSlots.length === 0 && (
-                      <div className="text-muted small">No slots</div>
-                    )}
-                    {resumeMorningSlots.map((s) => (
-                      <div className="form-check" key={`m-${s.label}`}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`m-${s.label}`}
-                          disabled={s.disabled}
-                          checked={selectedResumeTimes.includes(s.label)}
-                          onChange={(e) => {
-                            setSelectedResumeTimes((prev) =>
-                              e.target.checked
-                                ? [...prev, s.label]
-                                : prev.filter((x) => x !== s.label)
-                            );
-                          }}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`m-${s.label}`}
-                        >
-                          {s.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="col-md-4">
-                    <div className="fw-semibold mb-2">Afternoon</div>
-                    {resumeAfternoonSlots.length === 0 && (
-                      <div className="text-muted small">No slots</div>
-                    )}
-                    {resumeAfternoonSlots.map((s) => (
-                      <div className="form-check" key={`a-${s.label}`}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`a-${s.label}`}
-                          disabled={s.disabled}
-                          checked={selectedResumeTimes.includes(s.label)}
-                          onChange={(e) => {
-                            setSelectedResumeTimes((prev) =>
-                              e.target.checked
-                                ? [...prev, s.label]
-                                : prev.filter((x) => x !== s.label)
-                            );
-                          }}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`a-${s.label}`}
-                        >
-                          {s.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="col-md-4">
-                    <div className="fw-semibold mb-2">Evening</div>
-                    {resumeEveningSlots.length === 0 && (
-                      <div className="text-muted small">No slots</div>
-                    )}
-                    {resumeEveningSlots.map((s) => (
-                      <div className="form-check" key={`e-${s.label}`}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`e-${s.label}`}
-                          disabled={s.disabled}
-                          checked={selectedResumeTimes.includes(s.label)}
-                          onChange={(e) => {
-                            setSelectedResumeTimes((prev) =>
-                              e.target.checked
-                                ? [...prev, s.label]
-                                : prev.filter((x) => x !== s.label)
-                            );
-                          }}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`e-${s.label}`}
-                        >
-                          {s.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+              <div className="mb-detail-info">
+                <div className="mb-detail-info-item">
+                  <label>Booking ID</label>
+                  <h3>#{selectedBooking.BookingTrackID}</h3>
                 </div>
+                <div className="mb-detail-info-item">
+                  <label>Date & Time</label>
+                  <span>
+                    {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
+                    {selectedBooking.TimeSlot?.includes(",")
+                      ? selectedBooking.TimeSlot.split(",").map((t, i) => (
+                        <span key={i}>{t.trim()}{i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}</span>
+                      ))
+                      : selectedBooking.TimeSlot || "N/A"}
+                  </span>
+                </div>
+              </div>
 
-                <div className="d-flex justify-content-end gap-2 mt-3">
-                  <button
-                    className="btn btn-outline-secondary px-4 py-2"
-                    onClick={() => setShowResumeForm(false)}
-                    disabled={isSubmittingResume}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-primary px-4  py-2"
-                    onClick={handleResumeSubmit}
-                    disabled={isSubmittingResume}
-                  >
-                    {isSubmittingResume ? "Submitting..." : "Submit"}
-                  </button>
-                </div>
+              <div className="mb-detail-location">
+                <FaMapMarkerAlt />
+                {selectedBooking.CityName}, {selectedBooking.StateName}
               </div>
             </div>
-          ) : (
-            <>
-              {/* Timeline removed as requested */}
-              {(() => {
-                const fullTracking = Array.isArray(
-                  selectedBooking?.TechnicianTracking
-                )
-                  ? selectedBooking.TechnicianTracking[0]
-                  : {};
-                var hasServiceStartedFull = !!fullTracking?.ServiceStartedAt;
-                return null;
-              })()}
 
-              <div className="mb-info-cards">
-                {/* Customer Info */}
-                <div className="mb-info-card">
-                  <div className="mb-info-card-header">
-                    <div className="mb-info-card-icon">
-                      <FaUser />
-                    </div>
-                    <h6>User Details</h6>
-                  </div>
-                  <div className="mb-info-card-body">
-                    <h5>
-                      {selectedBooking.IsOthers ? selectedBooking.OthersFullName : selectedBooking.CustomerName}
-                      <span style={{ fontWeight: 400, fontSize: '0.85rem', color: '#666' }}>
-                        {" "}({selectedBooking.IsOthers ? selectedBooking.OthersPhoneNumber : selectedBooking.PhoneNumber})
-                      </span>
-                    </h5>
-                    <p><strong>Address:</strong> {selectedBooking.FullAddress}, {selectedBooking.Pincode}</p>
-                  </div>
-                </div>
+            {/* Detail Body */}
+            <div className="mb-detail-body">
+              {/* NewTicket Component */}
+              {showNewTicket && (
+                <NewTicket
+                  onClose={() => setShowNewTicket(false)}
+                  onTicketCreated={() => {
+                    setShowNewTicket(false);
+                  }}
+                  selectedTicketBookingId={selectedBooking?.BookingID}
+                />
+              )}
 
-                {/* Vehicle Info */}
-                <div className="mb-info-card">
-                  <div className="mb-info-card-header">
-                    <div className="mb-info-card-icon">
-                      <FaCar />
-                    </div>
-                    <h6>Vehicle</h6>
-                  </div>
-                  <div className="mb-info-card-body">
-                    <div className="mb-vehicle-info">
-                      <img
-                        src={`${ImageURL}${selectedBooking.VehicleImage}`}
-                        alt="Vehicle"
-                        className="mb-vehicle-image"
+              {/* Resume Booking Form or Details */}
+              {showResumeForm ? (
+                <div className="border rounded-4 p-3 mb-4">
+                  <h6 className="mb-3">Resume booking</h6>
+                  <div className="row g-3">
+                    <div className="col-md-4">
+                      <label className="form-label">Select date</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={resumeDate}
+                        min={new Date().toISOString().split("T")[0]}
+                        onChange={(e) => {
+                          setResumeDate(e.target.value);
+                          setSelectedResumeTimes([]);
+                        }}
                       />
-                      <div className="mb-vehicle-details">
-                        <p><strong>Number:</strong> {selectedBooking.VehicleNumber}</p>
-                        <p><strong>Brand:</strong> {selectedBooking.BrandName}</p>
-                        <p><strong>Model:</strong> {selectedBooking.ModelName}</p>
-                        <p><strong>Fuel:</strong> {selectedBooking.FuelTypeName}</p>
+                    </div>
+                    <div className="col-md-8">
+                      <label className="form-label">Payment method</label>
+                      <div className="d-flex align-items-center gap-4 mt-1">
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="resumePaymentMethod"
+                            id="pm-razorpay"
+                            value="razorpay"
+                            checked={resumePaymentMethod === "razorpay"}
+                            onChange={(e) => setResumePaymentMethod(e.target.value)}
+                          />
+                          <label className="form-check-label" htmlFor="pm-razorpay">
+                            razorpay
+                          </label>
+                        </div>
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="resumePaymentMethod"
+                            id="pm-cos"
+                            value="COS"
+                            checked={resumePaymentMethod === "COS"}
+                            onChange={(e) => setResumePaymentMethod(e.target.value)}
+                          />
+                          <label className="form-check-label" htmlFor="pm-cos">
+                            COS
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Packages Section */}
-              {selectedBooking.Packages?.length > 0 && (
-                <div className="mb-packages-section">
-                  <div className="mb-section-header">
-                    <h5 className="mb-section-title">
-                      <FaBoxOpen /> Included Packages
-                    </h5>
-                    <button
+                  <div className="mt-3">
+                    <label className="form-label">
+                      Select time slots (multi-select)
+                    </label>
+                    <div className="row">
+                      <div className="col-md-4">
+                        <div className="fw-semibold mb-2">Morning</div>
+                        {resumeMorningSlots.length === 0 && (
+                          <div className="text-muted small">No slots</div>
+                        )}
+                        {resumeMorningSlots.map((s) => (
+                          <div className="form-check" key={`m-${s.label}`}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`m-${s.label}`}
+                              disabled={s.disabled}
+                              checked={selectedResumeTimes.includes(s.label)}
+                              onChange={(e) => {
+                                setSelectedResumeTimes((prev) =>
+                                  e.target.checked
+                                    ? [...prev, s.label]
+                                    : prev.filter((x) => x !== s.label)
+                                );
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor={`m-${s.label}`}
+                            >
+                              {s.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="col-md-4">
+                        <div className="fw-semibold mb-2">Afternoon</div>
+                        {resumeAfternoonSlots.length === 0 && (
+                          <div className="text-muted small">No slots</div>
+                        )}
+                        {resumeAfternoonSlots.map((s) => (
+                          <div className="form-check" key={`a-${s.label}`}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`a-${s.label}`}
+                              disabled={s.disabled}
+                              checked={selectedResumeTimes.includes(s.label)}
+                              onChange={(e) => {
+                                setSelectedResumeTimes((prev) =>
+                                  e.target.checked
+                                    ? [...prev, s.label]
+                                    : prev.filter((x) => x !== s.label)
+                                );
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor={`a-${s.label}`}
+                            >
+                              {s.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="col-md-4">
+                        <div className="fw-semibold mb-2">Evening</div>
+                        {resumeEveningSlots.length === 0 && (
+                          <div className="text-muted small">No slots</div>
+                        )}
+                        {resumeEveningSlots.map((s) => (
+                          <div className="form-check" key={`e-${s.label}`}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`e-${s.label}`}
+                              disabled={s.disabled}
+                              checked={selectedResumeTimes.includes(s.label)}
+                              onChange={(e) => {
+                                setSelectedResumeTimes((prev) =>
+                                  e.target.checked
+                                    ? [...prev, s.label]
+                                    : prev.filter((x) => x !== s.label)
+                                );
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor={`e-${s.label}`}
+                            >
+                              {s.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end gap-2 mt-3">
+                      <button
+                        className="btn btn-outline-secondary px-4 py-2"
+                        onClick={() => setShowResumeForm(false)}
+                        disabled={isSubmittingResume}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="btn btn-primary px-4  py-2"
+                        onClick={handleResumeSubmit}
+                        disabled={isSubmittingResume}
+                      >
+                        {isSubmittingResume ? "Submitting..." : "Submit"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Timeline removed as requested */}
+                  {(() => {
+                    const fullTracking = Array.isArray(
+                      selectedBooking?.TechnicianTracking
+                    )
+                      ? selectedBooking.TechnicianTracking[0]
+                      : {};
+                    var hasServiceStartedFull = !!fullTracking?.ServiceStartedAt;
+                    return null;
+                  })()}
+
+                  <div className="mb-info-cards">
+                    {/* Customer Info */}
+                    <div className="mb-info-card">
+                      <div className="mb-info-card-header">
+                        <div className="mb-info-card-icon">
+                          <FaUser />
+                        </div>
+                        <h6>User Details</h6>
+                      </div>
+                      <div className="mb-info-card-body">
+                        <h5>
+                          {selectedBooking.IsOthers ? selectedBooking.OthersFullName : selectedBooking.CustomerName}
+                          <span style={{ fontWeight: 400, fontSize: '0.85rem', color: '#666' }}>
+                            {" "}({selectedBooking.IsOthers ? selectedBooking.OthersPhoneNumber : selectedBooking.PhoneNumber})
+                          </span>
+                        </h5>
+                        <p><strong>Address:</strong> {selectedBooking.FullAddress}, {selectedBooking.Pincode}</p>
+                      </div>
+                    </div>
+
+                    {/* Vehicle Info */}
+                    <div className="mb-info-card">
+                      <div className="mb-info-card-header">
+                        <div className="mb-info-card-icon">
+                          <FaCar />
+                        </div>
+                        <h6>Vehicle</h6>
+                      </div>
+                      <div className="mb-info-card-body">
+                        <div className="mb-vehicle-info">
+                          <img
+                            src={`${ImageURL}${selectedBooking.VehicleImage}`}
+                            alt="Vehicle"
+                            className="mb-vehicle-image"
+                          />
+                          <div className="mb-vehicle-details">
+                            <p><strong>Number:</strong> {selectedBooking.VehicleNumber}</p>
+                            <p><strong>Brand:</strong> {selectedBooking.BrandName}</p>
+                            <p><strong>Model:</strong> {selectedBooking.ModelName}</p>
+                            <p><strong>Fuel:</strong> {selectedBooking.FuelTypeName}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Packages Section */}
+                  {selectedBooking.Packages?.length > 0 && (
+                    <div className="mb-packages-section">
+                      <div className="mb-section-header">
+                        <h5 className="mb-section-title">
+                          <FaBoxOpen /> Included Packages
+                        </h5>
+                        {/* <button
                       className="mb-book-again-btn"
                       onClick={() => handleAddBookingToCart(selectedBooking)}
                       disabled={isProcessingBookAgain}
@@ -1661,275 +1664,403 @@ const MyBookings = () => {
                           <FaCartPlus /> Book Again
                         </>
                       )}
-                    </button>
-                  </div>
+                    </button> */}
+                      </div>
 
-                  <div className="mb-accordion">
-                    {selectedBooking.Packages.map((pkg, idx) => {
-                      const isOpen = expandedPackageIdxs.has(idx);
-                      return (
-                        <div className="mb-accordion-item" key={idx}>
-                          <div
-                            className="mb-accordion-header"
-                            onClick={() => {
-                              const next = new Set(expandedPackageIdxs);
-                              if (next.has(idx)) next.delete(idx);
-                              else next.add(idx);
-                              setExpandedPackageIdxs(next);
-                            }}
-                          >
-                            <span className="mb-accordion-title">
-                              <FaBoxOpen /> {pkg.PackageName}
-                            </span>
-                            <FaChevronDown className={`mb-accordion-icon ${isOpen ? "open" : ""}`} />
-                          </div>
-                          {isOpen && (
-                            <div className="mb-accordion-body">
-                              {pkg.Category?.SubCategories?.[0]?.Includes?.length ? (
-                                <ul>
-                                  {pkg.Category.SubCategories[0].Includes.map((inc) => (
-                                    <li key={inc.IncludeID}>{inc.IncludeName}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-muted">No includes available.</p>
+                      <div className="mb-accordion">
+                        {selectedBooking.Packages.map((pkg, idx) => {
+                          const isOpen = expandedPackageIdxs.has(idx);
+                          return (
+                            <div className="mb-accordion-item" key={idx}>
+                              <div
+                                className="mb-accordion-header"
+                                onClick={() => {
+                                  const next = new Set(expandedPackageIdxs);
+                                  if (next.has(idx)) next.delete(idx);
+                                  else next.add(idx);
+                                  setExpandedPackageIdxs(next);
+                                }}
+                              >
+                                <span className="mb-accordion-title">
+                                  <FaBoxOpen /> {pkg.PackageName}
+                                </span>
+                                <FaChevronDown className={`mb-accordion-icon ${isOpen ? "open" : ""}`} />
+                              </div>
+                              {isOpen && (
+                                <div className="mb-accordion-body">
+                                  {pkg.Category?.SubCategories?.[0]?.Includes?.length ? (
+                                    <ul>
+                                      {pkg.Category.SubCategories[0].Includes.map((inc) => (
+                                        <li key={inc.IncludeID}>{inc.IncludeName}</li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <p className="text-muted">No includes available.</p>
+                                  )}
+                                </div>
                               )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Additional Services (accordion with table) */}
-              {selectedBooking.BookingAddOns?.length > 0 && (
-                <div className="mb-4">
-                  <h5 className="fw-semibold mb-0 d-flex align-items-center mb-2">
-                    <i className="bi bi-plus-circle me-2 text-primary"></i>
-                    Additional Services
-                  </h5>
-                  <div className="accordion" id="addOnsAccordion">
-                    <div className="accordion-item">
-                      <h2 className="accordion-header">
-                        <button
-                          className={`accordion-button ${
-                            isAddOnsOpen ? "" : "collapsed"
-                          } py-0`}
-                          type="button"
-                          onClick={() => setIsAddOnsOpen(!isAddOnsOpen)}
-                        >
-                          <i className="bi bi-plus-circle me-2"></i> Additional
-                          Services
-                        </button>
-                      </h2>
-                      <div
-                        className={`accordion-collapse collapse ${
-                          isAddOnsOpen ? "show" : ""
-                        }`}
-                      >
-                        <div className="accordion-body">
-                          <table className="table table-striped">
-                            <thead>
-                              <tr>
-                                <th>Service Name</th>
-                                <th>Price</th>
-                                <th>GST %</th>
-                                <th>GST Amount</th>
-                                <th>Total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {selectedBooking.BookingAddOns.map(
-                                (addOn, idx) => (
-                                  <tr key={idx}>
-                                    <td>{addOn.ServiceName}</td>
-                                    <td>₹{addOn.ServicePrice}</td>
-                                    <td>{addOn.GSTPercent}%</td>
-                                    <td>₹{addOn.GSTPrice}</td>
-                                    <td>₹{addOn.TotalPrice}</td>
+                  {/* Additional Services (accordion with table) */}
+                  {selectedBooking.BookingAddOns?.length > 0 && (
+                    <div className="mb-4">
+                      <h5 className="fw-semibold mb-0 d-flex align-items-center mb-2">
+                        <i className="bi bi-plus-circle me-2 text-primary"></i>
+                        Additional Services
+                      </h5>
+                      <div className="accordion" id="addOnsAccordion">
+                        <div className="accordion-item">
+                          <h2 className="accordion-header">
+                            <button
+                              className={`accordion-button ${isAddOnsOpen ? "" : "collapsed"
+                                } py-0`}
+                              type="button"
+                              onClick={() => setIsAddOnsOpen(!isAddOnsOpen)}
+                            >
+                              <i className="bi bi-plus-circle me-2"></i> Additional
+                              Services
+                            </button>
+                          </h2>
+                          <div
+                            className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""
+                              }`}
+                          >
+                            <div className="accordion-body">
+                              <table className="table table-striped">
+                                <thead>
+                                  <tr>
+                                    <th>Service Name</th>
+                                    <th>Price</th>
+                                    <th>GST %</th>
+                                    <th>GST Amount</th>
+                                    <th>Total</th>
                                   </tr>
-                                )
-                              )}
-                            </tbody>
-                          </table>
+                                </thead>
+                                <tbody>
+                                  {selectedBooking.BookingAddOns.map(
+                                    (addOn, idx) => (
+                                      <tr key={idx}>
+                                        <td>{addOn.ServiceName}</td>
+                                        <td>₹{addOn.ServicePrice}</td>
+                                        <td>{addOn.GSTPercent}%</td>
+                                        <td>₹{addOn.GSTPrice}</td>
+                                        <td>₹{addOn.TotalPrice}</td>
+                                      </tr>
+                                    )
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  )}
 
-              {/* Booking Info Card */}
-              <div className="mb-booking-info-card">
-                <div className="mb-info-card-header">
-                  <div className="mb-info-card-icon">
-                    <FaInfoCircle />
-                  </div>
-                  <h6>Booking Information</h6>
-                </div>
-
-                {/* Booking Status */}
-                <div className="mb-booking-info-row">
-                  <span className="mb-booking-info-label">Booking Status</span>
-                  <span className={`mb-booking-info-status ${
-                    ["Success", "Completed", "Assigned"].includes(selectedBooking?.BookingStatus) ? "success" : "danger"
-                  }`}>
-                    {selectedBooking?.BookingStatus || "Pending"}
-                  </span>
-                  <span className="mb-booking-info-value">#{selectedBooking?.BookingTrackID || "N/A"}</span>
-                </div>
-
-                {/* Technician */}
-                <div className="mb-booking-info-row">
-                  <span className="mb-booking-info-label">Technician</span>
-                  <span className={`mb-booking-info-status ${selectedBooking?.TechID ? "success" : "pending"}`}>
-                    {selectedBooking?.TechID ? "Assigned" : "Pending"}
-                  </span>
-                  <span className="mb-booking-info-value">
-                    {selectedBooking?.TechID ? (
-                      <>
-                        {selectedBooking.TechFullName}
-                        {selectedBooking?.AssignedTimeSlot && (
-                          <div className="small">Slot: {selectedBooking.AssignedTimeSlot}</div>
-                        )}
-                      </>
-                    ) : (
-                      <em>Not assigned yet</em>
-                    )}
-                  </span>
-                </div>
-
-                {/* Payment */}
-                <div className="mb-booking-info-row">
-                  <span className="mb-booking-info-label">Payment</span>
-                  <span className={`mb-booking-info-status ${
-                    selectedBooking?.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "danger"
-                  }`}>
-                    {selectedBooking?.Payments?.[0]?.PaymentStatus || "Pending"}
-                  </span>
-                  <span className="mb-booking-info-value">
-                    Method: {selectedBooking?.PaymentMethod || "N/A"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Amount Summary + COS Pay Now */}
-              <div className="border-top pt-4">
-                {(() => {
-                  const addOnTotal =
-                    selectedBooking.BookingAddOns?.reduce(
-                      (sum, addOn) => sum + Number(addOn.TotalPrice || 0),
-                      0
-                    ) || 0;
-
-                  const isPaid =
-                    selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
-                  const isCOS = selectedBooking?.PaymentMethod === "COS";
-                  const isCOSUnpaid =
-                    isCOS &&
-                    !isPaid &&
-                    ["Pending", "Confirmed", "JourneyStarted"].includes(
-                      selectedBooking?.BookingStatus
-                    );
-
-                  const hasAddOns = addOnTotal > 0;
-                  const isAllPaid = isPaid && !isCOSUnpaid && !hasAddOns;
-
-                  // ✅ CASE 1: Online Paid + Add-ons present
-                  if (isPaid && hasAddOns) {
-                    return (
-                      <div className="row justify-content-between py-3">
-                        {/* Left: Paid Service Amount */}
-                        <div className="col-md-5">
-                          <div className="card border-0 shadow-sm rounded-4 p-3">
-                            <h6 className="fw-semibold mb-3 text-muted">
-                              Paid Service Amount
-                            </h6>
-
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">Amount</div>
-                              <div className="fw-bold text-primary">
-                                ₹{selectedBooking.TotalPrice.toFixed(2)}
-                              </div>
-                            </div>
-
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">SGST (9%)</div>
-                              <div className="fw-bold text-primary">
-                                ₹
-                                {(
-                                  Number(selectedBooking.GSTAmount || 0) / 2
-                                ).toFixed(2)}
-                              </div>
-                            </div>
-
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">CGST (9%)</div>
-                              <div className="fw-bold text-primary">
-                                ₹
-                                {(
-                                  Number(selectedBooking.GSTAmount || 0) / 2
-                                ).toFixed(2)}
-                              </div>
-                            </div>
-
-                            <hr />
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold fs-5">Total</div>
-                              <div className="fw-bold text-success fs-5">
-                                ₹
-                                {(
-                                  selectedBooking.TotalPrice +
-                                  selectedBooking.GSTAmount
-                                ).toFixed(2)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right: Add-on Service Amount */}
-                        <div className="col-md-5">
-                          <div className="card border-0 shadow-sm rounded-4 p-3">
-                            <h6 className="fw-semibold mb-3 text-muted">
-                              Additional Services Amount
-                            </h6>
-                            <div
-                              style={{ visibility: "hidden", height: "65px" }}
-                            ></div>
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">Total Amount</div>
-                              <div className="fw-bold text-primary">
-                                ₹{addOnTotal.toFixed(2)}
-                              </div>
-                            </div>
-
-                            <hr />
-                            <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold fs-5">
-                                Amount to Pay
-                              </div>
-                              <div className="fw-bold text-success fs-5">
-                                ₹{addOnTotal.toFixed(2)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                  {/* Booking Info Card */}
+                  <div className="mb-booking-info-card">
+                    <div className="mb-info-card-header">
+                      <div className="mb-info-card-icon">
+                        <FaInfoCircle />
                       </div>
-                    );
-                  }
+                      <h6>Booking Information</h6>
+                    </div>
 
-                  // ✅ CASE 2: All Paid (COS + add-ons paid OR online + no add-ons)
-                  if (isAllPaid || (isPaid && !hasAddOns)) {
-                    return (
-                      <div className="d-flex justify-content-end py-3">
-                        <div className="col-md-5">
-                          <div className="card border-0 shadow-sm rounded-4 p-3">
-                            <h6 className="fw-semibold mb-3 text-muted">
-                              Amount Summary
-                            </h6>
+                    {/* Booking Status */}
+                    <div className="mb-booking-info-row">
+                      <span className="mb-booking-info-label">Booking Status</span>
+                      <span className={`mb-booking-info-status ${["Success", "Completed", "Assigned"].includes(selectedBooking?.BookingStatus) ? "success" : "danger"
+                        }`}>
+                        {selectedBooking?.BookingStatus || "Pending"}
+                      </span>
+                      <span className="mb-booking-info-value">#{selectedBooking?.BookingTrackID || "N/A"}</span>
+                    </div>
 
+                    {/* Technician */}
+                    <div className="mb-booking-info-row">
+                      <span className="mb-booking-info-label">Technician</span>
+                      <span className={`mb-booking-info-status ${selectedBooking?.TechID ? "success" : "pending"}`}>
+                        {selectedBooking?.TechID ? "Assigned" : "Pending"}
+                      </span>
+                      <span className="mb-booking-info-value">
+                        {selectedBooking?.TechID ? (
+                          <>
+                            {selectedBooking.TechFullName}
+                            {selectedBooking?.AssignedTimeSlot && (
+                              <div className="small">Slot: {selectedBooking.AssignedTimeSlot}</div>
+                            )}
+                          </>
+                        ) : (
+                          <em>Not assigned yet</em>
+                        )}
+                      </span>
+                    </div>
+
+                    {/* Payment */}
+                    <div className="mb-booking-info-row">
+                      <span className="mb-booking-info-label">Payment</span>
+                      <span className={`mb-booking-info-status ${selectedBooking?.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "danger"
+                        }`}>
+                        {selectedBooking?.Payments?.[0]?.PaymentStatus || "Pending"}
+                      </span>
+                      <span className="mb-booking-info-value">
+                        Method: {selectedBooking?.PaymentMethod || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Amount Summary + COS Pay Now */}
+                  <div className="border-top pt-4">
+                    {(() => {
+                      const addOnTotal =
+                        selectedBooking.BookingAddOns?.reduce(
+                          (sum, addOn) => sum + Number(addOn.TotalPrice || 0),
+                          0
+                        ) || 0;
+
+                      const isPaid =
+                        selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
+                      const isCOS = selectedBooking?.PaymentMethod === "COS";
+                      const isCOSUnpaid =
+                        isCOS &&
+                        !isPaid &&
+                        ["Pending", "Confirmed", "JourneyStarted"].includes(
+                          selectedBooking?.BookingStatus
+                        );
+
+                      const hasAddOns = addOnTotal > 0;
+                      const isAllPaid = isPaid && !isCOSUnpaid && !hasAddOns;
+
+                      // ✅ CASE 1: Online Paid + Add-ons present
+                      if (isPaid && hasAddOns) {
+                        return (
+                          <div className="row justify-content-between py-3">
+                            {/* Left: Paid Service Amount */}
+                            <div className="col-md-5">
+                              <div className="card border-0 shadow-sm rounded-4 p-3">
+                                <h6 className="fw-semibold mb-3 text-muted">
+                                  Paid Service Amount
+                                </h6>
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Amount</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                  </div>
+                                </div>
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">SGST (9%)</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹
+                                    {(
+                                      Number(selectedBooking.GSTAmount || 0) / 2
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">CGST (9%)</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹
+                                    {(
+                                      Number(selectedBooking.GSTAmount || 0) / 2
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+
+                                <hr />
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold fs-5">Total</div>
+                                  <div className="fw-bold text-success fs-5">
+                                    ₹
+                                    {(
+                                      selectedBooking.TotalPrice +
+                                      selectedBooking.GSTAmount
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right: Add-on Service Amount */}
+                            <div className="col-md-5">
+                              <div className="card border-0 shadow-sm rounded-4 p-3">
+                                <h6 className="fw-semibold mb-3 text-muted">
+                                  Additional Services Amount
+                                </h6>
+                                <div
+                                  style={{ visibility: "hidden", height: "65px" }}
+                                ></div>
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Total Amount</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{addOnTotal.toFixed(2)}
+                                  </div>
+                                </div>
+
+                                <hr />
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold fs-5">
+                                    Amount to Pay
+                                  </div>
+                                  <div className="fw-bold text-success fs-5">
+                                    ₹{addOnTotal.toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // ✅ CASE 2: All Paid (COS + add-ons paid OR online + no add-ons)
+                      if (isAllPaid || (isPaid && !hasAddOns)) {
+                        return (
+                          <div className="d-flex justify-content-end py-3">
+                            <div className="col-md-5">
+                              <div className="card border-0 shadow-sm rounded-4 p-3">
+                                <h6 className="fw-semibold mb-3 text-muted">
+                                  Amount Summary
+                                </h6>
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Amount</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                  </div>
+                                </div>
+
+                                {(selectedBooking.CouponAmount > 0 ||
+                                  appliedCoupon) && (
+                                    <div className="d-flex justify-content-between mb-2">
+                                      <div className="fw-semibold">Coupon</div>
+                                      <div className="fw-bold text-danger">
+                                        -₹
+                                        {appliedCoupon
+                                          ? (
+                                            getBookingOriginalTotal(
+                                              selectedBooking
+                                            ) -
+                                            getBookingFinalTotalWithCoupon(
+                                              selectedBooking
+                                            )
+                                          ).toFixed(2)
+                                          : selectedBooking.CouponAmount.toFixed(2)}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">SGST (9%)</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹
+                                    {(
+                                      Number(selectedBooking.GSTAmount || 0) / 2
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">CGST (9%)</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹
+                                    {(
+                                      Number(selectedBooking.GSTAmount || 0) / 2
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+
+                                {hasAddOns && (
+                                  <div className="d-flex justify-content-between mb-2">
+                                    <div className="fw-semibold">
+                                      Additional Total
+                                    </div>
+                                    <div className="fw-bold text-primary">
+                                      ₹{addOnTotal.toFixed(2)}
+                                    </div>
+                                  </div>
+                                )}
+
+                                <hr />
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold fs-5">Total</div>
+                                  <div className="fw-bold text-success fs-5">
+                                    ₹
+                                    {(
+                                      selectedBooking.TotalPrice +
+                                      selectedBooking.GSTAmount -
+                                      selectedBooking.CouponAmount +
+                                      addOnTotal
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // ✅ CASE 3: COS (Paid or Unpaid) + no add-ons
+                      if (isCOS && !hasAddOns) {
+                        return (
+                          <div className="border-top pt-4">
+                            <div className="col-md-12">
+                              <h6 className="fw-semibold mb-3 text-muted">
+                                Amount Summary
+                              </h6>
+
+                              <div className="d-flex justify-content-between mb-2">
+                                <div className="fw-semibold">Amount</div>
+                                <div className="fw-bold text-primary">
+                                  ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                </div>
+                              </div>
+
+                              <div className="d-flex justify-content-between mb-2">
+                                <div className="fw-semibold">SGST (9%)</div>
+                                <div className="fw-bold text-primary">
+                                  ₹
+                                  {(
+                                    Number(selectedBooking.GSTAmount || 0) / 2
+                                  ).toFixed(2)}
+                                </div>
+                              </div>
+
+                              <div className="d-flex justify-content-between mb-2">
+                                <div className="fw-semibold">CGST (9%)</div>
+                                <div className="fw-bold text-primary">
+                                  ₹
+                                  {(
+                                    Number(selectedBooking.GSTAmount || 0) / 2
+                                  ).toFixed(2)}
+                                </div>
+                              </div>
+
+                              <hr />
+                              <div className="d-flex justify-content-between mb-2">
+                                <div className="fw-semibold fs-5">Total</div>
+                                <div className="fw-bold text-success fs-5">
+                                  ₹
+                                  {(
+                                    selectedBooking.TotalPrice +
+                                    selectedBooking.GSTAmount
+                                  ).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // ✅ CASE 4: Unpaid COS (with coupon + pay now)
+                      return (
+                        <>
+                          <div className="mb-2">
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Amount</div>
                               <div className="fw-bold text-primary">
@@ -1939,23 +2070,21 @@ const MyBookings = () => {
 
                             {(selectedBooking.CouponAmount > 0 ||
                               appliedCoupon) && (
-                              <div className="d-flex justify-content-between mb-2">
-                                <div className="fw-semibold">Coupon</div>
-                                <div className="fw-bold text-danger">
-                                  -₹
-                                  {appliedCoupon
-                                    ? (
-                                        getBookingOriginalTotal(
-                                          selectedBooking
-                                        ) -
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Coupon</div>
+                                  <div className="fw-bold text-danger">
+                                    -₹
+                                    {appliedCoupon
+                                      ? (
+                                        getBookingOriginalTotal(selectedBooking) -
                                         getBookingFinalTotalWithCoupon(
                                           selectedBooking
                                         )
                                       ).toFixed(2)
-                                    : selectedBooking.CouponAmount.toFixed(2)}
+                                      : selectedBooking.CouponAmount.toFixed(2)}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">SGST (9%)</div>
@@ -1978,9 +2107,7 @@ const MyBookings = () => {
 
                             {hasAddOns && (
                               <div className="d-flex justify-content-between mb-2">
-                                <div className="fw-semibold">
-                                  Additional Total
-                                </div>
+                                <div className="fw-semibold">Additional Total</div>
                                 <div className="fw-bold text-primary">
                                   ₹{addOnTotal.toFixed(2)}
                                 </div>
@@ -2001,491 +2128,363 @@ const MyBookings = () => {
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  }
 
-                  // ✅ CASE 3: COS (Paid or Unpaid) + no add-ons
-                  if (isCOS && !hasAddOns) {
-                    return (
-                      <div className="border-top pt-4">
-                        <div className="col-md-12">
-                          <h6 className="fw-semibold mb-3 text-muted">
-                            Amount Summary
-                          </h6>
-
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold">Amount</div>
-                            <div className="fw-bold text-primary">
-                              ₹{selectedBooking.TotalPrice.toFixed(2)}
-                            </div>
-                          </div>
-
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold">SGST (9%)</div>
-                            <div className="fw-bold text-primary">
-                              ₹
-                              {(
-                                Number(selectedBooking.GSTAmount || 0) / 2
-                              ).toFixed(2)}
-                            </div>
-                          </div>
-
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold">CGST (9%)</div>
-                            <div className="fw-bold text-primary">
-                              ₹
-                              {(
-                                Number(selectedBooking.GSTAmount || 0) / 2
-                              ).toFixed(2)}
-                            </div>
-                          </div>
-
-                          <hr />
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold fs-5">Total</div>
-                            <div className="fw-bold text-success fs-5">
-                              ₹
-                              {(
-                                selectedBooking.TotalPrice +
-                                selectedBooking.GSTAmount
-                              ).toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  // ✅ CASE 4: Unpaid COS (with coupon + pay now)
-                  return (
-                    <>
-                      <div className="mb-2">
-                        <div className="d-flex justify-content-between mb-2">
-                          <div className="fw-semibold">Amount</div>
-                          <div className="fw-bold text-primary">
-                            ₹{selectedBooking.TotalPrice.toFixed(2)}
-                          </div>
-                        </div>
-
-                        {(selectedBooking.CouponAmount > 0 ||
-                          appliedCoupon) && (
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold">Coupon</div>
-                            <div className="fw-bold text-danger">
-                              -₹
-                              {appliedCoupon
-                                ? (
-                                    getBookingOriginalTotal(selectedBooking) -
-                                    getBookingFinalTotalWithCoupon(
-                                      selectedBooking
-                                    )
-                                  ).toFixed(2)
-                                : selectedBooking.CouponAmount.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="d-flex justify-content-between mb-2">
-                          <div className="fw-semibold">SGST (9%)</div>
-                          <div className="fw-bold text-primary">
-                            ₹
-                            {(
-                              Number(selectedBooking.GSTAmount || 0) / 2
-                            ).toFixed(2)}
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-between mb-2">
-                          <div className="fw-semibold">CGST (9%)</div>
-                          <div className="fw-bold text-primary">
-                            ₹
-                            {(
-                              Number(selectedBooking.GSTAmount || 0) / 2
-                            ).toFixed(2)}
-                          </div>
-                        </div>
-
-                        {hasAddOns && (
-                          <div className="d-flex justify-content-between mb-2">
-                            <div className="fw-semibold">Additional Total</div>
-                            <div className="fw-bold text-primary">
-                              ₹{addOnTotal.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
-
-                        <hr />
-                        <div className="d-flex justify-content-between mb-2">
-                          <div className="fw-semibold fs-5">Total</div>
-                          <div className="fw-bold text-success fs-5">
-                            ₹
-                            {(
-                              selectedBooking.TotalPrice +
-                              selectedBooking.GSTAmount -
-                              selectedBooking.CouponAmount +
-                              addOnTotal
-                            ).toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">
-                        <div className="col-6">
-                          {isCOSUnpaid && (
-                            <div
-                              className="card p-3 border-0 shadow-sm rounded-4"
-                              style={{ maxWidth: 420 }}
-                            >
-                              <h6 className="mb-2">Have a coupon?</h6>
-                              {!couponApplied ? (
-                                <>
-                                  <button
-                                    className="btn btn-outline-primary px-4 py-2"
-                                    onClick={() => setShowCouponPicker(true)}
-                                  >
-                                    View Coupons
-                                  </button>
-                                  {showCouponPicker && (
-                                    <div
-                                      className="mt-3"
-                                      style={{
-                                        maxHeight: 200,
-                                        overflowY: "auto",
-                                      }}
-                                    >
-                                      {couponList.map((c) => (
+                          {/* <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">
+                            <div className="col-6">
+                              {isCOSUnpaid && (
+                                <div
+                                  className="card p-3 border-0 shadow-sm rounded-4"
+                                  style={{ maxWidth: 420 }}
+                                >
+                                  <h6 className="mb-2">Have a coupon?</h6>
+                                  {!couponApplied ? (
+                                    <>
+                                      <button
+                                        className="btn btn-outline-primary px-4 py-2"
+                                        onClick={() => setShowCouponPicker(true)}
+                                      >
+                                        View Coupons
+                                      </button>
+                                      {showCouponPicker && (
                                         <div
-                                          key={c.id}
-                                          className="d-flex justify-content-between align-items-start border rounded p-2 mb-2"
+                                          className="mt-3"
+                                          style={{
+                                            maxHeight: 200,
+                                            overflowY: "auto",
+                                          }}
                                         >
-                                          <div>
-                                            <div className="fw-semibold">
-                                              {c.Code}
-                                            </div>
-                                            <div className="small text-muted">
-                                              {c.Description}
-                                            </div>
-                                            {c.MinBookingAmount ? (
-                                              <div className="small text-muted">
-                                                Min ₹{c.MinBookingAmount}
+                                          {couponList.map((c) => (
+                                            <div
+                                              key={c.id}
+                                              className="d-flex justify-content-between align-items-start border rounded p-2 mb-2"
+                                            >
+                                              <div>
+                                                <div className="fw-semibold">
+                                                  {c.Code}
+                                                </div>
+                                                <div className="small text-muted">
+                                                  {c.Description}
+                                                </div>
+                                                {c.MinBookingAmount ? (
+                                                  <div className="small text-muted">
+                                                    Min ₹{c.MinBookingAmount}
+                                                  </div>
+                                                ) : null}
                                               </div>
-                                            ) : null}
-                                          </div>
-                                          <button
-                                            className="btn btn-primary px-2 py-1"
-                                            onClick={() =>
-                                              handleApplyCouponFullView(c)
-                                            }
-                                          >
-                                            Apply
-                                          </button>
-                                        </div>
-                                      ))}
-                                      {couponList.length === 0 && (
-                                        <div className="text-muted small">
-                                          No coupons available.
+                                              <button
+                                                className="btn btn-primary px-2 py-1"
+                                                onClick={() =>
+                                                  handleApplyCouponFullView(c)
+                                                }
+                                              >
+                                                Apply
+                                              </button>
+                                            </div>
+                                          ))}
+                                          {couponList.length === 0 && (
+                                            <div className="text-muted small">
+                                              No coupons available.
+                                            </div>
+                                          )}
                                         </div>
                                       )}
+                                    </>
+                                  ) : (
+                                    <div className="d-flex justify-content-between align-items-center w-100">
+                                      <div>
+                                        <div className="fw-semibold">
+                                          Applied: {appliedCoupon?.Code}
+                                        </div>
+                                        <div className="small text-muted">
+                                          {appliedCoupon?.Description}
+                                        </div>
+                                        <div className="small text-success mt-1">
+                                          Discount: ₹
+                                          {(
+                                            getBookingOriginalTotal(
+                                              selectedBooking
+                                            ) -
+                                            getBookingFinalTotalWithCoupon(
+                                              selectedBooking
+                                            )
+                                          ).toFixed(2)}
+                                        </div>
+                                      </div>
+                                      <button
+                                        className="btn btn-outline-danger px-2 py-1"
+                                        onClick={handleRemoveCouponFullView}
+                                      >
+                                        <i className="bi bi-x"></i>
+                                      </button>
                                     </div>
                                   )}
-                                </>
-                              ) : (
-                                <div className="d-flex justify-content-between align-items-center w-100">
-                                  <div>
-                                    <div className="fw-semibold">
-                                      Applied: {appliedCoupon?.Code}
-                                    </div>
-                                    <div className="small text-muted">
-                                      {appliedCoupon?.Description}
-                                    </div>
-                                    <div className="small text-success mt-1">
-                                      Discount: ₹
-                                      {(
-                                        getBookingOriginalTotal(
-                                          selectedBooking
-                                        ) -
-                                        getBookingFinalTotalWithCoupon(
-                                          selectedBooking
-                                        )
-                                      ).toFixed(2)}
-                                    </div>
-                                  </div>
-                                  <button
-                                    className="btn btn-outline-danger px-2 py-1"
-                                    onClick={handleRemoveCouponFullView}
-                                  >
-                                    <i className="bi bi-x"></i>
-                                  </button>
                                 </div>
                               )}
                             </div>
-                          )}
-                        </div>
 
-                        {isCOSUnpaid && (
+                            {isCOSUnpaid && (
+                              <button
+                                className="btn btn-primary btn-lg px-4 py-2"
+                                onClick={handlePayNow}
+                              >
+                                Pay Now
+                              </button>
+                            )}
+                          </div> */}
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Cancel Section Overlay */}
+                  {showCancelSection && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        background: "rgba(255,255,255,0.95)",
+                        zIndex: 10,
+                        display: "flex",
+                        alignItems: "start",
+                        justifyContent: "center",
+                        borderRadius: "1rem",
+                      }}
+                    >
+                      <div
+                        className="border rounded-3 p-4 bg-white shadow"
+                        style={{ minWidth: 350, maxWidth: 500 }}
+                      >
+                        <h6 className="text-danger">Cancel Booking</h6>
+                        <form>
+                          {cancelReasons.map((reason) => (
+                            <div className="form-check" key={reason.ID}>
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                name="cancelReason"
+                                id={`reason-${reason.ID}`}
+                                value={reason.Reason}
+                                checked={
+                                  selectedReason === reason.Reason && !otherChecked
+                                }
+                                onChange={() => {
+                                  setSelectedReason(reason.Reason);
+                                  setOtherChecked(false);
+                                }}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor={`reason-${reason.ID}`}
+                              >
+                                {reason.Reason}
+                              </label>
+                            </div>
+                          ))}
+                          <div className="form-check mt-2">
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="cancelReason"
+                              id="reason-other"
+                              checked={otherChecked}
+                              onChange={() => {
+                                setOtherChecked(true);
+                                setSelectedReason("");
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="reason-other"
+                            >
+                              Other
+                            </label>
+                          </div>
+                          {otherChecked && (
+                            <textarea
+                              className="form-control mt-2"
+                              rows="3"
+                              placeholder="Please specify your reason"
+                              value={otherReason}
+                              onChange={(e) => setOtherReason(e.target.value)}
+                            />
+                          )}
+                        </form>
+                        <div className="d-flex justify-content-end mt-3">
                           <button
-                            className="btn btn-primary btn-lg px-4 py-2"
-                            onClick={handlePayNow}
+                            type="button"
+                            className="btn btn-secondary me-2 px-4 py-2"
+                            onClick={() => setShowCancelSection(false)}
                           >
-                            Pay Now
+                            Close
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-danger px-4 py-2"
+                            onClick={submitCancellation}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Review Section (only if not cancelling) */}
+                  {!showCancelSection &&
+                    selectedBooking.BookingStatus === "Completed" && (
+                      <div className="review-card border rounded-3 p-4 mt-4">
+                        <h6 className="text-primary">Rate Your Experience</h6>
+                        {/* Service Quality */}
+                        <div className="mb-3">
+                          <label className="fw-bold">Service Quality</label>
+                          <p className="small text-muted">
+                            How satisfied were you with the overall service?
+                          </p>
+                          <StarRating
+                            rating={serviceQuality}
+                            onRatingChange={setServiceQuality}
+                          />
+                        </div>
+                        {/* Technician Rating */}
+                        <div className="mb-3">
+                          <label className="fw-bold">Technician </label>
+                          <p className="small text-muted">
+                            How would you rate the professionalism and expertise?
+                          </p>
+                          <StarRating
+                            rating={technicianRating}
+                            onRatingChange={setTechnicianRating}
+                          />
+                        </div>
+                        {/* Feedback */}
+                        <div className="mb-3">
+                          <label className="fw-bold">Your Feedback</label>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            placeholder="Share your thoughts to help us improve"
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                          />
+                        </div>
+                        {feedbackExists ? (
+                          ""
+                        ) : (
+                          <button
+                            className="btn btn-primary"
+                            onClick={() =>
+                              handleSubmitReview(selectedBooking.BookingID)
+                            }
+                          >
+                            Submit Review
                           </button>
                         )}
                       </div>
-                    </>
-                  );
-                })()}
-              </div>
-
-              {/* Cancel Section Overlay */}
-              {showCancelSection && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    background: "rgba(255,255,255,0.95)",
-                    zIndex: 10,
-                    display: "flex",
-                    alignItems: "start",
-                    justifyContent: "center",
-                    borderRadius: "1rem",
-                  }}
-                >
-                  <div
-                    className="border rounded-3 p-4 bg-white shadow"
-                    style={{ minWidth: 350, maxWidth: 500 }}
-                  >
-                    <h6 className="text-danger">Cancel Booking</h6>
-                    <form>
-                      {cancelReasons.map((reason) => (
-                        <div className="form-check" key={reason.ID}>
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="cancelReason"
-                            id={`reason-${reason.ID}`}
-                            value={reason.Reason}
-                            checked={
-                              selectedReason === reason.Reason && !otherChecked
-                            }
-                            onChange={() => {
-                              setSelectedReason(reason.Reason);
-                              setOtherChecked(false);
-                            }}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor={`reason-${reason.ID}`}
-                          >
-                            {reason.Reason}
-                          </label>
-                        </div>
-                      ))}
-                      <div className="form-check mt-2">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="cancelReason"
-                          id="reason-other"
-                          checked={otherChecked}
-                          onChange={() => {
-                            setOtherChecked(true);
-                            setSelectedReason("");
-                          }}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="reason-other"
-                        >
-                          Other
-                        </label>
-                      </div>
-                      {otherChecked && (
-                        <textarea
-                          className="form-control mt-2"
-                          rows="3"
-                          placeholder="Please specify your reason"
-                          value={otherReason}
-                          onChange={(e) => setOtherReason(e.target.value)}
-                        />
-                      )}
-                    </form>
-                    <div className="d-flex justify-content-end mt-3">
-                      <button
-                        type="button"
-                        className="btn btn-secondary me-2 px-4 py-2"
-                        onClick={() => setShowCancelSection(false)}
-                      >
-                        Close
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger px-4 py-2"
-                        onClick={submitCancellation}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Review Section (only if not cancelling) */}
-              {!showCancelSection &&
-                selectedBooking.BookingStatus === "Completed" && (
-                  <div className="review-card border rounded-3 p-4 mt-4">
-                    <h6 className="text-primary">Rate Your Experience</h6>
-                    {/* Service Quality */}
-                    <div className="mb-3">
-                      <label className="fw-bold">Service Quality</label>
-                      <p className="small text-muted">
-                        How satisfied were you with the overall service?
-                      </p>
-                      <StarRating
-                        rating={serviceQuality}
-                        onRatingChange={setServiceQuality}
-                      />
-                    </div>
-                    {/* Technician Rating */}
-                    <div className="mb-3">
-                      <label className="fw-bold">Technician </label>
-                      <p className="small text-muted">
-                        How would you rate the professionalism and expertise?
-                      </p>
-                      <StarRating
-                        rating={technicianRating}
-                        onRatingChange={setTechnicianRating}
-                      />
-                    </div>
-                    {/* Feedback */}
-                    <div className="mb-3">
-                      <label className="fw-bold">Your Feedback</label>
-                      <textarea
-                        className="form-control"
-                        rows="3"
-                        placeholder="Share your thoughts to help us improve"
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                      />
-                    </div>
-                    {feedbackExists ? (
-                      ""
-                    ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() =>
-                          handleSubmitReview(selectedBooking.BookingID)
-                        }
-                      >
-                        Submit Review
-                      </button>
                     )}
-                  </div>
-                )}
-            </>
-          )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showPaymentModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.6)",
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        {showPaymentModal && (
           <div
             style={{
-              position: "relative",
-              backgroundColor: "#fff",
-              borderRadius: "12px",
-              padding: "20px",
-              width: "90%",
-              maxWidth: "350px",
-              textAlign: "center",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.6)",
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            {paymentStatus === "processing" ? (
-              <>
-                <div
-                  style={{
-                    width: 50,
-                    height: 50,
-                    margin: "0 auto 20px",
-                    border: "4px solid #1890ae",
-                    borderTop: "4px solid transparent",
-                    borderRadius: "50%",
-                    animation: "spin 1s linear infinite",
-                  }}
-                />
-                <h4 style={{ marginBottom: 10 }}>Processing Payment</h4>
-                <p style={{ color: "#666", marginBottom: 20 }}>
-                  Please wait... your booking is being processed.
-                </p>
-              </>
-            ) : (
-              <>
-                <img
-                  src={
-                    paymentStatus === "success"
-                      ? "https://cdn-icons-png.flaticon.com/512/190/190411.png" 
-                      : "https://cdn-icons-png.flaticon.com/512/463/463612.png" 
-                  }
-                  alt="Status Icon"
-                  style={{ width: 50, height: 50, marginBottom: 20 }}
-                />
-                <h4 style={{ marginBottom: 10 }}>
-                  {paymentStatus === "success" ? "Successful" : " Failed"}
-                </h4>
-                <p style={{ color: "#666", marginBottom: 20 }}>
-                  {paymentMessage}
-                </p>
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setAppliedCoupon(null);
-                    setCouponApplied(false);
-                    handleBack();
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  style={{
-                    backgroundColor:
-                      paymentStatus === "success" ? "#28a745" : "#dc3545",
-                    color: "#fff",
-                    padding: "8px 20px",
-                    border: "none",
-                    borderRadius: "6px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                  }}
-                >
-                  OK
-                </button>
-              </>
-            )}
+            <div
+              style={{
+                position: "relative",
+                backgroundColor: "#fff",
+                borderRadius: "12px",
+                padding: "20px",
+                width: "90%",
+                maxWidth: "350px",
+                textAlign: "center",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
+              }}
+            >
+              {paymentStatus === "processing" ? (
+                <>
+                  <div
+                    style={{
+                      width: 50,
+                      height: 50,
+                      margin: "0 auto 20px",
+                      border: "4px solid #1890ae",
+                      borderTop: "4px solid transparent",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
+                  <h4 style={{ marginBottom: 10 }}>Processing Payment</h4>
+                  <p style={{ color: "#666", marginBottom: 20 }}>
+                    Please wait... your booking is being processed.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <img
+                    src={
+                      paymentStatus === "success"
+                        ? "https://cdn-icons-png.flaticon.com/512/190/190411.png"
+                        : "https://cdn-icons-png.flaticon.com/512/463/463612.png"
+                    }
+                    alt="Status Icon"
+                    style={{ width: 50, height: 50, marginBottom: 20 }}
+                  />
+                  <h4 style={{ marginBottom: 10 }}>
+                    {paymentStatus === "success" ? "Successful" : " Failed"}
+                  </h4>
+                  <p style={{ color: "#666", marginBottom: 20 }}>
+                    {paymentMessage}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setShowPaymentModal(false);
+                      setAppliedCoupon(null);
+                      setCouponApplied(false);
+                      handleBack();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    style={{
+                      backgroundColor:
+                        paymentStatus === "success" ? "#28a745" : "#dc3545",
+                      color: "#fff",
+                      padding: "8px 20px",
+                      border: "none",
+                      borderRadius: "6px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    OK
+                  </button>
+                </>
+              )}
 
-            {/* Spinner animation */}
-            <style>
-              {`
+              {/* Spinner animation */}
+              <style>
+                {`
              @keyframes spin {
                0% { transform: rotate(0deg); }
                100% { transform: rotate(360deg); }
              }
            `}
-            </style>
+              </style>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

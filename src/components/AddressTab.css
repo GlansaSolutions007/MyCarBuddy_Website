@@ -12,6 +12,7 @@
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
+  margin: 10px;
 }
 
 .at-title {
@@ -138,13 +139,13 @@
 }
 
 .at-card.primary::before {
-  content: '';
+  /* content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #0a6264 0%, #1aa1a4 100%);
+  background: linear-gradient(90deg, #0a6264 0%, #1aa1a4 100%); */
 }
 
 .at-card-header {
@@ -460,6 +461,8 @@
     font-size: 0.9rem;
   }
 }
+
+
 
 
 

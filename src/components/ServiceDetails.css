@@ -412,7 +412,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  max-height: 300px;
+  max-height: 275px;
   overflow-y: auto;
   padding-right: 10px;
   scrollbar-width: thin;
@@ -1969,5 +1969,139 @@
 
 .sd-sidebar {
   animation-delay: 0.2s;
+}
+
+/* ===== Explanations Section ===== */
+.sd-explanations {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fffe 100%);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(10, 98, 100, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  margin-top: 20px;
+}
+
+.sd-explanations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom Scrollbar for Explanations */
+.sd-explanations-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sd-explanations-list::-webkit-scrollbar-track {
+  background: rgba(10, 98, 100, 0.05);
+  border-radius: 10px;
+}
+
+.sd-explanations-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 10px;
+}
+
+.sd-explanations-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #085456 0%, #158a8c 100%);
+}
+
+.sd-explanation-item {
+  background: linear-gradient(135deg, #f8fffe 0%, #eef9f9 100%);
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 4px solid #0a6264;
+  transition: all 0.3s ease;
+}
+
+.sd-explanation-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.12);
+  background: linear-gradient(135deg, #eef9f9 0%, #e0f4f4 100%);
+}
+
+.sd-explanation-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.sd-explanation-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(10, 98, 100, 0.25);
+}
+
+.sd-explanation-question {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a2b3c;
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+
+.sd-explanation-answer {
+  font-size: 0.85rem;
+  color: #5a6b7c;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 40px;
+}
+
+/* Responsive Styles for Explanations */
+@media (max-width: 991px) {
+  .sd-explanations {
+    padding: 20px;
+  }
+  
+  .sd-explanation-item {
+    padding: 14px;
+  }
+  
+  .sd-explanation-answer {
+    padding-left: 0;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 575px) {
+  .sd-explanations {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .sd-explanation-header {
+    gap: 10px;
+  }
+  
+  .sd-explanation-number {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.7rem;
+  }
+  
+  .sd-explanation-question {
+    font-size: 0.9rem;
+  }
+  
+  .sd-explanation-answer {
+    font-size: 0.8rem;
+    padding-left: 0;
+  }
 }
 

@@ -56,7 +56,7 @@ const QuickBookingsLayer = () => {
     const handleSubmit = () => {
         Swal.fire({
             title: "Services Confirmed!",
-            text: "Your Add-on Services have been successfully submitted.",
+            text: "Your Services have been successfully submitted.",
             icon: "success",
             confirmButtonText: "OK",
             confirmButtonColor: "#0a6264",

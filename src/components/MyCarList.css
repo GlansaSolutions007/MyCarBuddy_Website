@@ -12,6 +12,7 @@
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
+  margin: 10px;
 }
 
 .mc-title {
@@ -677,6 +678,8 @@
     padding: 14px 16px;
   }
 }
+
+
 
 
 

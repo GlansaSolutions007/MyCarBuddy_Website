@@ -70,9 +70,9 @@ const AppRedirectPage = () => {
         {!showFallback ? (
           <div style={styles.loadingContainer}>
             <div style={styles.spinner}></div>
-            <h2 style={styles.subtitle}>Redirecting to MyCarBuddy App...</h2>
+            <h2 style={styles.subtitle}>Redirecting to My Car Buddy App...</h2>
             <p style={styles.description}>
-              Please wait while we redirect you to the MyCarBuddy mobile app.
+              Please wait while we redirect you to the My Car Buddy mobile app.
             </p>
           </div>
         ) : (

@@ -500,8 +500,8 @@ const MyCarList = () => {
                     )}
                   </div>
                   <div className="mc-car-details">
-                    <div className="mc-car-brand">{car.BrandName}</div>
-                    <div className="mc-car-model">{car.ModelName}</div>
+                    <div className="mc-car-brand">{car.BrandName} <span className="mc-car-model">{car.ModelName}</span></div>
+                    {/* <div className="mc-car-model">{car.ModelName}</div> */}
                     <div className="mc-car-fuel">
                       <FaGasPump /> {car.FuelTypeName}
                     </div>

@@ -4,10 +4,10 @@ const Terms = () => {
   return (
     <div className="container py-5">
       <h2 className="mb-4">Terms & Conditions</h2>
-      <h4>Mycarbuddy.in is a subsidiary of Glansa Solution Private Limited</h4>
+      <h4>My car buddy.in is a subsidiary of Glansa Solution Private Limited</h4>
       <p>
         These Terms and Conditions (“Terms”) govern your use of the{" "}
-        <strong>MyCarBuddy</strong> mobile application, website, and services
+        <strong>My Car Buddy</strong> mobile application, website, and services
         (collectively, the “Platform”).
       </p>
       <p>
@@ -20,13 +20,13 @@ const Terms = () => {
          Road/Street: Vittal Nagar Road, Locality/Sub Locality: Madhapur,City/Town/Village: Hyderabad,District: Hyderabad ,State: Telangana, PIN Code: 500081 India. The terms{" "}
         <strong>"you"</strong>, <strong>"your"</strong>, <strong>"user"</strong>,
         or <strong>"customer"</strong> shall mean any person accessing or using
-        the Platform. <strong>MyCarBuddy</strong> is a registered product and
+        the Platform. <strong>My Car Buddy</strong> is a registered product and
         service brand owned by Glansa Solutions Pvt. Ltd.
       </p>
 
       <h4>1. Scope of Services</h4>
       <p>
-        MyCarBuddy provides on-demand and scheduled vehicle care and car service
+        My Car Buddy provides on-demand and scheduled vehicle care and car service
         solutions, including car wash, cleaning, detailing, diagnostics, repairs,
         and other technician services through verified partners and dealers.
       </p>
@@ -67,12 +67,12 @@ const Terms = () => {
       <p>
         Customers may cancel or reschedule before service begins. Refunds, if
         applicable, will be processed to the original payment method in line with
-        the MyCarBuddy Cancellation & Refund Policy.
+        the My Car Buddy Cancellation & Refund Policy.
       </p>
 
       <h4>6. Service Quality & Liability</h4>
       <p>
-        While we ensure reliable services via verified partners, MyCarBuddy /
+        While we ensure reliable services via verified partners, My Car Buddy /
         Glansa Solutions Pvt. Ltd. shall not be liable for incidental or
         consequential damages, inaccurate service details provided by customers,
         or delays beyond our reasonable control.

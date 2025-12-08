@@ -18,6 +18,7 @@ const Profile = () => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const userdata = JSON.parse(localStorage.getItem("user")) || {};
   const token = userdata?.token || "";
   const bytes = CryptoJS.AES.decrypt(userdata.id, secretKey);
@@ -67,6 +68,7 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       const formData = new FormData();
       formData.append("CustID", decryptedCustId || "");
@@ -97,6 +99,8 @@ const Profile = () => {
     } catch (err) {
       console.error("Save failed:", err);
       alert("Error updating profile");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -272,13 +276,24 @@ const Profile = () => {
                   <button
                     className="profile-btn profile-btn-primary"
                     onClick={handleSave}
+                    disabled={saving}
                   >
-                    <i className="fas fa-check" />
-                    Save Changes
+                    {saving ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check" />
+                        Save Changes
+                      </>
+                    )}
                   </button>
                   <button
                     className="profile-btn profile-btn-secondary"
                     onClick={() => setEditing(false)}
+                    disabled={saving}
                   >
                     <i className="fas fa-times" />
                     Cancel

@@ -18,6 +18,7 @@ import {
   FaRedo
 } from "react-icons/fa";
 import "./BookServiceModal.css";
+import { platform } from "process";
 
 const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   // --- STATES ---
@@ -142,6 +143,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       fullName,
       phoneNumber: identifier,
       email: "",
+      platform: "Web",
       description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
 
@@ -339,7 +341,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
 
               {/* Trust */}
               <div className="bsm-trust">
-                <span>✓ 10,000+ Customers</span>
+                <span>✓ 1,000+ Customers</span>
                 <span>✓ Certified Mechanics</span>
               </div>
             </div>

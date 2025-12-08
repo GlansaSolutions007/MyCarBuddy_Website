@@ -405,19 +405,19 @@ const RaisedTicketsTab = () => {
                       <div className="rt-ticket-details">
                         {ticket.BookingTrackID && (
                           <div className="rt-detail-item">
-                            <div className="rt-detail-label">Booking ID</div>
-                            <div className="rt-detail-value">{ticket.BookingTrackID}</div>
+                            <div className="rt-detail-label">Booking ID: <span className="rt-detail-value">{ticket.BookingTrackID}</span></div>
+                            {/* <div className="rt-detail-value">{ticket.BookingTrackID}</div> */}
                           </div>
                         )}
                         <div className="rt-detail-item">
-                          <div className="rt-detail-label">Reason</div>
-                          <div className="rt-detail-value">{ticket.Reason}</div>
+                          <div className="rt-detail-label">Reason: <span className="rt-detail-value">{ticket.Reason}</span></div>
+                          {/* <div className="rt-detail-value">{ticket.Reason}</div> */}
                         </div>
                         <div className="rt-detail-item">
-                          <div className="rt-detail-label">Description</div>
-                          <div className="rt-detail-value">
+                          <div className="rt-detail-label">Description: <span className="rt-detail-value">{ticket.Description || "No description provided."}</span></div>
+                          {/* <div className="rt-detail-value">
                             {ticket.Description || "No description provided."}
-                          </div>
+                          </div> */}
                         </div>
                       </div>
 
@@ -430,16 +430,54 @@ const RaisedTicketsTab = () => {
 
                     {/* Timeline Section */}
                     <div className="rt-timeline-section">
-                      <div
-                        className={`rt-timeline-toggle ${timelineExpanded[ticketKey] ? "expanded" : ""}`}
-                        onClick={() => toggleTimeline(ticketKey)}
-                      >
-                        <span className="rt-timeline-toggle-text">
-                          <FaHistory /> View Ticket Progress
-                        </span>
-                        <span className="rt-timeline-toggle-arrow">
-                          <FaChevronDown />
-                        </span>
+                      <div className="rt-timeline-header-row">
+                        <div
+                          className={`rt-timeline-toggle ${timelineExpanded[ticketKey] ? "expanded" : ""}`}
+                          onClick={() => toggleTimeline(ticketKey)}
+                        >
+                          <span className="rt-timeline-toggle-text">
+                            <FaHistory /> View Ticket Progress
+                          </span>
+                          <span className="rt-timeline-toggle-arrow">
+                            <FaChevronDown />
+                          </span>
+                        </div>
+
+                        {/* Action Buttons - beside View Ticket Progress */}
+                        <div className="rt-actions-inline">
+                          {(() => {
+                            const latestStatus =
+                              ticket?.TrackingHistory?.[0]?.StatusName?.toLowerCase() || "open";
+
+                            if (latestStatus === "cancelled") return null;
+
+                            if (latestStatus === "closed" || latestStatus === "resolved") {
+                              return (
+                                <button
+                                  className="rt-action-btn-inline reopen"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleReopenToggle(ticketKey);
+                                  }}
+                                >
+                                  <FaRedo /> Reopen
+                                </button>
+                              );
+                            }
+
+                            return (
+                              <button
+                                className="rt-action-btn-inline cancel"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancelTicket(ticketKey);
+                                }}
+                              >
+                                <FaTimes /> Cancel
+                              </button>
+                            );
+                          })()}
+                        </div>
                       </div>
 
                       {timelineExpanded[ticketKey] && (
@@ -629,36 +667,6 @@ const RaisedTicketsTab = () => {
                           })()}
                         </div>
                       )}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="rt-actions">
-                      {(() => {
-                        const latestStatus =
-                          ticket?.TrackingHistory?.[0]?.StatusName?.toLowerCase() || "open";
-
-                        if (latestStatus === "cancelled") return null;
-
-                        if (latestStatus === "closed" || latestStatus === "resolved") {
-                          return (
-                            <button
-                              className="rt-action-btn reopen"
-                              onClick={() => handleReopenToggle(ticketKey)}
-                            >
-                              <FaRedo /> Reopen Ticket
-                            </button>
-                          );
-                        }
-
-                        return (
-                          <button
-                            className="rt-action-btn cancel"
-                            onClick={() => handleCancelTicket(ticketKey)}
-                          >
-                            <FaTimes /> Cancel Ticket
-                          </button>
-                        );
-                      })()}
                     </div>
 
                     {/* Cancel Form */}
