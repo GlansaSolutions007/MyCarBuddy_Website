@@ -31,6 +31,7 @@ import AppRedirectPage from "./pages/AppRedirectPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
 import QuickBookings from "./pages/QuickBookingsPage";
+import ThankYouPage from "./pages/ThankYouPage"
 
 function App() {
   useEffect(() => {
@@ -70,6 +71,7 @@ function App() {
           <Route exact path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/redirect-to-payment/:encodedUrl" element={<RedirectToPayment />} />
           <Route path="/quick-bookings" element={<QuickBookings />} />
+          <Route path="/payment-successful" element={<ThankYouPage />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>
