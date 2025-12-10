@@ -97,7 +97,9 @@ const ServiceAreaTwo = () => {
         {/* Services Grid */}
         {filteredServices.length > 0 ? (
           <div className="row gy-4 justify-content-center">
-            {filteredServices.map((service, index) => (
+            {filteredServices
+            .filter(service => service.title !== "Custom Category") // <-- exclude this title
+            .map((service, index) => (
               <div
                 key={service.id}
                 className={`col-6 col-sm-6 col-md-4 col-lg-3 animate-fadeInUp delay-${(index % 4) + 1}`}

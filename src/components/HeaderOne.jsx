@@ -357,7 +357,9 @@ const HeaderOne = () => {
                     </Link>
                     <div className="mcb-dropdown">
                       <div className="mcb-dropdown-grid">
-                        {categories.map((cat) => (
+                        {categories
+                        .filter(cat => cat.CategoryName !== "Custom Category") // <-- exclude this title
+                        .map((cat) => (
                           <Link key={cat.CategoryID} to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`} className="mcb-dropdown-link">
                             <i className="fas fa-wrench" />
                             <span>{cat.CategoryName}</span>

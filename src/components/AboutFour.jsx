@@ -46,7 +46,7 @@ const AboutFour = () => {
                   {({ isVisible }) =>
                     isVisible && (
                       <div className="badge-number">
-                        <CountUp delay={0} start={0} end={30} duration={2.5} />
+                        <CountUp delay={0} start={0} end={25} duration={2.5} />
                         <span>+</span>
                         <span className="years-text">Years</span>
                       </div>

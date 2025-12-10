@@ -108,20 +108,22 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         name: "MyCarBuddy",
         description: "Doorstep Car Inspection",
         order_id: orderId, // Order ID from backend
+        
         handler: function (response) {
-          Swal.fire({
-            title: "Payment Successful!",
-            html: `
-              <div style="text-align: center; padding: 10px 0;">
-                <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
-                <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
-                <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
-              </div>
-            `,
-            icon: "success",
-            confirmButtonColor: "#0a6264",
-            confirmButtonText: "Got it!",
-          });
+          // Swal.fire({
+          //   title: "Payment Successful!",
+          //   html: `
+          //     <div style="text-align: center; padding: 10px 0;">
+          //       <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
+          //       <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
+          //       <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
+          //     </div>
+          //   `,
+          //   icon: "success",
+          //   confirmButtonColor: "#0a6264",
+          //   confirmButtonText: "Got it!",
+          // });
+          navigate("/payment-successful");
           onClose();
         },
         prefill: {
@@ -228,6 +230,16 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       );
 
       window.dispatchEvent(new Event("userProfileUpdated"));
+
+      // IMPORTANT 👇  
+      // RESET OTP state so UI goes back to normal
+      setOtpStep(false);
+      setOtp("");
+      setOtpSent(false);
+      setOtpExpired(false);
+
+      // SHOW normal Pay button ("Pay 399 & Book")
+      setCurrentStep("offer");
 
       // 🚀 Logged in successfully, now trigger the Payment Flow
       handlePayment();
@@ -355,42 +367,44 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 </div>
 
                 <form className="ip-form" onSubmit={handleFormSubmit}>
-                  {/* Name Field */}
-                  <div className="ip-form-group">
-                    <label className="ip-label">
-                      <FaUser style={{ marginRight: 6 }} />
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      className="ip-input"
-                      placeholder="Enter full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      disabled={otpStep}
-                      required
-                    />
-                  </div>
+                  <div className="ip-row">
+                    {/* Name Field */}
+                    <div className="ip-form-group half">
+                      <label className="ip-label">
+                        <FaUser style={{ marginRight: 6 }} />
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        className="ip-input"
+                        placeholder="Enter full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        disabled={otpStep}
+                        required
+                      />
+                    </div>
 
-                  {/* Phone Field */}
-                  <div className="ip-form-group">
-                    <label className="ip-label">
-                      <FaPhone style={{ marginRight: 6 }} />
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      className="ip-input"
-                      placeholder="10-digit mobile number"
-                      value={identifier}
-                      onChange={(e) =>
-                        setIdentifier(
-                          e.target.value.replace(/\D/g, "").slice(0, 10)
-                        )
-                      }
-                      disabled={otpStep}
-                      required
-                    />
+                    {/* Phone Field */}
+                    <div className="ip-form-group half">
+                      <label className="ip-label">
+                        <FaPhone style={{ marginRight: 6 }} />
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        className="ip-input"
+                        placeholder="10-digit mobile number"
+                        value={identifier}
+                        onChange={(e) =>
+                          setIdentifier(
+                            e.target.value.replace(/\D/g, "").slice(0, 10)
+                          )
+                        }
+                        disabled={otpStep}
+                        required
+                      />
+                    </div>
                   </div>
 
                   {/* Email Field (Added) */}
@@ -499,7 +513,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

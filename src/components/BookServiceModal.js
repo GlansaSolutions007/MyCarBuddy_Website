@@ -20,6 +20,7 @@ import {
 } from "react-icons/fa";
 import "./BookServiceModal.css";
 import { platform } from "process";
+import { useNavigate } from "react-router-dom";
 
 const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   // --- STATES ---
@@ -41,6 +42,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   const { showAlert } = useAlert();
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = user && user.token;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -100,56 +102,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     setCurrentStep("booking");
   };
 
-
-
-  // const handlePayment = () => {
-  //   const options = {
-  //     key: process.env.REACT_APP_RAZORPAY_KEY,
-  //     amount: 39900, // ₹399 in paise
-  //     currency: 'INR',
-  //     name: 'MyCarBuddy',
-  //     description: 'Car Inspection Fee',
-  //     image: '/assets/img/logo.png',
-  //     handler: function (response) {
-  //       Swal.fire({
-  //         title: "Payment Successful!",
-  //         html: `
-  //           <div style="text-align: center; padding: 10px 0;">
-  //             <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
-  //             <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
-  //             <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
-  //           </div>
-  //         `,
-  //         icon: "success",
-  //         confirmButtonColor: "#0a6264",
-  //       });
-  //       onClose();
-  //     },
-  //     prefill: {
-  //       name: fullName,
-  //       email: '',
-  //       contact: identifier,
-  //     },
-  //     theme: {
-  //       color: '#0a6264',
-  //     },
-  //   };
-  //   const rzp = new window.Razorpay(options);
-  //   rzp.on('payment.failed', function (response) {
-  //     Swal.fire({
-  //       title: "Payment Failed",
-  //       text: response.error.description || "Something went wrong. Please try again.",
-  //       icon: "error",
-  //       confirmButtonColor: "#0a6264",
-  //     });
-  //   });
-  //   rzp.open();
-  // };
-
-
-
-
-
   const handlePayment = async () => {
     try {
       // 1️⃣ First create order by calling backend
@@ -178,24 +130,25 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         order_id: orderId,           // Razorpay order ID from backend
 
         handler: function (response) {
-          Swal.fire({
-            title: "Payment Successful!",
-            html: `
-            <div style="text-align: center; padding: 10px 0;">
-              <p style="margin-bottom: 10px; color: #374151;">
-                Your inspection has been booked!
-              </p>
-              <p style="color: #6b7280; font-size: 14px;">
-                Our expert technician will contact you shortly.
-              </p>
-              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
-                Payment ID: ${response.razorpay_payment_id}
-              </p>
-            </div>
-          `,
-            icon: "success",
-            confirmButtonColor: "#0a6264",
-          });
+          // Swal.fire({
+          //   title: "Payment Successful!",
+          //   html: `
+          //   <div style="text-align: center; padding: 10px 0;">
+          //     <p style="margin-bottom: 10px; color: #374151;">
+          //       Your inspection has been booked!
+          //     </p>
+          //     <p style="color: #6b7280; font-size: 14px;">
+          //       Our expert technician will contact you shortly.
+          //     </p>
+          //     <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+          //       Payment ID: ${response.razorpay_payment_id}
+          //     </p>
+          //   </div>
+          // `,
+          //   icon: "success",
+          //   confirmButtonColor: "#0a6264",
+          // });
+          navigate("/payment-successful");
           onClose();
         },
 
@@ -227,12 +180,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       Swal.fire("Error", "Unable to initiate payment", "error");
     }
   };
-
-
-
-
-
-
 
   const normalSubmit = async () => {
     const leadPayload = {
@@ -539,7 +486,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                       required
                     />
                   </div>
-                  <div className="bsm-form-group">
+                  <div className="bsm-form-group full-width">
                     <label className="bsm-label">
                       <FaEnvelope style={{ marginRight: 6 }} />
                       Email

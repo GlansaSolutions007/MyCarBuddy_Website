@@ -181,18 +181,18 @@ export default function ServiceCards() {
   useEffect(() => {
     const fetchFaqs = async () => {
       if (!categoryId) return;
-      
+
       try {
         const response = await axios.get(
           `${BASE_URL}FAQS/Packages?CategoryID=${categoryId}&Type=category`
         );
-        
+
         // Get FAQs from CategoryFAQS array
         const categoryFaqs = response.data?.CategoryFAQS || [];
-        
+
         // Find FAQs for the current category
         const currentCategoryFaqs = categoryFaqs.find(c => c.CategoryID === parseInt(categoryId));
-        
+
         if (currentCategoryFaqs?.FAQS) {
           setFaqs(currentCategoryFaqs.FAQS);
         } else if (categoryFaqs.length > 0) {
@@ -214,18 +214,18 @@ export default function ServiceCards() {
   useEffect(() => {
     const fetchExplanations = async () => {
       if (!categoryId) return;
-      
+
       try {
         const response = await axios.get(
           `${BASE_URL}Explanations/Packages?CategoryID=${categoryId}&Type=category`
         );
-        
+
         // Get Explanations from CategoryFAQS array
         const categoryExplanations = response.data?.CategoryFAQS || [];
-        
+
         // Find Explanations for the current category
         const currentCategoryExplanations = categoryExplanations.find(c => c.CategoryID === parseInt(categoryId));
-        
+
         if (currentCategoryExplanations?.FAQS) {
           setExplanations(currentCategoryExplanations.FAQS);
         } else if (categoryExplanations.length > 0) {
@@ -395,7 +395,7 @@ export default function ServiceCards() {
                   {/* Card Content */}
                   <div className="sc-card-content">
                     <h3 className="sc-card-title">{pkg.title}</h3>
-                    
+
                     {/* Includes List - Show only 2 items */}
                     <ul className="sc-card-includes">
                       {pkg.includes.slice(0, 3).map((item, idx) => (
@@ -528,7 +528,17 @@ export default function ServiceCards() {
                     <span className="sc-explanation-number">{String(idx + 1).padStart(2, '0')}</span>
                     <h4 className="sc-explanation-question">{exp.Question}</h4>
                   </div>
-                  <p className="sc-explanation-answer">{exp.Answer}</p>
+                  {/* <p className="sc-explanation-answer">{exp.Answer}</p> */}
+                  <p className="sc-explanation-answer">
+                    {exp.Answer.replace(/\n+/g, "\n")   // convert multiple \n into single \n
+                      .split("\n")
+                      .map((line, i) => (
+                        <React.Fragment key={i}>
+                          {line}
+                          <br />
+                        </React.Fragment>
+                      ))}
+                  </p>
                 </div>
               ))}
             </div>

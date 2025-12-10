@@ -99,14 +99,16 @@ const HeroSection = () => {
 
               <div className="hero-btns">
                 <button
-                  onClick={() => setShowInspectionPopup(true)}
+                  onClick={() => setShowInspectionPopup(true)} 
                   className="btn-primary-custom"
                 >
+                  <i className="fas fa-tools pe-2 "></i>
                   {slide.buttonText}
                 </button>
 
                 <button onClick={handleContactClick} className="btn-outline-custom">
                   {/* Get Free Inspection on Call */}
+                  <i className="fas fa-headset pe-2 "></i>
                   Call for Free Consultation
                 </button>
               </div>

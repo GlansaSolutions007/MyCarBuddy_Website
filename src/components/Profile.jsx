@@ -235,7 +235,7 @@ const Profile = () => {
                 <div className="profile-form-group">
                   <label className="profile-form-label">Mobile Number</label>
                   <div className="profile-form-input-wrapper">
-                    <i className="fas fa-phone profile-form-icon" />
+                    <i className="fas fa-phone-alt profile-form-icon" />
                     <input
                       type="text"
                       className="profile-form-input"

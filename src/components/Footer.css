@@ -183,7 +183,8 @@
 }
 
 .contact-link:hover {
-    color: var(--primary-color);
+    /* color: var(--primary-color); */
+    color: var(--secondary-color);
 }
 
 /* --- Copyright Area --- */

@@ -61,7 +61,7 @@ const AboutTwo = () => {
                   {({ isVisible }) =>
                     isVisible && (
                       <div className="about-two-badge-number">
-                        <CountUp delay={0} start={0} end={5000} duration={2.5} />+
+                        <CountUp delay={0} start={0} end={1000} duration={2.5} />+
                       </div>
                     )
                   }
