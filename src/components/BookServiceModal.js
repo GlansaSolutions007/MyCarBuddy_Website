@@ -15,7 +15,8 @@ import {
   FaPhone,
   FaComment,
   FaShieldAlt,
-  FaRedo
+  FaRedo,
+  FaEnvelope
 } from "react-icons/fa";
 import "./BookServiceModal.css";
 import { platform } from "process";
@@ -29,6 +30,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   const [otp, setOtp] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,8 +46,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     if (isLoggedIn) {
       setFullName(user?.name || "");
       setIdentifier(user?.phone || "");
+      setEmail(user?.email || "");
     }
   }, [isLoggedIn]);
+
+  console.log(`email is = ${fullName}`);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -59,6 +64,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       setFullName(isLoggedIn ? user?.name : "");
       setDescription("");
       setOtpSent(false);
+      setEmail(isLoggedIn ? user?.email : "");
     }
   }, [isOpen, isLoggedIn]);
 
@@ -150,7 +156,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       const leadPayload = {
         fullName,
         phoneNumber: identifier,
-        email: user?.email || "",
+        email: email || user?.email || "",
         platform: "Web",
         amount: 399,
         description: `${selectedService?.title || "General Enquiry"} - ${description}`
@@ -195,6 +201,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
 
         prefill: {
           name: fullName,
+          email: email,
           contact: identifier,
         },
 
@@ -231,9 +238,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     const leadPayload = {
       fullName,
       phoneNumber: identifier,
-      email: user?.email || "",
+      email: email || user?.email || "",
       platform: "Web",
-      amount: 399,  
+      amount: 399,
       description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
 
@@ -266,7 +273,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     }
     setLoading(true);
     try {
-      await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier });
+      await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier, email });
       setOtpSent(true);
       setOtpExpired(false);
       setOtpStep(true);
@@ -286,6 +293,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       const res = await axios.post(`${baseUrl}Auth/verify-otp`, {
         loginId: identifier,
         otp,
+        email,
         deviceToken: "web-token",
         deviceId,
       });
@@ -296,10 +304,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
           id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
           name: res.data?.name || "GUEST",
           phone: identifier,
+          email: res.data?.email || email,
           token: res.data?.token,
           profileImage: res?.data?.profileImage,
         })
       );
+
+      window.dispatchEvent(new Event("userProfileUpdated"));
 
       if (inspection) {
         handlePayment();
@@ -524,6 +535,21 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                       placeholder="10-digit mobile"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      disabled={isLoggedIn || otpStep}
+                      required
+                    />
+                  </div>
+                  <div className="bsm-form-group">
+                    <label className="bsm-label">
+                      <FaEnvelope style={{ marginRight: 6 }} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className="bsm-input"
+                      placeholder="yourname@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       disabled={isLoggedIn || otpStep}
                       required
                     />

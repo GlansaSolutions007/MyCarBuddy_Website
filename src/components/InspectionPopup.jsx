@@ -5,34 +5,36 @@ import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 import { useAlert } from "../context/AlertContext";
-import { 
-  FaTimes, 
-  FaCarSide, 
-  FaCheckCircle, 
-  FaGift, 
+import {
+  FaTimes,
+  FaCarSide,
+  FaCheckCircle,
+  FaGift,
   FaArrowRight,
   FaCreditCard,
   FaUser,
   FaPhone,
-  FaRedo
+  FaEnvelope,
+  FaRedo,
 } from "react-icons/fa";
 import "./InspectionPopup.css";
 
 const InspectionPopup = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { showAlert } = useAlert();
-  
-  // States
+
+  // --- STATES ---
   const [currentStep, setCurrentStep] = useState("offer"); // "offer" or "details"
   const [fullName, setFullName] = useState("");
   const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState(""); // Added Email state
   const [otp, setOtp] = useState("");
   const [otpStep, setOtpStep] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [timer, setTimer] = useState(60);
   const [otpExpired, setOtpExpired] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const user = JSON.parse(localStorage.getItem("user"));
@@ -44,6 +46,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       setCurrentStep("offer");
       setFullName(isLoggedIn ? user?.name : "");
       setIdentifier(isLoggedIn ? user?.phone : "");
+      setEmail(isLoggedIn ? user?.email : ""); // Pre-fill email
       setOtp("");
       setOtpStep(false);
       setOtpSent(false);
@@ -74,70 +77,99 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     return deviceId;
   };
 
-  const openRazorpay = (userName, userPhone) => {
-    const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY,
-      amount: 39900, // ₹399 in paise
-      currency: 'INR',
-      name: 'MyCarBuddy',
-      description: 'Doorstep Car Inspection',
-      image: '/assets/img/logo.png',
-      handler: function (response) {
-        Swal.fire({
-          title: "Payment Successful!",
-          html: `
-            <div style="text-align: center; padding: 10px 0;">
-              <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
-              <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly to schedule your <strong style="color: #0a6264;">doorstep inspection</strong>.</p>
-              <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
-            </div>
-          `,
-          icon: "success",
-          confirmButtonColor: "#0a6264",
-          confirmButtonText: "Got it!"
-        });
-        onClose();
-      },
-      prefill: {
-        name: userName || '',
-        email: '',
-        contact: userPhone || '',
-      },
-      theme: {
-        color: '#0a6264',
-      },
-      modal: {
-        ondismiss: function() {
-          // User closed payment modal without completing payment
+  // --- PAYMENT LOGIC (Backend Initiated) ---
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      // 1️⃣ Create Lead/Order in Backend
+      const leadPayload = {
+        fullName: fullName || user?.name,
+        phoneNumber: identifier || user?.phone,
+        email: email || user?.email || "",
+        platform: "Web",
+        amount: 399,
+        description: "Doorstep Car Inspection Offer - ₹399",
+      };
+
+      const res = await axios.post(
+        `${baseUrl}Leads/MultipleLeads`,
+        leadPayload
+      );
+
+      const orderId = res.data.razorpayOrder.orderID;
+      const razorKey = res.data.razorpayOrder.key;
+      const amount = res.data.amount * 100; // Razorpay requires paise
+
+      // 2️⃣ Open Razorpay Checkout
+      const options = {
+        key: razorKey,
+        amount: amount,
+        currency: "INR",
+        name: "MyCarBuddy",
+        description: "Doorstep Car Inspection",
+        order_id: orderId, // Order ID from backend
+        handler: function (response) {
+          Swal.fire({
+            title: "Payment Successful!",
+            html: `
+              <div style="text-align: center; padding: 10px 0;">
+                <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
+                <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
+                <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
+              </div>
+            `,
+            icon: "success",
+            confirmButtonColor: "#0a6264",
+            confirmButtonText: "Got it!",
+          });
           onClose();
-          navigate("/");
-        }
-      }
-    };
-    
-    const rzp = new window.Razorpay(options);
-    rzp.on('payment.failed', function (response) {
-      Swal.fire({
-        title: "Payment Failed",
-        text: response.error.description || "Something went wrong. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#0a6264",
+        },
+        prefill: {
+          name: fullName,
+          email: email,
+          contact: identifier,
+        },
+        theme: {
+          color: "#0a6264",
+        },
+        modal: {
+          ondismiss: function () {
+            // Optional: Handle modal dismissal
+            setLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        Swal.fire({
+          title: "Payment Failed",
+          text: response.error.description || "Something went wrong.",
+          icon: "error",
+          confirmButtonColor: "#0a6264",
+        });
+        setLoading(false);
       });
-      onClose();
-      navigate("/");
-    });
-    rzp.open();
+
+      rzp.open();
+    } catch (err) {
+      console.error("Payment Order Error:", err);
+      Swal.fire("Error", "Unable to initiate payment", "error");
+      setLoading(false);
+    }
   };
 
   const handlePayNow = () => {
     if (isLoggedIn) {
-      // User is logged in, directly open Razorpay
-      openRazorpay(user?.name, user?.phone);
+      // User is logged in, directly initiate backend payment
+      handlePayment();
     } else {
       // User not logged in, show details form
       setCurrentStep("details");
     }
   };
+
+  // --- OTP & AUTH LOGIC ---
 
   const handleSendOTP = async () => {
     if (!identifier) {
@@ -150,7 +182,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     }
     setLoading(true);
     try {
-      await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier });
+      // Send Email in payload if required by your API
+      await axios.post(`${baseUrl}Auth/send-otp`, {
+        loginId: identifier,
+        email: email,
+      });
       setOtpSent(true);
       setOtpExpired(false);
       setOtpStep(true);
@@ -170,6 +206,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       const res = await axios.post(`${baseUrl}Auth/verify-otp`, {
         loginId: identifier,
         otp,
+        email, // Pass email to backend during verification/registration
         deviceToken: "web-token",
         deviceId,
       });
@@ -178,9 +215,13 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       localStorage.setItem(
         "user",
         JSON.stringify({
-          id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
+          id: CryptoJS.AES.encrypt(
+            res.data?.custID.toString(),
+            secretKey
+          ).toString(),
           name: res.data?.name || fullName,
           phone: identifier,
+          email: res.data?.email || email,
           token: res.data?.token,
           profileImage: res?.data?.profileImage,
         })
@@ -188,12 +229,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
       window.dispatchEvent(new Event("userProfileUpdated"));
 
-      // Open Razorpay after successful verification
-      openRazorpay(fullName, identifier);
+      // 🚀 Logged in successfully, now trigger the Payment Flow
+      handlePayment();
     } catch (err) {
       console.error("OTP Verify Error", err);
       showAlert("Error", "Invalid OTP", 3000, "error");
-    } finally {
       setLoading(false);
     }
   };
@@ -203,17 +243,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     otpStep ? handleVerifyOTP() : handleSendOTP();
   };
 
-  const handleContinue = () => {
-    onClose();
-    navigate("/service");
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="ip-overlay" onClick={onClose}>
       <div className="ip-modal" onClick={(e) => e.stopPropagation()}>
-        
         {/* Close Button */}
         <button className="ip-close-btn" onClick={onClose}>
           <FaTimes />
@@ -227,7 +261,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 <FaCarSide />
               </div>
               <h2 className="ip-left-title">Doorstep Car Inspection</h2>
-              <p className="ip-left-subtitle">Expert technicians at your location</p>
+              <p className="ip-left-subtitle">
+                Expert technicians at your location
+              </p>
             </div>
 
             <div className="ip-left-benefits">
@@ -256,7 +292,6 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
           {/* Right Panel - Content */}
           <div className="ip-right-panel">
-            
             {/* STEP 1: Offer Screen */}
             {currentStep === "offer" && (
               <>
@@ -281,13 +316,19 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
                 {/* Action Buttons */}
                 <div className="ip-actions">
-                  <button 
+                  <button
                     className="ip-btn ip-btn-primary"
                     onClick={handlePayNow}
+                    disabled={loading}
                   >
-                    <FaCreditCard />
-                    Pay Now
-                    <FaArrowRight className="ip-btn-arrow" />
+                    {loading ? (
+                      "Processing..."
+                    ) : (
+                      <>
+                        <FaCreditCard /> Pay Now
+                        <FaArrowRight className="ip-btn-arrow" />
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -307,8 +348,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     {otpStep ? "Verify OTP" : "Your Details"}
                   </h3>
                   <p className="ip-subtitle">
-                    {otpStep 
-                      ? `Enter OTP sent to +91 ${identifier}` 
+                    {otpStep
+                      ? `Enter OTP sent to +91 ${identifier}`
                       : "Fill in your information"}
                   </p>
                 </div>
@@ -342,7 +383,28 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                       className="ip-input"
                       placeholder="10-digit mobile number"
                       value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      onChange={(e) =>
+                        setIdentifier(
+                          e.target.value.replace(/\D/g, "").slice(0, 10)
+                        )
+                      }
+                      disabled={otpStep}
+                      required
+                    />
+                  </div>
+
+                  {/* Email Field (Added) */}
+                  <div className="ip-form-group">
+                    <label className="ip-label">
+                      <FaEnvelope style={{ marginRight: 6 }} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      className="ip-input"
+                      placeholder="yourname@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       disabled={otpStep}
                       required
                     />
@@ -359,9 +421,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                           </span>
                         ) : (
                           <span className="ip-otp-expired">
-                            Expired - 
-                            <button 
-                              type="button" 
+                            Expired -
+                            <button
+                              type="button"
                               className="ip-otp-resend"
                               onClick={handleSendOTP}
                             >
@@ -376,7 +438,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         className="ip-otp-input"
                         placeholder="• • • • • •"
                         value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        onChange={(e) =>
+                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                        }
                         maxLength={6}
                         required
                         autoFocus
@@ -389,7 +453,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <button
                       type="button"
                       className="ip-btn ip-btn-secondary"
-                      onClick={() => otpStep ? setOtpStep(false) : setCurrentStep("offer")}
+                      onClick={() =>
+                        otpStep
+                          ? setOtpStep(false)
+                          : setCurrentStep("offer")
+                      }
                     >
                       Back
                     </button>
@@ -400,7 +468,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     >
                       <span className={loading ? "ip-text-blur" : ""}>
                         {loading ? (
-                          otpStep ? "Verifying..." : "Sending OTP..."
+                          otpStep ? (
+                            "Verifying..."
+                          ) : (
+                            "Sending OTP..."
+                          )
                         ) : otpStep ? (
                           <>
                             Verify & Pay ₹399
@@ -424,14 +496,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 </div>
               </>
             )}
-
           </div>
         </div>
-
       </div>
     </div>
   );
 };
 
 export default InspectionPopup;
-

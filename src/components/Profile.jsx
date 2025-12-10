@@ -92,6 +92,20 @@ const Profile = () => {
 
       if (!res.ok) throw new Error("Failed to update profile");
 
+      // Update localStorage user data after profile update
+      const existingUser = JSON.parse(localStorage.getItem("user")) || {};
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...existingUser, // keep token, id, phone, etc.
+          name: user.FullName,
+          email: user.Email,
+          profileImage: user.ProfileImage,
+          alternateNumber: user.AlternateNumber,
+        })
+      );
+
       window.dispatchEvent(new Event("userProfileUpdated"));
       setEditing(false);
       showAlert("success", "Profile updated successfully!", 3000, "success");
