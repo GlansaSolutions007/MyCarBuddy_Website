@@ -134,15 +134,15 @@
 }
 
 .ip-left-title {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: #fff;
   margin: 0 0 8px;
 }
 
 .ip-left-subtitle {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+  /* color: rgba(255, 255, 255, 0.85); */
   margin: 0 0 24px;
 }
 
@@ -157,8 +157,8 @@
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  color: #fff;
-  font-size: 0.88rem;
+  /* color: #fff; */
+  font-size: 0.92rem;
 }
 
 .ip-left-benefit svg {
@@ -717,4 +717,41 @@
   .ip-row {
     flex-direction: column;
   }
+}
+
+.payment-processing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #fff;
+  border-top-color: #0a6264;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: white;
+  font-size: 18px;
 }

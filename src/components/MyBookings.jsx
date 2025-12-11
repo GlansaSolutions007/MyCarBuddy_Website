@@ -1149,11 +1149,13 @@ const MyBookings = () => {
                           <FaReceipt />
                         </div>
                         <div className="mb-booking-info">
-                          <h4>BID : #{booking.BookingTrackID} (<span>
+                          <h4>BID : #{booking.BookingTrackID}
+                            {/* (<span>
                             {booking.BookingDate
                               ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
                               : "N/A"}
-                          </span>)</h4>
+                          </span>) */}
+                          </h4>
                           {/* <span>
                           {booking.BookingDate
                             ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
@@ -1176,6 +1178,20 @@ const MyBookings = () => {
                           </>
                         ) : null}
                       </div> */}
+
+                      {/* Only show button if BookingsTempAddons is not null and has items */}
+                      {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
+                        <button
+                          className="mb-view-btn"
+                          onClick={() => {
+                            navigate(
+                              `/quick-bookings?custId=${decryptedCustId}&bookingId=${booking.BookingID}`
+                            );
+                          }}
+                        >
+                          <FaCheckCircle /> Confirm Booking
+                        </button>
+                      )}
 
                       <button
                         className="mb-view-btn"
@@ -1711,7 +1727,7 @@ const MyBookings = () => {
                     <div className="mb-4">
                       <h5 className="fw-semibold mb-0 d-flex align-items-center mb-2">
                         <i className="bi bi-plus-circle me-2 text-primary"></i>
-                        Additional Services
+                        Bookings
                       </h5>
                       <div className="accordion" id="addOnsAccordion">
                         <div className="accordion-item">
@@ -1817,14 +1833,14 @@ const MyBookings = () => {
                   {/* Amount Summary + COS Pay Now */}
                   <div className="border-top pt-4">
                     {(() => {
+                      // 1. Calculate AddOn Total Safely
                       const addOnTotal =
                         selectedBooking.BookingAddOns?.reduce(
                           (sum, addOn) => sum + Number(addOn.TotalPrice || 0),
                           0
                         ) || 0;
 
-                      const isPaid =
-                        selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
+                      const isPaid = selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
                       const isCOS = selectedBooking?.PaymentMethod === "COS";
                       const isCOSUnpaid =
                         isCOS &&
@@ -1835,6 +1851,12 @@ const MyBookings = () => {
 
                       const hasAddOns = addOnTotal > 0;
                       const isAllPaid = isPaid && !isCOSUnpaid && !hasAddOns;
+
+                      // Helper to safely format currency
+                      const formatPrice = (val) => Number(val || 0).toFixed(2);
+
+                      // Helper to get raw number
+                      const getVal = (val) => Number(val || 0);
 
                       // ✅ CASE 1: Online Paid + Add-ons present
                       if (isPaid && hasAddOns) {
@@ -1850,27 +1872,21 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Amount</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                    ₹{formatPrice(selectedBooking.TotalPrice)}
                                   </div>
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹
-                                    {(
-                                      Number(selectedBooking.GSTAmount || 0) / 2
-                                    ).toFixed(2)}
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">CGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹
-                                    {(
-                                      Number(selectedBooking.GSTAmount || 0) / 2
-                                    ).toFixed(2)}
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
                                 </div>
 
@@ -1878,11 +1894,7 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹
-                                    {(
-                                      selectedBooking.TotalPrice +
-                                      selectedBooking.GSTAmount
-                                    ).toFixed(2)}
+                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount))}
                                   </div>
                                 </div>
                               </div>
@@ -1892,7 +1904,7 @@ const MyBookings = () => {
                             <div className="col-md-5">
                               <div className="card border-0 shadow-sm rounded-4 p-3">
                                 <h6 className="fw-semibold mb-3 text-muted">
-                                  Additional Services Amount
+                                  Additional Booking Amount
                                 </h6>
                                 <div
                                   style={{ visibility: "hidden", height: "65px" }}
@@ -1900,7 +1912,7 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Total Amount</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{addOnTotal.toFixed(2)}
+                                    ₹{formatPrice(addOnTotal)}
                                   </div>
                                 </div>
 
@@ -1910,7 +1922,7 @@ const MyBookings = () => {
                                     Amount to Pay
                                   </div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{addOnTotal.toFixed(2)}
+                                    ₹{formatPrice(addOnTotal)}
                                   </div>
                                 </div>
                               </div>
@@ -1932,46 +1944,32 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Amount</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                    ₹{formatPrice(selectedBooking.TotalPrice)}
                                   </div>
                                 </div>
 
-                                {(selectedBooking.CouponAmount > 0 ||
-                                  appliedCoupon) && (
-                                    <div className="d-flex justify-content-between mb-2">
-                                      <div className="fw-semibold">Coupon</div>
-                                      <div className="fw-bold text-danger">
-                                        -₹
-                                        {appliedCoupon
-                                          ? (
-                                            getBookingOriginalTotal(
-                                              selectedBooking
-                                            ) -
-                                            getBookingFinalTotalWithCoupon(
-                                              selectedBooking
-                                            )
-                                          ).toFixed(2)
-                                          : selectedBooking.CouponAmount.toFixed(2)}
-                                      </div>
+                                {(getVal(selectedBooking.CouponAmount) > 0 || appliedCoupon) && (
+                                  <div className="d-flex justify-content-between mb-2">
+                                    <div className="fw-semibold">Coupon</div>
+                                    <div className="fw-bold text-danger">
+                                      -₹
+                                      {appliedCoupon
+                                        ? formatPrice(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking))
+                                        : formatPrice(selectedBooking.CouponAmount)}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹
-                                    {(
-                                      Number(selectedBooking.GSTAmount || 0) / 2
-                                    ).toFixed(2)}
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
                                 </div>
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">CGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹
-                                    {(
-                                      Number(selectedBooking.GSTAmount || 0) / 2
-                                    ).toFixed(2)}
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
                                 </div>
 
@@ -1981,7 +1979,7 @@ const MyBookings = () => {
                                       Additional Total
                                     </div>
                                     <div className="fw-bold text-primary">
-                                      ₹{addOnTotal.toFixed(2)}
+                                      ₹{formatPrice(addOnTotal)}
                                     </div>
                                   </div>
                                 )}
@@ -1990,13 +1988,12 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹
-                                    {(
-                                      selectedBooking.TotalPrice +
-                                      selectedBooking.GSTAmount -
-                                      selectedBooking.CouponAmount +
+                                    ₹{formatPrice(
+                                      getVal(selectedBooking.TotalPrice) +
+                                      getVal(selectedBooking.GSTAmount) -
+                                      getVal(selectedBooking.CouponAmount) +
                                       addOnTotal
-                                    ).toFixed(2)}
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -2017,27 +2014,21 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">Amount</div>
                                 <div className="fw-bold text-primary">
-                                  ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                  ₹{formatPrice(selectedBooking.TotalPrice)}
                                 </div>
                               </div>
 
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">SGST (9%)</div>
                                 <div className="fw-bold text-primary">
-                                  ₹
-                                  {(
-                                    Number(selectedBooking.GSTAmount || 0) / 2
-                                  ).toFixed(2)}
+                                  ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                 </div>
                               </div>
 
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">CGST (9%)</div>
                                 <div className="fw-bold text-primary">
-                                  ₹
-                                  {(
-                                    Number(selectedBooking.GSTAmount || 0) / 2
-                                  ).toFixed(2)}
+                                  ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                 </div>
                               </div>
 
@@ -2045,11 +2036,7 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold fs-5">Total</div>
                                 <div className="fw-bold text-success fs-5">
-                                  ₹
-                                  {(
-                                    selectedBooking.TotalPrice +
-                                    selectedBooking.GSTAmount
-                                  ).toFixed(2)}
+                                  ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount))}
                                 </div>
                               </div>
                             </div>
@@ -2064,44 +2051,32 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Amount</div>
                               <div className="fw-bold text-primary">
-                                ₹{selectedBooking.TotalPrice.toFixed(2)}
+                                ₹{formatPrice(selectedBooking.TotalPrice)}
                               </div>
                             </div>
 
-                            {(selectedBooking.CouponAmount > 0 ||
-                              appliedCoupon) && (
-                                <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Coupon</div>
-                                  <div className="fw-bold text-danger">
-                                    -₹
-                                    {appliedCoupon
-                                      ? (
-                                        getBookingOriginalTotal(selectedBooking) -
-                                        getBookingFinalTotalWithCoupon(
-                                          selectedBooking
-                                        )
-                                      ).toFixed(2)
-                                      : selectedBooking.CouponAmount.toFixed(2)}
-                                  </div>
+                            {(getVal(selectedBooking.CouponAmount) > 0 || appliedCoupon) && (
+                              <div className="d-flex justify-content-between mb-2">
+                                <div className="fw-semibold">Coupon</div>
+                                <div className="fw-bold text-danger">
+                                  -₹
+                                  {appliedCoupon
+                                    ? formatPrice(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking))
+                                    : formatPrice(selectedBooking.CouponAmount)}
                                 </div>
-                              )}
+                              </div>
+                            )}
 
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">SGST (9%)</div>
                               <div className="fw-bold text-primary">
-                                ₹
-                                {(
-                                  Number(selectedBooking.GSTAmount || 0) / 2
-                                ).toFixed(2)}
+                                ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                               </div>
                             </div>
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">CGST (9%)</div>
                               <div className="fw-bold text-primary">
-                                ₹
-                                {(
-                                  Number(selectedBooking.GSTAmount || 0) / 2
-                                ).toFixed(2)}
+                                ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                               </div>
                             </div>
 
@@ -2109,7 +2084,7 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">Additional Total</div>
                                 <div className="fw-bold text-primary">
-                                  ₹{addOnTotal.toFixed(2)}
+                                  ₹{formatPrice(addOnTotal)}
                                 </div>
                               </div>
                             )}
@@ -2118,119 +2093,16 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold fs-5">Total</div>
                               <div className="fw-bold text-success fs-5">
-                                ₹
-                                {(
-                                  selectedBooking.TotalPrice +
-                                  selectedBooking.GSTAmount -
-                                  selectedBooking.CouponAmount +
+                                ₹{formatPrice(
+                                  getVal(selectedBooking.TotalPrice) +
+                                  getVal(selectedBooking.GSTAmount) -
+                                  getVal(selectedBooking.CouponAmount) +
                                   addOnTotal
-                                ).toFixed(2)}
+                                )}
                               </div>
                             </div>
                           </div>
-
-                          {/* <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mt-3">
-                            <div className="col-6">
-                              {isCOSUnpaid && (
-                                <div
-                                  className="card p-3 border-0 shadow-sm rounded-4"
-                                  style={{ maxWidth: 420 }}
-                                >
-                                  <h6 className="mb-2">Have a coupon?</h6>
-                                  {!couponApplied ? (
-                                    <>
-                                      <button
-                                        className="btn btn-outline-primary px-4 py-2"
-                                        onClick={() => setShowCouponPicker(true)}
-                                      >
-                                        View Coupons
-                                      </button>
-                                      {showCouponPicker && (
-                                        <div
-                                          className="mt-3"
-                                          style={{
-                                            maxHeight: 200,
-                                            overflowY: "auto",
-                                          }}
-                                        >
-                                          {couponList.map((c) => (
-                                            <div
-                                              key={c.id}
-                                              className="d-flex justify-content-between align-items-start border rounded p-2 mb-2"
-                                            >
-                                              <div>
-                                                <div className="fw-semibold">
-                                                  {c.Code}
-                                                </div>
-                                                <div className="small text-muted">
-                                                  {c.Description}
-                                                </div>
-                                                {c.MinBookingAmount ? (
-                                                  <div className="small text-muted">
-                                                    Min ₹{c.MinBookingAmount}
-                                                  </div>
-                                                ) : null}
-                                              </div>
-                                              <button
-                                                className="btn btn-primary px-2 py-1"
-                                                onClick={() =>
-                                                  handleApplyCouponFullView(c)
-                                                }
-                                              >
-                                                Apply
-                                              </button>
-                                            </div>
-                                          ))}
-                                          {couponList.length === 0 && (
-                                            <div className="text-muted small">
-                                              No coupons available.
-                                            </div>
-                                          )}
-                                        </div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <div className="d-flex justify-content-between align-items-center w-100">
-                                      <div>
-                                        <div className="fw-semibold">
-                                          Applied: {appliedCoupon?.Code}
-                                        </div>
-                                        <div className="small text-muted">
-                                          {appliedCoupon?.Description}
-                                        </div>
-                                        <div className="small text-success mt-1">
-                                          Discount: ₹
-                                          {(
-                                            getBookingOriginalTotal(
-                                              selectedBooking
-                                            ) -
-                                            getBookingFinalTotalWithCoupon(
-                                              selectedBooking
-                                            )
-                                          ).toFixed(2)}
-                                        </div>
-                                      </div>
-                                      <button
-                                        className="btn btn-outline-danger px-2 py-1"
-                                        onClick={handleRemoveCouponFullView}
-                                      >
-                                        <i className="bi bi-x"></i>
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-
-                            {isCOSUnpaid && (
-                              <button
-                                className="btn btn-primary btn-lg px-4 py-2"
-                                onClick={handlePayNow}
-                              >
-                                Pay Now
-                              </button>
-                            )}
-                          </div> */}
+                          {/* Pay Now Button Logic Removed for brevity, add back if needed from your original code */}
                         </>
                       );
                     })()}

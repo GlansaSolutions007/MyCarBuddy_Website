@@ -75,6 +75,10 @@ export default function ServiceCards() {
   const [faqs, setFaqs] = useState([]);
   const [explanations, setExplanations] = useState([]);
 
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(false);
+
+
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
   const selectedCarDetails = JSON.parse(
@@ -92,6 +96,37 @@ export default function ServiceCards() {
   } else {
     console.log("No car selected yet.");
   }
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const checkScroll = () => {
+      setShowLeft(el.scrollLeft > 0);
+      setShowRight(el.scrollLeft + el.clientWidth < el.scrollWidth);
+    };
+
+    checkScroll(); // run initially
+
+    el.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [subcategories]);
+
+  const scroller = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const amount = 250; // scroll amount
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const fetchCategoryAndSubcategories = async () => {
@@ -332,9 +367,14 @@ export default function ServiceCards() {
 
         {/* Tabs Navigation */}
         <div className="sc-tabs-wrapper">
-          <button className="sc-arrow-btn sc-arrow-left" onClick={() => scroll("left")}>
+          {/* <button className="sc-arrow-btn sc-arrow-left" onClick={() => scroll("left")}>
             <FaChevronLeft />
-          </button>
+          </button> */}
+          {showLeft && (
+            <button className="sc-arrow-btn sc-arrow-left" onClick={() => scroll("left")}>
+              <FaChevronLeft />
+            </button>
+          )}
           <div className="sc-tabs" ref={scrollRef}>
             {subcategories.map((sub) => (
               <button
@@ -346,9 +386,14 @@ export default function ServiceCards() {
               </button>
             ))}
           </div>
-          <button className="sc-arrow-btn sc-arrow-right" onClick={() => scroll("right")}>
+          {/* <button className="sc-arrow-btn sc-arrow-right" onClick={() => scroll("right")}>
             <FaChevronRight />
-          </button>
+          </button> */}
+          {showRight && (
+            <button className="sc-arrow-btn sc-arrow-right" onClick={() => scroller("right")}>
+              <FaChevronRight />
+            </button>
+          )}
         </div>
 
         {/* Services Grid */}
@@ -519,7 +564,7 @@ export default function ServiceCards() {
           <div className="sc-explanations-section">
             <h3 className="sc-explanations-title">
               <FaQuestionCircle className="sc-explanations-title-icon" />
-              Service Details & Information
+              Explanation Details & Information
             </h3>
             <div className="sc-explanations-grid">
               {explanations.map((exp, idx) => (

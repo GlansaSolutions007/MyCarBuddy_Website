@@ -39,6 +39,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = user && user.token;
+  const [companyInfo, setCompanyInfo] = useState({ Amount: '' });
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -77,72 +79,189 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     return deviceId;
   };
 
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}CompanyInfo`);
+        const data = response.data.data;
+        const Amount = data.find(item => item.Type === 'InspectionAmount')?.Description || '';
+        setCompanyInfo({ Amount });
+      } catch (err) {
+        console.error('Failed to fetch company info:', err);
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+
   // --- PAYMENT LOGIC (Backend Initiated) ---
   const handlePayment = async () => {
-    setLoading(true);
     try {
-      // 1️⃣ Create Lead/Order in Backend
+      // 1️⃣ First create order by calling backend
       const leadPayload = {
-        fullName: fullName || user?.name,
-        phoneNumber: identifier || user?.phone,
+        fullName,
+        phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
-        amount: 399,
+        amount: companyInfo.Amount || 399,
         description: "Doorstep Car Inspection Offer - ₹399",
+        // description: `${selectedService?.title || "General Enquiry"} - ${description}`
       };
 
-      const res = await axios.post(
-        `${baseUrl}Leads/MultipleLeads`,
-        leadPayload
-      );
+      // Update guest user details if needed
+      const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+      const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+
+
+      if (user?.name === "GUEST") {
+        try {
+          const formDataToSend = new FormData();
+          formDataToSend.append("custID", decryptedCustId);
+          formDataToSend.append("FullName", leadPayload.fullName);
+          formDataToSend.append("PhoneNumber", leadPayload.phoneNumber);
+          formDataToSend.append("Email", email);
+          formDataToSend.append("ProfileImageFile", "");
+          formDataToSend.append("IsActive", true);
+
+          await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          // ✅ Update user object in localStorage after success
+          const updatedUser = { ...user, email: email };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        } catch (error) {
+          console.error("Guest registration error:", error);
+        }
+      }
+
+      const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
       const orderId = res.data.razorpayOrder.orderID;
+      const leadId = res.data.leadId;
       const razorKey = res.data.razorpayOrder.key;
       const amount = res.data.amount * 100; // Razorpay requires paise
 
-      // 2️⃣ Open Razorpay Checkout
+      // 2️⃣ Open Razorpay Checkout using backend key & orderID
       const options = {
-        key: razorKey,
-        amount: amount,
+        key: razorKey,               // Use key from backend
+        amount: amount,              // in paise
         currency: "INR",
         name: "MyCarBuddy",
-        description: "Doorstep Car Inspection",
-        order_id: orderId, // Order ID from backend
-        
+        description: "Car Inspection Fee",
+        order_id: orderId,           // Razorpay order ID from backend
+
         handler: function (response) {
+          setPaymentProcessing(true);  // <-- show blur + loader instantly
+
+          // Show a modal indicating processing
+          // setPaymentStatus("processing");
+          // setPaymentMessage("Please wait... your booking is being processed.");
+          // setShowPaymentModal(true);
+
+          // Wait for 5 seconds before calling confirm-payment
+          setTimeout(async () => {
+            try {
+              const res = await axios.post(
+                `${baseUrl}Leads/confirm-Payment`,
+                {
+                  LeadId: leadId,
+                  amountPaid: amount,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                  razorpayOrderId: response.razorpay_order_id,
+                },
+                {
+                  headers: {
+                    // Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (res?.data?.success || res?.status === 200) {
+                navigate("/payment-successful");
+                // setPaymentStatus("success");
+                // setPaymentMessage("Payment was successful!");
+                // clearCart();
+              } else {
+                setPaymentProcessing(false);
+                Swal.fire({
+                  title: "Payment Failed!",
+                  html: `
+                                <div style="text-align: center; padding: 10px 0;">
+                                  <p style="margin-bottom: 10px; color: #374151;">
+                                    Payment failed!
+                                  </p>
+                                  <p style="color: #6b7280; font-size: 14px;">
+                                    Please try again.
+                                  </p>
+                                </div>
+                              `,
+                  icon: "error",
+                  confirmButtonColor: "#0a6264",
+                });
+
+                // setPaymentStatus("error");
+                // setPaymentMessage("Payment failed! Please try again.");
+                // clearCart();
+              }
+            } catch (error) {
+              console.error(error);
+              setPaymentProcessing(false);
+              Swal.fire({
+                title: "Payment Failed!",
+                html: `
+                                <div style="text-align: center; padding: 10px 0;">
+                                  <p style="margin-bottom: 10px; color: #374151;">
+                                    Payment failed!
+                                  </p>
+                                  <p style="color: #6b7280; font-size: 14px;">
+                                    Please try again.
+                                  </p>
+                                </div>
+                              `,
+                icon: "error",
+                confirmButtonColor: "#0a6264",
+              });
+            }
+          }, 2000); // 2 seconds delay
+
           // Swal.fire({
           //   title: "Payment Successful!",
           //   html: `
-          //     <div style="text-align: center; padding: 10px 0;">
-          //       <p style="margin-bottom: 10px; color: #374151;">Your inspection has been booked!</p>
-          //       <p style="color: #6b7280; font-size: 14px;">Our expert technician will contact you shortly.</p>
-          //       <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">Payment ID: ${response.razorpay_payment_id}</p>
-          //     </div>
-          //   `,
+          //   <div style="text-align: center; padding: 10px 0;">
+          //     <p style="margin-bottom: 10px; color: #374151;">
+          //       Your inspection has been booked!
+          //     </p>
+          //     <p style="color: #6b7280; font-size: 14px;">
+          //       Our expert technician will contact you shortly.
+          //     </p>
+          //     <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
+          //       Payment ID: ${response.razorpay_payment_id}
+          //     </p>
+          //   </div>
+          // `,
           //   icon: "success",
           //   confirmButtonColor: "#0a6264",
-          //   confirmButtonText: "Got it!",
           // });
-          navigate("/payment-successful");
-          onClose();
+          // navigate("/payment-successful");
+          // onClose();
         },
+
         prefill: {
           name: fullName,
           email: email,
           contact: identifier,
         },
+
         theme: {
           color: "#0a6264",
-        },
-        modal: {
-          ondismiss: function () {
-            // Optional: Handle modal dismissal
-            setLoading(false);
-          },
         },
       };
 
       const rzp = new window.Razorpay(options);
+
       rzp.on("payment.failed", function (response) {
         Swal.fire({
           title: "Payment Failed",
@@ -150,14 +269,12 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           icon: "error",
           confirmButtonColor: "#0a6264",
         });
-        setLoading(false);
       });
 
       rzp.open();
     } catch (err) {
       console.error("Payment Order Error:", err);
       Swal.fire("Error", "Unable to initiate payment", "error");
-      setLoading(false);
     }
   };
 
@@ -259,6 +376,12 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
   return (
     <div className="ip-overlay" onClick={onClose}>
+      {paymentProcessing && (
+        <div className="payment-processing-overlay">
+          <div className="loader"></div>
+          <p className="loading-text">Processing your payment...</p>
+        </div>
+      )}
       <div className="ip-modal" onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button className="ip-close-btn" onClick={onClose}>

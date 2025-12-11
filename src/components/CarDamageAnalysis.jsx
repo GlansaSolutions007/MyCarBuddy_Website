@@ -21,9 +21,9 @@ const CarDamageAnalysis = () => {
 
 	const handleImagesChange = (event) => {
 		const files = Array.from(event.target.files);
-		setImages(files);
+		setImages((prev) => [...prev, ...files]);
 		const newPreviews = files.map((file) => URL.createObjectURL(file));
-		setPreviews(newPreviews);
+		setPreviews((prev) => [...prev, ...newPreviews]);
 	};
 
 	const handleDrag = (e) => {
@@ -40,11 +40,12 @@ const CarDamageAnalysis = () => {
 		e.preventDefault();
 		e.stopPropagation();
 		setDragActive(false);
-		if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+		
+		if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
 			const files = Array.from(e.dataTransfer.files);
-			setImages(files);
+			setImages((prev) => [...prev, ...files]);
 			const newPreviews = files.map((file) => URL.createObjectURL(file));
-			setPreviews(newPreviews);
+			setPreviews((prev) => [...prev, ...newPreviews]);
 		}
 	};
 

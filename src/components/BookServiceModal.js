@@ -42,7 +42,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
   const { showAlert } = useAlert();
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = user && user.token;
+  const [companyInfo, setCompanyInfo] = useState({ Amount: '' });
   const navigate = useNavigate();
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -102,6 +104,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
     setCurrentStep("booking");
   };
 
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}CompanyInfo`);
+        const data = response.data.data;
+        const Amount = data.find(item => item.Type === 'InspectionAmount')?.Description || '';
+        setCompanyInfo({ Amount });
+      } catch (err) {
+        console.error('Failed to fetch company info:', err);
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+
   const handlePayment = async () => {
     try {
       // 1️⃣ First create order by calling backend
@@ -110,13 +126,43 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
-        amount: 399,
+        amount: companyInfo.Amount || 399,
         description: `${selectedService?.title || "General Enquiry"} - ${description}`
       };
+
+      // Update guest user details if needed
+      const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+      const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+
+
+      if (user?.name === "GUEST") {
+        try {
+          const formDataToSend = new FormData();
+          formDataToSend.append("custID", decryptedCustId);
+          formDataToSend.append("FullName", leadPayload.fullName);
+          formDataToSend.append("PhoneNumber", leadPayload.phoneNumber);
+          formDataToSend.append("Email", email);
+          formDataToSend.append("ProfileImageFile", "");
+          formDataToSend.append("IsActive", true);
+
+          await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          // ✅ Update user object in localStorage after success
+          const updatedUser = { ...user, email: email };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        } catch (error) {
+          console.error("Guest registration error:", error);
+        }
+      }
 
       const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
       const orderId = res.data.razorpayOrder.orderID;
+      const leadId = res.data.leadId;
       const razorKey = res.data.razorpayOrder.key;
       const amount = res.data.amount * 100; // Razorpay requires paise
 
@@ -130,6 +176,81 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         order_id: orderId,           // Razorpay order ID from backend
 
         handler: function (response) {
+          setPaymentProcessing(true);  // <-- show blur + loader instantly
+
+
+          // Show a modal indicating processing
+          // setPaymentStatus("processing");
+          // setPaymentMessage("Please wait... your booking is being processed.");
+          // setShowPaymentModal(true);
+
+          // Wait for 5 seconds before calling confirm-payment
+          setTimeout(async () => {
+            try {
+              const res = await axios.post(
+                `${baseUrl}Leads/confirm-Payment`,
+                {
+                  LeadId: leadId,
+                  amountPaid: amount,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                  razorpayOrderId: response.razorpay_order_id,
+                },
+                {
+                  headers: {
+                    // Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (res?.data?.success || res?.status === 200) {
+                navigate("/payment-successful");
+                // setPaymentStatus("success");
+                // setPaymentMessage("Payment was successful!");
+                // clearCart();
+              } else {
+                setPaymentProcessing(false);
+                Swal.fire({
+                  title: "Payment Failed!",
+                  html: `
+                              <div style="text-align: center; padding: 10px 0;">
+                                <p style="margin-bottom: 10px; color: #374151;">
+                                  Payment failed!
+                                </p>
+                                <p style="color: #6b7280; font-size: 14px;">
+                                  Please try again.
+                                </p>
+                              </div>
+                            `,
+                  icon: "error",
+                  confirmButtonColor: "#0a6264",
+                });
+
+                // setPaymentStatus("error");
+                // setPaymentMessage("Payment failed! Please try again.");
+                // clearCart();
+              }
+            } catch (error) {
+              console.error(error);
+              setPaymentProcessing(false);
+              Swal.fire({
+                title: "Payment Failed!",
+                html: `
+                              <div style="text-align: center; padding: 10px 0;">
+                                <p style="margin-bottom: 10px; color: #374151;">
+                                  Payment failed!
+                                </p>
+                                <p style="color: #6b7280; font-size: 14px;">
+                                  Please try again.
+                                </p>
+                              </div>
+                            `,
+                icon: "error",
+                confirmButtonColor: "#0a6264",
+              });
+            }
+          }, 2000); // 2 seconds delay
+
           // Swal.fire({
           //   title: "Payment Successful!",
           //   html: `
@@ -148,8 +269,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
           //   icon: "success",
           //   confirmButtonColor: "#0a6264",
           // });
-          navigate("/payment-successful");
-          onClose();
+          // navigate("/payment-successful");
+          // onClose();
         },
 
         prefill: {
@@ -187,7 +308,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       phoneNumber: identifier,
       email: email || user?.email || "",
       platform: "Web",
-      amount: 399,
+      // amount: 399,
       description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
 
@@ -305,6 +426,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
 
   return (
     <div className="bsm-overlay" onClick={onClose}>
+      {paymentProcessing && (
+        <div className="payment-processing-overlay">
+          <div className="loader"></div>
+          <p className="loading-text">Processing your payment...</p>
+        </div>
+      )}
+
       <div className="bsm-modal" onClick={(e) => e.stopPropagation()}>
 
         {/* Close Button */}
@@ -497,7 +625,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                       placeholder="yourname@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      disabled={isLoggedIn || otpStep}
+                      // disabled={isLoggedIn || otpStep}
                       required
                     />
                   </div>

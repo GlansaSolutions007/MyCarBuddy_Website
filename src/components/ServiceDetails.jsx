@@ -199,14 +199,14 @@ const ServiceDetails = () => {
     const fetchFaqs = async () => {
       try {
         if (!id) return;
-        
+
         const response = await axios.get(
           `${BaseURL}FAQS/Packages?PackageID=${id}&Type=package`
         );
-        
+
         // Get FAQs from PackageFAQS array
         const packageFaqs = response.data?.PackageFAQS || [];
-        
+
         if (packageFaqs.length > 0 && packageFaqs[0]?.FAQS) {
           setFaqs(packageFaqs[0].FAQS);
         } else {
@@ -225,14 +225,14 @@ const ServiceDetails = () => {
     const fetchExplanations = async () => {
       try {
         if (!id) return;
-        
+
         const response = await axios.get(
           `${BaseURL}Explanations/Packages?PackageID=${id}&Type=package`
         );
-        
+
         // Get Explanations from PackageFAQS array
         const packageExplanations = response.data?.PackageFAQS || [];
-        
+
         if (packageExplanations.length > 0 && packageExplanations[0]?.FAQS) {
           setExplanations(packageExplanations[0].FAQS);
         } else {
@@ -387,7 +387,7 @@ const ServiceDetails = () => {
               {/* Service Content */}
               <div className="sd-content">
                 <h1 className="sd-title">{service.title}</h1>
-                
+
                 {service.duration && (
                   <div className="sd-duration">
                     <FaClock className="sd-duration-icon" />
@@ -450,6 +450,36 @@ const ServiceDetails = () => {
                   </div>
                 )}
 
+                {/* Explanations Section */}
+                {explanations.length > 0 && (
+                  <div className="sd-explanations">
+                    <h4 className="sd-sidebar-title">
+                      <FaQuestionCircle className="sd-sidebar-title-icon" />
+                      Explanation Details & Information
+                    </h4>
+                    <div className="sd-explanations-list">
+                      {explanations.map((exp, idx) => (
+                        <div key={exp.FAQID || idx} className="sd-explanation-item">
+                          <div className="sd-explanation-header">
+                            <span className="sd-explanation-number">{String(idx + 1).padStart(2, '0')}</span>
+                            <h5 className="sd-explanation-question">{exp.Question}</h5>
+                          </div>
+                          <p className="sd-explanation-answer">
+                            {exp.Answer.replace(/\n+/g, "\n")   // convert multiple \n into single \n
+                              .split("\n")
+                              .map((line, i) => (
+                                <React.Fragment key={i}>
+                                  {line}
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
 
@@ -473,24 +503,24 @@ const ServiceDetails = () => {
               {/* Contact Card */}
               <div className="sd-contact-card">
                 <div className="sd-contact-icon">
-                  <FaPhone />
+                  <FaPhone style={{ transform: "scaleX(-1)" }} />
                 </div>
                 <h4 className="sd-contact-title">Need Free Help?</h4>
                 <p className="sd-contact-text">
                   Have questions about this service? Our team is ready to help.
                 </p>
                 <div className="sd-contact-phones">
-                  <button 
+                  <button
                     className="sd-phone-link"
                     onClick={() => handlePhoneClick("7075243939")}
                   >
-                    <FaPhone /> +91 707-524-3939
+                    <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 707-524-3939
                   </button>
-                  <button 
+                  <button
                     className="sd-phone-link"
                     onClick={() => handlePhoneClick("9885653865")}
                   >
-                    <FaPhone /> +91 988-565-3865
+                    <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 988-565-3865
                   </button>
                 </div>
               </div>
@@ -533,26 +563,7 @@ const ServiceDetails = () => {
                 </div>
               </div>
 
-              {/* Explanations Section */}
-              {explanations.length > 0 && (
-                <div className="sd-explanations">
-                  <h4 className="sd-sidebar-title">
-                    <FaQuestionCircle className="sd-sidebar-title-icon" />
-                    Service Details
-                  </h4>
-                  <div className="sd-explanations-list">
-                    {explanations.map((exp, idx) => (
-                      <div key={exp.FAQID || idx} className="sd-explanation-item">
-                        <div className="sd-explanation-header">
-                          <span className="sd-explanation-number">{String(idx + 1).padStart(2, '0')}</span>
-                          <h5 className="sd-explanation-question">{exp.Question}</h5>
-                        </div>
-                        <p className="sd-explanation-answer">{exp.Answer}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+
 
             </aside>
           </div>

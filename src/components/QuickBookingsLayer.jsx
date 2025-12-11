@@ -1,142 +1,226 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Swal from "sweetalert2";
 import "./QuickBookingsLayer.css";
-import { FaTools, FaCheck, FaCog, FaBoxOpen } from "react-icons/fa";
+import { FaTools, FaCheck, FaCog, FaBoxOpen, FaArrowLeft, FaExclamationCircle } from "react-icons/fa";
+
+const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
 const QuickBookingsLayer = () => {
-    // Static sample data
-    const [services, setServices] = useState([
-        {
-            id: 1,
-            name: "Engine Oil Replacement",
-            type: "BodyParts",
-            price: 800,
-            gstPercent: 18,
-            gstAmount: 144,
-            totalAmount: 944,
-            description: "Oil Client provided",
-            quentity: 3,
-        },
-        {
-            id: 2,
-            name: "Wheel Alignment",
-            type: "Services",
-            price: 500,
-            gstPercent: 18,
-            gstAmount: 90,
-            totalAmount: 590,
-            description: "Wheel Alignment Important - Professional alignment service for optimal tire performance",
-            quentity: 1,
-        },
-        {
-            id: 3,
-            name: "AC Gas Topup",
-            type: "BodyParts",
-            price: 1200,
-            gstPercent: 18,
-            gstAmount: 216,
-            totalAmount: 1416,
-            description: "AC Gas Included - Premium refrigerant for maximum cooling",
-            quentity: 7,
-        },
-    ]);
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
-    // Calculate totals
-    const totals = services.reduce(
-        (acc, srv) => ({
-            price: acc.price + srv.price * srv.quentity,
-            gstAmount: acc.gstAmount + srv.gstAmount * srv.quentity,
-            totalAmount: acc.totalAmount + srv.totalAmount * srv.quentity,
-            quantity: acc.quantity + srv.quentity,
-        }),
-        { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0 }
-    );
+    // 1. Get IDs from URL (Updated to get bookingId)
+    const custIdFromUrl = searchParams.get("custId");
+    const bookingIdFromUrl = searchParams.get("bookingId");
 
-    // SweetAlert confirmation
-    const handleSubmit = () => {
-        Swal.fire({
-            title: "Services Confirmed!",
-            text: "Your Services have been successfully submitted.",
-            icon: "success",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#0a6264",
-        });
+    const [services, setServices] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [bookingDetails, setBookingDetails] = useState(null);
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    // 2. Fetch Data
+    useEffect(() => {
+        const fetchBookings = async () => {
+            // Check for bookingId instead of trackId
+            if (!custIdFromUrl || !bookingIdFromUrl) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                setIsLoading(true);
+                // We still fetch by CustID to get the list (assuming you don't have a GetBookingById endpoint)
+                const res = await axios.get(`${BaseURL}Bookings/${custIdFromUrl}`, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const data = res.data;
+
+                if (Array.isArray(data) && data.length > 0) {
+                    // UPDATED: Filter by BookingID now
+                    const matchedBooking = data.find(
+                        (b) => String(b.BookingID) === String(bookingIdFromUrl)
+                    );
+
+                    if (matchedBooking) {
+                        setBookingDetails(matchedBooking);
+                        setServices(matchedBooking.BookingsTempAddons || []);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching bookings:", error);
+                Swal.fire("Error", "Failed to fetch booking details.", "error");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchBookings();
+    }, [custIdFromUrl, bookingIdFromUrl, user?.token]);
+
+    // Calculate Totals
+    const totals = useMemo(() => {
+        return services.reduce(
+            (acc, srv) => {
+                const qty = 1;
+                const price = Number(srv.Price || 0);
+                const gst = Number(srv.GSTAmount || 0);
+                const totalLineItem = (price + gst) * qty;
+
+                return {
+                    price: acc.price + (price * qty),
+                    gstAmount: acc.gstAmount + (gst * qty),
+                    totalAmount: acc.totalAmount + totalLineItem,
+                    quantity: acc.quantity + qty,
+                };
+            },
+            { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0 }
+        );
+    }, [services]);
+
+    // ---------------------------------------------------------
+    //  HANDLE SUBMIT
+    // ---------------------------------------------------------
+    const handleSubmit = async () => {
+        if (!bookingDetails) return;
+
+        try {
+            setIsSubmitting(true);
+
+            // UPDATED: Sending empty object {} as body because no payload is required
+            const response = await axios.post(
+                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingIdFromUrl}`,
+                {}, // <--- Empty body here
+                {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200 || response.status === 201) {
+                Swal.fire({
+                    title: "Booking Confirmed!",
+                    text: `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`,
+                    icon: "success",
+                    // confirmButtonText: "Go to My Bookings",
+                    confirmButtonColor: "#0a6264",
+                }).then(() => {
+                    navigate("*");
+                });
+            } else {
+                throw new Error("Unexpected response code");
+            }
+
+        } catch (error) {
+            console.error("Error confirming booking:", error);
+            Swal.fire(
+                "Submission Failed",
+                "Could not confirm services. Please try again.",
+                "error"
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="aos-section d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (!bookingDetails) {
+        return (
+            <div className="aos-section text-center py-5">
+                <FaExclamationCircle className="text-danger mb-3" size={40} />
+                <h3>Booking Not Found</h3>
+                <p>We couldn't find the booking with ID: {bookingIdFromUrl}</p>
+                <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate(-1)}>
+                    <FaArrowLeft /> Go Back
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="aos-section">
-            {/* Header */}
             <div className="aos-header">
                 <h2 className="aos-title">
-                    <span className="aos-title-icon">
-                        <FaTools />
-                    </span>
-                    Add-On Booking's
+                    <span className="aos-title-icon"><FaTools /></span>
+                    Confirm Booking: #{bookingDetails.BookingTrackID}
                 </h2>
                 {services.length > 0 && (
-                    <span className="aos-count">
-                        {services.length} Service{services.length !== 1 ? "s" : ""}
-                    </span>
+                    <span className="aos-count">{services.length} Service{services.length !== 1 ? "s" : ""}</span>
                 )}
             </div>
 
             {services.length === 0 ? (
                 <div className="aos-empty">
-                    <div className="aos-empty-icon">
-                        <FaTools />
-                    </div>
-                    <h4>No Add-On Services</h4>
-                    <p>There are no additional services added to this booking.</p>
+                    <div className="aos-empty-icon"><FaTools /></div>
+                    <h4>No Additional Services</h4>
+                    <p>There are no temp add-ons found for this booking.</p>
+                    <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate("/my-bookings")}>
+                        Go to My Bookings
+                    </button>
                 </div>
             ) : (
                 <>
                     {/* Mobile Cards View */}
                     <div className="aos-grid">
-                        {services.map((srv) => (
-                            <div key={srv.id} className="aos-card">
-                                <div className="aos-card-header">
-                                    <div className="aos-card-info">
-                                        <h4 className="aos-card-name">{srv.name}</h4>
-                                        <span className={`aos-card-type ${srv.type.toLowerCase()}`}>
-                                            {srv.type === "BodyParts" ? (
-                                                <FaBoxOpen />
-                                            ) : (
-                                                <FaCog />
-                                            )}
-                                            {srv.type}
-                                        </span>
-                                    </div>
-                                    <div className="aos-card-qty">
-                                        <span className="aos-card-qty-label">Qty</span>
-                                        <span className="aos-card-qty-value">{srv.quentity}</span>
-                                    </div>
-                                </div>
-
-                                <div className="aos-card-body">
-                                    {srv.description && (
-                                        <p className="aos-card-desc">{srv.description}</p>
-                                    )}
-
-                                    <div className="aos-card-pricing">
-                                        <div className="aos-price-item">
-                                            <div className="aos-price-label">Price</div>
-                                            <div className="aos-price-value">₹{srv.price}</div>
+                        {services.map((srv, index) => {
+                            const price = Number(srv.Price || 0);
+                            const gst = Number(srv.GSTAmount || 0);
+                            const total = price + gst;
+                            return (
+                                <div key={index} className="aos-card">
+                                    <div className="aos-card-header">
+                                        <div className="aos-card-info">
+                                            <h4 className="aos-card-name">{srv.ServiceName}</h4>
+                                            <span className={`aos-card-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>
+                                                {srv.ServiceType?.toLowerCase().includes("part") ? <FaBoxOpen /> : <FaCog />}
+                                                {srv.ServiceType}
+                                            </span>
                                         </div>
-                                        <div className="aos-price-item">
-                                            <div className="aos-price-label">GST ({srv.gstPercent}%)</div>
-                                            <div className="aos-price-value">₹{srv.gstAmount}</div>
+                                        <div className="aos-card-qty">
+                                            <span className="aos-card-qty-label">Qty</span>
+                                            <span className="aos-card-qty-value">1</span>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="aos-card-footer">
-                                    <div className="aos-total-row">
-                                        <span className="aos-total-label">Total Amount</span>
-                                        <span className="aos-total-value">₹{srv.totalAmount * srv.quentity}</span>
+                                    <div className="aos-card-body">
+                                        {srv.Description && <p className="aos-card-desc">{srv.Description}</p>}
+                                        <div className="aos-card-pricing">
+                                            <div className="aos-price-item">
+                                                <div className="aos-price-label">Price</div>
+                                                <div className="aos-price-value">₹{price.toFixed(2)}</div>
+                                            </div>
+                                            <div className="aos-price-item">
+                                                <div className="aos-price-label">GST ({srv.GSTPercent}%)</div>
+                                                <div className="aos-price-value">₹{gst.toFixed(2)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="aos-card-footer">
+                                        <div className="aos-total-row">
+                                            <span className="aos-total-label">Total Amount</span>
+                                            <span className="aos-total-value">₹{total.toFixed(2)}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Desktop Table View */}
@@ -146,8 +230,8 @@ const QuickBookingsLayer = () => {
                                 <tr>
                                     <th>S.No</th>
                                     <th>Service Name</th>
-                                    <th>Description</th>
                                     <th>Type</th>
+                                    <th>Description</th>
                                     <th>Qty</th>
                                     <th>Price</th>
                                     <th>GST %</th>
@@ -156,31 +240,24 @@ const QuickBookingsLayer = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {services.map((srv, idx) => (
-                                    <tr key={srv.id}>
-                                        <td>{idx + 1}</td>
-                                        <td>
-                                            <span className="aos-table-name" title={srv.name}>
-                                                {srv.name}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className="aos-table-desc" title={srv.description}>
-                                                {srv.description || "-"}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span className={`aos-table-type ${srv.type.toLowerCase()}`}>
-                                                {srv.type}
-                                            </span>
-                                        </td>
-                                        <td>{srv.quentity}</td>
-                                        <td className="aos-table-price">₹{srv.price}</td>
-                                        <td>{srv.gstPercent}%</td>
-                                        <td>₹{srv.gstAmount}</td>
-                                        <td className="aos-table-total">₹{srv.totalAmount * srv.quentity}</td>
-                                    </tr>
-                                ))}
+                                {services.map((srv, idx) => {
+                                    const price = Number(srv.Price || 0);
+                                    const gst = Number(srv.GSTAmount || 0);
+                                    const total = price + gst;
+                                    return (
+                                        <tr key={idx}>
+                                            <td>{idx + 1}</td>
+                                            <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
+                                            <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
+                                            <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
+                                            <td>1</td>
+                                            <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                            <td>{srv.GSTPercent}%</td>
+                                            <td>₹{gst.toFixed(2)}</td>
+                                            <td className="aos-table-total">₹{total.toFixed(2)}</td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -195,23 +272,33 @@ const QuickBookingsLayer = () => {
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Subtotal</div>
-                                <div className="aos-summary-value">₹{totals.price}</div>
+                                <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">GST</div>
-                                <div className="aos-summary-value">₹{totals.gstAmount}</div>
+                                <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Grand Total</div>
-                                <div className="aos-summary-value">₹{totals.totalAmount}</div>
+                                <div className="aos-summary-value">₹{totals.totalAmount.toFixed(2)}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Footer Actions */}
                     <div className="aos-footer">
-                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit}>
-                            <FaCheck /> Confirm Services
+                        <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
+                            Cancel
+                        </button>
+                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                    Processing...
+                                </>
+                            ) : (
+                                <><FaCheck /> Confirm Services</>
+                            )}
                         </button>
                     </div>
                 </>
