@@ -160,7 +160,7 @@
 }
 
 .contact-icon {
-    color: var(--highlight-color);
+    color: #ff8c6b;
     /* Cyan icon looks good on Teal */
     font-size: 20px;
     margin-top: 2px;

@@ -258,6 +258,20 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         theme: {
           color: "#0a6264",
         },
+
+        modal: {
+          ondismiss: () => {
+            console.log("User closed Razorpay manually");
+
+            // Reset all loading states
+            setPaymentProcessing(false);
+            setLoading(false);
+
+            // Return to normal UI
+            setCurrentStep("offer");
+          }
+        }
+
       };
 
       const rzp = new window.Razorpay(options);
@@ -325,6 +339,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       const res = await axios.post(`${baseUrl}Auth/verify-otp`, {
         loginId: identifier,
         otp,
+        fullName,
         email, // Pass email to backend during verification/registration
         deviceToken: "web-token",
         deviceId,
@@ -511,7 +526,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     {/* Phone Field */}
                     <div className="ip-form-group half">
                       <label className="ip-label">
-                        <FaPhone style={{ marginRight: 6 }} />
+                        <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)"}} />
                         Phone Number
                       </label>
                       <input

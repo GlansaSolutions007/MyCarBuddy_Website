@@ -209,6 +209,7 @@ const ContactArea = () => {
                     type="tel"
                     className="contact-form-input"
                     name="number"
+                    maxLength={10}
                     placeholder="Phone Number"
                     value={formData.number}
                     onChange={(e) => {

@@ -71,7 +71,7 @@
 }
 
 .profile-sidebar-header {
-  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  background: linear-gradient(135deg, rgb(245, 158, 11) 0%, rgb(217, 119, 6) 100%);
   padding: 30px 20px;
   text-align: center;
   position: relative;
@@ -806,6 +806,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -820,4 +821,3 @@
 .profile-content {
   animation-delay: 0.1s;
 }
-

@@ -63,9 +63,20 @@ const Profile = () => {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let value = e.target.value;
+
+    // Allow only numbers
+    value = value.replace(/[^0-9]/g, "");
+
+    // First digit must be 9, 8, 7, or 6
+    if (value.length > 0 && !/^[6-9]/.test(value[0])) {
+      value = ""; // reset if first digit is invalid
+    }
+
     setUser((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const handleSave = async () => {
     setSaving(true);
@@ -272,9 +283,10 @@ const Profile = () => {
                   <div className="profile-form-input-wrapper">
                     <i className="fas fa-phone-alt profile-form-icon" />
                     <input
-                      type="text"
+                      type="tel"
                       className={`profile-form-input ${editing ? 'editing' : ''}`}
                       name="AlternateNumber"
+                      maxLength={10}
                       value={user.AlternateNumber}
                       onChange={handleInputChange}
                       placeholder="Enter alternate number"

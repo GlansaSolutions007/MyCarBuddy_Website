@@ -361,6 +361,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       const res = await axios.post(`${baseUrl}Auth/verify-otp`, {
         loginId: identifier,
         otp,
+        fullName,
         email,
         deviceToken: "web-token",
         deviceId,
@@ -601,7 +602,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
                   </div>
                   <div className="bsm-form-group">
                     <label className="bsm-label">
-                      <FaPhone style={{ marginRight: 6 }} />
+                      <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
                       Phone Number
                     </label>
                     <input

@@ -355,10 +355,27 @@ const ServiceDetails = () => {
 
               {/* Action Bar */}
               <div className="sd-action-bar">
-                <button className="sd-btn sd-btn-outline" onClick={() => navigate("/#help")}>
+                <button
+                  className="sd-btn sd-btn-outline"
+                  onClick={() => {
+                    const phoneNumber = "+917075243939";
+
+                    // Detect mobile devices
+                    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                    if (isMobile) {
+                      // 📱 Mobile → Open Dial Pad
+                      window.location.href = `tel:${phoneNumber}`;
+                    } else {
+                      // 💻 Desktop → Open WhatsApp Web
+                      window.open(`https://wa.me/${phoneNumber}`, "_blank");
+                    }
+                  }}
+                >
                   <FaHeadset />
                   <span>Free Quick Support</span>
                 </button>
+
 
                 {isInCart ? (
                   <div className="sd-cart-actions">
@@ -526,7 +543,7 @@ const ServiceDetails = () => {
               </div>
 
               {/* Why Choose Us */}
-              <div className="sd-why-choose">
+              {/* <div className="sd-why-choose">
                 <h4 className="sd-sidebar-title">
                   <FaQuestionCircle className="sd-sidebar-title-icon" />
                   Why Choose Us
@@ -561,8 +578,17 @@ const ServiceDetails = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
+
+              {/* Image Area - Desktop Only */}
+              <div className="sd-image-area">
+                <img
+                  src="/assets/img/package-side-cover-3.png"
+                  alt="Package Side Cover"
+                  className="sd-side-image"
+                />
+              </div>
 
 
             </aside>

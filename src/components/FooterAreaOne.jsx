@@ -118,7 +118,7 @@ const FooterAreaOne = () => {
                   <li><Link to="/privacy">Privacy Policy</Link></li>
                   <li><Link to="/terms">Terms & Conditions</Link></li>
                   {/* <li><Link to="/case-studies">Case Studies</Link></li> */}
-                  <li><Link to="/quick-bookings">Confirm Book Service</Link></li>
+                  {/* <li><Link to="/quick-bookings">Confirm Book Service</Link></li> */}
                 </ul>
               </div>
             </div>

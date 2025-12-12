@@ -116,7 +116,7 @@
   background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 6px 25px rgba(10, 98, 100, 0.35);
+  /* box-shadow: 0 6px 25px rgba(10, 98, 100, 0.35); */
 }
 
 .sc-tab-active:hover {
@@ -151,7 +151,7 @@
 /* ===== Cards Grid ===== */
 .sc-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
@@ -221,7 +221,10 @@
   top: 16px;
   left: 16px;
   padding: 6px 14px;
-  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  background: linear-gradient(135deg, rgb(245, 158, 11) 0%, rgb(217, 119, 6) 100%);
+
+  /* background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%); */
+
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -1260,7 +1263,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  max-height: 500px;
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 10px;
 }
