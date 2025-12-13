@@ -4,7 +4,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
-import { FaTimes, FaMobileAlt, FaShieldAlt, FaArrowRight, FaRedo, FaCar, FaCheckCircle } from "react-icons/fa";
+import { FaTimes, FaUser, FaPhone, FaEnvelope, FaMobileAlt, FaShieldAlt, FaArrowRight, FaRedo, FaCar, FaCheckCircle } from "react-icons/fa";
 
 const SignIn = ({ isVisible, onClose, onRegister }) => {
 	const [identifier, setIdentifier] = useState("");
@@ -18,6 +18,11 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 	const imageBaseURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 	const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 	const { showAlert } = useAlert();
+	const [fullName, setFullName] = useState("");
+	const [email, setEmail] = useState("");
+
+
+
 
 	const modalRef = useRef();
 
@@ -40,6 +45,8 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			// Reset form when modal opens
 			setOtpSent(false);
 			setIdentifier("");
+			setFullName("");
+			setEmail("");
 			setOtpExpired(false);
 			setLoading(false);
 			setTimer(0);
@@ -71,57 +78,90 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 
 	const handleSendOTP = async (e) => {
 		e.preventDefault();
-		if (!identifier) return;
+
+		if (!identifier || identifier.length !== 10) {
+			showAlert("Error", "Enter valid mobile number", 3000, "error");
+			return;
+		}
+
+		if (!fullName) {
+			showAlert("Error", "Please enter your name", 3000, "error");
+			return;
+		}
+
+		if (!email) {
+			showAlert("Error", "Please enter your email", 3000, "error");
+			return;
+		}
+
 		setLoading(true);
 		try {
-			const response = await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier });
+			await axios.post(`${baseUrl}Auth/send-otp`, {
+				loginId: identifier,
+				email
+			});
+
 			setOtpSent(true);
 			setOtpExpired(false);
 			setTimer(60);
 		} catch (error) {
-			console.error("Error sending OTP:", error);
-			showAlert("Error", "Failed to send OTP. Please try again.", 3000, "error");
+			showAlert("Error", "Failed to send OTP", 3000, "error");
 		} finally {
 			setLoading(false);
 		}
 	};
+
 
 	const handleVerifyOTP = async (e) => {
 		e.preventDefault();
 		const deviceId = getDeviceId();
 		setLoading(true);
+
 		try {
 			const response = await axios.post(`${baseUrl}Auth/verify-otp`, {
 				loginId: identifier,
 				otp,
+				fullName,
+				email,
 				deviceToken: "web-token",
 				deviceId,
 			});
-			console.log("OTP verification response:", response.data.custID);
+			const savedName =
+				fullName?.trim() ||
+				(response.data?.name && response.data.name !== "GUEST"
+					? response.data.name
+					: "GUEST");
 
+			const savedEmail =
+				email?.trim() || response.data?.email || "";
 
 			localStorage.setItem(
 				"user",
 				JSON.stringify({
-					id: CryptoJS.AES.encrypt(response.data?.custID.toString(), secretKey).toString(),
-					name: response.data?.name || "GUEST",
+					id: CryptoJS.AES.encrypt(
+						response.data?.custID.toString(),
+						secretKey
+					).toString(),
+					name: savedName,
+					// name: response.data?.name || fullName || "GUEST",
 					phone: identifier,
-					email: response.data?.email || "",   // 👈 Add this line
+					email: savedEmail,
+					// email: response.data?.email || email,
 					token: response.data?.token,
 					profileImage: response?.data?.profileImage,
 				})
 			);
 
-			getVehicleList(response.data?.custID);
+			getVehicleList();
 			window.dispatchEvent(new Event("userProfileUpdated"));
 			onClose();
 		} catch (error) {
-			console.error("Error verifying OTP:", error);
-			showAlert("Error", "Invalid OTP. Please try again.", 3000, "error");
+			showAlert("Error", "Invalid OTP", 3000, "error");
 		} finally {
 			setLoading(false);
 		}
 	};
+
 
 	const getVehicleList = async () => {
 		try {
@@ -221,10 +261,51 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 					</div>
 
 					<form className="si-form" onSubmit={otpSent ? handleVerifyOTP : handleSendOTP}>
+
+						{!otpSent && (
+							<>
+								{/* Name */}
+								<div className="si-input-group">
+									<div className="si-input-icon">
+										<FaUser />
+									</div>
+									<div className="si-input-wrapper">
+										<label className="si-label">Your Name</label>
+										<input
+											type="text"
+											className="si-input"
+											placeholder="Enter full name"
+											value={fullName}
+											onChange={(e) => setFullName(e.target.value)}
+											required
+										/>
+									</div>
+								</div>
+
+								{/* Email */}
+								<div className="si-input-group">
+									<div className="si-input-icon">
+										<FaEnvelope />
+									</div>
+									<div className="si-input-wrapper">
+										<label className="si-label">Email</label>
+										<input
+											type="email"
+											className="si-input"
+											placeholder="yourname@example.com"
+											value={email}
+											onChange={(e) => setEmail(e.target.value)}
+											required
+										/>
+									</div>
+								</div>
+							</>
+						)}
+
 						{/* Mobile Number Input */}
 						<div className={`si-input-group ${otpSent ? "si-disabled" : ""}`}>
 							<div className="si-input-icon">
-								<FaMobileAlt />
+								<FaPhone />
 							</div>
 							<div className="si-input-wrapper">
 								<label className="si-label">Mobile Number</label>

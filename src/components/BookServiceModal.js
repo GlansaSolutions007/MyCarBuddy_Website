@@ -371,7 +371,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         "user",
         JSON.stringify({
           id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
-          name: res.data?.name || "GUEST",
+          name: res.data?.name || fullName,
           phone: identifier,
           email: res.data?.email || email,
           token: res.data?.token,
