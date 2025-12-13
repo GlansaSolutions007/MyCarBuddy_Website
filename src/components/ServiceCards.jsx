@@ -452,7 +452,18 @@ export default function ServiceCards() {
                     </ul>
 
                     {pkg.includes.length > 3 && (
-                      <span className="sc-view-more">+{pkg.includes.length - 3} more services</span>
+                      // <span className="sc-view-more">+{pkg.includes.length - 3} more services</span>
+                      <span
+                        className="sc-view-more"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents the main card click from firing
+                          navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`, {
+                            state: { scrollToId: "whatsIncluded" } // Passing the ID to scroll to
+                          });
+                        }}
+                      >
+                        +{pkg.includes.length - 3} more services
+                      </span>
                     )}
 
                     {/* Card Actions */}

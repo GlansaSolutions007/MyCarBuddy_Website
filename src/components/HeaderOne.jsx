@@ -472,13 +472,13 @@ const HeaderOne = () => {
                           <i className="fas fa-user-circle"></i>
                           <span>My Profile</span>
                         </button>
-                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=bookings")}>
+                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=mybookings")}>
                           <i className="fas fa-calendar-check"></i>
                           <span>My Bookings</span>
                         </button>
-                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=cars")}>
-                          <i className="fas fa-car"></i>
-                          <span>My Cars</span>
+                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=invoices")}>
+                          <i className="fas fa-file-invoice"></i>
+                          <span>Invoices</span>
                         </button>
                       </div>
                       <div className="mcb-user-dropdown-footer">

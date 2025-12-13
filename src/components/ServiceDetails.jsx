@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useCart } from "../context/CartContext";
@@ -59,6 +59,7 @@ const ServiceDetails = () => {
   const [explanations, setExplanations] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const location = useLocation();
 
   const selectedCarDetails = JSON.parse(
     localStorage.getItem("selectedCarDetails")
@@ -222,6 +223,24 @@ const ServiceDetails = () => {
   }, [id]);
 
   useEffect(() => {
+    // Check if we passed an ID to scroll to
+    if (location.state?.scrollToId) {
+      const elementId = location.state.scrollToId;
+
+      // Use a small timeout to allow the API data to load and the DOM to render
+      setTimeout(() => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "start" // or "start" to align to top
+          });
+        }
+      }, 1000); // Adjust time (500ms) if your page loads data slowly
+    }
+  }, [location]);
+
+  useEffect(() => {
     const fetchExplanations = async () => {
       try {
         if (!id) return;
@@ -354,7 +373,7 @@ const ServiceDetails = () => {
               </div>
 
               {/* Action Bar */}
-              <div className="sd-action-bar">
+              <div className="sd-action-bar" id="whatsIncluded">
                 <button
                   className="sd-btn sd-btn-outline"
                   onClick={() => {

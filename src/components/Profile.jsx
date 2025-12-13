@@ -23,6 +23,8 @@ const Profile = () => {
   const token = userdata?.token || "";
   const bytes = CryptoJS.AES.decrypt(userdata.id, secretKey);
   const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+  const [originalUser, setOriginalUser] = useState(null);
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -63,18 +65,41 @@ const Profile = () => {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name } = e.target;
-    let value = e.target.value;
+    const { name, value } = e.target;
 
-    // Allow only numbers
-    value = value.replace(/[^0-9]/g, "");
+    // 📞 Phone & Alternate Number (numbers only)
+    if (name === "AlternateNumber") {
+      let numericValue = value.replace(/[^0-9]/g, "");
 
-    // First digit must be 9, 8, 7, or 6
-    if (value.length > 0 && !/^[6-9]/.test(value[0])) {
-      value = ""; // reset if first digit is invalid
+      // First digit must be 6–9
+      if (numericValue.length > 0 && !/^[6-9]/.test(numericValue[0])) {
+        return;
+      }
+
+      setUser((prev) => ({
+        ...prev,
+        [name]: numericValue.slice(0, 10),
+      }));
+      return;
     }
 
-    setUser((prev) => ({ ...prev, [name]: value }));
+    // 👤 Name (letters & spaces only)
+    if (name === "FullName") {
+      setUser((prev) => ({
+        ...prev,
+        [name]: value.replace(/[^a-zA-Z\s]/g, ""),
+      }));
+      return;
+    }
+
+    // 📧 Email (allow full email syntax)
+    if (name === "Email") {
+      setUser((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      return;
+    }
   };
 
 
@@ -318,7 +343,10 @@ const Profile = () => {
                   </button>
                   <button
                     className="profile-btn profile-btn-secondary"
-                    onClick={() => setEditing(false)}
+                    onClick={() => {
+                      setEditing(false);
+                      window.location.reload();
+                    }}
                     disabled={saving}
                   >
                     <i className="fas fa-times" />
