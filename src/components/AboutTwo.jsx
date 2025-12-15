@@ -37,7 +37,7 @@ const AboutTwo = () => {
               {/* Main Image */}
               <div className="about-two-image-main">
                 <img
-                  src="assets/img/normal/about_2-1.png"
+                  src="assets/img/normal/about_2-1.webp"
                   alt="Professional Car Wash"
                 />
               </div>
