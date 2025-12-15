@@ -41,6 +41,15 @@ const MainProfile = () => {
   const { showAlert } = useAlert();
   const contentRef = useRef(null);
 
+  const clearUserStorage = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("selectedCarDetails");
+    localStorage.removeItem("cart");
+    localStorage.removeItem("token");
+
+    sessionStorage.clear();
+  };
+
   useEffect(() => {
     if (!user) {
       navigate("/");
@@ -83,16 +92,17 @@ const MainProfile = () => {
 
   const handleTabClick = (key) => {
     if (key === "logout") {
-      localStorage.removeItem("user");
-      localStorage.clear();
+      // localStorage.removeItem("user");
+      // localStorage.clear();
       sessionStorage.clear();
+      clearUserStorage();
       navigate("/");
     } else {
       setActiveTab(key);
       setTimeout(() => {
         try {
           window.scrollTo({ top: 0, behavior: "smooth" });
-        } catch (_) {}
+        } catch (_) { }
       }, 0);
     }
   };
@@ -113,7 +123,8 @@ const MainProfile = () => {
         );
         if (response.status === 200) {
           showAlert("Account deleted successfully.", "success");
-          localStorage.clear();
+          // localStorage.clear();
+          clearUserStorage();
           sessionStorage.clear();
           navigate("/");
         } else {
@@ -148,7 +159,7 @@ const MainProfile = () => {
             </div>
             <h3 className="delete-account-title">Delete Your Account</h3>
             <p className="delete-account-text">
-              Are you sure you want to delete your account? This action cannot be undone, 
+              Are you sure you want to delete your account? This action cannot be undone,
               and you will permanently lose all your data, bookings, and preferences.
             </p>
             <button

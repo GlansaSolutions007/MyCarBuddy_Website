@@ -304,8 +304,14 @@ const ContactArea = () => {
                 <i className="fas fa-headset" />
               </div>
               <div className="contact-quick-content">
-                <h4>Need Quick Support?</h4>
+                <h4>Need Quick Free Support?</h4>
                 <p>Call us now for immediate assistance with your car service needs.</p>
+                <p 
+                  className="contact-quick-phone"
+                  onClick={() => handlePhoneClick("+91 707-524-3939")}
+                >
+                  +91 707-524-3939
+                </p>
               </div>
             </div>
           </div>

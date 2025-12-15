@@ -1337,7 +1337,7 @@ const MyBookings = () => {
                 </button>
 
                 <div className="mb-detail-actions">
-                  {selectedBooking?.Payments ? (
+                  {/* {selectedBooking?.Payments ? (
                     selectedBooking.BookingStatus !== "Completed" &&
                       selectedBooking.BookingStatus !== "Cancelled" &&
                       selectedBooking.BookingStatus !== "Refunded" &&
@@ -1385,7 +1385,7 @@ const MyBookings = () => {
                     <button className="mb-detail-action-btn warning" onClick={handleOpenResume}>
                       <FaPlay /> Resume Booking
                     </button>
-                  ) : null}
+                  ) : null} */}
                   {selectedBooking.BookingStatus !== "Cancelled" && (
                     <button className="mb-detail-action-btn warning" onClick={() => setShowNewTicket(true)}>
                       <FaTicketAlt /> Raise Ticket
@@ -1401,20 +1401,29 @@ const MyBookings = () => {
                 </div>
                 <div className="mb-detail-info-item">
                   <label>Date & Time</label>
+                {selectedBooking?.BookingDate && selectedBooking?.TimeSlot ? (
                   <span>
                     {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
-                    {selectedBooking.TimeSlot?.includes(",")
+                    {selectedBooking.TimeSlot.includes(",")
                       ? selectedBooking.TimeSlot.split(",").map((t, i) => (
-                        <span key={i}>{t.trim()}{i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}</span>
+                        <span key={i}>
+                          {t.trim()}
+                          {i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}
+                        </span>
                       ))
-                      : selectedBooking.TimeSlot || "N/A"}
+                      : selectedBooking.TimeSlot}
                   </span>
+                ) : (
+                  <span>N/A</span>
+                )}
                 </div>
               </div>
 
               <div className="mb-detail-location">
                 <FaMapMarkerAlt />
-                {selectedBooking.CityName}, {selectedBooking.StateName}
+                {selectedBooking?.CityName && selectedBooking?.StateName
+                  ? `${selectedBooking.CityName}, ${selectedBooking.StateName}`
+                  : "N/A"}
               </div>
             </div>
 
@@ -1628,7 +1637,16 @@ const MyBookings = () => {
                             {" "}({selectedBooking.IsOthers ? selectedBooking.OthersPhoneNumber : selectedBooking.PhoneNumber})
                           </span>
                         </h5>
-                        <p><strong>Address:</strong> {selectedBooking.FullAddress}, {selectedBooking.Pincode}</p>
+                        <p>
+                          <strong>Address:</strong>{" "}
+                          {selectedBooking?.FullAddress || selectedBooking?.Pincode
+                            ? `${selectedBooking?.FullAddress || ""}${
+                                selectedBooking?.FullAddress && selectedBooking?.Pincode
+                                  ? ", "
+                                  : ""
+                              }${selectedBooking?.Pincode || ""}`
+                            : "N/A"}
+                        </p>
                       </div>
                     </div>
 
@@ -1643,15 +1661,31 @@ const MyBookings = () => {
                       <div className="mb-info-card-body">
                         <div className="mb-vehicle-info">
                           <img
-                            src={`${ImageURL}${selectedBooking.VehicleImage}`}
+                            src={
+                              selectedBooking?.VehicleImage
+                                ? `${ImageURL}${selectedBooking.VehicleImage}`
+                                : "/assets/img/normal/car-placeholder.png"
+                            }
                             alt="Vehicle"
                             className="mb-vehicle-image"
                           />
                           <div className="mb-vehicle-details">
-                            <p><strong>Number:</strong> {selectedBooking.VehicleNumber}</p>
-                            <p><strong>Brand:</strong> {selectedBooking.BrandName}</p>
-                            <p><strong>Model:</strong> {selectedBooking.ModelName}</p>
-                            <p><strong>Fuel:</strong> {selectedBooking.FuelTypeName}</p>
+                            <p>
+                              <strong>Number:</strong>{" "}
+                              {selectedBooking?.VehicleNumber || "N/A"}
+                            </p>
+                            <p>
+                              <strong>Brand:</strong>{" "}
+                              {selectedBooking?.BrandName || "N/A"}
+                            </p>
+                            <p>
+                              <strong>Model:</strong>{" "}
+                              {selectedBooking?.ModelName || "N/A"}
+                            </p>
+                            <p>
+                              <strong>Fuel:</strong>{" "}
+                              {selectedBooking?.FuelTypeName || "N/A"}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -1722,55 +1756,62 @@ const MyBookings = () => {
                     </div>
                   )}
 
-                  {/* Additional Services (accordion with table) */}
+                  {/* Additional Services (accordion with responsive cards) */}
                   {selectedBooking.BookingAddOns?.length > 0 && (
-                    <div className="mb-4">
+                    <div className="mb-addons-section mb-4">
                       <h5 className="fw-semibold mb-0 d-flex align-items-center mb-2">
                         <i className="bi bi-plus-circle me-2 text-primary"></i>
-                        Bookings
+                        Additional Services
                       </h5>
                       <div className="accordion" id="addOnsAccordion">
-                        <div className="accordion-item">
+                        <div className="accordion-item border-0 bg-transparent">
                           <h2 className="accordion-header">
                             <button
-                              className={`accordion-button ${isAddOnsOpen ? "" : "collapsed"
-                                } py-0`}
+                              className={`accordion-button mb-addons-accordion-btn ${isAddOnsOpen ? "" : "collapsed"}`}
                               type="button"
                               onClick={() => setIsAddOnsOpen(!isAddOnsOpen)}
                             >
-                              <i className="bi bi-plus-circle me-2"></i> Additional
-                              Services
+                              <i className="bi bi-plus-circle me-2"></i>
+                              View Additional Services
                             </button>
                           </h2>
                           <div
-                            className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""
-                              }`}
+                            className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""}`}
                           >
-                            <div className="accordion-body">
-                              <table className="table table-striped">
-                                <thead>
-                                  <tr>
-                                    <th>Service Name</th>
-                                    <th>Price</th>
-                                    <th>GST %</th>
-                                    <th>GST Amount</th>
-                                    <th>Total</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {selectedBooking.BookingAddOns.map(
-                                    (addOn, idx) => (
-                                      <tr key={idx}>
-                                        <td>{addOn.ServiceName}</td>
-                                        <td>₹{addOn.ServicePrice}</td>
-                                        <td>{addOn.GSTPercent}%</td>
-                                        <td>₹{addOn.GSTPrice}</td>
-                                        <td>₹{addOn.TotalPrice}</td>
-                                      </tr>
-                                    )
-                                  )}
-                                </tbody>
-                              </table>
+                            <div className="accordion-body p-0 pt-3">
+                              <div className="mb-addons-grid">
+                                {selectedBooking.BookingAddOns.map((addOn, idx) => (
+                                  <div key={idx} className="mb-addon-card">
+                                    <div className="mb-addon-header">
+                                      <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
+                                      <span className="mb-addon-chip">
+                                        Add-Booking
+                                      </span>
+                                    </div>
+                                    <div className="mb-addon-body">
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">Base Price</span>
+                                        <span className="mb-addon-value">
+                                          ₹{Number(addOn.ServicePrice || 0).toFixed(2)}
+                                        </span>
+                                      </div>
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">GST</span>
+                                        <span className="mb-addon-value">
+                                          {addOn.GSTPercent || 0}% (₹
+                                          {Number(addOn.GSTPrice || 0).toFixed(2)})
+                                        </span>
+                                      </div>
+                                      <div className="mb-addon-row mb-addon-row-total">
+                                        <span className="mb-addon-label">Total</span>
+                                        <span className="mb-addon-total">
+                                          ₹{Number(addOn.TotalPrice || 0).toFixed(2)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>

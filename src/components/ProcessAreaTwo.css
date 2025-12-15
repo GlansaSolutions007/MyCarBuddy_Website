@@ -333,6 +333,14 @@
   }
 }
 
+.gradient-text {
+  background: linear-gradient(90deg, #b30000, #ff3b3b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+
 
 
 

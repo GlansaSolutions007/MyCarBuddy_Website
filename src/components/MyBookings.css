@@ -160,7 +160,7 @@
 
 /* ===== Booking Cards ===== */
 .mb-scroll-container {
-  max-height: 75vh;
+  max-height: 100vh;
   overflow-y: auto;
   padding-right: 8px;
   scrollbar-width: thin;
@@ -195,6 +195,111 @@
   transform: translateY(-4px);
   box-shadow: 0 15px 40px rgba(10, 98, 100, 0.12);
   border-color: rgba(10, 98, 100, 0.15);
+}
+
+/* ===== Additional Services (Add-ons) ===== */
+.mb-addons-section {
+  margin-top: 1.5rem;
+}
+
+.mb-addons-accordion-btn {
+  border-radius: 14px !important;
+  background: #ffffff;
+  border: 1px solid rgba(10, 98, 100, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+  color: #1a1a2e;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.mb-addons-accordion-btn:not(.collapsed) {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(10, 98, 100, 0.25);
+}
+
+.mb-addons-accordion-btn:focus {
+  box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.25);
+}
+
+.mb-addons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 10px;
+}
+
+.mb-addon-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mb-addon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.mb-addon-title {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.mb-addon-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(10, 98, 100, 0.08);
+  color: #0a6264;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mb-addon-body {
+  border-top: 1px dashed rgba(10, 98, 100, 0.12);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mb-addon-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  color: #555;
+}
+
+.mb-addon-row-total {
+  margin-top: 4px;
+}
+
+.mb-addon-label {
+  font-weight: 500;
+  color: #777;
+}
+
+.mb-addon-value {
+  font-weight: 600;
+  color: #0a6264;
+}
+
+.mb-addon-total {
+  font-weight: 700;
+  color: #0a6264;
+  font-size: 0.95rem;
 }
 
 /* Card Header */
@@ -597,6 +702,7 @@
 .mb-detail-info-item label {
   font-size: 0.8rem;
   opacity: 0.85;
+  color: white;
   display: block;
   margin-bottom: 6px;
   text-transform: uppercase;
@@ -607,6 +713,7 @@
 .mb-detail-info-item h3 {
   font-size: 1.4rem;
   font-weight: 700;
+  color: white;
   margin: 0;
 }
 

@@ -45,7 +45,7 @@ const AboutTwo = () => {
               {/* Secondary Image */}
               <div className="about-two-image-secondary">
                 <img
-                  src="assets/img/normal/about_2-2.png"
+                  src="assets/img/normal/about_2-2.webp"
                   alt="Car Detailing"
                 />
               </div>

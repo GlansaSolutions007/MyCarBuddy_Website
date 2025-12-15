@@ -114,7 +114,7 @@ const QuickBookingsLayer = () => {
                     // confirmButtonText: "Go to My Bookings",
                     confirmButtonColor: "#0a6264",
                 }).then(() => {
-                    navigate("*");
+                    navigate("/", { replace: true });
                 });
             } else {
                 throw new Error("Unexpected response code");
@@ -148,9 +148,11 @@ const QuickBookingsLayer = () => {
                 <FaExclamationCircle className="text-danger mb-3" size={40} />
                 <h3>Booking Not Found</h3>
                 <p>We couldn't find the booking with ID: {bookingIdFromUrl}</p>
-                <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate(-1)}>
-                    <FaArrowLeft /> Go Back
-                </button>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                    <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate(-1)} style={{ minWidth: "180px" }}>
+                        <FaArrowLeft /> Go Back
+                    </button>
+                </div>
             </div>
         );
     }
@@ -171,10 +173,16 @@ const QuickBookingsLayer = () => {
                 <div className="aos-empty">
                     <div className="aos-empty-icon"><FaTools /></div>
                     <h4>No Additional Services</h4>
-                    <p>There are no temp add-ons found for this booking.</p>
-                    <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate("/my-bookings")}>
-                        Go to My Bookings
-                    </button>
+                    <p>There are no Add On Bookings found for this booking.</p>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <button
+                            className="aos-btn aos-btn-primary mt-3"
+                            onClick={() => navigate("/profile?tab=mybookings")}
+                            style={{ minWidth: "200px" }}
+                        >
+                            Go to My Bookings
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>

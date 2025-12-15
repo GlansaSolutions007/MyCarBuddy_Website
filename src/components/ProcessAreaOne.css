@@ -560,3 +560,9 @@
 .process-one-card:nth-child(2) { animation-delay: 0.2s; }
 .process-one-card:nth-child(3) { animation-delay: 0.3s; }
 
+.process-one-title-highlight {
+  background: linear-gradient(90deg, #b30000, #ff3b3b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}

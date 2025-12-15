@@ -45,7 +45,7 @@ const ProcessAreaOne = () => {
         <div className="process-one-header">
           <span className="process-one-subtitle">Our Work Process</span>
           <h2 className="process-one-title">
-            Simple Steps to a Spotless Car at Your Doorstep
+            Simple Steps to a Spotless Car at <span className="process-one-title-highlight">Your Doorstep</span>
           </h2>
         </div>
 

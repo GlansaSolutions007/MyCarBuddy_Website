@@ -34,7 +34,7 @@ const ProcessAreaTwo = () => {
       <div className="container">
         {/* Section Header */}
         <div className="row justify-content-center mb-5">
-          <div className="col-xl-6 col-lg-8">
+          <div className="col-12">
             <div className="title-area text-center mb-0">
               <span
                 className="sub-title"
@@ -61,9 +61,10 @@ const ProcessAreaTwo = () => {
                   fontWeight: "700",
                   color: "#1a1a2e",
                   lineHeight: "1.3",
+                  // whiteSpace: "nowrap",
                 }}
               >
-                Reliable Car Care, Right Where You Need It
+                Reliable Car Care, Right Where <span className="gradient-text">You Need It</span>
               </h2>
             </div>
           </div>
