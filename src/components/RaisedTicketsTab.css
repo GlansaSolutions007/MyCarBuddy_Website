@@ -114,6 +114,7 @@
 /* ===== Tickets List ===== */
 .rt-tickets-list {
   display: flex;
+  margin: 10px;
   flex-direction: column;
   gap: 16px;
 }

@@ -332,19 +332,20 @@
 
 .nt-description-wrapper {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .nt-attach-btn {
-  position: absolute;
-  left: 12px;
-  bottom: 12px;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, rgba(10, 98, 100, 0.08) 0%, rgba(26, 161, 164, 0.08) 100%);
+  position: relative;
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, rgba(10, 98, 100, 0.08) 0%, rgba(26, 161, 164, 0.16) 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #0a6264;
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -354,14 +355,15 @@
 }
 
 .nt-attach-btn:hover {
-  background: #0a6264;
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
   color: #fff;
+  box-shadow: 0 6px 16px rgba(10, 98, 100, 0.35);
 }
 
 .nt-textarea {
   width: 100%;
   min-height: 80px;
-  padding: 12px 16px 12px 52px;
+  padding: 12px 16px;
   border: 1px solid rgba(10, 98, 100, 0.15);
   border-radius: 12px;
   font-size: 0.9rem;
@@ -381,15 +383,18 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 12px;
+  padding: 6px 4px 0;
 }
 
 .nt-file-preview {
   position: relative;
-  width: 55px;
-  height: 55px;
-  border-radius: 10px;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(10, 98, 100, 0.15);
+  border: 1px solid rgba(10, 98, 100, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  background: #f8fafb;
 }
 
 .nt-file-preview img {
@@ -411,10 +416,10 @@
 
 .nt-file-remove {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 20px;
-  height: 20px;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
   background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
   border: 2px solid #fff;
   border-radius: 50%;
