@@ -428,7 +428,9 @@ export default function ServiceCards() {
                   key={pkg.id}
                   className="sc-card"
                   style={{ animationDelay: `${index * 0.1}s` }}
-                  onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`)}
+                  onClick={() => navigate(`/servicedetails/${slugify(pkg.title)}/${pkg.id}`, {
+                            state: { scrollToId: "whatsIncluded" } // Passing the ID to scroll to
+                          })}
                 >
                   {/* Card Image */}
                   <div className="sc-card-image-wrapper">

@@ -224,21 +224,53 @@ const ServiceDetails = () => {
 
   useEffect(() => {
     // Check if we passed an ID to scroll to
-    if (location.state?.scrollToId) {
+    if (location.state?.scrollToId && !loading && services.length > 0) {
       const elementId = location.state.scrollToId;
 
-      // Use a small timeout to allow the API data to load and the DOM to render
-      setTimeout(() => {
+      // First, scroll to top immediately to ensure we're starting from the beginning
+      window.scrollTo({ top: 0, behavior: 'auto' });
+
+      // Function to scroll to element with header offset
+      const scrollToElement = (retryCount = 0) => {
         const element = document.getElementById(elementId);
         if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "start" // or "start" to align to top
+          // Small delay to ensure layout is complete
+          requestAnimationFrame(() => {
+            // Get header height (accounting for sticky header)
+            const header = document.querySelector('.mcb-header-main.sticky, .mcb-header-main');
+            const headerHeight = header ? header.offsetHeight : 100;
+            const topBar = document.querySelector('.mcb-top-bar');
+            const topBarHeight = topBar ? topBar.offsetHeight : 0;
+            // Get breadcrumb height if it exists
+            const breadcrumb = document.querySelector('.bc-wrapper');
+            const breadcrumbHeight = breadcrumb ? breadcrumb.offsetHeight : 0;
+            const totalOffset = headerHeight + topBarHeight + breadcrumbHeight + 20; // 20px extra padding
+
+            // Get element position relative to document
+            const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementTop - totalOffset;
+
+            // Scroll to element with offset
+            window.scrollTo({
+              top: Math.max(0, offsetPosition), // Ensure we don't scroll to negative position
+              behavior: 'smooth'
+            });
           });
+        } else if (retryCount < 5) {
+          // If element not found, retry after a short delay (max 5 retries)
+          setTimeout(() => scrollToElement(retryCount + 1), 300);
         }
-      }, 1000); // Adjust time (500ms) if your page loads data slowly
+      };
+
+      // Wait for DOM to be ready and data to be loaded
+      // Increased timeout to ensure page is fully rendered
+      const timeoutId = setTimeout(() => {
+        scrollToElement();
+      }, 800);
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [location]);
+  }, [location, loading, services]);
 
   useEffect(() => {
     const fetchExplanations = async () => {
@@ -373,7 +405,7 @@ const ServiceDetails = () => {
               </div>
 
               {/* Action Bar */}
-              <div className="sd-action-bar" id="whatsIncluded">
+              <div className="sd-action-bar">
                 <button
                   className="sd-btn sd-btn-outline"
                   onClick={() => {
@@ -425,7 +457,7 @@ const ServiceDetails = () => {
                 <h1 className="sd-title">{service.title}</h1>
 
                 {service.duration && (
-                  <div className="sd-duration">
+                  <div className="sd-duration" id="whatsIncluded">
                     <FaClock className="sd-duration-icon" />
                     <span>Estimated Time: {service.duration} minutes</span>
                   </div>
