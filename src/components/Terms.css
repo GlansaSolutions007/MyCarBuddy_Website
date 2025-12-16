@@ -1,0 +1,245 @@
+/* ===== Terms & Conditions - Modern Responsive Style ===== */
+
+.terms-section {
+  background: linear-gradient(180deg, #f8fffe 0%, #ffffff 50%, #f0f9f9 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 60px 0 70px;
+}
+
+.terms-section::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -15%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(10, 98, 100, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.terms-section::after {
+  content: '';
+  position: absolute;
+  bottom: -25%;
+  left: -10%;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(26, 161, 164, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.terms-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.terms-header {
+  padding-right: 12px;
+}
+
+.terms-pill {
+  display: inline-block;
+  padding: 8px 22px;
+  background: linear-gradient(135deg, #1aa1a4 0%, #0a6264 50%, #0e4e50 100%);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.3);
+  margin-bottom: 14px;
+}
+
+.terms-title {
+  font-size: clamp(1.9rem, 3.3vw, 2.4rem);
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+.terms-subtitle {
+  font-size: 0.95rem;
+  color: #555;
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+.terms-meta {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.terms-meta-item {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(10, 98, 100, 0.04);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.terms-meta-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #777;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terms-meta-icon {
+  font-size: 0.9rem;
+  color: #0a6264;
+}
+
+.terms-meta-value {
+  font-weight: 600;
+  color: #0a6264;
+}
+
+.terms-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.08);
+  padding: 20px 22px;
+  max-height: 65vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.terms-scroll {
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #0a6264 #f0f0f0;
+}
+
+.terms-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terms-scroll::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.terms-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0a6264 0%, #1aa1a4 100%);
+  border-radius: 10px;
+}
+
+.terms-card p {
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.terms-card ul {
+  padding-left: 18px;
+  margin-bottom: 10px;
+}
+
+.terms-card li {
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.terms-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0a6264;
+  margin: 18px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.terms-section-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #0a6264 0%, #1aa1a4 100%);
+}
+
+.terms-card strong {
+  color: #0a6264;
+  font-weight: 600;
+}
+
+.terms-icon {
+  font-size: 0.95rem;
+  color: #0a6264;
+}
+
+.terms-contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.terms-contact-icon {
+  color: #0a6264;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991px) {
+  .terms-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .terms-card {
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 767px) {
+  .terms-section {
+    padding: 40px 0 50px;
+  }
+
+  .terms-header {
+    padding-right: 0;
+  }
+
+  .terms-subtitle {
+    max-width: 100%;
+  }
+
+  .terms-card {
+    padding: 16px 16px;
+  }
+}
+
+@media (max-width: 575px) {
+  .terms-title {
+    font-size: 1.6rem;
+  }
+
+  .terms-card {
+    max-height: 55vh;
+  }
+}
+
+

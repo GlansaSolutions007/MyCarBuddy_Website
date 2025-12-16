@@ -126,6 +126,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
+        type:"online",
         amount: companyInfo.Amount || 399,
         description: `${selectedService?.title || "General Enquiry"} - ${description}`
       };
@@ -308,6 +309,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       phoneNumber: identifier,
       email: email || user?.email || "",
       platform: "Web",
+      type:"cos",
       // amount: 399,
       description: `${selectedService?.title || "General Enquiry"} - ${description}`
     };
