@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CryptoJS from "crypto-js";
@@ -11,6 +11,7 @@ import {
     FaCalendarAlt,
     FaIdBadge,
     FaCheckCircle,
+    FaFilter,
 } from "react-icons/fa";
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -21,6 +22,8 @@ const MyInspection = () => {
 
     const [payments, setPayments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [filterDate, setFilterDate] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
 
     const getDecryptedCustId = () => {
         try {
@@ -65,6 +68,32 @@ const MyInspection = () => {
         fetchInspectionPayments();
     }, []);
 
+    // Filter payments based on date and status
+    const filteredPayments = useMemo(() => {
+        let filtered = [...payments];
+
+        // Filter by date
+        if (filterDate) {
+            const selectedDate = new Date(filterDate);
+            selectedDate.setHours(0, 0, 0, 0);
+            filtered = filtered.filter((item) => {
+                if (!item.CreatedDate) return false;
+                const itemDate = new Date(item.CreatedDate);
+                itemDate.setHours(0, 0, 0, 0);
+                return itemDate.getTime() === selectedDate.getTime();
+            });
+        }
+
+        // Filter by payment status
+        if (filterStatus) {
+            filtered = filtered.filter(
+                (item) => (item.PaymentStatus || "").toLowerCase() === filterStatus.toLowerCase()
+            );
+        }
+
+        return filtered;
+    }, [payments, filterDate, filterStatus]);
+
     if (isLoading) {
         return (
             <div className="me-section me-loading">
@@ -94,6 +123,62 @@ const MyInspection = () => {
         );
     }
 
+    if (filteredPayments.length === 0 && (filterDate || filterStatus)) {
+        return (
+            <section className="me-section">
+                <div className="me-header">
+                    <div>
+                        <h2 className="me-title">My Inspections</h2>
+                        <p className="me-subtitle">
+                            View and track all your inspections and their current status.
+                        </p>
+                    </div>
+                    <div className="me-filters">
+                        <div className="me-filter-group">
+                            <FaCalendarAlt className="me-filter-icon" />
+                            <input
+                                type="date"
+                                className="me-filter-input me-filter-date"
+                                value={filterDate}
+                                onChange={(e) => setFilterDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="me-filter-group">
+                            <FaFilter className="me-filter-icon" />
+                            <select
+                                className="me-filter-select"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                            >
+                                <option value="">All Status</option>
+                                <option value="Success">Success</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div className="me-section me-empty">
+                    <div className="me-empty-icon">
+                        <FaExclamationCircle />
+                    </div>
+                    <h3 className="me-empty-title">No Results Found</h3>
+                    <p className="me-empty-text">
+                        No inspections match your selected filters. Try adjusting your search criteria.
+                    </p>
+                    <button
+                        className="me-btn me-btn-primary"
+                        onClick={() => {
+                            setFilterDate("");
+                            setFilterStatus("");
+                        }}
+                    >
+                        Clear Filters
+                    </button>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="me-section">
             <div className="me-header">
@@ -103,11 +188,34 @@ const MyInspection = () => {
                         View and track all your inspections and their current status.
                     </p>
                 </div>
+                <div className="me-filters">
+                    <div className="me-filter-group">
+                        <FaCalendarAlt className="me-filter-icon" />
+                        <input
+                            type="date"
+                            className="me-filter-input me-filter-date"
+                            value={filterDate}
+                            onChange={(e) => setFilterDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="me-filter-group">
+                        <FaFilter className="me-filter-icon" />
+                        <select
+                            className="me-filter-select"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                        >
+                            <option value="">All Status</option>
+                            <option value="Success">Success</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div className="me-content">
                 <div className="me-cards">
-                    {payments.map((item, idx) => (
+                    {filteredPayments.map((item, idx) => (
                         <div key={item.IPID || idx} className="me-card">
                             <div className="me-card-header">
                                 <div className="me-card-header-left">

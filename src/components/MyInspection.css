@@ -21,6 +21,70 @@
   box-shadow: 0 6px 18px rgba(6, 69, 71, 0.25);
 }
 
+.me-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.me-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.me-filter-group:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.me-filter-icon {
+  color: #ffffff;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.me-filter-input,
+.me-filter-select {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: #1a1a2e;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 85px;
+  height: 28px;
+}
+
+.me-filter-input:focus,
+.me-filter-select:focus {
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.me-filter-date {
+  cursor: pointer;
+}
+
+.me-filter-select {
+  cursor: pointer;
+}
+
+.me-filter-select option {
+  background: #ffffff;
+  color: #1a1a2e;
+  padding: 8px;
+}
+
 .me-title {
   font-size: 1.35rem;
   font-weight: 700;
@@ -50,6 +114,7 @@
   max-height: 690px;        /* show roughly four rows, then scroll */
   overflow-y: auto;
   padding-right: 4px;       /* small space for scrollbar */
+  padding-top: 4px;
 }
 
 .me-card {
@@ -380,10 +445,28 @@
 
   .me-header {
     align-items: flex-start;
+    flex-direction: column;
   }
 
   .me-title {
     font-size: 1.05rem;
+  }
+
+  .me-filters {
+    width: 100%;
+    margin-top: 12px;
+    justify-content: flex-start;
+  }
+
+  .me-filter-group {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .me-filter-input,
+  .me-filter-select {
+    flex: 1;
+    min-width: 0;
   }
 }
 
