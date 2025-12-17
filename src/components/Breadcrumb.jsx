@@ -11,12 +11,26 @@ const Breadcrumb = ({ title }) => {
   const params = useParams();
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
 
+  // const formatTitle = (text) => {
+  //   if (!text) return "";
+  //   return text
+  //     .replace(/-/g, " ")
+  //     .replace(/\b\w/g, (char) => char.toUpperCase());
+  // };
   const formatTitle = (text) => {
     if (!text) return "";
+
     return text
       .replace(/-/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+      .split(" ")
+      .map((word) =>
+        word.toLowerCase() === "ac"
+          ? "AC"
+          : word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join(" ");
   };
+
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -143,7 +157,8 @@ const Breadcrumb = ({ title }) => {
       <div className="bc-bg-overlay"></div>
       <div className="container">
         <div className="bc-content">
-          <h1 className="bc-title">{title}</h1>
+          {/* <h1 className="bc-title">{title}</h1> */}
+          <h1 className="bc-title">{formatTitle(title)}</h1>
           <nav className="bc-nav">
             {breadcrumbItems.map((item, index) => (
               <React.Fragment key={index}>

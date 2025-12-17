@@ -1179,8 +1179,8 @@ const MyBookings = () => {
                         ) : null}
                       </div> */}
 
-                      {/* Only show button if BookingsTempAddons is not null and has items */}
-                      {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
+                      {/* Show either Confirm Booking (before confirm) OR View (after confirm) in the same place */}
+                      {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 ? (
                         <button
                           className="mb-view-btn"
                           onClick={() => {
@@ -1191,14 +1191,14 @@ const MyBookings = () => {
                         >
                           <FaCheckCircle /> Confirm Booking
                         </button>
+                      ) : (
+                        <button
+                          className="mb-view-btn"
+                          onClick={() => setSelectedBooking(booking)}
+                        >
+                          <FaEye /> View
+                        </button>
                       )}
-
-                      <button
-                        className="mb-view-btn"
-                        onClick={() => setSelectedBooking(booking)}
-                      >
-                        <FaEye /> View
-                      </button>
                     </div>
 
                     {/* Timeline */}

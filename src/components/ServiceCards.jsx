@@ -183,7 +183,7 @@ export default function ServiceCards() {
             title: pkg.PackageName,
             description: pkg.SubCategoryName,
             image: `${baseUrlImage}${pkg.PackageImage}`,
-            tag: "Expert Service",
+            // tag: "Expert Service",
             duration: "4 Hrs Taken",
             price: pkg.Serv_Off_Price,
             originalPrice: pkg.Serv_Reg_Price,

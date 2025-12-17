@@ -4,22 +4,22 @@ import "./ProcessAreaOne.css";
 const steps = [
   {
     icon: "/assets/img/icon/process-icon-1-1.svg",
-    title: "Book Your Service",
+    title: "Book Your Service & Inspection",
     description:
-      "Schedule your interior or exterior wash online or via phone. Choose a time and location that's most convenient for you — home, office, or anywhere.",
+      "Choose your required service and schedule an inspection. Our team confirms the issue and provides a clear estimate.",
   },
   {
     icon: "/assets/img/icon/process-icon-1-2.svg",
-    title: "We Come to You",
+    title: "Doorstep Service at Your Location",
     description:
-      "Our fully equipped mobile team arrives with eco-friendly products and professional tools to give your car a gentle yet thorough wash.",
+      "Our certified technician arrives at your home or office, diagnoses the problem, and completes the repair or service on-site.",
     featured: true,
   },
   {
     icon: "/assets/img/icon/process-icon-1-3.svg",
-    title: "Enjoy the Shine",
+    title: "Get a Perfectly Serviced, Spotless Car",
     description:
-      "Sit back and relax while we make your car sparkle inside and out. We leave you with a fresh, spotless, and protected vehicle ready to impress.",
+      "Sit back and relax while we fix your car. You receive a fully serviced, clean, and ready-to-drive vehicle.",
   },
 ];
 

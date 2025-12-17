@@ -149,7 +149,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         key: razorKey,               // Use key from backend
         amount: amount,              // in paise
         currency: "INR",
-        name: "MyCarBuddy",
+        name: "My Car Buddy",
         description: "Car Inspection Fee",
         order_id: orderId,           // Razorpay order ID from backend
 
