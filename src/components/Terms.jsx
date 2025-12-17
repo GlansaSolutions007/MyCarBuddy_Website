@@ -217,6 +217,10 @@ const Terms = () => {
                   <span>+91 70752 43939</span>
                 </span>
               </p>
+
+              <div className="text-muted text-center mt-3">
+                You've reached the end of your Inspection
+              </div>
             </div>
           </div>
         </div>

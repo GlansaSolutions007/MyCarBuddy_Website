@@ -160,7 +160,7 @@
 
 /* ===== Booking Cards ===== */
 .mb-scroll-container {
-  max-height: 100vh;
+  max-height: 705px;
   overflow-y: auto;
   padding-right: 8px;
   scrollbar-width: thin;

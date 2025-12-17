@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Profile from "./Profile";
 import AddressTab from "./AddressTab";
 import MyBookings from "./MyBookings";
+import MyInspection from "./MyInspection";
 import MyCarList from "./MyCarList";
 import InvoicesTab from "./InvoicesTab";
 import RaisedTicketsTab from "./RaisedTicketsTab";
@@ -145,6 +146,8 @@ const MainProfile = () => {
         return <AddressTab />;
       case "mybookings":
         return <MyBookings />;
+      case "myinspection":
+        return <MyInspection />;
       case "mycars":
         return <MyCarList />;
       case "invoices":
@@ -178,7 +181,8 @@ const MainProfile = () => {
 
   const tabs = [
     { key: "profile", label: "Profile", icon: "fas fa-user" },
-    { key: "mybookings", label: "My Bookings", icon: "fas fa-calendar-check" },
+    { key: "mybookings", label: "My Services", icon: "fas fa-briefcase" },
+    { key: "myinspection", label: "My Inspections", icon: "fas fa-question-circle" },
     { key: "addresses", label: "Addresses", icon: "fas fa-map-marker-alt" },
     { key: "mycars", label: "My Cars", icon: "fas fa-car" },
     { key: "invoices", label: "Invoices", icon: "fas fa-file-invoice" },

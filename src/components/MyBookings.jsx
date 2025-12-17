@@ -1007,7 +1007,7 @@ const MyBookings = () => {
             <span className="mb-title-icon">
               <FaReceipt />
             </span>
-            My Bookings
+            My Services
           </h2>
           <button
             className="mb-filter-btn"
