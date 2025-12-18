@@ -175,6 +175,15 @@
   margin-bottom: 20px;
 }
 
+/* Offer cards row - show two cards in one line on desktop */
+.ip-offer-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .ip-title {
   font-size: 1.4rem;
   font-weight: 800;
@@ -194,10 +203,13 @@
   border: none;
   border-radius: 16px;
   padding: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(26, 26, 46, 0.3);
+  flex: 1 1 calc(50% - 8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .ip-offer-card::before {
@@ -220,7 +232,7 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+  /* background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); */
   border-radius: 18px;
   z-index: -1;
   opacity: 0;
@@ -229,6 +241,63 @@
 
 .ip-offer-card:hover::after {
   opacity: 1;
+}
+
+/* Selected Card State */
+.ip-offer-card-selected {
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale(1.05);
+}
+
+/* Unselected Card State - Slightly Blurred */
+.ip-offer-card-unselected {
+  opacity: 0.9;
+  filter: blur(0.5px);
+  transform: scale(0.95);
+}
+
+.ip-offer-card-unselected:hover {
+  opacity: 0.9;
+  filter: blur(0px);
+  transform: scale(1.02);
+}
+
+
+
+/* Checkmark Indicator – Glass Blur */
+.ip-selected-checkmark {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 36px;
+  height: 36px;
+  background: rgba(163, 163, 163, 0.65); /* semi-transparent */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 16px;
+  box-shadow:
+    0 6px 18px rgba(10, 98, 100, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  animation: ipCheckmarkPulse 1.5s ease-in-out infinite;
+  z-index: 3;
+}
+
+
+@keyframes ipCheckmarkPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(10, 98, 100, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(10, 98, 100, 0.6);
+  }
 }
 
 .ip-offer-badge {
@@ -297,6 +366,31 @@
   margin: 0;
   text-align: center;
 }
+
+/* Responsive: stack offers on small screens */
+/* @media (max-width: 640.98px) {
+  .ip-offer-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ip-offer-card {
+    flex: 1 1 100%;
+    padding: 16px;
+  }
+
+  .ip-price-new {
+    font-size: 1.6rem;
+  }
+
+  .ip-price-old {
+    font-size: 0.95rem;
+  }
+
+  .ip-offer-text {
+    font-size: 0.84rem;
+  }
+} */
 
 /* Decorative elements */
 .ip-offer-card .ip-offer-badge svg {

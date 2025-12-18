@@ -5,6 +5,7 @@ import "./Footer.css"; // Ensure you import the CSS file
 
 const FooterAreaOne = () => {
   const [categories, setCategories] = useState([]);
+  const [companyInfo, setCompanyInfo] = useState({ address: '', phones: [], email: '' });
   const API_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
   useEffect(() => {
@@ -30,7 +31,21 @@ const FooterAreaOne = () => {
       }
     };
 
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${API_URL}CompanyInfo`);
+        const data = response.data.data;
+        const address = data.find(item => item.Type === 'Address')?.Description || '';
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
+        setCompanyInfo({ address, phones, email });
+      } catch (error) {
+        console.error('Failed to fetch company info:', error);
+      }
+    };
+
     fetchCategories();
+    fetchCompanyInfo();
   }, [API_URL]);
 
   const slugify = (text) => {
@@ -43,15 +58,28 @@ const FooterAreaOne = () => {
 
   // Reusable Contact Handler
   const handleContactClick = (phone) => {
+    const number = phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      window.location.href = `tel:${phone}`;
+      window.location.href = `tel:${number}`;
     } else {
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${number}`, "_blank");
     }
+  };
+
+  // Format phone number to XXX-XXX-XXXX pattern
+  const formatPhoneNumber = (phone) => {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 10) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return phone;
   };
 
   return (
@@ -152,35 +180,34 @@ const FooterAreaOne = () => {
                 <div className="contact-item">
                   <i className="fas fa-map-marker-alt contact-icon"></i>
                   <p className="mb-0" style={{color: "var(--text-light)"}}>
-                    Unit #B1, 2nd Floor, Spaces & More Business<br/>
-                    Park, Madhapur, Hyderabad, India, 500081
+                    {companyInfo.address || 'Loading...'}
                   </p>
                 </div>
                 
                 <div className="contact-item">
                   <i className="fas fa-phone-alt contact-icon"></i>
                   <div>
-                    <div 
-                      onClick={() => handleContactClick("7075243939")} 
-                      className="d-block contact-link" 
-                      style={{cursor: 'pointer'}}
-                    >
-                      +91 707-524-3939
-                    </div>
-                    <div 
-                      onClick={() => handleContactClick("9885653865")} 
-                      className="d-block contact-link" 
-                      style={{cursor: 'pointer'}}
-                    >
-                      +91 988-565-3865
-                    </div>
+                    {companyInfo.phones.length > 0 ? (
+                      companyInfo.phones.map((phone, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => handleContactClick(phone)} 
+                          className="d-block contact-link" 
+                          style={{cursor: 'pointer'}}
+                        >
+                          +91 {formatPhoneNumber(phone)}
+                        </div>
+                      ))
+                    ) : (
+                      'Loading...'
+                    )}
                   </div>
                 </div>
 
                 <div className="contact-item">
                   <i className="fas fa-envelope contact-icon"></i>
-                  <a href="mailto:info@mycarbuddy.in" className="contact-link">
-                    info@mycarbuddy.in
+                  <a href={`mailto:${companyInfo.email}`} className="contact-link">
+                    {companyInfo.email || 'Loading...'}
                   </a>
                 </div>
               </div>

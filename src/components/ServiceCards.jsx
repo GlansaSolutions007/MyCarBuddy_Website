@@ -759,6 +759,8 @@ export default function ServiceCards() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
+        serviceTypeDetail="PACKAGE "
+        serviceIdCollect= {selectedService ? selectedService.id : 0}
       />
     </section>
   );

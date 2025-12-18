@@ -306,12 +306,17 @@ const ContactArea = () => {
               <div className="contact-quick-content">
                 <h4>Need Quick Free Support?</h4>
                 <p>Call us now for immediate assistance with your car service needs.</p>
-                <p 
-                  className="contact-quick-phone"
-                  onClick={() => handlePhoneClick("+91 707-524-3939")}
-                >
-                  +91 707-524-3939
-                </p>
+                {companyInfo.phones.length > 0 ? (
+                  <p 
+                    className="contact-quick-phone"
+                    onClick={() => handlePhoneClick(companyInfo.phones[0])}
+                  >
+                    <span className="country-code-static">+91 </span>
+                    {formatPhoneNumber(companyInfo.phones[0])}
+                  </p>
+                ) : (
+                  <p className="contact-quick-phone">Loading...</p>
+                )}
               </div>
             </div>
           </div>

@@ -16,6 +16,7 @@ import {
   FaPhone,
   FaEnvelope,
   FaRedo,
+  FaCar,
 } from "react-icons/fa";
 import "./InspectionPopup.css";
 
@@ -41,6 +42,19 @@ const InspectionPopup = ({ isOpen, onClose }) => {
   const isLoggedIn = user && user.token;
   const [companyInfo, setCompanyInfo] = useState({ Amount: '' });
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [offer1, setOffer1] = useState({
+    oldPrice: 599,
+    newPrice: 399,
+    packageId: 174,
+    packageName: '5-Seater Car'
+  });
+  const [offer2, setOffer2] = useState({
+    oldPrice: 999,
+    newPrice: 699,
+    packageId: 175,
+    packageName: '7-Seater Car'
+  });
+  const [selectedOffer, setSelectedOffer] = useState(1); // 1 for offer1, 2 for offer2
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -54,6 +68,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       setOtpSent(false);
       setTimer(60);
       setOtpExpired(false);
+      setSelectedOffer(1); // Reset to first offer
     }
   }, [isOpen, isLoggedIn]);
 
@@ -93,18 +108,57 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     fetchCompanyInfo();
   }, []);
 
+  useEffect(() => {
+    const fetchInspectionPackages = async () => {
+      try {
+        // Fetch Offer 1 (PackageID=174)
+        const response1 = await axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`);
+        if (response1.data && response1.data.length > 0) {
+          const package1 = response1.data[0];
+          setOffer1({
+            oldPrice: package1.Serv_Reg_Price || 599,
+            newPrice: package1.Serv_Off_Price || 399,
+            packageId: 174,
+            packageName: package1.PackageName || '5-Seater Car'
+          });
+        }
+
+        // Fetch Offer 2 (PackageID=175)
+        const response2 = await axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=175`);
+        if (response2.data && response2.data.length > 0) {
+          const package2 = response2.data[0];
+          setOffer2({
+            oldPrice: package2.Serv_Reg_Price || 999,
+            newPrice: package2.Serv_Off_Price || 699,
+            packageId: 175,
+            packageName: package2.PackageName || '7-Seater Car'
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch inspection packages:', err);
+      }
+    };
+    fetchInspectionPackages();
+  }, []);
+
   // --- PAYMENT LOGIC (Backend Initiated) ---
   const handlePayment = async () => {
     try {
+      // Get the selected offer
+      const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
+
       // 1️⃣ First create order by calling backend
       const leadPayload = {
         fullName,
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
-        type:"online",
-        amount: companyInfo.Amount || 399,
-        description: "Doorstep Car Inspection Offer - ₹399",
+        type: "online",
+        serviceType: "INSPECTION",
+        amount: selectedOfferData.newPrice,
+        packageId: selectedOfferData.packageId,
+        packageName: selectedOfferData.packageName,
+        description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
         // description: `${selectedService?.title || "General Enquiry"} - ${description}`
       };
 
@@ -449,19 +503,53 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 <div className="ip-right-header">
                   <h3 className="ip-title">Book Your Inspection</h3>
                   <p className="ip-subtitle">Pay securely & book instantly</p>
+                  <p className="ip-subtitle">Select your car based on the number of seats.</p>
                 </div>
 
-                {/* Offer Card */}
-                <div className="ip-offer-card">
-                  <div className="ip-offer-badge">
-                    <FaGift /> Limited Offer
-                  </div>
-                  <div className="ip-offer-content">
-                    <div className="ip-offer-price">
-                      <span className="ip-price-old">₹599</span>
-                      <span className="ip-price-new">₹399</span>
+                {/* Offer Cards Row */}
+                <div className="ip-offer-row">
+                  {/* Offer 1 */}
+                  <div
+                    className={`ip-offer-card ${selectedOffer === 1 ? 'ip-offer-card-selected' : 'ip-offer-card-unselected'}`}
+                    onClick={() => setSelectedOffer(1)}
+                  >
+                    {selectedOffer === 1 && (
+                      <div className="ip-selected-checkmark">
+                        <FaCheckCircle />
+                      </div>
+                    )}
+                    <div className="ip-offer-badge">
+                      <FaGift /> Limited Offer
                     </div>
-                    <p className="ip-offer-text">Your Doorstep Inspection</p>
+                    <div className="ip-offer-content">
+                      <div className="ip-offer-price">
+                        <span className="ip-price-old">₹{offer1.oldPrice}</span>
+                        <span className="ip-price-new">₹{offer1.newPrice}</span>
+                      </div>
+                      <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p>
+                    </div>
+                  </div>
+
+                  {/* Offer 2 */}
+                  <div
+                    className={`ip-offer-card ${selectedOffer === 2 ? 'ip-offer-card-selected' : 'ip-offer-card-unselected'}`}
+                    onClick={() => setSelectedOffer(2)}
+                  >
+                    {selectedOffer === 2 && (
+                      <div className="ip-selected-checkmark">
+                        <FaCheckCircle />
+                      </div>
+                    )}
+                    <div className="ip-offer-badge">
+                      <FaGift /> Special Offer
+                    </div>
+                    <div className="ip-offer-content">
+                      <div className="ip-offer-price">
+                        <span className="ip-price-old">₹{offer2.oldPrice}</span>
+                        <span className="ip-price-new">₹{offer2.newPrice}</span>
+                      </div>
+                      <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p>
+                    </div>
                   </div>
                 </div>
 
@@ -527,7 +615,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     {/* Phone Field */}
                     <div className="ip-form-group half">
                       <label className="ip-label">
-                        <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)"}} />
+                        <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
                         Phone Number
                       </label>
                       <input
@@ -628,7 +716,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                           )
                         ) : otpStep ? (
                           <>
-                            Verify & Pay ₹399
+                            Verify & Pay ₹{selectedOffer === 1 ? offer1.newPrice : offer2.newPrice}
                             <FaArrowRight className="ip-btn-arrow" />
                           </>
                         ) : (

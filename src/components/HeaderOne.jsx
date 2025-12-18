@@ -34,6 +34,7 @@ const HeaderOne = () => {
   const [categories, setCategories] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [serviceSearchTerm, setServiceSearchTerm] = useState("");
+  const [companyInfo, setCompanyInfo] = useState({ email: '', phone: '' });
 
   // Hooks
   const { showAlert } = useAlert();
@@ -74,13 +75,27 @@ const HeaderOne = () => {
     debouncedNavigate(value);
   };
 
+  // Format phone number to XXX-XXX-XXXX pattern
+  const formatPhoneNumber = (phone) => {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 10) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return phone;
+  };
+
   const handleContactClick = () => {
-    const phone = "7075243939";
+    if (!companyInfo.phone) return;
+    
+    const number = companyInfo.phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
     if (isMobile) {
-      window.location.href = `tel:${phone}`;
+      window.location.href = `tel:${number}`;
     } else {
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${number}`, "_blank");
     }
   };
 
@@ -254,6 +269,22 @@ const HeaderOne = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${API_URL}CompanyInfo`);
+        const data = response.data.data;
+        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const phone = phones.length > 0 ? phones[0] : '';
+        setCompanyInfo({ email, phone });
+      } catch (error) {
+        console.error('Failed to fetch company info:', error);
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+
+  useEffect(() => {
     if (!isSearchOpen) return;
     const onDocClick = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -284,7 +315,9 @@ const HeaderOne = () => {
             <div className="mcb-top-left">
               <div className="mcb-top-item">
                 <Mail size={13} />
-                <a href="mailto:info@mycarbuddy.in">info@mycarbuddy.in</a>
+                <a href={`mailto:${companyInfo.email}`}>
+                  {companyInfo.email || 'Loading...'}
+                </a>
               </div>
               <div className="mcb-top-divider" />
               <div className="mcb-city-wrapper">
@@ -309,7 +342,9 @@ const HeaderOne = () => {
               <div className="mcb-top-divider" />
               <div className="mcb-top-item" onClick={handleContactClick}>
                 <Phone size={13} />
-                <span>+91 707-524-3939</span>
+                <span>
+                  {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                </span>
               </div>
             </div>
             <div className="mcb-social-links">
@@ -397,7 +432,9 @@ const HeaderOne = () => {
                     <Phone size={18} className="mcb-contact-icon" />
                     <div className="mcb-contact-text">
                       <span className="mcb-contact-label">Free Call Support</span>
-                      <span className="mcb-contact-number">+91 707-524-3939</span>
+                      <span className="mcb-contact-number">
+                        {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                      </span>
                     </div>
                   </div>
                   <div className="mcb-contact-tooltip">
@@ -554,9 +591,9 @@ const HeaderOne = () => {
 
             <div className="mcb-mobile-footer">
               <div className="mcb-mobile-contact">
-                <a href="mailto:info@mycarbuddy.in" className="mcb-mobile-contact-item">
+                <a href={`mailto:${companyInfo.email}`} className="mcb-mobile-contact-item">
                   <Mail size={14} />
-                  <span>info@mycarbuddy.in</span>
+                  <span>{companyInfo.email || 'Loading...'}</span>
                 </a>
                 <div className="mcb-mobile-contact-item" onClick={() => { handleCityPicker(); setMobileMenuOpen(false); }}>
                   <MapPin size={14} />
@@ -565,7 +602,9 @@ const HeaderOne = () => {
               </div>
               <button className="mcb-mobile-call-btn" onClick={handleContactClick}>
                 <Phone size={16} />
-                <span>Call +91 707-524-3939</span>
+                <span>
+                  {companyInfo.phone ? `Call +91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                </span>
               </button>
               <div className="mcb-mobile-social">
                 <a href="https://www.facebook.com/people/Mycarbuddyin/61578291056729/" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook-f" /></a>

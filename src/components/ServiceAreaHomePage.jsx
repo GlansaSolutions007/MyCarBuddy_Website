@@ -42,6 +42,7 @@ const ServiceAreaHomePage = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [companyInfo, setCompanyInfo] = useState({ phones: [] });
 
   // Auth & Form States
   const [otpStep, setOtpStep] = useState(false);
@@ -210,6 +211,21 @@ const ServiceAreaHomePage = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}CompanyInfo`);
+        const data = response.data.data;
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        setCompanyInfo({ phones });
+      } catch (error) {
+        console.error('Failed to fetch company info:', error);
+      }
+    };
+
+    fetchCompanyInfo();
+  }, [BASE_URL]);
+
   const slugify = (text) => {
     return text
       .toLowerCase()
@@ -237,17 +253,32 @@ const ServiceAreaHomePage = () => {
     ? fuse.search(searchTerm).map((result) => result.item)
     : services;
 
+  // Format phone number to XXX-XXX-XXXX pattern
+  const formatPhoneNumber = (phone) => {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 10) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return phone;
+  };
+
   const handleContactClick = () => {
-    const phone = "7075243939";
+    if (companyInfo.phones.length === 0) return;
+
+    const phone = companyInfo.phones[0];
+    const number = phone.replace(/\D/g, "");
 
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      window.location.href = `tel:${phone}`;
+      window.location.href = `tel:${number}`;
     } else {
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${number}`, "_blank");
     }
   };
 
@@ -290,53 +321,53 @@ const ServiceAreaHomePage = () => {
         {filteredServices.length > 0 ? (
           <div className="row gy-4 justify-content-center">
             {filteredServices
-            .filter(service => service.title !== "Custom Category") // <-- exclude this title
-            .map((service, index) => (
-              <div
-                key={service.id}
-                className={`col-6 col-sm-6 col-md-4 col-lg-3 animate-fadeInUp delay-${(index % 4) + 1}`}
-              >
+              .filter(service => service.title !== "Custom Category") // <-- exclude this title
+              .map((service, index) => (
                 <div
-                  className="service-card-minimal"
-                  onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}
+                  key={service.id}
+                  className={`col-6 col-sm-6 col-md-4 col-lg-3 animate-fadeInUp delay-${(index % 4) + 1}`}
                 >
-                  {/* Background Image - Always Visible */}
                   <div
-                    className="service-card-bg"
-                    style={{ backgroundImage: `url(${service.image})` }}
-                  />
+                    className="service-card-minimal"
+                    onClick={() => navigate(`/service/${slugify(service.title)}/${service.id}`)}
+                  >
+                    {/* Background Image - Always Visible */}
+                    <div
+                      className="service-card-bg"
+                      style={{ backgroundImage: `url(${service.image})` }}
+                    />
 
-                  {/* Gradient Overlay */}
-                  <div className="service-card-overlay" />
+                    {/* Gradient Overlay */}
+                    <div className="service-card-overlay" />
 
-                  {/* Card Content */}
-                  <div className="service-card-content">
-                    {/* Icon */}
-                    <div className="service-card-icon">
-                      <img src={service.icon} alt={service.title} />
+                    {/* Card Content */}
+                    <div className="service-card-content">
+                      {/* Icon */}
+                      <div className="service-card-icon">
+                        <img src={service.icon} alt={service.title} />
+                      </div>
+
+                      {/* Title - Always Visible */}
+                      <h4 className="service-card-title">{service.title}</h4>
+
+                      {/* Description - Shows on Hover */}
+                      <p className="service-card-desc">{service.description}</p>
+
+                      {/* Book Button - Shows on Hover */}
+                      <button
+                        className="service-card-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedService(service);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        Book Service <i className="fas fa-arrow-right" />
+                      </button>
                     </div>
-
-                    {/* Title - Always Visible */}
-                    <h4 className="service-card-title">{service.title}</h4>
-
-                    {/* Description - Shows on Hover */}
-                    <p className="service-card-desc">{service.description}</p>
-
-                    {/* Book Button - Shows on Hover */}
-                    <button
-                      className="service-card-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedService(service);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Book Service <i className="fas fa-arrow-right" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         ) : (
           <div className="no-results">
@@ -382,7 +413,11 @@ const ServiceAreaHomePage = () => {
                 <div className="icon-wrapper">
                   <i className="bi bi-telephone"></i>
                 </div>
-                <h4>Quick Call Support - (+91 707-524-3939)</h4>
+                <h4>
+                  Quick Call Support - {companyInfo.phones.length > 0
+                    ? `(+91 ${formatPhoneNumber(companyInfo.phones[0])})`
+                    : '(Loading...)'}
+                </h4>
                 <p>
                   Connect directly with our support team for immediate help.
                   <br />
@@ -391,6 +426,7 @@ const ServiceAreaHomePage = () => {
                 <button
                   className="support-btn"
                   onClick={handleContactClick}
+                  disabled={companyInfo.phones.length === 0}
                 >
                   <FaPhoneAlt />
                   <span>Get Free Call Support</span>
@@ -505,6 +541,8 @@ const ServiceAreaHomePage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
+        serviceTypeDetail="CATEGORY"
+        serviceIdCollect= {selectedService ? selectedService.id : 0}
       />
     </div>
   );

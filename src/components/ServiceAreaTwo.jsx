@@ -169,6 +169,8 @@ const ServiceAreaTwo = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
+        serviceTypeDetail="CATEGORY"
+        serviceIdCollect= {selectedService ? selectedService.id : 0}
       />
     </div>
   );

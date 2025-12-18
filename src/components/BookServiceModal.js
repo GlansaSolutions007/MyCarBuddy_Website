@@ -22,7 +22,7 @@ import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
 
-const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
+const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect }) => {
   // --- STATES ---
   const [currentStep, setCurrentStep] = useState("inspection"); // "inspection" or "booking"
   const [inspection, setInspection] = useState(false);
@@ -126,9 +126,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
-        type:"online",
-        amount: companyInfo.Amount || 399,
-        description: `${selectedService?.title || "General Enquiry"} - ${description}`
+        type: "online",
+        isInspection: true,
+        amount: companyInfo.Amount || "N/A",
+        description: description || "No description provided",
+        serviceName: selectedService?.title || "N/A",
+        serviceType: serviceTypeDetail || "N/A",
+        serviceId: serviceIdCollect || 0,
       };
 
       // Update guest user details if needed
@@ -309,9 +313,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService }) => {
       phoneNumber: identifier,
       email: email || user?.email || "",
       platform: "Web",
-      type:"cos",
-      // amount: 399,
-      description: `${selectedService?.title || "General Enquiry"} - ${description}`
+      type: "cos",
+      amount: 0,
+      isInspection: false,
+      description: description || "No description provided",
+      serviceName: selectedService?.title || "N/A",
+      serviceType: serviceTypeDetail || "N/A",
+      serviceId: serviceIdCollect || 0,
     };
 
     await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);

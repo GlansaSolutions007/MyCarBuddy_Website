@@ -59,6 +59,7 @@ const ServiceDetails = () => {
   const [explanations, setExplanations] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState({ phones: [] });
   const location = useLocation();
 
   const selectedCarDetails = JSON.parse(
@@ -174,6 +175,21 @@ const ServiceDetails = () => {
     };
 
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${BaseURL}CompanyInfo`);
+        const data = response.data.data;
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        setCompanyInfo({ phones });
+      } catch (error) {
+        console.error('Failed to fetch company info:', error);
+      }
+    };
+
+    fetchCompanyInfo();
   }, []);
 
   useEffect(() => {
@@ -327,17 +343,30 @@ const ServiceDetails = () => {
   };
 
   const handlePhoneClick = (phone) => {
+    const number = phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
       // On mobile, open phone dialer
-      window.location.href = `tel:${phone}`;
+      window.location.href = `tel:${number}`;
     } else {
       // On desktop/laptop, open WhatsApp
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${number}`, "_blank");
     }
+  };
+
+  // Format phone number to XXX-XXX-XXXX pattern
+  const formatPhoneNumber = (phone) => {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    }
+    if (digits.length === 10) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return phone;
   };
 
   return (
@@ -409,19 +438,11 @@ const ServiceDetails = () => {
                 <button
                   className="sd-btn sd-btn-outline"
                   onClick={() => {
-                    const phoneNumber = "+917075243939";
-
-                    // Detect mobile devices
-                    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-                    if (isMobile) {
-                      // 📱 Mobile → Open Dial Pad
-                      window.location.href = `tel:${phoneNumber}`;
-                    } else {
-                      // 💻 Desktop → Open WhatsApp Web
-                      window.open(`https://wa.me/${phoneNumber}`, "_blank");
+                    if (companyInfo.phones.length > 0) {
+                      handlePhoneClick(companyInfo.phones[0]);
                     }
                   }}
+                  disabled={companyInfo.phones.length === 0}
                 >
                   <FaHeadset />
                   <span>Free Quick Support</span>
@@ -578,18 +599,19 @@ const ServiceDetails = () => {
                   Have questions about this service? Our team is ready to help.
                 </p>
                 <div className="sd-contact-phones">
-                  <button
-                    className="sd-phone-link"
-                    onClick={() => handlePhoneClick("7075243939")}
-                  >
-                    <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 707-524-3939
-                  </button>
-                  <button
-                    className="sd-phone-link"
-                    onClick={() => handlePhoneClick("9885653865")}
-                  >
-                    <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 988-565-3865
-                  </button>
+                  {companyInfo.phones.length > 0 ? (
+                    companyInfo.phones.map((phone, index) => (
+                      <button
+                        key={index}
+                        className="sd-phone-link"
+                        onClick={() => handlePhoneClick(phone)}
+                      >
+                        <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 {formatPhoneNumber(phone)}
+                      </button>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Loading...</p>
+                  )}
                 </div>
               </div>
 
@@ -706,7 +728,11 @@ const ServiceDetails = () => {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      setSelectedService({ title: s.PackageName });
+                                      // setSelectedService({ title: s.PackageName });
+                                      setSelectedService({
+                                        id: s.PackageID,          
+                                        title: s.PackageName
+                                      });
                                       setIsModalOpen(true);
                                     }}
                                   >
@@ -747,6 +773,8 @@ const ServiceDetails = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
+        serviceTypeDetail="PACKAGE"
+        serviceIdCollect={selectedService ? selectedService.id : 0}
       />
     </>
   );

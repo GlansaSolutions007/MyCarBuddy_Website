@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./HeroSection.css"; // Imports the new CSS
 import InspectionPopup from "./InspectionPopup";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showInspectionPopup, setShowInspectionPopup] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState({ phones: [] });
+  const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
   // --- SLIDE DATA CONFIGURATION ---
   // Add as many slides as you want here.
@@ -50,17 +53,36 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  // --- FETCH COMPANY INFO ---
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}CompanyInfo`);
+        const data = response.data.data;
+        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        setCompanyInfo({ phones });
+      } catch (error) {
+        console.error('Failed to fetch company info:', error);
+      }
+    };
+
+    fetchCompanyInfo();
+  }, [BASE_URL]);
+
   // --- CONTACT HANDLER ---
   const handleContactClick = () => {
-    const phone = "7075243939";
+    if (companyInfo.phones.length === 0) return;
+    
+    const phone = companyInfo.phones[0];
+    const number = phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      window.location.href = `tel:${phone}`;
+      window.location.href = `tel:${number}`;
     } else {
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${number}`, "_blank");
     }
   };
 
@@ -106,7 +128,11 @@ const HeroSection = () => {
                   {slide.buttonText}
                 </button>
 
-                <button onClick={handleContactClick} className="btn-outline-custom">
+                <button 
+                  onClick={handleContactClick} 
+                  className="btn-outline-custom"
+                  disabled={companyInfo.phones.length === 0}
+                >
                   {/* Get Free Inspection on Call */}
                   <i className="fas fa-headset pe-2 "></i>
                   Call for Free Consultation
