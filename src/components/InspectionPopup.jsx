@@ -148,18 +148,23 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
 
       // 1️⃣ First create order by calling backend
+      const services = [{
+        serviceId: selectedOfferData.packageId,
+        serviceName: selectedOfferData.packageName,
+        serviceType: "Inspection",
+        price: selectedOfferData.newPrice,
+        isInspection: true
+      }];
+
       const leadPayload = {
         fullName,
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
         type: "online",
-        serviceType: "INSPECTION",
         amount: selectedOfferData.newPrice,
-        packageId: selectedOfferData.packageId,
-        packageName: selectedOfferData.packageName,
         description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-        // description: `${selectedService?.title || "General Enquiry"} - ${description}`
+        services
       };
 
       // Update guest user details if needed
@@ -193,9 +198,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
       const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
-      const orderId = res.data.razorpayOrder.orderID;
+      const orderId = res.data.razorpayOrderID;
       const leadId = res.data.leadId;
-      const razorKey = res.data.razorpayOrder.key;
+      const razorKey = res.data.razorpayKey;
       const amount = res.data.amount * 100; // Razorpay requires paise
 
       // 2️⃣ Open Razorpay Checkout using backend key & orderID

@@ -16,7 +16,9 @@ import {
   FaComment,
   FaShieldAlt,
   FaRedo,
-  FaEnvelope
+  FaEnvelope,
+  FaGift,
+  FaCar
 } from "react-icons/fa";
 import "./BookServiceModal.css";
 import { platform } from "process";
@@ -45,6 +47,19 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [companyInfo, setCompanyInfo] = useState({ Amount: '' });
   const navigate = useNavigate();
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [offer1, setOffer1] = useState({
+    oldPrice: 599,
+    newPrice: 399,
+    packageId: 174,
+    packageName: '5-Seater Car'
+  });
+  const [offer2, setOffer2] = useState({
+    oldPrice: 999,
+    newPrice: 699,
+    packageId: 175,
+    packageName: '7-Seater Car'
+  });
+  const [selectedOffer, setSelectedOffer] = useState(1); // 1 for offer1, 2 for offer2
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -118,22 +133,90 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     fetchCompanyInfo();
   }, []);
 
+  useEffect(() => {
+    const fetchInspectionPackages = async () => {
+      try {
+        // Fetch Offer 1 (PackageID=174)
+        const response1 = await axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`);
+        if (response1.data && response1.data.length > 0) {
+          const package1 = response1.data[0];
+          setOffer1({
+            oldPrice: package1.Serv_Reg_Price || 599,
+            newPrice: package1.Serv_Off_Price || 399,
+            packageId: 174,
+            packageName: package1.PackageName || '5-Seater Car'
+          });
+        }
+
+        // Fetch Offer 2 (PackageID=175)
+        const response2 = await axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=175`);
+        if (response2.data && response2.data.length > 0) {
+          const package2 = response2.data[0];
+          setOffer2({
+            oldPrice: package2.Serv_Reg_Price || 999,
+            newPrice: package2.Serv_Off_Price || 699,
+            packageId: 175,
+            packageName: package2.PackageName || '7-Seater Car'
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch inspection packages:', err);
+      }
+    };
+    fetchInspectionPackages();
+  }, []);
+
+  // Common function to build lead payload
+  const buildLeadPayload = (withInspection) => {
+    const services = [];
+    // Get the selected inspection offer
+    const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
+    
+    if (withInspection) {
+      // Add inspection service first (the selected package)
+      services.push({
+        serviceId: selectedOfferData.packageId, // Inspection package ID (174 or 175)
+        serviceName: selectedOfferData.packageName,
+        serviceType: "Inspection",
+        price: selectedOfferData.newPrice,
+        isInspection: true
+      });
+      
+      // Add the selected service
+      services.push({
+        serviceId: serviceIdCollect || 0,
+        serviceName: selectedService?.title || "N/A",
+        serviceType: serviceTypeDetail || "N/A",
+        price: 0, // Selected service price (to be determined after inspection)
+        isInspection: true
+      });
+    } else {
+      // Without inspection - only send the selected service
+      services.push({
+        serviceId: serviceIdCollect || 0,
+        serviceName: selectedService?.title || "N/A",
+        serviceType: serviceTypeDetail || "N/A",
+        price: 0,
+        isInspection: false
+      });
+    }
+    
+    return {
+      fullName,
+      phoneNumber: identifier,
+      email: email || user?.email || "",
+      description: description || "No description provided",
+      platform: "Web",
+      type: withInspection ? "online" : "cos",
+      amount: withInspection ? selectedOfferData.newPrice : 0,
+      services
+    };
+  };
+
   const handlePayment = async () => {
     try {
       // 1️⃣ First create order by calling backend
-      const leadPayload = {
-        fullName,
-        phoneNumber: identifier,
-        email: email || user?.email || "",
-        platform: "Web",
-        type: "online",
-        isInspection: true,
-        amount: companyInfo.Amount || "N/A",
-        description: description || "No description provided",
-        serviceName: selectedService?.title || "N/A",
-        serviceType: serviceTypeDetail || "N/A",
-        serviceId: serviceIdCollect || 0,
-      };
+      const leadPayload = buildLeadPayload(true); // true = with inspection
 
       // Update guest user details if needed
       const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
@@ -166,9 +249,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
 
       const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
-      const orderId = res.data.razorpayOrder.orderID;
+      const orderId = res.data.razorpayOrderID;
       const leadId = res.data.leadId;
-      const razorKey = res.data.razorpayOrder.key;
+      const razorKey = res.data.razorpayKey;
       const amount = res.data.amount * 100; // Razorpay requires paise
 
       // 2️⃣ Open Razorpay Checkout using backend key & orderID
@@ -308,19 +391,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   };
 
   const normalSubmit = async () => {
-    const leadPayload = {
-      fullName,
-      phoneNumber: identifier,
-      email: email || user?.email || "",
-      platform: "Web",
-      type: "cos",
-      amount: 0,
-      isInspection: false,
-      description: description || "No description provided",
-      serviceName: selectedService?.title || "N/A",
-      serviceType: serviceTypeDetail || "N/A",
-      serviceId: serviceIdCollect || 0,
-    };
+    const leadPayload = buildLeadPayload(false); // false = without inspection
 
     await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
     window.dispatchEvent(new Event("userProfileUpdated"));
@@ -467,23 +538,23 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
               <div className="bsm-left-benefits">
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Accurate diagnosis of issues</span>
+                  <span>50+ Point Health Checkup</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Avoid unnecessary repairs</span>
+                  <span>Transparent Diagnosis Report</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Technician visits your location</span>
+                  <span>30-45 Mins Quick Inspection</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Correct estimate upfront</span>
+                  <span>Technician Visits Your Home</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>No surprise charges</span>
+                  <span>Expert Repair Recommendations</span>
                 </div>
               </div>
             </div>
@@ -491,26 +562,54 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             {/* Right Panel */}
             <div className="bsm-right-panel">
               <div className="bsm-right-header">
-                <h3 className="bsm-title">Inspection Required</h3>
-                <p className="bsm-subtitle">Mandatory step for accurate service</p>
+                <h3 className="bsm-title">Choose Your Inspection Package</h3>
+                <p className="bsm-subtitle">Select your car based on the number of seats</p>
               </div>
 
-              {/* Info Card */}
-              <div className="bsm-info-card">
-                <h4 className="bsm-info-title">
-                  <FaShieldAlt />
-                  What's Included?
-                </h4>
-                <ul className="bsm-info-list">
-                  <li>Complete car health checkup</li>
-                  <li>Expert diagnosis by certified technician</li>
-                  <li>Transparent report with photos</li>
-                  <li>Accurate repair estimate</li>
-                </ul>
-                <div className="bsm-info-price">
-                  <span className="bsm-price-label">Inspection Fee:</span>
-                  <span className="bsm-price-old">₹599</span>
-                  <span className="bsm-price-value">₹399</span>
+              {/* Offer Cards Row */}
+              <div className="bsm-offer-row">
+                {/* Offer 1 - 5 Seater */}
+                <div
+                  className={`bsm-offer-card ${selectedOffer === 1 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
+                  onClick={() => setSelectedOffer(1)}
+                >
+                  {selectedOffer === 1 && (
+                    <div className="bsm-selected-checkmark">
+                      <FaCheckCircle />
+                    </div>
+                  )}
+                  <div className="bsm-offer-badge">
+                    <FaGift /> Limited Offer
+                  </div>
+                  <div className="bsm-offer-content">
+                    <div className="bsm-offer-price">
+                      <span className="bsm-price-old">₹{offer1.oldPrice}</span>
+                      <span className="bsm-price-new">₹{offer1.newPrice}</span>
+                    </div>
+                    <p className="bsm-offer-text">{offer1.packageName} <FaCar className="bsm-car-icon" /></p>
+                  </div>
+                </div>
+
+                {/* Offer 2 - 7 Seater */}
+                <div
+                  className={`bsm-offer-card ${selectedOffer === 2 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
+                  onClick={() => setSelectedOffer(2)}
+                >
+                  {selectedOffer === 2 && (
+                    <div className="bsm-selected-checkmark">
+                      <FaCheckCircle />
+                    </div>
+                  )}
+                  <div className="bsm-offer-badge">
+                    <FaGift /> Special Offer
+                  </div>
+                  <div className="bsm-offer-content">
+                    <div className="bsm-offer-price">
+                      <span className="bsm-price-old">₹{offer2.oldPrice}</span>
+                      <span className="bsm-price-new">₹{offer2.newPrice}</span>
+                    </div>
+                    <p className="bsm-offer-text">{offer2.packageName} <FaCar className="bsm-car-icon" /></p>
+                  </div>
                 </div>
               </div>
 
@@ -549,7 +648,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </h2>
                 <p className="bsm-left-subtitle">
                   {inspection
-                    ? "Pay ₹399 & book your slot"
+                    ? `Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice} & book your slot`
                     : "We'll get back to you soon"}
                 </p>
               </div>
@@ -714,12 +813,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                           : (otpStep ? "Verifying..." : "Sending OTP...")
                       ) : isLoggedIn ? (
                         <>
-                          {inspection ? "Pay ₹399 & Book" : "Submit Enquiry"}
+                          {inspection ? `Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice} & Book` : "Submit Enquiry"}
                           <FaArrowRight className="bsm-btn-arrow" />
                         </>
                       ) : otpStep ? (
                         <>
-                          {inspection ? "Verify & Pay ₹399" : "Verify & Submit"}
+                          {inspection ? `Verify & Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice}` : "Verify & Submit"}
                           <FaArrowRight className="bsm-btn-arrow" />
                         </>
                       ) : (

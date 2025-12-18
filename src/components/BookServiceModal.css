@@ -661,3 +661,219 @@
   color: white;
   font-size: 18px;
 }
+
+/* Offer Cards Row */
+.bsm-offer-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+/* Offer Card - Modern Dark Gradient */
+.bsm-offer-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(26, 26, 46, 0.3);
+  flex: 1 1 calc(50% - 8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bsm-offer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.bsm-offer-card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 18px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bsm-offer-card:hover::after {
+  opacity: 1;
+}
+
+/* Selected Card State */
+.bsm-offer-card-selected {
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale(1.05);
+}
+
+/* Unselected Card State */
+.bsm-offer-card-unselected {
+  opacity: 0.9;
+  filter: blur(0.5px);
+  transform: scale(0.95);
+}
+
+.bsm-offer-card-unselected:hover {
+  opacity: 0.9;
+  filter: blur(0px);
+  transform: scale(1.02);
+}
+
+/* Checkmark Indicator */
+.bsm-selected-checkmark {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 36px;
+  height: 36px;
+  background: rgba(163, 163, 163, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 16px;
+  box-shadow:
+    0 6px 18px rgba(10, 98, 100, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  animation: bsmCheckmarkPulse 1.5s ease-in-out infinite;
+  z-index: 3;
+}
+
+@keyframes bsmCheckmarkPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(10, 98, 100, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(10, 98, 100, 0.6);
+  }
+}
+
+.bsm-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 25px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+  animation: bsmBadgeGlow 2s infinite;
+}
+
+@keyframes bsmBadgeGlow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(236, 72, 153, 0.6), 0 0 30px rgba(139, 92, 246, 0.3);
+  }
+}
+
+.bsm-offer-content {
+  position: relative;
+  z-index: 1;
+}
+
+.bsm-offer-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.bsm-price-old {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.bsm-price-new {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 50%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
+}
+
+.bsm-offer-text {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.bsm-car-icon {
+  margin-left: 4px;
+  font-size: 1rem;
+}
+
+/* Decorative elements */
+.bsm-offer-card .bsm-offer-badge svg {
+  animation: bsmGiftBounce 1s ease infinite;
+}
+
+@keyframes bsmGiftBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2) rotate(-10deg);
+  }
+}
+
+/* Responsive for offer cards */
+@media (max-width: 768px) {
+  .bsm-offer-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bsm-offer-card {
+    flex: 1 1 100%;
+    padding: 16px;
+  }
+
+  .bsm-price-new {
+    font-size: 1.6rem;
+  }
+
+  .bsm-price-old {
+    font-size: 0.95rem;
+  }
+
+  .bsm-offer-text {
+    font-size: 0.84rem;
+  }
+}
