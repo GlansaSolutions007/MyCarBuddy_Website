@@ -4,25 +4,32 @@ import CountUp from "react-countup";
 import "./AboutTwo.css";
 
 const highlights = [
-  "Doorstep Service",
-  "Expert Mechanics",
-  "Quality Products",
-  "Live Tracking",
-  "Upfront Pricing",
+  // "Doorstep Service",
+  // "Expert Mechanics",
+  // "Quality Products",
+  // "Live Tracking",
+  // "Upfront Pricing",
+  "Doorstep Car Services",
+  "Certified & Background-Verified Technicians",
+  "Transparent Pricing with No Hidden Charges",
+  "Expert Vehicle Inspection",
+  "Fast Booking via App or Website",
+  "Trusted by 1000+ Happy Customers",
+  "Dedicated Customer Support & Service Assistance",
 ];
 
 const features = [
   {
     icon: "assets/img/icon/about_icon2-3.svg",
-    title: "Premium Interior Wash",
+    title: "Doorstep Convenience",
     description:
-      "Deep vacuuming, dashboard polishing, door panel cleaning, and streak-free window cleaning for a fresh and comfortable ride.",
+      "Car care designed around your schedule, location, and comfort — no waiting, no service center visits.",
   },
   {
     icon: "assets/img/icon/about_icon2-4.svg",
-    title: "Shiny Exterior Finish",
+    title: "Trusted & Verified Professionals",
     description:
-      "Gentle hand wash, high-pressure rinse, tyre cleaning, and wax protection to keep your car looking brand new — right in your driveway.",
+      "Every professional is background-verified, trained, and monitored to ensure safety, quality, and reliability at every step.",
   },
 ];
 
@@ -74,24 +81,21 @@ const AboutTwo = () => {
           {/* Content */}
           <div className="col-lg-6">
             <div className="about-two-content">
-              <span className="about-two-subtitle">Know About Us</span>
+              <span className="about-two-subtitle">About My Car Buddy</span>
               <h2 className="about-two-title">
-                At-Home <span>Interior & Exterior</span> Car Wash Experts
+                Your Trusted <span>Doorstep Partner</span> for Hassle-Free Car Care
               </h2>
 
               <div className="about-two-description">
                 <p>
-                  At My Car Buddy, we make car care effortless by bringing
-                  professional services straight to your doorstep. No more
-                  waiting at garages or service centers. Our expert mechanics
-                  and technicians come to you, whenever and wherever you need
-                  them.
+                  My Car Buddy is a technology-driven car care platform built to simplify vehicle
+                  ownership. We remove the inconvenience of traditional service centers by
+                  connecting you with trusted automotive professionals at your preferred location.
                 </p>
                 <p>
-                  Whether it's a routine service, car wash, detailing, oil
-                  change, battery replacement, or emergency breakdown support,
-                  we've got you covered. With just a few taps on our app or
-                  website, you can book a service at your convenience.
+                  Our mission is to deliver a seamless, stress-free experience through transparency,
+                  reliability, and quality assurance. With a strong focus on customer satisfaction,
+                  My Car Buddy is redefining modern car care with dependable, customer-first support.
                 </p>
               </div>
 

@@ -319,7 +319,7 @@ const ServiceAreaHomePage = () => {
       {/* Services Grid */}
       <div className="container">
         {filteredServices.length > 0 ? (
-          <div className="row gy-4 justify-content-center">
+          <div className="row gy-2 gy-md-4 justify-content-center">
             {filteredServices
               .filter(service => service.title !== "Custom Category") // <-- exclude this title
               .map((service, index) => (

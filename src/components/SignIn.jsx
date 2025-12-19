@@ -84,15 +84,15 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			return;
 		}
 
-		if (!fullName) {
-			showAlert("Error", "Please enter your name", 3000, "error");
-			return;
-		}
+		// if (!fullName) {
+		// 	showAlert("Error", "Please enter your name", 3000, "error");
+		// 	return;
+		// }
 
-		if (!email) {
-			showAlert("Error", "Please enter your email", 3000, "error");
-			return;
-		}
+		// if (!email) {
+		// 	showAlert("Error", "Please enter your email", 3000, "error");
+		// 	return;
+		// }
 
 		setLoading(true);
 		try {
@@ -265,7 +265,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 						{!otpSent && (
 							<>
 								{/* Name */}
-								<div className="si-input-group">
+								{/* <div className="si-input-group">
 									<div className="si-input-icon">
 										<FaUser />
 									</div>
@@ -280,10 +280,10 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 											required
 										/>
 									</div>
-								</div>
+								</div> */}
 
 								{/* Email */}
-								<div className="si-input-group">
+								{/* <div className="si-input-group">
 									<div className="si-input-icon">
 										<FaEnvelope />
 									</div>
@@ -298,7 +298,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 											required
 										/>
 									</div>
-								</div>
+								</div> */}
 							</>
 						)}
 

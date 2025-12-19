@@ -202,7 +202,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       const leadId = res.data.leadId;
       const razorKey = res.data.razorpayKey;
       // const amount = res.data.amount * 100; // Razorpay requires paise
-      const amount = selectedOffer; // Razorpay requires paise
+      const amount = leadPayload.amount; // Razorpay requires paise
 
       // 2️⃣ Open Razorpay Checkout using backend key & orderID
       const options = {
