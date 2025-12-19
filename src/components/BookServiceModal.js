@@ -171,7 +171,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const services = [];
     // Get the selected inspection offer
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
-    
+
     if (withInspection) {
       // Add inspection service first (the selected package)
       services.push({
@@ -181,7 +181,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         price: selectedOfferData.newPrice,
         isInspection: true
       });
-      
+
       // Add the selected service
       services.push({
         serviceId: serviceIdCollect || 0,
@@ -200,7 +200,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         isInspection: false
       });
     }
-    
+
     return {
       fullName,
       phoneNumber: identifier,
@@ -252,7 +252,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const orderId = res.data.razorpayOrderID;
       const leadId = res.data.leadId;
       const razorKey = res.data.razorpayKey;
-      const amount = res.data.amount * 100; // Razorpay requires paise
+      // const amount = res.data.amount * 100; // Razorpay requires paise
+      const amount = selectedOffer; // Razorpay requires paise
 
       // 2️⃣ Open Razorpay Checkout using backend key & orderID
       const options = {
