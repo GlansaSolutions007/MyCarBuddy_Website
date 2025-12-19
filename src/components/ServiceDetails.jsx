@@ -61,6 +61,7 @@ const ServiceDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [companyInfo, setCompanyInfo] = useState({ phones: [] });
   const location = useLocation();
+  const HIDDEN_PACKAGE_IDS = [174, 175, 176];
 
   const selectedCarDetails = JSON.parse(
     localStorage.getItem("selectedCarDetails")
@@ -325,7 +326,7 @@ const ServiceDetails = () => {
   }
 
   const categoryServices = allServices.filter(
-    (s) => s.CategoryID === service.categoryId && s.PackageID !== service.id
+    (s) => s.CategoryID === service.categoryId && s.PackageID !== service.id && !HIDDEN_PACKAGE_IDS.includes(s.PackageID)
   );
 
   const otherCategories = categories.filter(

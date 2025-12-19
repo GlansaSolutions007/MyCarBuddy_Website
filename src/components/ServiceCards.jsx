@@ -175,8 +175,9 @@ export default function ServiceCards() {
           }&ModelId=${modelId || ""}&fuelTypeId=${fuelId || ""}`
         );
 
+        const HIDDEN_PACKAGE_IDS = [174, 175, 176];
         const formatted = response.data
-          .filter((pkg) => pkg.IsActive === true)
+          .filter((pkg) => pkg.IsActive === true && !HIDDEN_PACKAGE_IDS.includes(pkg.PackageID))
           // .filter((pkg) => pkg.Serv_Off_Price >= 200)
           .map((pkg) => ({
             id: pkg.PackageID,
