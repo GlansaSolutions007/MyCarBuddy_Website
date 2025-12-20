@@ -739,24 +739,47 @@
 /* Checkmark Indicator */
 .bsm-selected-checkmark {
   position: absolute;
-  top: -7px;
-  right: -7px;
-  width: 36px;
-  height: 36px;
-  background: rgba(163, 163, 163, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  top: -8px; /* Slightly adjusted for better visual balance */
+  right: -8px;
+  width: 38px;
+  height: 38px;
+  
+  /* Modern Glass Effect */
+  background: rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 16px;
-  box-shadow:
-    0 6px 18px rgba(10, 98, 100, 0.45),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-  animation: bsmCheckmarkPulse 1.5s ease-in-out infinite;
+  
+  /* Thinner, cleaner border for high-end look */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  
+  /* Soft, deep shadow to make it pop against dark backgrounds */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
   z-index: 3;
+  transition: transform 0.3s ease;
+}
+
+/* Optional: Pulse effect for the lock */
+@keyframes ipLockPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.bsm-selected-checkmark {
+  animation: ipLockPulse 2s infinite ease-in-out;
+}
+
+/* Hover effect for interactivity */
+.bsm-selected-checkmark:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
 }
 
 @keyframes bsmCheckmarkPulse {
