@@ -52,6 +52,18 @@ class NotificationService {
     // Simple console log for now - can be enhanced with toast notifications later
     console.log(`Notification: ${title} - ${message}`);
   }
+
+  // Show side popup notification
+  showNotificationPopup(notification) {
+    try {
+      // Dispatch custom event to show notification popup
+      window.dispatchEvent(new CustomEvent('showNotificationPopup', {
+        detail: { notification }
+      }));
+    } catch (error) {
+      console.error('Error showing notification popup:', error);
+    }
+  }
 }
 
 // Export singleton instance

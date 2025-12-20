@@ -1,6 +1,7 @@
 import { getToken } from "firebase/messaging";
 import { getMessagingIfSupported, onForegroundMessage } from "./firebase";
 import CryptoJS from "crypto-js";
+import { notificationService } from "./services/notificationService";
 
 const VAPID_KEY = "BCONluQj8iMYw7M-xU9Wu0Omhtjpdp3oWbY-lqv5lcZKCKYZ3nBRefrcYaH8x4bdTycTCFtGKPmI-VLuufR4SCs";
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -69,6 +70,15 @@ export const initFCM = async () => {
 				}
 				// Dispatch custom event to trigger fetchBookings
 				window.dispatchEvent(new CustomEvent('notificationReceived'));
+				
+				// Show side popup notification
+				const notificationData = {
+					title: title || "New Notification",
+					message: body || "",
+					createdDate: new Date().toISOString(),
+					...payload.data // Include any additional data from payload
+				};
+				notificationService.showNotificationPopup(notificationData);
 			} catch (e) {
 				console.log("Error showing foreground notification:", e);
 			}

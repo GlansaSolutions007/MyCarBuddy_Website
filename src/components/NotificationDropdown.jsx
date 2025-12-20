@@ -12,6 +12,9 @@ const NotificationDropdown = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const lastUnreadCountRef = useRef(0);
+  const initialNotificationIdsRef = useRef(new Set());
+  const isInitialLoadRef = useRef(true);
+  const isClickOpenedRef = useRef(false); // Track if opened by click
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -65,12 +68,44 @@ const NotificationDropdown = () => {
         );
         const newUnreadCount = uniqueNotifications.filter(n => !n.isRead).length;
 
-        setNotifications(uniqueNotifications);
-        setUnreadCount(newUnreadCount);
-        if (newUnreadCount > lastUnreadCountRef.current) {
-          window.dispatchEvent(new CustomEvent('notificationReceived'));
+        // On initial load, store all notification IDs to prevent showing popups for existing notifications
+        if (isInitialLoadRef.current) {
+          uniqueNotifications.forEach(n => {
+            if (n.id) {
+              initialNotificationIdsRef.current.add(n.id);
+            }
+          });
+          isInitialLoadRef.current = false;
+          setNotifications(uniqueNotifications);
+          setUnreadCount(newUnreadCount);
+          lastUnreadCountRef.current = newUnreadCount;
+        } else {
+          setNotifications(uniqueNotifications);
+          setUnreadCount(newUnreadCount);
+          
+          // Only show popup if there are new notifications that weren't present on initial load
+          if (newUnreadCount > lastUnreadCountRef.current) {
+            window.dispatchEvent(new CustomEvent('notificationReceived'));
+            
+            // Find the newest unread notification that wasn't in the initial load
+            const newestUnread = uniqueNotifications
+              .filter(n => !n.isRead && !initialNotificationIdsRef.current.has(n.id))
+              .sort((a, b) => {
+                const dateA = new Date(a.createdDate || a.createdAt || a.timestamp || 0);
+                const dateB = new Date(b.createdDate || b.createdAt || b.timestamp || 0);
+                return dateB - dateA;
+              })[0];
+            
+            if (newestUnread) {
+              // Add to initial IDs so we don't show it again
+              if (newestUnread.id) {
+                initialNotificationIdsRef.current.add(newestUnread.id);
+              }
+              notificationService.showNotificationPopup(newestUnread);
+            }
+          }
+          lastUnreadCountRef.current = newUnreadCount;
         }
-        lastUnreadCountRef.current = newUnreadCount;
       } else {
         setNotifications([]);
         setUnreadCount(0);
@@ -88,11 +123,20 @@ const NotificationDropdown = () => {
   useEffect(() => {
     const handleUserUpdate = () => {
       if (decryptedUserId) {
+        // Reset initial load tracking when user changes
+        isInitialLoadRef.current = true;
+        initialNotificationIdsRef.current.clear();
         fetchNotifications();
       }
     };
     window.addEventListener('userProfileUpdated', handleUserUpdate);
     return () => window.removeEventListener('userProfileUpdated', handleUserUpdate);
+  }, [decryptedUserId]);
+
+  // Reset initial load tracking when userId changes
+  useEffect(() => {
+    isInitialLoadRef.current = true;
+    initialNotificationIdsRef.current.clear();
   }, [decryptedUserId]);
 
   // Mark notification as read
@@ -140,11 +184,34 @@ const NotificationDropdown = () => {
     return `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
   };
 
+  // Handle click to toggle dropdown - works alongside hover
+  const handleBellClick = (e) => {
+    e.stopPropagation();
+    const newState = !isOpen;
+    setIsOpen(newState);
+    isClickOpenedRef.current = newState; // Track if opened by click
+  };
+
+  // Handle mouse enter (hover) - opens on hover, works alongside click
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+  };
+
+  // Handle mouse leave - close when mouse leaves, but respect click state
+  const handleMouseLeave = () => {
+    // If opened by click, keep it open even when mouse leaves
+    // If opened by hover only, close it
+    if (!isClickOpenedRef.current) {
+      setIsOpen(false);
+    }
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        isClickOpenedRef.current = false;
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -180,13 +247,13 @@ const NotificationDropdown = () => {
     <div 
       className="notif-container" 
       ref={dropdownRef}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Notification Bell Icon */}
       <button
         className="notif-bell"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleBellClick}
         title="Notifications"
         aria-label="Notifications"
       >
@@ -225,8 +292,11 @@ const NotificationDropdown = () => {
                 </button>
               )}
               <button
-                className="notif-header-btn"
-                onClick={() => setIsOpen(false)}
+                className="notif-header-btn notif-close-btn-mobile"
+                onClick={() => {
+                  setIsOpen(false);
+                  isClickOpenedRef.current = false;
+                }}
                 title="Close"
                 aria-label="Close notifications"
               >

@@ -31,7 +31,8 @@ import AppRedirectPage from "./pages/AppRedirectPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
 import QuickBookings from "./pages/QuickBookingsPage";
-import ThankYouPage from "./pages/ThankYouPage"
+import ThankYouPage from "./pages/ThankYouPage";
+import NotificationPopup from "./components/NotificationPopup";
 
 function App() {
   useEffect(() => {
@@ -47,6 +48,7 @@ function App() {
       <CartProvider>
         <RouteScrollToTop />
         <ScrollToTop smooth color="#E8092E" />
+        <NotificationPopup />
         <Routes>
           <Route exact path="/" element={<HomePageThree />} />
           <Route exact path="/about" element={<AboutPage />} />

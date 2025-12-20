@@ -189,14 +189,14 @@
 }
 
 .service-card-minimal:hover .service-card-icon {
-  background: #fff;
+  /* background: #fff; */
   transform: scale(1.1) rotate(5deg);
 }
 
 .service-card-icon img {
   width: 32px;
   height: 32px;
-  filter: brightness(0) invert(1);
+  /* filter: brightness(0) invert(1); */
   transition: var(--transition-fast);
 }
 

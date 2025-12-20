@@ -89,8 +89,14 @@
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.notif-dropdown.active,
-.notif-container:hover .notif-dropdown {
+.notif-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Hover behavior - only works if not clicked */
+.notif-container:hover .notif-dropdown:not(.active) {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -174,6 +180,11 @@
 .notif-header-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
+}
+
+/* Hide close button on desktop, show only on mobile */
+.notif-close-btn-mobile {
+  display: none;
 }
 
 /* ===== Notifications List ===== */
@@ -391,7 +402,7 @@
 /* ===== Responsive ===== */
 @media (max-width: 991px) {
   /* Disable hover on tablet/mobile - only click works */
-  .notif-container:hover .notif-dropdown {
+  .notif-container:hover .notif-dropdown:not(.active) {
     opacity: 0;
     visibility: hidden;
   }
@@ -413,6 +424,11 @@
     width: 100%;
     max-height: 70vh;
     border-radius: 20px 20px 0 0;
+  }
+
+  /* Show close button only on mobile */
+  .notif-close-btn-mobile {
+    display: flex;
   }
 
   .notif-dropdown.active {
