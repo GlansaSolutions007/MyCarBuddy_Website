@@ -998,6 +998,18 @@ const MyBookings = () => {
     );
   };
 
+  const visibleBookings = Array.isArray(filteredBookings)
+    ? filteredBookings.filter((booking) => {
+      // If no temp addons → show booking
+      if (!Array.isArray(booking.BookingsTempAddons)) return true;
+
+      // Hide booking if ANY addon is not confirmed
+      return booking.BookingsTempAddons.every(
+        (addon) => addon.IsSupervisor_Confirm === 1
+      );
+    })
+    : [];
+
   return (
     <div className="mb-section">
       <div className="container py-4">
@@ -1108,8 +1120,8 @@ const MyBookings = () => {
                 <BookingSkeleton />
                 <BookingSkeleton />
               </>
-            ) : Array.isArray(filteredBookings) && filteredBookings.length > 0 ? (
-              filteredBookings.slice(0, visibleCount).map((booking) => {
+            ) : Array.isArray(visibleBookings) && visibleBookings.length > 0 ? (
+              visibleBookings.slice(0, visibleCount).map((booking) => {
                 const tracking = Array.isArray(booking.TechnicianTracking)
                   ? booking.TechnicianTracking[0]
                   : {};
@@ -1316,7 +1328,7 @@ const MyBookings = () => {
             )}
 
             {/* End of Results */}
-            {visibleCount >= filteredBookings.length && filteredBookings.length > 0 && (
+            {visibleCount >= visibleBookings.length && visibleBookings.length > 0 && (
               <div className="text-center py-3">
                 <div className="text-muted">
                   <FaCheckCircle className="me-2" />
@@ -1401,21 +1413,21 @@ const MyBookings = () => {
                 </div>
                 <div className="mb-detail-info-item">
                   <label>Date & Time</label>
-                {selectedBooking?.BookingDate && selectedBooking?.TimeSlot ? (
-                  <span>
-                    {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
-                    {selectedBooking.TimeSlot.includes(",")
-                      ? selectedBooking.TimeSlot.split(",").map((t, i) => (
-                        <span key={i}>
-                          {t.trim()}
-                          {i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}
-                        </span>
-                      ))
-                      : selectedBooking.TimeSlot}
-                  </span>
-                ) : (
-                  <span>N/A</span>
-                )}
+                  {selectedBooking?.BookingDate && selectedBooking?.TimeSlot ? (
+                    <span>
+                      {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
+                      {selectedBooking.TimeSlot.includes(",")
+                        ? selectedBooking.TimeSlot.split(",").map((t, i) => (
+                          <span key={i}>
+                            {t.trim()}
+                            {i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}
+                          </span>
+                        ))
+                        : selectedBooking.TimeSlot}
+                    </span>
+                  ) : (
+                    <span>N/A</span>
+                  )}
                 </div>
               </div>
 
@@ -1640,11 +1652,10 @@ const MyBookings = () => {
                         <p>
                           <strong>Address:</strong>{" "}
                           {selectedBooking?.FullAddress || selectedBooking?.Pincode
-                            ? `${selectedBooking?.FullAddress || ""}${
-                                selectedBooking?.FullAddress && selectedBooking?.Pincode
-                                  ? ", "
-                                  : ""
-                              }${selectedBooking?.Pincode || ""}`
+                            ? `${selectedBooking?.FullAddress || ""}${selectedBooking?.FullAddress && selectedBooking?.Pincode
+                              ? ", "
+                              : ""
+                            }${selectedBooking?.Pincode || ""}`
                             : "N/A"}
                         </p>
                       </div>
