@@ -177,7 +177,8 @@
 .service-card-icon {
   width: 60px;
   height: 60px;
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
+  background: #ffffffba;
   backdrop-filter: blur(10px);
   border-radius: 16px;
   display: flex;
@@ -189,7 +190,7 @@
 }
 
 .service-card-minimal:hover .service-card-icon {
-  /* background: #fff; */
+  background: #ffffffba;
   transform: scale(1.1) rotate(5deg);
 }
 
