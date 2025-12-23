@@ -614,7 +614,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         placeholder="Enter full name"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        disabled={otpStep}
+                        // disabled={otpStep}
                         required
                       />
                     </div>
@@ -653,7 +653,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                       placeholder="yourname@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      disabled={otpStep}
+                      // disabled={otpStep}
                       required
                     />
                   </div>

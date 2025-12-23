@@ -708,7 +708,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       placeholder="Enter full name"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      disabled={isLoggedIn || otpStep}
+                      // disabled={isLoggedIn || otpStep}
                       required
                     />
                   </div>

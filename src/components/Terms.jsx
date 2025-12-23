@@ -200,21 +200,20 @@ const Terms = () => {
               </h4>
               <p>
                 <strong>Glansa Solutions Private Limited</strong> <br />
-                Flat No. 102, Mahalaxmi Paradise, Aswini Colony, West Maredpally,
-                Secunderabad, Hyderabad, Telangana – 500026, India. <br />
+                Unit # B1, Second Floor Spaces & More Business Park, Madhapur #3 D.No# 1-89/A/8, C/2, Vittal Rao Nagar Rd, Madhapur, Telangana 500081 <br />
                 <span className="terms-contact-line">
                   <FaEnvelope className="terms-contact-icon" />
-                  <span>info@glansa.com</span>
+                  <span>info@glansa.com.</span>
                 </span>
                 <br />
                 <span className="terms-contact-line">
                   <FaPhoneAlt className="terms-contact-icon" />
-                  <span>+91 98856 53865</span>
+                  <span>+91 707-524-3939</span>
                 </span>
                 <br />
                 <span className="terms-contact-line">
                   <FaPhoneAlt className="terms-contact-icon" />
-                  <span>+91 70752 43939</span>
+                  <span>+91 837-399-9047</span>
                 </span>
               </p>
 
