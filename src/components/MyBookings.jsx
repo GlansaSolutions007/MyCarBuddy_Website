@@ -67,6 +67,15 @@ const MyBookings = () => {
   const [ticketDescription, setTicketDescription] = useState("");
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
   const [isAddOnsOpen, setIsAddOnsOpen] = useState(false);
+  // State to track which includes are expanded (e.g., { 0: true, 1: false })
+  const [expandedIncludes, setExpandedIncludes] = React.useState({});
+
+  const toggleIncludes = (idx) => {
+    setExpandedIncludes((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
+  };
 
   const handleBack = () => {
     setSelectedBooking(null);
@@ -1176,7 +1185,7 @@ const MyBookings = () => {
                         </div>
                       </div>
 
-                      {/* <div className="mb-card-badges">
+                      <div className="mb-card-badges">
                         {booking.BookingStatus !== "Completed" &&
                           booking.BookingStatus !== "Cancelled" &&
                           booking.BookingStatus !== "Failed" ? (
@@ -1189,7 +1198,7 @@ const MyBookings = () => {
                             </span>
                           </>
                         ) : null}
-                      </div> */}
+                      </div>
 
                       {/* Show either Confirm Booking (before confirm) OR View (after confirm) in the same place */}
                       {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 ? (
@@ -1431,12 +1440,12 @@ const MyBookings = () => {
                 </div>
               </div>
 
-              <div className="mb-detail-location">
+              {/* <div className="mb-detail-location">
                 <FaMapMarkerAlt />
                 {selectedBooking?.CityName && selectedBooking?.StateName
                   ? `${selectedBooking.CityName}, ${selectedBooking.StateName}`
                   : "N/A"}
-              </div>
+              </div> */}
             </div>
 
             {/* Detail Body */}
@@ -1675,7 +1684,7 @@ const MyBookings = () => {
                             src={
                               selectedBooking?.VehicleImage
                                 ? `${ImageURL}${selectedBooking.VehicleImage}`
-                                : "/assets/img/normal/car-placeholder.png"
+                                : "/assets/img/normal/car-placeholder.jpg"
                             }
                             alt="Vehicle"
                             className="mb-vehicle-image"
@@ -1770,10 +1779,13 @@ const MyBookings = () => {
                   {/* Additional Services (accordion with responsive cards) */}
                   {selectedBooking.BookingAddOns?.length > 0 && (
                     <div className="mb-addons-section mb-4">
-                      <h5 className="fw-semibold mb-0 d-flex align-items-center mb-2">
-                        <i className="bi bi-plus-circle me-2 text-primary"></i>
-                        Additional Services
+                      <h5 className="fw-semibold mb-3 d-flex align-items-center">
+                        <span className="badge bg-primary-light text-primary me-2">
+                          {selectedBooking.BookingAddOns.length}
+                        </span>
+                        View Services
                       </h5>
+
                       <div className="accordion" id="addOnsAccordion">
                         <div className="accordion-item border-0 bg-transparent">
                           <h2 className="accordion-header">
@@ -1782,43 +1794,63 @@ const MyBookings = () => {
                               type="button"
                               onClick={() => setIsAddOnsOpen(!isAddOnsOpen)}
                             >
-                              <i className="bi bi-plus-circle me-2"></i>
-                              View Additional Services
+                              <i className="bi bi-gear-wide-connected me-2"></i>
+                              Service Details & Breakdown
                             </button>
                           </h2>
-                          <div
-                            className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""}`}
-                          >
-                            <div className="accordion-body p-0 pt-3">
+
+                          <div className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""}`}>
+                            <div className="accordion-body p-1 pt-3">
                               <div className="mb-addons-grid">
                                 {selectedBooking.BookingAddOns.map((addOn, idx) => (
                                   <div key={idx} className="mb-addon-card">
+                                    {/* Header */}
                                     <div className="mb-addon-header">
                                       <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
-                                      <span className="mb-addon-chip">
-                                        Add-Booking
-                                      </span>
                                     </div>
+
+                                    {/* Pricing Body */}
                                     <div className="mb-addon-body">
                                       <div className="mb-addon-row">
                                         <span className="mb-addon-label">Base Price</span>
-                                        <span className="mb-addon-value">
-                                          ₹{Number(addOn.ServicePrice || 0).toFixed(2)}
-                                        </span>
+                                        <span className="mb-addon-value">₹{Number(addOn.ServicePrice || 0).toLocaleString()}</span>
                                       </div>
                                       <div className="mb-addon-row">
-                                        <span className="mb-addon-label">GST</span>
-                                        <span className="mb-addon-value">
-                                          {addOn.GSTPercent || 0}% (₹
-                                          {Number(addOn.GSTPrice || 0).toFixed(2)})
-                                        </span>
+                                        <span className="mb-addon-label">Labour</span>
+                                        <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
                                       </div>
-                                      <div className="mb-addon-row mb-addon-row-total">
-                                        <span className="mb-addon-label">Total</span>
-                                        <span className="mb-addon-total">
-                                          ₹{Number(addOn.TotalPrice || 0).toFixed(2)}
-                                        </span>
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">GST ({addOn.GSTPercent}%)</span>
+                                        <span className="mb-addon-value">₹{Number(addOn.GSTPrice || 0).toLocaleString()}</span>
                                       </div>
+                                      <div className="mb-addon-row mb-addon-row-total border-top pt-2">
+                                        <span className="mb-addon-label text-dark fw-bold">Total Amount</span>
+                                        <span className="mb-addon-total">₹{Number(addOn.TotalPrice || 0).toLocaleString()}</span>
+                                      </div>
+
+                                      {/* Includes Dropdown Section */}
+                                      {Array.isArray(addOn.Includes) && addOn.Includes.length > 0 && (
+                                        <div className="mt-3">
+                                          <button
+                                            className={`btn-toggle-includes w-100 ${expandedIncludes[idx] ? "active" : ""}`}
+                                            onClick={() => toggleIncludes(idx)}
+                                          >
+                                            <small>Includes ({addOn.Includes.length})</small>
+                                            <i className={`bi bi-chevron-down transition-icon ${expandedIncludes[idx] ? "rotate" : ""}`}></i>
+                                          </button>
+
+                                          <div className={`includes-expandable-content ${expandedIncludes[idx] ? "show" : ""}`}>
+                                            <ul className="mb-addon-includes-list shadow-sm">
+                                              {addOn.Includes.map((item) => (
+                                                <li key={item.IncludeID} className="mb-addon-include-item">
+                                                  <i className="bi bi-check2-circle text-success"></i>
+                                                  <span>{item.IncludeName}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 ))}
@@ -1915,7 +1947,7 @@ const MyBookings = () => {
                         return (
                           <div className="row justify-content-between py-3">
                             {/* Left: Paid Service Amount */}
-                            <div className="col-md-5">
+                            <div className="col-md-12">
                               <div className="card border-0 shadow-sm rounded-4 p-3">
                                 <h6 className="fw-semibold mb-3 text-muted">
                                   Paid Service Amount
@@ -1929,6 +1961,13 @@ const MyBookings = () => {
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Labour Charge</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{formatPrice(selectedBooking.LabourCharges)}
+                                  </div>
+                                </div>
+
+                                {/* <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
@@ -1940,20 +1979,27 @@ const MyBookings = () => {
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
+                                </div> */}
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">GST</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
+                                  </div>
                                 </div>
 
                                 <hr />
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount))}
+                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges))}
                                   </div>
                                 </div>
                               </div>
                             </div>
 
                             {/* Right: Add-on Service Amount */}
-                            <div className="col-md-5">
+                            {/* <div className="col-md-5">
                               <div className="card border-0 shadow-sm rounded-4 p-3">
                                 <h6 className="fw-semibold mb-3 text-muted">
                                   Additional Booking Amount
@@ -1978,7 +2024,7 @@ const MyBookings = () => {
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         );
                       }
@@ -1987,7 +2033,7 @@ const MyBookings = () => {
                       if (isAllPaid || (isPaid && !hasAddOns)) {
                         return (
                           <div className="d-flex justify-content-end py-3">
-                            <div className="col-md-5">
+                            <div className="col-md-12">
                               <div className="card border-0 shadow-sm rounded-4 p-3">
                                 <h6 className="fw-semibold mb-3 text-muted">
                                   Amount Summary
@@ -2012,7 +2058,7 @@ const MyBookings = () => {
                                   </div>
                                 )}
 
-                                <div className="d-flex justify-content-between mb-2">
+                                {/* <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
@@ -2022,6 +2068,19 @@ const MyBookings = () => {
                                   <div className="fw-semibold">CGST (9%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                  </div>
+                                </div> */}
+
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">GST</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
+                                  </div>
+                                </div>
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Labour Charge</div>
+                                  <div className="fw-bold text-primary">
+                                    ₹{formatPrice(selectedBooking.LabourCharges)}
                                   </div>
                                 </div>
 
@@ -2044,7 +2103,8 @@ const MyBookings = () => {
                                       getVal(selectedBooking.TotalPrice) +
                                       getVal(selectedBooking.GSTAmount) -
                                       getVal(selectedBooking.CouponAmount) +
-                                      addOnTotal
+                                      addOnTotal + 
+                                      getVal(selectedBooking.LabourCharges)
                                     )}
                                   </div>
                                 </div>
@@ -2100,10 +2160,20 @@ const MyBookings = () => {
                       return (
                         <>
                           <div className="mb-2">
+                            <h6 className="fw-semibold mb-3 text-muted">
+                              Paid Service Amount
+                            </h6>
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Amount</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(selectedBooking.TotalPrice)}
+                              </div>
+                            </div>
+
+                            <div className="d-flex justify-content-between mb-2">
+                              <div className="fw-semibold">Labour Charge</div>
+                              <div className="fw-bold text-primary">
+                                ₹{formatPrice(selectedBooking.LabourCharges)}
                               </div>
                             </div>
 
@@ -2119,7 +2189,7 @@ const MyBookings = () => {
                               </div>
                             )}
 
-                            <div className="d-flex justify-content-between mb-2">
+                            {/* <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">SGST (9%)</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
@@ -2129,6 +2199,13 @@ const MyBookings = () => {
                               <div className="fw-semibold">CGST (9%)</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                              </div>
+                            </div> */}
+
+                            <div className="d-flex justify-content-between mb-2">
+                              <div className="fw-semibold">GST</div>
+                              <div className="fw-bold text-primary">
+                                ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                               </div>
                             </div>
 

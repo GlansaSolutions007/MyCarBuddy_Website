@@ -301,6 +301,97 @@
   color: #0a6264;
   font-size: 0.95rem;
 }
+/* Button Styling */
+.btn-toggle-includes {
+  background: rgba(10, 98, 100, 0.05);
+  border: 1px solid rgba(10, 98, 100, 0.1);
+  justify-content: space-between;
+  color: #0a6264;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-includes:hover {
+  background: #0a6264;
+  color: white;
+}
+
+.btn-toggle-includes.active {
+  background: #0a6264;
+  color: white;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Icon Animation */
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+.transition-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* Expandable Content Animation */
+.includes-expandable-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  opacity: 0;
+  min-width: 180px;
+}
+
+.includes-expandable-content.show {
+  max-height: 500px; /* Large enough to fit content */
+  opacity: 1;
+}
+
+/* List Styling inside Dropdown */
+.mb-addon-includes-list {
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+  background: #f8fdfd;
+  border: 1px solid rgba(10, 98, 100, 0.1);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.mb-addon-include-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.mb-addon-include-item i {
+  font-size: 0.75rem;
+  color: #0a6264;
+}
+
+/* Mobile Responsiveness Adjustment */
+@media (max-width: 991px) {
+  .mb-includes-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align to the right in mobile card view */
+  }
+  
+  .includes-expandable-content {
+    width: 100%; /* Take full width of card in mobile */
+  }
+
+  .mb-addon-includes-list {
+    text-align: left;
+  }
+}
 
 /* Card Header */
 .mb-card-header {
@@ -739,7 +830,8 @@
 
 /* Detail Body */
 .mb-detail-body {
-  padding: 32px;
+  /* padding: 32px; */
+  padding: 0px 20px;
   background: linear-gradient(180deg, #fafffe 0%, #ffffff 100%);
 }
 
@@ -747,6 +839,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+  margin-top: 10px;
   margin-bottom: 32px;
 }
 
@@ -1779,7 +1872,75 @@
   }
 }
 
+/* --- Desktop/Tablet Grid (2 Columns) --- */
+.mb-addons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 10px 0;
+}
 
+/* --- Responsive Mobile View (Stacked) --- */
+@media (max-width: 768px) {
+  .mb-addons-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically */
+    gap: 12px;
+  }
+
+  .mb-addon-card {
+    padding: 14px; /* Slightly tighter padding for mobile */
+    border-radius: 12px;
+  }
+
+  .mb-addon-title {
+    font-size: 0.9rem;
+  }
+
+  /* Adjust the "Includes" button to be more finger-friendly on mobile */
+  .btn-toggle-includes {
+    width: 100%; /* Make button full width on mobile for easier clicking */
+    justify-content: space-between;
+    padding: 8px 12px;
+  }
+
+  .mb-addons-accordion-btn {
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+}
+
+/* --- Visual Enhancements --- */
+
+/* Modern scrollbar for the accordion body if it gets too long */
+.accordion-collapse {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Glassmorphism effect for cards on hover (Desktop only) */
+@media (min-width: 992px) {
+  .mb-addon-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .mb-addon-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Fix for the Includes dropdown animation */
+.includes-expandable-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+}
+
+.includes-expandable-content.show {
+  max-height: 1000px; /* High value to allow content to grow */
+  opacity: 1;
+  margin-top: 5px;
+}
 
 
 

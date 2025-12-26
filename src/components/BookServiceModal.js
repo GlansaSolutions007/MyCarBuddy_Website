@@ -540,7 +540,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
               <div className="bsm-left-benefits">
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>50+ Point Health Checkup</span>
+                  {/* <span>50+ Point Health Checkup</span> */}
+                  <span>100% Genuine Checkup Review</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />

@@ -49,7 +49,7 @@ const NotificationPopup = () => {
     // Auto-hide after 5 seconds
     setTimeout(() => {
       hideNotification();
-    }, 5000);
+    }, 7000);
   };
 
   const hideNotification = () => {

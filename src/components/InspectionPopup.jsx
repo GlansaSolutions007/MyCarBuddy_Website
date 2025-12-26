@@ -481,7 +481,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             <div className="ip-left-benefits">
               <div className="ip-left-benefit">
                 <FaCheckCircle />
-                <span>50+ Point Health Checkup</span>
+                {/* <span>50+ Point Health Checkup</span> */}
+                <span>100% Genuine Checkup Review</span>
               </div>
               <div className="ip-left-benefit">
                 <FaCheckCircle />
