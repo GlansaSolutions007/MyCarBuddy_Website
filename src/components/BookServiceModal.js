@@ -178,6 +178,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         serviceId: selectedOfferData.packageId, // Inspection package ID (174 or 175)
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
+        isUserClicked: true,
         price: selectedOfferData.newPrice,
         isInspection: true
       });
@@ -207,7 +208,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       email: email || user?.email || "",
       description: description || "No description provided",
       platform: "Web",
-      isUserClicked: true,
       type: withInspection ? "online" : "cos",
       amount: withInspection ? selectedOfferData.newPrice : 0,
       services

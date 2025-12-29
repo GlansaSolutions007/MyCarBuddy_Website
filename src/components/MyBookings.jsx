@@ -2086,7 +2086,7 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
-                                {hasAddOns && (
+                                {/* {hasAddOns && (
                                   <div className="d-flex justify-content-between mb-2">
                                     <div className="fw-semibold">
                                       Additional Total
@@ -2095,7 +2095,7 @@ const MyBookings = () => {
                                       ₹{formatPrice(addOnTotal)}
                                     </div>
                                   </div>
-                                )}
+                                )} */}
 
                                 <hr />
                                 <div className="d-flex justify-content-between mb-2">
@@ -2105,7 +2105,7 @@ const MyBookings = () => {
                                       getVal(selectedBooking.TotalPrice) +
                                       getVal(selectedBooking.GSTAmount) -
                                       getVal(selectedBooking.CouponAmount) +
-                                      addOnTotal +
+                                      // addOnTotal +
                                       getVal(selectedBooking.LabourCharges)
                                     )}
                                   </div>
@@ -2211,14 +2211,14 @@ const MyBookings = () => {
                               </div>
                             </div>
 
-                            {hasAddOns && (
+                            {/* {hasAddOns && (
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">Additional Total</div>
                                 <div className="fw-bold text-primary">
                                   ₹{formatPrice(addOnTotal)}
                                 </div>
                               </div>
-                            )}
+                            )} */}
 
                             <hr />
                             <div className="d-flex justify-content-between mb-2">
@@ -2227,8 +2227,8 @@ const MyBookings = () => {
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
                                   getVal(selectedBooking.GSTAmount) -
-                                  getVal(selectedBooking.CouponAmount) +
-                                  addOnTotal
+                                  getVal(selectedBooking.CouponAmount) 
+                                  // addOnTotal
                                 )}
                               </div>
                             </div>
