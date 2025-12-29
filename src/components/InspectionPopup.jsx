@@ -161,7 +161,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         phoneNumber: identifier,
         email: email || user?.email || "",
         platform: "Web",
-        isUserClicked: 1,
+        isUserClicked: true,
         type: "online",
         amount: selectedOfferData.newPrice,
         description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,

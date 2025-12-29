@@ -73,15 +73,17 @@ const QuickBookingsLayer = () => {
                 const price = Number(srv.Price || 0);
                 const gst = Number(srv.GSTAmount || 0);
                 const totalLineItem = (price + gst) * qty;
+                const labourCharge = Number(srv.LabourCharges || 0);
 
                 return {
                     price: acc.price + (price * qty),
                     gstAmount: acc.gstAmount + (gst * qty),
                     totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
+                    labourCharge: (acc.labourCharge || 0) + labourCharge
                 };
             },
-            { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0 }
+            { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
         );
     }, [services]);
 
@@ -192,6 +194,7 @@ const QuickBookingsLayer = () => {
                             const price = Number(srv.Price || 0);
                             const gst = Number(srv.GSTAmount || 0);
                             const total = price + gst;
+                            const labourCharge = Number(srv.LabourCharges || 0);
                             return (
                                 <div key={index} className="aos-card">
                                     <div className="aos-card-header">
@@ -213,6 +216,10 @@ const QuickBookingsLayer = () => {
                                             <div className="aos-price-item">
                                                 <div className="aos-price-label">Price</div>
                                                 <div className="aos-price-value">₹{price.toFixed(2)}</div>
+                                            </div>
+                                            <div className="aos-price-item">
+                                                <div className="aos-price-label">Labour Charges</div>
+                                                <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
                                             </div>
                                             <div className="aos-price-item">
                                                 <div className="aos-price-label">GST ({srv.GSTPercent}%)</div>
@@ -260,7 +267,7 @@ const QuickBookingsLayer = () => {
                                             <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
                                             <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
                                             <td>1</td>
-                                            <td className="aos-table-price">₹{srv.LabourCharge?.toFixed(2) || "0.00"}</td>
+                                            <td className="aos-table-price">₹{srv.LabourCharges?.toFixed(2) || "0.00"}</td>
                                             <td className="aos-table-price">₹{price.toFixed(2)}</td>
                                             <td>{srv.GSTPercent}%</td>
                                             <td>₹{gst.toFixed(2)}</td>
@@ -286,7 +293,7 @@ const QuickBookingsLayer = () => {
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Labour Charges</div>
-                                <div className="aos-summary-value">₹{totals.labourCharge}</div>
+                                <div className="aos-summary-value">₹{totals.labourCharge.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">GST</div>

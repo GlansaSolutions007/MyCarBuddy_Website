@@ -207,7 +207,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       email: email || user?.email || "",
       description: description || "No description provided",
       platform: "Web",
-      isUserClicked: 1,
+      isUserClicked: true,
       type: withInspection ? "online" : "cos",
       amount: withInspection ? selectedOfferData.newPrice : 0,
       services

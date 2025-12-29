@@ -1177,28 +1177,30 @@ const MyBookings = () => {
                               : "N/A"}
                           </span>) */}
                           </h4>
-                          {/* <span>
+                          <span>
+                            Date :&nbsp;
                           {booking.BookingDate
                             ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
                             : "N/A"}
-                        </span> */}
+                        </span>
                         </div>
                       </div>
 
-                      <div className="mb-card-badges">
-                        {booking.BookingStatus !== "Completed" &&
-                          booking.BookingStatus !== "Cancelled" &&
-                          booking.BookingStatus !== "Failed" ? (
-                          <>
-                            <span className={`mb-badge mb-badge-payment ${booking.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "pending"}`}>
+                      {(booking.CompletedOTP || booking.BookingOTP) &&
+                        <div className="mb-card-badges">
+                          {booking.BookingStatus !== "Completed" &&
+                            booking.BookingStatus !== "Cancelled" &&
+                            booking.BookingStatus !== "Failed" ? (
+                            <>
+                              {/* <span className={`mb-badge mb-badge-payment ${booking.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "pending"}`}>
                               {booking.Payments?.[0]?.PaymentStatus || "Pending"}
-                            </span>
-                            <span className="mb-badge mb-badge-otp">
-                              OTP: {booking.CompletedOTP || booking.BookingOTP}
-                            </span>
-                          </>
-                        ) : null}
-                      </div>
+                            </span> */}
+                              <span className="mb-badge mb-badge-otp">
+                                OTP: {booking.CompletedOTP || booking.BookingOTP}
+                              </span>
+                            </>
+                          ) : null}
+                        </div>}
 
                       {/* Show either Confirm Booking (before confirm) OR View (after confirm) in the same place */}
                       {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 ? (
@@ -1671,7 +1673,7 @@ const MyBookings = () => {
                     </div>
 
                     {/* Vehicle Info */}
-                    <div className="mb-info-card">
+                    {/* <div className="mb-info-card">
                       <div className="mb-info-card-header">
                         <div className="mb-info-card-icon">
                           <FaCar />
@@ -1709,7 +1711,7 @@ const MyBookings = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* Packages Section */}
@@ -2103,7 +2105,7 @@ const MyBookings = () => {
                                       getVal(selectedBooking.TotalPrice) +
                                       getVal(selectedBooking.GSTAmount) -
                                       getVal(selectedBooking.CouponAmount) +
-                                      addOnTotal + 
+                                      addOnTotal +
                                       getVal(selectedBooking.LabourCharges)
                                     )}
                                   </div>
