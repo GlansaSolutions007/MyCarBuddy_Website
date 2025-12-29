@@ -188,6 +188,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         serviceId: serviceIdCollect || 0,
         serviceName: selectedService?.title || "N/A",
         serviceType: serviceTypeDetail || "N/A",
+        isUserClicked: true,
         price: 0, // Selected service price (to be determined after inspection)
         isInspection: true
       });
