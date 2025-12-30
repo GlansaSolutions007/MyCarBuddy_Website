@@ -1019,6 +1019,56 @@ const MyBookings = () => {
     })
     : [];
 
+  let leadVehicle = null;
+
+  if (Array.isArray(selectedBooking?.Leads)) {
+    // Case 1: Leads is an array
+    leadVehicle = selectedBooking.Leads
+      .slice()
+      .reverse()
+      .find(lead => lead?.Vehicle)?.Vehicle;
+  } else if (selectedBooking?.Leads?.Vehicle) {
+    // Case 2: Leads is a single object
+    leadVehicle = selectedBooking.Leads.Vehicle;
+  }
+
+
+  const vehicleData = {
+    number:
+      selectedBooking?.VehicleNumber ||
+      leadVehicle?.RegistrationNumber ||
+      "N/A",
+
+    brand:
+      selectedBooking?.BrandName ||
+      leadVehicle?.BrandName ||
+      "N/A",
+
+    model:
+      selectedBooking?.ModelName ||
+      leadVehicle?.ModelName ||
+      "N/A",
+
+    fuel:
+      selectedBooking?.FuelTypeName ||
+      leadVehicle?.FuelTypeName ||
+      "N/A",
+
+    image:
+      selectedBooking?.VehicleImage
+        ? `${ImageURL}${selectedBooking.VehicleImage}`
+        : "/assets/img/normal/car-placeholder.jpg"
+  };
+
+  const hasVehicleInfo =
+    vehicleData.number !== "N/A" ||
+    vehicleData.brand !== "N/A" ||
+    vehicleData.model !== "N/A" ||
+    vehicleData.fuel !== "N/A";
+
+
+
+
   return (
     <div className="mb-section">
       <div className="container py-4">
@@ -1179,10 +1229,10 @@ const MyBookings = () => {
                           </h4>
                           <span>
                             Date :&nbsp;
-                          {booking.BookingDate
-                            ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
-                            : "N/A"}
-                        </span>
+                            {booking.BookingDate
+                              ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
+                              : "N/A"}
+                          </span>
                         </div>
                       </div>
 
@@ -1673,45 +1723,42 @@ const MyBookings = () => {
                     </div>
 
                     {/* Vehicle Info */}
-                    {/* <div className="mb-info-card">
-                      <div className="mb-info-card-header">
-                        <div className="mb-info-card-icon">
-                          <FaCar />
+                    {hasVehicleInfo && (
+                      <div className="mb-info-card">
+                        <div className="mb-info-card-header">
+                          <div className="mb-info-card-icon">
+                            <FaCar />
+                          </div>
+                          <h6>Vehicle</h6>
                         </div>
-                        <h6>Vehicle</h6>
-                      </div>
-                      <div className="mb-info-card-body">
-                        <div className="mb-vehicle-info">
-                          <img
-                            src={
-                              selectedBooking?.VehicleImage
-                                ? `${ImageURL}${selectedBooking.VehicleImage}`
-                                : "/assets/img/normal/car-placeholder.jpg"
-                            }
-                            alt="Vehicle"
-                            className="mb-vehicle-image"
-                          />
-                          <div className="mb-vehicle-details">
-                            <p>
-                              <strong>Number:</strong>{" "}
-                              {selectedBooking?.VehicleNumber || "N/A"}
-                            </p>
-                            <p>
-                              <strong>Brand:</strong>{" "}
-                              {selectedBooking?.BrandName || "N/A"}
-                            </p>
-                            <p>
-                              <strong>Model:</strong>{" "}
-                              {selectedBooking?.ModelName || "N/A"}
-                            </p>
-                            <p>
-                              <strong>Fuel:</strong>{" "}
-                              {selectedBooking?.FuelTypeName || "N/A"}
-                            </p>
+
+                        <div className="mb-info-card-body">
+                          <div className="mb-vehicle-info">
+                            <img
+                              src={vehicleData.image}
+                              alt="Vehicle"
+                              className="mb-vehicle-image"
+                            />
+
+                            <div className="mb-vehicle-details">
+                              <p>
+                                <strong>Number:</strong> {vehicleData.number}
+                              </p>
+                              <p>
+                                <strong>Brand:</strong> {vehicleData.brand}
+                              </p>
+                              <p>
+                                <strong>Model:</strong> {vehicleData.model}
+                              </p>
+                              <p>
+                                <strong>Fuel:</strong> {vehicleData.fuel}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div> */}
+                    )}
+
                   </div>
 
                   {/* Packages Section */}
@@ -1984,7 +2031,7 @@ const MyBookings = () => {
                                 </div> */}
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">GST</div>
+                                  <div className="fw-semibold">GST(18)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                                   </div>
@@ -2205,7 +2252,7 @@ const MyBookings = () => {
                             </div> */}
 
                             <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">GST</div>
+                              <div className="fw-semibold">GST(18%)</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                               </div>
@@ -2227,7 +2274,7 @@ const MyBookings = () => {
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
                                   getVal(selectedBooking.GSTAmount) -
-                                  getVal(selectedBooking.CouponAmount) 
+                                  getVal(selectedBooking.CouponAmount)
                                   // addOnTotal
                                 )}
                               </div>

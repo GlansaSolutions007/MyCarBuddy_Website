@@ -511,7 +511,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 <div className="ip-right-header">
                   <h3 className="ip-title">Book Your Inspection</h3>
                   <p className="ip-subtitle">Pay securely & book instantly</p>
-                  <p className="ip-subtitle">Select your car based on the number of seats.</p>
+                  <p className="ip-subtitle">Select your car category to choose the right plan</p>
                 </div>
 
                 {/* Offer Cards Row */}
@@ -534,7 +534,20 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         <span className="ip-price-old">₹{offer1.oldPrice}</span>
                         <span className="ip-price-new">₹{offer1.newPrice}</span>
                       </div>
-                      <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p>
+                      {/* <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p> */}
+                      <p className="bsm-offer-text">
+                        {offer1.packageName?.split(" - ")[0]}
+                        <FaCar className="bsm-car-icon" />
+
+                        {offer1.packageName?.includes(" - ") && (
+                          <>
+                            <br />
+                            <span className="bsm-offer-desc">
+                              {offer1.packageName.split(" - ")[1]}
+                            </span>
+                          </>
+                        )}
+                      </p>
                     </div>
                   </div>
 
@@ -556,7 +569,20 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         <span className="ip-price-old">₹{offer2.oldPrice}</span>
                         <span className="ip-price-new">₹{offer2.newPrice}</span>
                       </div>
-                      <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p>
+                      {/* <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p> */}
+                      <p className="bsm-offer-text">
+                        {offer2.packageName?.split(" - ")[0]}
+                        <FaCar className="bsm-car-icon" />
+
+                        {offer2.packageName?.includes(" - ") && (
+                          <>
+                            <br />
+                            <span className="bsm-offer-desc">
+                              {offer2.packageName.split(" - ")[1]}
+                            </span>
+                          </>
+                        )}
+                      </p>
                     </div>
                   </div>
                 </div>
