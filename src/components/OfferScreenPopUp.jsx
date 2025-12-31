@@ -125,7 +125,7 @@ const OfferScreenPopUp = () => {
     useEffect(() => {
         const alreadyShown = sessionStorage.getItem("ny_popup_shown");
 
-        if (alreadyShown) return;
+        if (alreadyShown === "true") return;
 
         sessionStorage.setItem("ny_popup_shown", "true");
 
@@ -150,7 +150,6 @@ const OfferScreenPopUp = () => {
             clearTimeout(hideTimer);
         };
     }, []);
-
 
     const handleClose = () => {
         setIsAnimating(false);

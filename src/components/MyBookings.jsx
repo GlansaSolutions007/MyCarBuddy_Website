@@ -2273,6 +2273,7 @@ const MyBookings = () => {
                               <div className="fw-bold text-success fs-5">
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
+                                  getVal(selectedBooking.LabourCharges) +
                                   getVal(selectedBooking.GSTAmount) -
                                   getVal(selectedBooking.CouponAmount)
                                   // addOnTotal

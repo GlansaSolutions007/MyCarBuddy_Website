@@ -163,11 +163,24 @@ const QuickBookingsLayer = () => {
         <div className="aos-section">
             <div className="aos-header">
                 <h2 className="aos-title">
-                    <span className="aos-title-icon"><FaTools /></span>
-                    Confirm Booking: #{bookingDetails.BookingTrackID}
+                    <span className="aos-title-icon">
+                        <FaTools />
+                    </span>
+
+                    <span className="aos-title-text">
+                        <span className="aos-main-title">
+                            Confirm Booking: #{bookingDetails.BookingTrackID}
+                        </span>
+                        <span className="aos-subtitle">
+                            Review the services and final charges, then confirm your booking to start the service.
+                        </span>
+                    </span>
                 </h2>
+
                 {services.length > 0 && (
-                    <span className="aos-count">{services.length} Service{services.length !== 1 ? "s" : ""}</span>
+                    <span className="aos-count">
+                        {services.length} Service{services.length !== 1 ? "s" : ""}
+                    </span>
                 )}
             </div>
 
