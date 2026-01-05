@@ -16,10 +16,10 @@ const QuickBookingsLayer = () => {
     const bookingIdFromUrl = searchParams.get("bookingId");
 
     const [services, setServices] = useState([]);
+    const [confirmedAddons, setConfirmedAddons] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
-    // const qty = Number(srv.Quantity || 1);
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -53,6 +53,7 @@ const QuickBookingsLayer = () => {
                     if (matchedBooking) {
                         setBookingDetails(matchedBooking);
                         setServices(matchedBooking.BookingsTempAddons || []);
+                        setConfirmedAddons(matchedBooking.BookingAddOns || []);
                     }
                 }
             } catch (error) {
@@ -66,27 +67,60 @@ const QuickBookingsLayer = () => {
         fetchBookings();
     }, [custIdFromUrl, bookingIdFromUrl, user?.token]);
 
-    // Calculate Totals
-    const totals = useMemo(() => {
+    // Calculate Totals for temp addons (pending confirmation)
+    const tempTotals = useMemo(() => {
         return services.reduce(
             (acc, srv) => {
                 const qty = Number(srv.Quantity || 1);
-                const price = Number(srv.Price || 0);
+                const price = Number(srv.Price || srv.BasePrice || 0);
                 const gst = Number(srv.GSTAmount || 0);
+                const totalLineItem = (price + gst) * qty;
                 const labourCharge = Number(srv.LabourCharges || 0);
 
                 return {
-                    price: acc.price + price ,
-                    gstAmount: acc.gstAmount + gst,
-                    labourCharge: acc.labourCharge + labourCharge,
-                    totalAmount: acc.totalAmount + (price + gst + labourCharge),
+                    price: acc.price + (price * qty),
+                    gstAmount: acc.gstAmount + (gst * qty),
+                    totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
+                    labourCharge: (acc.labourCharge || 0) + labourCharge
                 };
             },
             { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
         );
     }, [services]);
 
+    // Calculate Totals for confirmed addons
+    const confirmedTotals = useMemo(() => {
+        return confirmedAddons.reduce(
+            (acc, srv) => {
+                const qty = Number(srv.Quantity || 1);
+                const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
+                const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
+                const totalLineItem = (price + gst) * qty;
+                const labourCharge = Number(srv.LabourCharges || 0);
+
+                return {
+                    price: acc.price + (price * qty),
+                    gstAmount: acc.gstAmount + (gst * qty),
+                    totalAmount: acc.totalAmount + totalLineItem,
+                    quantity: acc.quantity + qty,
+                    labourCharge: (acc.labourCharge || 0) + labourCharge
+                };
+            },
+            { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
+        );
+    }, [confirmedAddons]);
+
+    // Combined totals
+    const totals = useMemo(() => {
+        return {
+            price: tempTotals.price + confirmedTotals.price,
+            gstAmount: tempTotals.gstAmount + confirmedTotals.gstAmount,
+            totalAmount: tempTotals.totalAmount + confirmedTotals.totalAmount,
+            quantity: tempTotals.quantity + confirmedTotals.quantity,
+            labourCharge: tempTotals.labourCharge + confirmedTotals.labourCharge
+        };
+    }, [tempTotals, confirmedTotals]);
 
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
@@ -178,14 +212,14 @@ const QuickBookingsLayer = () => {
                     </span>
                 </h2>
 
-                {services.length > 0 && (
+                {(services.length > 0 || confirmedAddons.length > 0) && (
                     <span className="aos-count">
-                        {services.length} Service{services.length !== 1 ? "s" : ""}
+                        {services.length + confirmedAddons.length} Service{(services.length + confirmedAddons.length) !== 1 ? "s" : ""}
                     </span>
                 )}
             </div>
 
-            {services.length === 0 ? (
+            {services.length === 0 && confirmedAddons.length === 0 ? (
                 <div className="aos-empty">
                     <div className="aos-empty-icon"><FaTools /></div>
                     <h4>No Additional Services</h4>
@@ -202,106 +236,226 @@ const QuickBookingsLayer = () => {
                 </div>
             ) : (
                 <>
-                    {/* Mobile Cards View */}
-                    <div className="aos-grid">
-                        {services.map((srv, index) => {
-                            const price = Number(srv.Price || 0);
-                            const gst = Number(srv.GSTAmount || 0);
-                            const labourCharge = Number(srv.LabourCharges || 0);
-                            const qty = Number(srv.Quantity || 1);
-                            const total = (price + gst + labourCharge) * qty;
-                            return (
-                                <div key={index} className="aos-card">
-                                    <div className="aos-card-header">
-                                        <div className="aos-card-info">
-                                            <h4 className="aos-card-name">{srv.ServiceName}</h4>
-                                            <span className={`aos-card-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>
-                                                {srv.ServiceType?.toLowerCase().includes("part") ? <FaBoxOpen /> : <FaCog />}
-                                                {srv.ServiceType}
-                                            </span>
-                                        </div>
-                                        <div className="aos-card-qty">
-                                            <span className="aos-card-qty-label">Qty</span>
-                                            <span className="aos-card-qty-value"> {srv.Quantity || 1}</span>
-                                        </div>
-                                    </div>
-                                    <div className="aos-card-body">
-                                        {srv.Description && <p className="aos-card-desc">{srv.Description}</p>}
-                                        <div className="aos-card-pricing">
-                                            <div className="aos-price-item">
-                                                <div className="aos-price-label">Price</div>
-                                                <div className="aos-price-value">₹{price.toFixed(2)}</div>
-                                            </div>
-                                            <div className="aos-price-item">
-                                                <div className="aos-price-label">Labour Charges</div>
-                                                <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
-                                            </div>
-                                            <div className="aos-price-item">
-                                                <div className="aos-price-label">GST ({srv.GSTPercent}%)</div>
-                                                <div className="aos-price-value">₹{gst.toFixed(2)}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="aos-card-footer">
-                                        <div className="aos-total-row">
-                                            <span className="aos-total-label">Total Amount</span>
-                                            <span className="aos-total-value">₹{total.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Desktop Table View */}
-                    <div className="aos-table-wrapper">
-                        <table className="aos-table">
-                            <thead>
-                                <tr>
-                                    <th>S.No</th>
-                                    <th>Service Name</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Labour Charges ₹</th>
-                                    <th>GST %</th>
-                                    <th>GST ₹</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {services.map((srv, idx) => {
-                                    const price = Number(srv.Price || 0);
-                                    const gst = Number(srv.GSTAmount || 0);
-                                    const total = price + gst + (Number(srv.LabourCharges) || 0);
+                    {/* Confirmed Booking AddOns Section */}
+                    {confirmedAddons.length > 0 && (
+                        <div className="mb-4">
+                            <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
+                                <FaCheck className="me-2" style={{ color: "#28a745" }} />
+                                Confirmed Services
+                            </h3>
+                            
+                            {/* Mobile Cards View - Confirmed */}
+                            <div className="aos-grid">
+                                {confirmedAddons.map((srv, index) => {
+                                    const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
+                                    const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
+                                    const total = price + gst;
+                                    const labourCharge = Number(srv.LabourCharges || 0);
+                                    const gstPercent = srv.GSTPercent || 0;
                                     return (
-                                        <tr key={idx}>
-                                            <td>{idx + 1}</td>
-                                            <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
-                                            <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
-                                            <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
-                                            <td>{srv.Quantity || 1}</td>
-                                            <td className="aos-table-price">₹{price.toFixed(2)}</td>
-                                            <td className="aos-table-price">₹{srv.LabourCharges?.toFixed(2) || "0.00"}</td>
-                                            <td>{srv.GSTPercent}%</td>
-                                            <td>₹{gst.toFixed(2)}</td>
-                                            <td className="aos-table-total">₹{total.toFixed(2)}</td>
-                                        </tr>
+                                        <div key={`confirmed-${index}`} className="aos-card" style={{ borderLeft: "4px solid #28a745" }}>
+                                            <div className="aos-card-header">
+                                                <div className="aos-card-info">
+                                                    <h4 className="aos-card-name">{srv.ServiceName}</h4>
+                                                    <span className="aos-card-type services">
+                                                        <FaCog />
+                                                        {srv.IsInspection ? "Inspection" : "Service"}
+                                                    </span>
+                                                </div>
+                                                <div className="aos-card-qty">
+                                                    <span className="aos-card-qty-label">Qty</span>
+                                                    <span className="aos-card-qty-value">{srv.Quantity || 1}</span>
+                                                </div>
+                                            </div>
+                                            <div className="aos-card-body">
+                                                {srv.Description && <p className="aos-card-desc">{srv.Description}</p>}
+                                                <div className="aos-card-pricing">
+                                                    <div className="aos-price-item">
+                                                        <div className="aos-price-label">Price</div>
+                                                        <div className="aos-price-value">₹{price.toFixed(2)}</div>
+                                                    </div>
+                                                    {labourCharge > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">Labour Charges</div>
+                                                            <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
+                                                        </div>
+                                                    )}
+                                                    {gstPercent > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">GST ({gstPercent}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2)}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="aos-card-footer">
+                                                <div className="aos-total-row">
+                                                    <span className="aos-total-label">Total Amount</span>
+                                                    <span className="aos-total-value">₹{total.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     );
                                 })}
-                            </tbody>
-                        </table>
-                    </div>
+                            </div>
+
+                            {/* Desktop Table View - Confirmed */}
+                            <div className="aos-table-wrapper mb-4">
+                                <table className="aos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>Service Name</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Qty</th>
+                                            <th>Labour Charges ₹</th>
+                                            <th>Price</th>
+                                            <th>GST %</th>
+                                            <th>GST ₹</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {confirmedAddons.map((srv, idx) => {
+                                            const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
+                                            const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
+                                            const total = price + gst;
+                                            const gstPercent = srv.GSTPercent || 0;
+                                            return (
+                                                <tr key={`confirmed-${idx}`} style={{ backgroundColor: "#f0f9f0" }}>
+                                                    <td>{idx + 1}</td>
+                                                    <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
+                                                    <td><span className="aos-table-type services">{srv.IsInspection ? "Inspection" : "Service"}</span></td>
+                                                    <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
+                                                    <td>{srv.Quantity || 1}</td>
+                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
+                                                    <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                                    <td>{gstPercent}%</td>
+                                                    <td>₹{gst.toFixed(2)}</td>
+                                                    <td className="aos-table-total">₹{total.toFixed(2)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Pending Confirmation Temp Addons Section */}
+                    {services.length > 0 && (
+                        <div className="mb-4">
+                            <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
+                                <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
+                                Extra Added Services (Pending Confirmation)
+                            </h3>
+                            
+                            {/* Mobile Cards View - Temp Addons */}
+                            <div className="aos-grid">
+                                {services.map((srv, index) => {
+                                    const price = Number(srv.Price || srv.BasePrice || 0);
+                                    const gst = Number(srv.GSTAmount || 0);
+                                    const total = price + gst;
+                                    const labourCharge = Number(srv.LabourCharges || 0);
+                                    return (
+                                        <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: "4px solid #ffc107" }}>
+                                            <div className="aos-card-header">
+                                                <div className="aos-card-info">
+                                                    <h4 className="aos-card-name">{srv.ServiceName}</h4>
+                                                    <span className={`aos-card-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>
+                                                        {srv.ServiceType?.toLowerCase().includes("part") ? <FaBoxOpen /> : <FaCog />}
+                                                        {srv.ServiceType}
+                                                    </span>
+                                                </div>
+                                                <div className="aos-card-qty">
+                                                    <span className="aos-card-qty-label">Qty</span>
+                                                    <span className="aos-card-qty-value">{srv.Quantity || 1}</span>
+                                                </div>
+                                            </div>
+                                            <div className="aos-card-body">
+                                                {srv.Description && <p className="aos-card-desc">{srv.Description}</p>}
+                                                <div className="aos-card-pricing">
+                                                    <div className="aos-price-item">
+                                                        <div className="aos-price-label">Price</div>
+                                                        <div className="aos-price-value">₹{price.toFixed(2)}</div>
+                                                    </div>
+                                                    {labourCharge > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">Labour Charges</div>
+                                                            <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
+                                                        </div>
+                                                    )}
+                                                    {srv.GSTPercent > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">GST ({srv.GSTPercent}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2)}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="aos-card-footer">
+                                                <div className="aos-total-row">
+                                                    <span className="aos-total-label">Total Amount</span>
+                                                    <span className="aos-total-value">₹{total.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Desktop Table View - Temp Addons */}
+                            <div className="aos-table-wrapper">
+                                <table className="aos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>Service Name</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Qty</th>
+                                            <th>Labour Charges ₹</th>
+                                            <th>Price</th>
+                                            <th>GST %</th>
+                                            <th>GST ₹</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {services.map((srv, idx) => {
+                                            const price = Number(srv.Price || srv.BasePrice || 0);
+                                            const gst = Number(srv.GSTAmount || 0);
+                                            const total = price + gst;
+                                            return (
+                                                <tr key={`temp-${idx}`} style={{ backgroundColor: "#fffbf0" }}>
+                                                    <td>{idx + 1}</td>
+                                                    <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
+                                                    <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
+                                                    <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
+                                                    <td>{srv.Quantity || 1}</td>
+                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
+                                                    <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                                    <td>{srv.GSTPercent || 0}%</td>
+                                                    <td>₹{gst.toFixed(2)}</td>
+                                                    <td className="aos-table-total">₹{total.toFixed(2)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Summary Section */}
                     <div className="aos-summary">
                         <div className="aos-summary-title">Order Summary</div>
                         <div className="aos-summary-grid">
-                            {/* <div className="aos-summary-item">
-                                <div className="aos-summary-label">Total Quantity</div>
+                            <div className="aos-summary-item d-none">
+                                <div className="aos-summary-label">Total Items</div>
                                 <div className="aos-summary-value">{totals.quantity}</div>
-                            </div> */}
+                            </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Subtotal</div>
                                 <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>
@@ -319,6 +473,14 @@ const QuickBookingsLayer = () => {
                                 <div className="aos-summary-value">₹{totals.totalAmount.toFixed(2)}</div>
                             </div>
                         </div>
+                        {services.length > 0 && (
+                            <div className="mt-3 p-3" style={{ backgroundColor: "#fffbf0", borderRadius: "8px", border: "1px solid #ffc107" }}>
+                                <small style={{ color: "#856404" }}>
+                                    <FaExclamationCircle className="me-1" />
+                                    <strong>Note:</strong> {services.length} extra service{services.length !== 1 ? "s" : ""} {services.length !== 1 ? "are" : "is"} pending confirmation. Please review and confirm to proceed.
+                                </small>
+                            </div>
+                        )}
                     </div>
 
                     {/* Footer Actions */}
