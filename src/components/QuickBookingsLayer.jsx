@@ -19,6 +19,7 @@ const QuickBookingsLayer = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
+    // const qty = Number(srv.Quantity || 1);
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -69,23 +70,23 @@ const QuickBookingsLayer = () => {
     const totals = useMemo(() => {
         return services.reduce(
             (acc, srv) => {
-                const qty = 1;
+                const qty = Number(srv.Quantity || 1);
                 const price = Number(srv.Price || 0);
                 const gst = Number(srv.GSTAmount || 0);
-                const totalLineItem = (price + gst) * qty;
                 const labourCharge = Number(srv.LabourCharges || 0);
 
                 return {
-                    price: acc.price + (price * qty),
-                    gstAmount: acc.gstAmount + (gst * qty),
-                    totalAmount: acc.totalAmount + totalLineItem,
+                    price: acc.price + price ,
+                    gstAmount: acc.gstAmount + gst,
+                    labourCharge: acc.labourCharge + labourCharge,
+                    totalAmount: acc.totalAmount + (price + gst + labourCharge),
                     quantity: acc.quantity + qty,
-                    labourCharge: (acc.labourCharge || 0) + labourCharge
                 };
             },
             { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
         );
     }, [services]);
+
 
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
@@ -206,8 +207,9 @@ const QuickBookingsLayer = () => {
                         {services.map((srv, index) => {
                             const price = Number(srv.Price || 0);
                             const gst = Number(srv.GSTAmount || 0);
-                            const total = price + gst;
                             const labourCharge = Number(srv.LabourCharges || 0);
+                            const qty = Number(srv.Quantity || 1);
+                            const total = (price + gst + labourCharge) * qty;
                             return (
                                 <div key={index} className="aos-card">
                                     <div className="aos-card-header">
@@ -220,7 +222,7 @@ const QuickBookingsLayer = () => {
                                         </div>
                                         <div className="aos-card-qty">
                                             <span className="aos-card-qty-label">Qty</span>
-                                            <span className="aos-card-qty-value">1</span>
+                                            <span className="aos-card-qty-value"> {srv.Quantity || 1}</span>
                                         </div>
                                     </div>
                                     <div className="aos-card-body">
@@ -261,8 +263,8 @@ const QuickBookingsLayer = () => {
                                     <th>Type</th>
                                     <th>Description</th>
                                     <th>Qty</th>
-                                    <th>Labour Charges ₹</th>
                                     <th>Price</th>
+                                    <th>Labour Charges ₹</th>
                                     <th>GST %</th>
                                     <th>GST ₹</th>
                                     <th>Total</th>
@@ -272,16 +274,16 @@ const QuickBookingsLayer = () => {
                                 {services.map((srv, idx) => {
                                     const price = Number(srv.Price || 0);
                                     const gst = Number(srv.GSTAmount || 0);
-                                    const total = price + gst;
+                                    const total = price + gst + (Number(srv.LabourCharges) || 0);
                                     return (
                                         <tr key={idx}>
                                             <td>{idx + 1}</td>
                                             <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
                                             <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
                                             <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
-                                            <td>1</td>
-                                            <td className="aos-table-price">₹{srv.LabourCharges?.toFixed(2) || "0.00"}</td>
+                                            <td>{srv.Quantity || 1}</td>
                                             <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                            <td className="aos-table-price">₹{srv.LabourCharges?.toFixed(2) || "0.00"}</td>
                                             <td>{srv.GSTPercent}%</td>
                                             <td>₹{gst.toFixed(2)}</td>
                                             <td className="aos-table-total">₹{total.toFixed(2)}</td>
@@ -296,10 +298,10 @@ const QuickBookingsLayer = () => {
                     <div className="aos-summary">
                         <div className="aos-summary-title">Order Summary</div>
                         <div className="aos-summary-grid">
-                            <div className="aos-summary-item">
-                                <div className="aos-summary-label">Total Items</div>
+                            {/* <div className="aos-summary-item">
+                                <div className="aos-summary-label">Total Quantity</div>
                                 <div className="aos-summary-value">{totals.quantity}</div>
-                            </div>
+                            </div> */}
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Subtotal</div>
                                 <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>

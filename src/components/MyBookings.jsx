@@ -1066,7 +1066,13 @@ const MyBookings = () => {
     vehicleData.model !== "N/A" ||
     vehicleData.fuel !== "N/A";
 
-
+  const totalPaidAmount = (selectedBooking?.Payments || []).reduce(
+    (sum, payment) =>
+      payment.PaymentStatus === "Success"
+        ? sum + Number(payment.AmountPaid || 0)
+        : sum,
+    0
+  );
 
 
   return (
@@ -2037,11 +2043,18 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Paid Amount</div>
+                                  <div className="fw-bold text-success">
+                                    ₹{formatPrice(getVal(totalPaidAmount))}
+                                  </div>
+                                </div>
+
                                 <hr />
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges))}
+                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
                                   </div>
                                 </div>
                               </div>
@@ -2258,6 +2271,13 @@ const MyBookings = () => {
                               </div>
                             </div>
 
+                            <div className="d-flex justify-content-between mb-2">
+                              <div className="fw-semibold">Paid Amount</div>
+                              <div className="fw-bold text-success">
+                                ₹{formatPrice(getVal(totalPaidAmount))}
+                              </div>
+                            </div>
+
                             {/* {hasAddOns && (
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">Additional Total</div>
@@ -2274,7 +2294,8 @@ const MyBookings = () => {
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
                                   getVal(selectedBooking.LabourCharges) +
-                                  getVal(selectedBooking.GSTAmount) -
+                                  getVal(selectedBooking.GSTAmount) +
+                                  getVal(totalPaidAmount) -
                                   getVal(selectedBooking.CouponAmount)
                                   // addOnTotal
                                 )}
