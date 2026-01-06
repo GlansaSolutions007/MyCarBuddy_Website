@@ -1751,6 +1751,12 @@
     padding: 12px 16px;
   }
 
+  .mb-detail-back-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
   .mb-detail-info-item {
     padding: 14px 16px;
   }
@@ -1941,6 +1947,124 @@
   opacity: 1;
   margin-top: 5px;
 }
+
+.mb-detail-back-btn-new {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mb-detail-back-btn-new:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #ffc107 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+/* ===== Review Section Wrapper ===== */
+.review-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 24px;
+  margin-bottom: 40px;
+  border: 1px solid #eaeaea;
+}
+
+/* ===== Title ===== */
+.review-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0d6efd;
+  margin-bottom: 16px;
+}
+
+/* ===== Review Blocks ===== */
+.review-block {
+  margin-bottom: 18px;
+}
+
+/* ===== Labels ===== */
+.review-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* ===== Helper Text ===== */
+.review-helper {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+/* ===== Textarea ===== */
+.review-textarea {
+  width: 100%;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  border: 1px solid #ddd;
+  resize: none;
+  outline: none;
+}
+
+.review-textarea:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+}
+
+/* ===== Submit Button ===== */
+.review-submit-btn {
+  margin-top: 10px;
+}
+
+/* ========================= */
+/* ===== RESPONSIVE ======= */
+/* ========================= */
+
+/* Mobile */
+@media (max-width: 576px) {
+  .review-section {
+    padding: 16px;
+  }
+
+  .review-title {
+    font-size: 0.95rem;
+  }
+
+  .review-label {
+    font-size: 0.9rem;
+  }
+
+  .review-textarea {
+    font-size: 0.85rem; 
+  }
+}
+
+/* Tablet */
+@media (min-width: 577px) and (max-width: 992px) {
+  .review-section {
+    padding: 18px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 993px) {
+  .review-section {
+    padding: 24px;
+  }
+}
+
 
 
 

@@ -607,7 +607,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
                 {/* Trust Badge */}
                 <div className="ip-trust">
-                  <span>✓ 1,000+ Customers</span>
+                  <span>✓ 120K+ Customers</span>
                   <span>✓ Certified Mechanics</span>
                 </div>
               </>

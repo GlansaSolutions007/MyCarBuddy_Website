@@ -161,7 +161,7 @@ const CaseStudies = () => {
           <div className="cs-stats-bar">
             <div className="cs-stat-pill">
               <FaCarSide />
-              <span><strong>1,000+</strong> Cars Fixed</span>
+              <span><strong>120K+</strong> Cars Fixed</span>
             </div>
             <div className="cs-stat-pill">
               <FaStar />

@@ -30,7 +30,7 @@ import SearchPage from "./pages/SearchPage";
 import AppRedirectPage from "./pages/AppRedirectPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
-import QuickBookings from "./pages/QuickBookingsPage";
+import ConfirmBookings from "./pages/ConfirmBookingsPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotificationPopup from "./components/NotificationPopup";
 
@@ -72,7 +72,7 @@ function App() {
           <Route exact path="/redirect" element={<AppRedirectPage />} />
           <Route exact path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/redirect-to-payment/:encodedUrl" element={<RedirectToPayment />} />
-          <Route path="/quick-bookings" element={<QuickBookings />} />
+          <Route path="/confirm-bookings" element={<ConfirmBookings />} />
           <Route path="/payment-successful" element={<ThankYouPage />} />
           <Route path="*" element={<NotFoundPage />} />
 

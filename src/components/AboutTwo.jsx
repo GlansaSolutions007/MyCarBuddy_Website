@@ -14,7 +14,7 @@ const highlights = [
   "Transparent Pricing with No Hidden Charges",
   "Expert Vehicle Inspection",
   "Fast Booking via App or Website",
-  "Trusted by 1000+ Happy Customers",
+  "Trusted by 120K+ Happy Customers",
   "Dedicated Customer Support & Service Assistance",
 ];
 
@@ -68,7 +68,7 @@ const AboutTwo = () => {
                   {({ isVisible }) =>
                     isVisible && (
                       <div className="about-two-badge-number">
-                        <CountUp delay={0} start={0} end={1000} duration={2.5} />+
+                        <CountUp delay={0} start={0} end={120000} duration={2.5} />+
                       </div>
                     )
                   }

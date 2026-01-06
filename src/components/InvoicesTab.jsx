@@ -10,7 +10,7 @@ const InvoicesTab = () => {
   const [error, setError] = useState(null);
 
   const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
-  const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
+  const InvoiceURL = "https://api.mycarsbuddy.com/";
   const user = JSON.parse(localStorage.getItem("user"));
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
@@ -54,7 +54,7 @@ const InvoicesTab = () => {
       // Assuming FolderPath contains the full URL or relative path to the invoice file
       const downloadUrl = folderPath.startsWith('http')
         ? folderPath
-        : `${ImageURL}${folderPath}`;
+        : `${InvoiceURL}${folderPath}`;
 
       // Create a temporary link element to trigger download
       const link = document.createElement('a');

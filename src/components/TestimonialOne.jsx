@@ -176,7 +176,7 @@ const TestimonialOne = () => {
         {/* Stats */}
         <div className="testimonial-stats">
           <div className="testimonial-stat">
-            <div className="testimonial-stat-number">1K+</div>
+            <div className="testimonial-stat-number">120K+</div>
             <div className="testimonial-stat-label">Happy Customers</div>
           </div>
           <div className="testimonial-stat">

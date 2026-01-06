@@ -1264,11 +1264,11 @@ const MyBookings = () => {
                           className="mb-view-btn"
                           onClick={() => {
                             navigate(
-                              `/quick-bookings?custId=${decryptedCustId}&bookingId=${booking.BookingID}`
+                              `/confirm-bookings?custId=${decryptedCustId}&bookingId=${booking.BookingID}`
                             );
                           }}
                         >
-                          <FaCheckCircle /> Confirm Booking
+                          <FaCheckCircle /> Approve Booking
                         </button>
                       ) : (
                         <button
@@ -1867,11 +1867,11 @@ const MyBookings = () => {
                                     {/* Pricing Body */}
                                     <div className="mb-addon-body">
                                       <div className="mb-addon-row">
-                                        <span className="mb-addon-label">Base Price</span>
+                                        <span className="mb-addon-label">Parts Price</span>
                                         <span className="mb-addon-value">₹{Number(addOn.ServicePrice || 0).toLocaleString()}</span>
                                       </div>
                                       <div className="mb-addon-row">
-                                        <span className="mb-addon-label">Labour</span>
+                                        <span className="mb-addon-label">Service Charges</span>
                                         <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
                                       </div>
                                       <div className="mb-addon-row">
@@ -2016,7 +2016,7 @@ const MyBookings = () => {
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Labour Charge</div>
+                                  <div className="fw-semibold">Service Charges</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(selectedBooking.LabourCharges)}
                                   </div>
@@ -2037,7 +2037,7 @@ const MyBookings = () => {
                                 </div> */}
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">GST(18)</div>
+                                  <div className="fw-semibold">GST(18%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                                   </div>
@@ -2140,7 +2140,7 @@ const MyBookings = () => {
                                   </div>
                                 </div>
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Labour Charge</div>
+                                  <div className="fw-semibold">Service Charges</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(selectedBooking.LabourCharges)}
                                   </div>
@@ -2233,7 +2233,7 @@ const MyBookings = () => {
                             </div>
 
                             <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">Labour Charge</div>
+                              <div className="fw-semibold">Service Charges</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(selectedBooking.LabourCharges)}
                               </div>
@@ -2405,57 +2405,60 @@ const MyBookings = () => {
                   )}
 
                   {/* Review Section (only if not cancelling) */}
-                  {!showCancelSection &&
-                    selectedBooking.BookingStatus === "Completed" && (
-                      <div className="review-card border rounded-3 p-4 mt-4">
-                        <h6 className="text-primary">Rate Your Experience</h6>
-                        {/* Service Quality */}
-                        <div className="mb-3">
-                          <label className="fw-bold">Service Quality</label>
-                          <p className="small text-muted">
-                            How satisfied were you with the overall service?
-                          </p>
-                          <StarRating
-                            rating={serviceQuality}
-                            onRatingChange={setServiceQuality}
-                          />
-                        </div>
-                        {/* Technician Rating */}
-                        <div className="mb-3">
-                          <label className="fw-bold">Technician </label>
-                          <p className="small text-muted">
-                            How would you rate the professionalism and expertise?
-                          </p>
-                          <StarRating
-                            rating={technicianRating}
-                            onRatingChange={setTechnicianRating}
-                          />
-                        </div>
-                        {/* Feedback */}
-                        <div className="mb-3">
-                          <label className="fw-bold">Your Feedback</label>
-                          <textarea
-                            className="form-control"
-                            rows="3"
-                            placeholder="Share your thoughts to help us improve"
-                            value={feedback}
-                            onChange={(e) => setFeedback(e.target.value)}
-                          />
-                        </div>
-                        {feedbackExists ? (
-                          ""
-                        ) : (
-                          <button
-                            className="btn btn-primary"
-                            onClick={() =>
-                              handleSubmitReview(selectedBooking.BookingID)
-                            }
-                          >
-                            Submit Review
-                          </button>
-                        )}
-                      </div>
-                    )}
+{!showCancelSection &&
+  selectedBooking.BookingStatus === "Completed" && (
+    <div className="review-section">
+      <h6 className="review-title">Rate Your Experience</h6>
+
+      {/* Service Quality */}
+      <div className="review-block">
+        <label className="review-label">Service Quality</label>
+        <p className="review-helper">
+          How satisfied were you with the overall service?
+        </p>
+        <StarRating
+          rating={serviceQuality}
+          onRatingChange={setServiceQuality}
+        />
+      </div>
+
+      {/* Technician Rating */}
+      <div className="review-block">
+        <label className="review-label">Technician</label>
+        <p className="review-helper">
+          How would you rate the professionalism and expertise?
+        </p>
+        <StarRating
+          rating={technicianRating}
+          onRatingChange={setTechnicianRating}
+        />
+      </div>
+
+      {/* Feedback */}
+      <div className="review-block">
+        <label className="review-label">Your Feedback</label>
+        <textarea
+          className="review-textarea"
+          rows="3"
+          placeholder="Share your thoughts to help us improve"
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+        />
+      </div>
+
+      {!feedbackExists && (
+        <button
+          className="mb-detail-back-btn-new review-submit-btn"
+          onClick={() =>
+            handleSubmitReview(selectedBooking.BookingID)
+          }
+        >
+          Submit Review
+        </button>
+      )}
+    </div>
+  )}
+
                 </>
               )}
             </div>

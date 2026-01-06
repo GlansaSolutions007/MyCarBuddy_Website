@@ -659,7 +659,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
 
               {/* Trust */}
               <div className="bsm-trust">
-                <span>✓ 1,000+ Customers</span>
+                <span>✓ 120K+ Customers</span>
                 <span>✓ Certified Mechanics</span>
               </div>
             </div>

@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./QuickBookingsLayer.css";
+import "./ConfirmBookingsLayer.css";
 import { FaTools, FaCheck, FaCog, FaBoxOpen, FaArrowLeft, FaExclamationCircle } from "react-icons/fa";
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
-const QuickBookingsLayer = () => {
+const ConfirmBookingsLayer = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
@@ -276,7 +276,7 @@ const QuickBookingsLayer = () => {
                                                     </div>
                                                     {labourCharge > 0 && (
                                                         <div className="aos-price-item">
-                                                            <div className="aos-price-label">Labour Charges</div>
+                                                            <div className="aos-price-label">Service Charges</div>
                                                             <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
                                                         </div>
                                                     )}
@@ -309,7 +309,7 @@ const QuickBookingsLayer = () => {
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
-                                            <th>Labour Charges ₹</th>
+                                            <th>Service Charges ₹</th>
                                             <th>Price</th>
                                             <th>GST %</th>
                                             <th>GST ₹</th>
@@ -348,7 +348,7 @@ const QuickBookingsLayer = () => {
                         <div className="mb-4">
                             <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
                                 <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
-                                Extra Added Services (Pending Confirmation)
+                                Extra Added Services (Pending Approve)
                             </h3>
                             
                             {/* Mobile Cards View - Temp Addons */}
@@ -382,7 +382,7 @@ const QuickBookingsLayer = () => {
                                                     </div>
                                                     {labourCharge > 0 && (
                                                         <div className="aos-price-item">
-                                                            <div className="aos-price-label">Labour Charges</div>
+                                                            <div className="aos-price-label">Service Charges</div>
                                                             <div className="aos-price-value">₹{labourCharge.toFixed(2)}</div>
                                                         </div>
                                                     )}
@@ -415,7 +415,7 @@ const QuickBookingsLayer = () => {
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
-                                            <th>Labour Charges ₹</th>
+                                            <th>Service Charges ₹</th>
                                             <th>Price</th>
                                             <th>GST %</th>
                                             <th>GST ₹</th>
@@ -461,7 +461,7 @@ const QuickBookingsLayer = () => {
                                 <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
-                                <div className="aos-summary-label">Labour Charges</div>
+                                <div className="aos-summary-label">Service Charges</div>
                                 <div className="aos-summary-value">₹{totals.labourCharge.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
@@ -477,7 +477,7 @@ const QuickBookingsLayer = () => {
                             <div className="mt-3 p-3" style={{ backgroundColor: "#fffbf0", borderRadius: "8px", border: "1px solid #ffc107" }}>
                                 <small style={{ color: "#856404" }}>
                                     <FaExclamationCircle className="me-1" />
-                                    <strong>Note:</strong> {services.length} extra service{services.length !== 1 ? "s" : ""} {services.length !== 1 ? "are" : "is"} pending confirmation. Please review and confirm to proceed.
+                                    <strong>Note:</strong> {services.length} extra service{services.length !== 1 ? "s" : ""} {services.length !== 1 ? "are" : "is"} pending approve. Please review and confirm to proceed.
                                 </small>
                             </div>
                         )}
@@ -486,7 +486,7 @@ const QuickBookingsLayer = () => {
                     {/* Footer Actions */}
                     <div className="aos-footer">
                         <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
-                            Cancel
+                            Disapprove & Go Back
                         </button>
                         <button className="aos-btn aos-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
                             {isSubmitting ? (
@@ -495,7 +495,7 @@ const QuickBookingsLayer = () => {
                                     Processing...
                                 </>
                             ) : (
-                                <><FaCheck /> Confirm Services</>
+                                <><FaCheck /> Approve Services</>
                             )}
                         </button>
                     </div>
@@ -505,4 +505,4 @@ const QuickBookingsLayer = () => {
     );
 };
 
-export default QuickBookingsLayer;
+export default ConfirmBookingsLayer;
