@@ -20,6 +20,7 @@ const ConfirmBookingsLayer = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
+    const [openIncludes, setOpenIncludes] = useState(null);
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -74,12 +75,12 @@ const ConfirmBookingsLayer = () => {
                 const qty = Number(srv.Quantity || 1);
                 const price = Number(srv.Price || srv.BasePrice || 0);
                 const gst = Number(srv.GSTAmount || 0);
-                const totalLineItem = (price + gst) * qty;
+                const totalLineItem = (price + gst);
                 const labourCharge = Number(srv.LabourCharges || 0);
 
                 return {
-                    price: acc.price + (price * qty),
-                    gstAmount: acc.gstAmount + (gst * qty),
+                    price: acc.price + (price),
+                    gstAmount: acc.gstAmount + (gst),
                     totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
                     labourCharge: (acc.labourCharge || 0) + labourCharge
@@ -96,12 +97,12 @@ const ConfirmBookingsLayer = () => {
                 const qty = Number(srv.Quantity || 1);
                 const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
                 const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
-                const totalLineItem = (price + gst) * qty;
+                const totalLineItem = (price + gst);
                 const labourCharge = Number(srv.LabourCharges || 0);
 
                 return {
-                    price: acc.price + (price * qty),
-                    gstAmount: acc.gstAmount + (gst * qty),
+                    price: acc.price + (price),
+                    gstAmount: acc.gstAmount + (gst),
                     totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
                     labourCharge: (acc.labourCharge || 0) + labourCharge
@@ -116,7 +117,7 @@ const ConfirmBookingsLayer = () => {
         return {
             price: tempTotals.price + confirmedTotals.price,
             gstAmount: tempTotals.gstAmount + confirmedTotals.gstAmount,
-            totalAmount: tempTotals.totalAmount + confirmedTotals.totalAmount,
+            totalAmount: tempTotals.totalAmount + confirmedTotals.totalAmount + tempTotals.labourCharge + confirmedTotals.labourCharge,
             quantity: tempTotals.quantity + confirmedTotals.quantity,
             labourCharge: tempTotals.labourCharge + confirmedTotals.labourCharge
         };
@@ -243,13 +244,12 @@ const ConfirmBookingsLayer = () => {
                                 <FaCheck className="me-2" style={{ color: "#28a745" }} />
                                 Confirmed Services
                             </h3>
-                            
                             {/* Mobile Cards View - Confirmed */}
                             <div className="aos-grid">
                                 {confirmedAddons.map((srv, index) => {
                                     const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
                                     const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
-                                    const total = price + gst;
+                                    const total = price + gst + Number(srv.LabourCharges || 0);
                                     const labourCharge = Number(srv.LabourCharges || 0);
                                     const gstPercent = srv.GSTPercent || 0;
                                     return (
@@ -286,6 +286,36 @@ const ConfirmBookingsLayer = () => {
                                                             <div className="aos-price-value">₹{gst.toFixed(2)}</div>
                                                         </div>
                                                     )}
+                                                    {Array.isArray(srv.Includes) && srv.Includes.length > 0 && (
+                                                        <div className="aos-includes">
+                                                            <div className="aos-include-label">Includes</div>
+                                                            {/* HEADER */}
+                                                            <div
+                                                                className="aos-includes-header"
+                                                                onClick={() =>
+                                                                    setOpenIncludes(openIncludes === index ? null : index)
+                                                                }
+                                                            >
+                                                                <span className="aos-includes-title">
+                                                                    Includes ({srv.Includes.length})
+                                                                </span>
+                                                                <span className={`aos-includes-arrow ${openIncludes === index ? "open" : ""}`}>
+                                                                    ▾
+                                                                </span>
+                                                            </div>
+
+                                                            {/* DROPDOWN CONTENT */}
+                                                            {openIncludes === index && (
+                                                                <ul className="aos-includes-list">
+                                                                    {srv.Includes.map((inc) => (
+                                                                        <li key={inc.IncludeID} className="aos-include-item">
+                                                                            {inc.IncludeName}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="aos-card-footer">
@@ -305,32 +335,53 @@ const ConfirmBookingsLayer = () => {
                                     <thead>
                                         <tr>
                                             <th>S.No</th>
-                                            <th>Service Name</th>
+                                            <th>Service Name & Includes</th>
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
+                                            <th>Price ₹</th>
                                             <th>Service Charges ₹</th>
-                                            <th>Price</th>
                                             <th>GST %</th>
                                             <th>GST ₹</th>
-                                            <th>Total</th>
+                                            <th>Total ₹</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {confirmedAddons.map((srv, idx) => {
                                             const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
                                             const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
-                                            const total = price + gst;
+                                            const labourCharge = Number(srv.LabourCharges || 0);
+                                            const total = price + gst + labourCharge;
                                             const gstPercent = srv.GSTPercent || 0;
                                             return (
                                                 <tr key={`confirmed-${idx}`} style={{ backgroundColor: "#f0f9f0" }}>
                                                     <td>{idx + 1}</td>
-                                                    <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
+                                                     <td>
+                                                        <span className="aos-table-name" title={srv.ServiceName}>
+                                                            {srv.ServiceName}
+                                                        </span>
+                                                        {srv.Includes?.length > 0 && (
+                                                            <details className="aos-includes-dropdown">
+                                                                <summary className="aos-table-includes-inline">
+                                                                    Includes ({srv.Includes.length})
+                                                                    <span className="aos-arrow">▾</span>
+                                                                </summary>
+
+                                                                <div className="aos-includes-list">
+                                                                    {srv.Includes.map((i) => (
+                                                                        <div key={i.IncludeID} className="aos-include-item">
+                                                                            {i.IncludeName}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </details>
+                                                        )}
+                                                    </td>
                                                     <td><span className="aos-table-type services">{srv.IsInspection ? "Inspection" : "Service"}</span></td>
                                                     <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
                                                     <td>{srv.Quantity || 1}</td>
-                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
                                                     <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
                                                     <td>{gstPercent}%</td>
                                                     <td>₹{gst.toFixed(2)}</td>
                                                     <td className="aos-table-total">₹{total.toFixed(2)}</td>
@@ -350,14 +401,13 @@ const ConfirmBookingsLayer = () => {
                                 <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
                                 Extra Added Services (Pending Approve)
                             </h3>
-                            
                             {/* Mobile Cards View - Temp Addons */}
                             <div className="aos-grid">
                                 {services.map((srv, index) => {
                                     const price = Number(srv.Price || srv.BasePrice || 0);
                                     const gst = Number(srv.GSTAmount || 0);
-                                    const total = price + gst;
                                     const labourCharge = Number(srv.LabourCharges || 0);
+                                    const total = price + gst + labourCharge;
                                     return (
                                         <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: "4px solid #ffc107" }}>
                                             <div className="aos-card-header">
@@ -392,6 +442,36 @@ const ConfirmBookingsLayer = () => {
                                                             <div className="aos-price-value">₹{gst.toFixed(2)}</div>
                                                         </div>
                                                     )}
+                                                    {Array.isArray(srv.Includes) && srv.Includes.length > 0 && (
+                                                        <div className="aos-includes">
+                                                            <div className="aos-include-label">Includes</div>
+                                                            {/* HEADER */}
+                                                            <div
+                                                                className="aos-includes-header"
+                                                                onClick={() =>
+                                                                    setOpenIncludes(openIncludes === index ? null : index)
+                                                                }
+                                                            >
+                                                                <span className="aos-includes-title">
+                                                                    Includes ({srv.Includes.length})
+                                                                </span>
+                                                                <span className={`aos-includes-arrow ${openIncludes === index ? "open" : ""}`}>
+                                                                    ▾
+                                                                </span>
+                                                            </div>
+
+                                                            {/* DROPDOWN CONTENT */}
+                                                            {openIncludes === index && (
+                                                                <ul className="aos-includes-list">
+                                                                    {srv.Includes.map((inc) => (
+                                                                        <div key={inc.IncludeID} className="aos-include-item">
+                                                                            {inc.IncludeName}
+                                                                        </div>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="aos-card-footer">
@@ -411,31 +491,52 @@ const ConfirmBookingsLayer = () => {
                                     <thead>
                                         <tr>
                                             <th>S.No</th>
-                                            <th>Service Name</th>
+                                            <th>Service Name & Includes</th>
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
+                                            <th>Price ₹</th>
                                             <th>Service Charges ₹</th>
-                                            <th>Price</th>
                                             <th>GST %</th>
                                             <th>GST ₹</th>
-                                            <th>Total</th>
+                                            <th>Total ₹</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {services.map((srv, idx) => {
                                             const price = Number(srv.Price || srv.BasePrice || 0);
                                             const gst = Number(srv.GSTAmount || 0);
-                                            const total = price + gst;
+                                            const labourCharge = Number(srv.LabourCharges || 0);
+                                            const total = price + gst + labourCharge;
                                             return (
                                                 <tr key={`temp-${idx}`} style={{ backgroundColor: "#fffbf0" }}>
                                                     <td>{idx + 1}</td>
-                                                    <td><span className="aos-table-name" title={srv.ServiceName}>{srv.ServiceName}</span></td>
+                                                    <td>
+                                                        <span className="aos-table-name" title={srv.ServiceName}>
+                                                            {srv.ServiceName}
+                                                        </span>
+                                                        {srv.Includes?.length > 0 && (
+                                                            <details className="aos-includes-dropdown">
+                                                                <summary className="aos-table-includes-inline">
+                                                                    Includes ({srv.Includes.length})
+                                                                    <span className="aos-arrow">▾</span>
+                                                                </summary>
+
+                                                                <div className="aos-includes-list">
+                                                                    {srv.Includes.map((i) => (
+                                                                        <div key={i.IncludeID} className="aos-include-item">
+                                                                            {i.IncludeName}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </details>
+                                                        )}
+                                                    </td>
                                                     <td><span className={`aos-table-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>{srv.ServiceType}</span></td>
                                                     <td><span className="aos-table-desc" title={srv.Description}>{srv.Description || "-"}</span></td>
                                                     <td>{srv.Quantity || 1}</td>
-                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
                                                     <td className="aos-table-price">₹{price.toFixed(2)}</td>
+                                                    <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
                                                     <td>{srv.GSTPercent || 0}%</td>
                                                     <td>₹{gst.toFixed(2)}</td>
                                                     <td className="aos-table-total">₹{total.toFixed(2)}</td>
