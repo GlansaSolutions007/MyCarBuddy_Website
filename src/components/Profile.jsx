@@ -260,7 +260,18 @@ const Profile = () => {
                       className={`profile-form-input ${editing ? 'editing' : ''}`}
                       name="FullName"
                       value={user.FullName}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        const { name, value } = e.target;
+
+                        handleInputChange({
+                          target: {
+                            name,
+                            value: value
+                              ? value[0].toUpperCase() + value.slice(1)
+                              : "",
+                          },
+                        });
+                      }}
                       placeholder="Enter your full name"
                       readOnly={!editing}
                     />

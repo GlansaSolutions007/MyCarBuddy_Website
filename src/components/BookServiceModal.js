@@ -123,13 +123,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${baseUrl}CompanyInfo`);
-        const data = response.data.data;
-        const Amount = data.find(item => item.Type === 'InspectionAmount')?.Description || '';
+        const data = response.data.data || [];
+
+        // ✅ filter active records
+        const Amount =
+          data.find(
+            item => item.Type === 'InspectionAmount' && item.IsActive === true
+          )?.Description || '';
+
         setCompanyInfo({ Amount });
       } catch (err) {
         console.error('Failed to fetch company info:', err);
       }
     };
+
     fetchCompanyInfo();
   }, []);
 
@@ -736,8 +743,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       className="bsm-input"
                       placeholder="Enter full name"
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      // disabled={isLoggedIn || otpStep}
+                      onChange={(e) =>
+                        setFullName(
+                          e.target.value
+                            ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                            : ""
+                        )
+                      }
                       required
                     />
                   </div>

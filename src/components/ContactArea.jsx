@@ -24,15 +24,28 @@ const ContactArea = () => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${BASE_URL}CompanyInfo`);
-        const data = response.data.data;
-        const address = data.find(item => item.Type === 'Address')?.Description || '';
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
-        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
+        const data = response.data.data || [];
+
+        // ✅ only active records
+        const activeData = data.filter(item => item.IsActive === true);
+
+        const address =
+          activeData.find(item => item.Type === 'Address')?.Description || '';
+
+        const phones =
+          activeData
+            .filter(item => item.Type === 'PhoneNumber')
+            .map(item => item.Description);
+
+        const email =
+          activeData.find(item => item.Type === 'E-mail')?.Description || '';
+
         setCompanyInfo({ address, phones, email });
       } catch (err) {
         console.error('Failed to fetch company info:', err);
       }
     };
+
     fetchCompanyInfo();
   }, [BASE_URL]);
 
@@ -307,7 +320,7 @@ const ContactArea = () => {
                 <h4>Need Quick Free Support?</h4>
                 <p>Call us now for immediate assistance with your car service needs.</p>
                 {companyInfo.phones.length > 0 ? (
-                  <p 
+                  <p
                     className="contact-quick-phone"
                     onClick={() => handlePhoneClick(companyInfo.phones[0])}
                   >

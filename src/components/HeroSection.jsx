@@ -53,13 +53,19 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [slides.length]);
 
-  // --- FETCH COMPANY INFO ---
   useEffect(() => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${BASE_URL}CompanyInfo`);
-        const data = response.data.data;
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const data = response.data.data || [];
+
+        // ✅ only active records
+        const activeData = data.filter(item => item.IsActive === true);
+
+        const phones = activeData
+          .filter(item => item.Type === 'PhoneNumber')
+          .map(item => item.Description);
+
         setCompanyInfo({ phones });
       } catch (error) {
         console.error('Failed to fetch company info:', error);
@@ -72,7 +78,7 @@ const HeroSection = () => {
   // --- CONTACT HANDLER ---
   const handleContactClick = () => {
     if (companyInfo.phones.length === 0) return;
-    
+
     const phone = companyInfo.phones[0];
     const number = phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
@@ -121,15 +127,15 @@ const HeroSection = () => {
 
               <div className="hero-btns">
                 <button
-                  onClick={() => setShowInspectionPopup(true)} 
+                  onClick={() => setShowInspectionPopup(true)}
                   className="btn-primary-custom"
                 >
                   <i className="fas fa-tools pe-2 "></i>
                   {slide.buttonText}
                 </button>
 
-                <button 
-                  onClick={handleContactClick} 
+                <button
+                  onClick={handleContactClick}
                   className="btn-outline-custom"
                   disabled={companyInfo.phones.length === 0}
                 >

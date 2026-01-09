@@ -98,13 +98,20 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${baseUrl}CompanyInfo`);
-        const data = response.data.data;
-        const Amount = data.find(item => item.Type === 'InspectionAmount')?.Description || '';
+        const data = response.data.data || [];
+
+        // ✅ keep only active records
+        const activeData = data.filter(item => item.IsActive === true);
+
+        const Amount =
+          activeData.find(item => item.Type === 'InspectionAmount')?.Description || '';
+
         setCompanyInfo({ Amount });
       } catch (err) {
         console.error('Failed to fetch company info:', err);
       }
     };
+
     fetchCompanyInfo();
   }, []);
 
@@ -640,8 +647,13 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         className="ip-input"
                         placeholder="Enter full name"
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        // disabled={otpStep}
+                        onChange={(e) =>
+                          setFullName(
+                            e.target.value
+                              ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                              : ""
+                          )
+                        }
                         required
                       />
                     </div>

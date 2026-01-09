@@ -215,8 +215,13 @@ const ServiceAreaHomePage = () => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${BASE_URL}CompanyInfo`);
-        const data = response.data.data;
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const data = response.data.data || [];
+
+        // ✅ filter only active records
+        const phones = data
+          .filter(item => item.Type === 'PhoneNumber' && item.IsActive === true)
+          .map(item => item.Description);
+
         setCompanyInfo({ phones });
       } catch (error) {
         console.error('Failed to fetch company info:', error);
@@ -542,7 +547,7 @@ const ServiceAreaHomePage = () => {
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
         serviceTypeDetail="Category"
-        serviceIdCollect= {selectedService ? selectedService.id : 0}
+        serviceIdCollect={selectedService ? selectedService.id : 0}
       />
     </div>
   );

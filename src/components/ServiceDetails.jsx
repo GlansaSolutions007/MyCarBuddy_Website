@@ -182,8 +182,13 @@ const ServiceDetails = () => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${BaseURL}CompanyInfo`);
-        const data = response.data.data;
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const data = response.data.data || [];
+
+        // ✅ only active phone numbers
+        const phones = data
+          .filter(item => item.Type === 'PhoneNumber' && item.IsActive === true)
+          .map(item => item.Description);
+
         setCompanyInfo({ phones });
       } catch (error) {
         console.error('Failed to fetch company info:', error);
@@ -731,7 +736,7 @@ const ServiceDetails = () => {
                                       e.stopPropagation();
                                       // setSelectedService({ title: s.PackageName });
                                       setSelectedService({
-                                        id: s.PackageID,          
+                                        id: s.PackageID,
                                         title: s.PackageName
                                       });
                                       setIsModalOpen(true);

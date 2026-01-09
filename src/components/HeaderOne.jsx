@@ -89,7 +89,7 @@ const HeaderOne = () => {
 
   const handleContactClick = () => {
     if (!companyInfo.phone) return;
-    
+
     const number = companyInfo.phone.replace(/\D/g, "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
     if (isMobile) {
@@ -272,15 +272,27 @@ const HeaderOne = () => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${API_URL}CompanyInfo`);
-        const data = response.data.data;
-        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
+        const data = response.data.data || [];
+
+        // ✅ keep only active records
+        const activeData = data.filter(item => item.IsActive === true);
+
+        const email =
+          activeData.find(item => item.Type === 'E-mail')?.Description || '';
+
+        const phones =
+          activeData
+            .filter(item => item.Type === 'PhoneNumber')
+            .map(item => item.Description);
+
         const phone = phones.length > 0 ? phones[0] : '';
+
         setCompanyInfo({ email, phone });
       } catch (error) {
         console.error('Failed to fetch company info:', error);
       }
     };
+
     fetchCompanyInfo();
   }, []);
 
@@ -393,13 +405,13 @@ const HeaderOne = () => {
                     <div className="mcb-dropdown">
                       <div className="mcb-dropdown-grid">
                         {categories
-                        .filter(cat => cat.CategoryName !== "Custom Category") // <-- exclude this title
-                        .map((cat) => (
-                          <Link key={cat.CategoryID} to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`} className="mcb-dropdown-link">
-                            <i className="fas fa-wrench" />
-                            <span>{cat.CategoryName}</span>
-                          </Link>
-                        ))}
+                          .filter(cat => cat.CategoryName !== "Custom Category") // <-- exclude this title
+                          .map((cat) => (
+                            <Link key={cat.CategoryID} to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`} className="mcb-dropdown-link">
+                              <i className="fas fa-wrench" />
+                              <span>{cat.CategoryName}</span>
+                            </Link>
+                          ))}
                       </div>
                     </div>
                   </li>
@@ -483,7 +495,7 @@ const HeaderOne = () => {
                       <span className="mcb-user-name">{user?.name || user?.identifier || "Account"}</span>
                     </div>
                   </div>
-                  
+
                   {/* User Dropdown on Hover */}
                   {(user?.name || user?.identifier) && (
                     <div className="mcb-user-dropdown">
@@ -519,7 +531,7 @@ const HeaderOne = () => {
                         </button>
                       </div>
                       <div className="mcb-user-dropdown-footer">
-                        <button 
+                        <button
                           className="mcb-logout-btn"
                           onClick={(e) => {
                             e.stopPropagation();

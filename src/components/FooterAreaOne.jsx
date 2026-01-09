@@ -34,15 +34,29 @@ const FooterAreaOne = () => {
     const fetchCompanyInfo = async () => {
       try {
         const response = await axios.get(`${API_URL}CompanyInfo`);
-        const data = response.data.data;
-        const address = data.find(item => item.Type === 'Address')?.Description || '';
-        const phones = data.filter(item => item.Type === 'PhoneNumber').map(item => item.Description);
-        const email = data.find(item => item.Type === 'E-mail')?.Description || '';
-        setCompanyInfo({ address, phones, email });
+
+        if (response.data?.status && Array.isArray(response.data.data)) {
+          const activeData = response.data.data.filter(
+            (item) => item.IsActive === true
+          );
+
+          const address =
+            activeData.find((item) => item.Type === "Address")?.Description || "";
+
+          const phones = activeData
+            .filter((item) => item.Type === "PhoneNumber")
+            .map((item) => item.Description);
+
+          const email =
+            activeData.find((item) => item.Type === "E-mail")?.Description || "";
+
+          setCompanyInfo({ address, phones, email });
+        }
       } catch (error) {
-        console.error('Failed to fetch company info:', error);
+        console.error("Failed to fetch company info:", error);
       }
     };
+
 
     fetchCategories();
     fetchCompanyInfo();
@@ -91,7 +105,7 @@ const FooterAreaOne = () => {
 
       <div className="container pt-5 pb-4 footer-content">
         <div className="row justify-content-between footer-row-mobile">
-          
+
           {/* Column 1: Logo & Social */}
           <div className="col-lg-3 col-md-6 mb-4 footer-col-logo">
             <div className="footer-widget text-center text-md-start">
@@ -179,21 +193,21 @@ const FooterAreaOne = () => {
               <div className="widget-contact">
                 <div className="contact-item">
                   <i className="fas fa-map-marker-alt contact-icon"></i>
-                  <p className="mb-0" style={{color: "var(--text-light)"}}>
+                  <p className="mb-0" style={{ color: "var(--text-light)" }}>
                     {companyInfo.address || 'Loading...'}
                   </p>
                 </div>
-                
+
                 <div className="contact-item">
                   <i className="fas fa-phone-alt contact-icon"></i>
                   <div>
                     {companyInfo.phones.length > 0 ? (
                       companyInfo.phones.map((phone, index) => (
-                        <div 
+                        <div
                           key={index}
-                          onClick={() => handleContactClick(phone)} 
-                          className="d-block contact-link" 
-                          style={{cursor: 'pointer'}}
+                          onClick={() => handleContactClick(phone)}
+                          className="d-block contact-link"
+                          style={{ cursor: 'pointer' }}
                         >
                           +91 {formatPhoneNumber(phone)}
                         </div>
@@ -221,13 +235,13 @@ const FooterAreaOne = () => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-6 text-center text-md-start">
-              <p className="mb-0 copyright-text" style={{color: "var(--text-light)"}}>
+              <p className="mb-0 copyright-text" style={{ color: "var(--text-light)" }}>
                 © {new Date().getFullYear()} <Link to="https://glansa.com/" target="_blank">Glansa Solutions Pvt Ltd</Link> | All Rights Reserved
               </p>
             </div>
             <div className="col-md-6 text-center text-md-end mt-2 mt-md-0">
               <div className="footer-links">
-                <Link to="/refund-cancellation" className="text-decoration-none small" style={{color: "var(--text-light)"}}>
+                <Link to="/refund-cancellation" className="text-decoration-none small" style={{ color: "var(--text-light)" }}>
                   Cancellation & Refund Policy
                 </Link>
               </div>

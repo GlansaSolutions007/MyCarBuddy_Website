@@ -399,7 +399,7 @@ const ConfirmBookingsLayer = () => {
                         <div className="mb-4">
                             <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
                                 <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
-                                Extra Added Services (Pending Approve)
+                                Added Services (Pending Approve)
                             </h3>
                             {/* Mobile Cards View - Temp Addons */}
                             <div className="aos-grid">
