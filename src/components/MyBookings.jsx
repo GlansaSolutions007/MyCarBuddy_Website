@@ -1260,9 +1260,9 @@ const MyBookings = () => {
 
                       {/* Payment Status */}
                       {(
-                        <div className={`payment-status ${booking?.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "danger"
+                        <div className={`payment-status ${booking?.Payments?.[booking.Payments.length - 1]?.PaymentStatus === "Success" ? "success" : "danger"
                           }`}>
-                          Payment: {booking?.Payments?.[0]?.PaymentStatus || "Pending"}
+                          Payment: {booking?.Payments?.[booking.Payments.length - 1]?.PaymentStatus || "Pending"}
                         </div>)
                       }
 
@@ -1967,9 +1967,9 @@ const MyBookings = () => {
                     {/* Payment */}
                     <div className="mb-booking-info-row">
                       <span className="mb-booking-info-label">Payment</span>
-                      <span className={`mb-booking-info-status ${selectedBooking?.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "danger"
+                      <span className={`mb-booking-info-status ${selectedBooking?.Payments?.[selectedBooking.Payments.length - 1]?.PaymentStatus === "Success" ? "success" : "danger"
                         }`}>
-                        {selectedBooking?.Payments?.[0]?.PaymentStatus || "Pending"}
+                        {selectedBooking?.Payments?.[selectedBooking.Payments.length - 1]?.PaymentStatus || "Pending"}
                       </span>
                       <span className="mb-booking-info-value">
                         Method: {selectedBooking?.PaymentMethod || "N/A"}

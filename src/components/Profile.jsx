@@ -169,10 +169,41 @@ const Profile = () => {
     setHasUploadedImage(true);
   };
 
-  const handleRemoveImage = () => {
-    setUser((prev) => ({ ...prev, ProfileImage: "" }));
-    setHasUploadedImage(false);
+  const handleRemoveImage = async () => {
+    try {
+      const response = await axios.delete(
+        `${process.env.REACT_APP_CARBUDDY_BASE_URL}Customer/remove-customer-image/${decryptedCustId}`
+      );
+
+      if (response.status === 200) {
+        setUser((prev) => ({ ...prev, ProfileImage: "" }));
+        setHasUploadedImage(false);
+
+        showAlert(
+          "success",
+          "Profile image removed successfully!",
+          3000,
+          "success"
+        );
+
+        // Update localStorage
+        const existingUser = JSON.parse(localStorage.getItem("user")) || {};
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...existingUser,
+            profileImage: "",
+          })
+        );
+
+        window.dispatchEvent(new Event("userProfileUpdated"));
+      }
+    } catch (error) {
+      console.error("Failed to remove profile image:", error);
+      showAlert("error", "Failed to remove profile image", 3000, "error");
+    }
   };
+
 
   const getProfileImageSrc = () => {
     if (user?.ProfileImage?.startsWith("data:")) {
