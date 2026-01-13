@@ -18,7 +18,7 @@ class NotificationService {
       console.log('Notification API URL:', url);
       console.log('Using decrypted userId:', userId);
       const response = await axios.get(url);
-      console.log('Notification API Raw Response:', response.data);
+      // console.log('Notification API Raw Response:', response.data);
       const payload = response?.data;
       // Normalize: backend may return an array or an object with { success, data }
       if (Array.isArray(payload)) return payload;

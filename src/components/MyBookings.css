@@ -301,6 +301,7 @@
   color: #0a6264;
   font-size: 0.95rem;
 }
+
 /* Button Styling */
 .btn-toggle-includes {
   background: rgba(10, 98, 100, 0.05);
@@ -333,6 +334,7 @@
 .transition-icon {
   transition: transform 0.3s ease;
 }
+
 .transition-icon.rotate {
   transform: rotate(180deg);
 }
@@ -347,7 +349,8 @@
 }
 
 .includes-expandable-content.show {
-  max-height: 500px; /* Large enough to fit content */
+  max-height: 500px;
+  /* Large enough to fit content */
   opacity: 1;
 }
 
@@ -381,11 +384,13 @@
   .mb-includes-dropdown {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Align to the right in mobile card view */
+    align-items: flex-end;
+    /* Align to the right in mobile card view */
   }
-  
+
   .includes-expandable-content {
-    width: 100%; /* Take full width of card in mobile */
+    width: 100%;
+    /* Take full width of card in mobile */
   }
 
   .mb-addon-includes-list {
@@ -465,6 +470,16 @@
 .mb-badge-otp {
   background: #ffc107;
   color: #1a1a2e;
+}
+
+.payment-status {
+  background-color: rgb(209, 209, 209);
+  color: #000000;
+  /* warm dark amber */
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .mb-view-btn {
@@ -559,9 +574,12 @@
   height: 4px;
   border-radius: 10px;
   position: absolute;
-  top: 18px; /* Center of 40px icon (20px) minus half line height (2px) */
-  left: calc(50% + 20px); /* Start from right edge of current icon */
-  width: calc(100% - 40px); /* Span to left edge of next icon */
+  top: 18px;
+  /* Center of 40px icon (20px) minus half line height (2px) */
+  left: calc(50% + 20px);
+  /* Start from right edge of current icon */
+  width: calc(100% - 40px);
+  /* Span to left edge of next icon */
   z-index: 1;
 }
 
@@ -1247,7 +1265,9 @@
 }
 
 @keyframes mb-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Skeleton */
@@ -1284,8 +1304,13 @@
 }
 
 @keyframes mb-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* ===== Resume Form ===== */
@@ -1889,12 +1914,14 @@
 /* --- Responsive Mobile View (Stacked) --- */
 @media (max-width: 768px) {
   .mb-addons-grid {
-    grid-template-columns: 1fr; /* Stack cards vertically */
+    grid-template-columns: 1fr;
+    /* Stack cards vertically */
     gap: 12px;
   }
 
   .mb-addon-card {
-    padding: 14px; /* Slightly tighter padding for mobile */
+    padding: 14px;
+    /* Slightly tighter padding for mobile */
     border-radius: 12px;
   }
 
@@ -1904,7 +1931,8 @@
 
   /* Adjust the "Includes" button to be more finger-friendly on mobile */
   .btn-toggle-includes {
-    width: 100%; /* Make button full width on mobile for easier clicking */
+    width: 100%;
+    /* Make button full width on mobile for easier clicking */
     justify-content: space-between;
     padding: 8px 12px;
   }
@@ -1928,6 +1956,7 @@
   .mb-addon-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
+
   .mb-addon-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
@@ -1943,7 +1972,8 @@
 }
 
 .includes-expandable-content.show {
-  max-height: 1000px; /* High value to allow content to grow */
+  max-height: 1000px;
+  /* High value to allow content to grow */
   opacity: 1;
   margin-top: 5px;
 }
@@ -1965,7 +1995,7 @@
 }
 
 .mb-detail-back-btn-new:hover {
-    background: linear-gradient(135deg, #e0a800 0%, #ffc107 100%);
+  background: linear-gradient(135deg, #e0a800 0%, #ffc107 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
 }
@@ -2047,7 +2077,7 @@
   }
 
   .review-textarea {
-    font-size: 0.85rem; 
+    font-size: 0.85rem;
   }
 }
 
@@ -2064,9 +2094,3 @@
     padding: 24px;
   }
 }
-
-
-
-
-
-

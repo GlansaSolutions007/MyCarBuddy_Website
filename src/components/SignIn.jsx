@@ -316,11 +316,16 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 										inputMode="numeric"
 										pattern="[0-9]*"
 										className="si-input"
-										placeholder="Enter 10-digit number"
+										placeholder="Enter 10-digit number" 
 										value={identifier}
 										onChange={(e) => {
 											const value = e.target.value.replace(/\D/g, "");
-											if (value.length <= 10) setIdentifier(value);
+											// Allow empty value or values starting with 6-9
+											if (value === "" || (value.length === 1 && /^[6-9]$/.test(value))) {
+												setIdentifier(value);
+											} else if (value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0])) {
+												setIdentifier(value);
+											}
 										}}
 										maxLength={10}
 										required

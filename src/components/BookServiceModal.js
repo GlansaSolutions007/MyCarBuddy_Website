@@ -69,7 +69,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     }
   }, [isLoggedIn]);
 
-  console.log(`email is = ${fullName}`);
+  // console.log(`email is = ${fullName}`);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -232,29 +232,29 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
 
-      if (user?.name === "GUEST") {
-        try {
-          const formDataToSend = new FormData();
-          formDataToSend.append("custID", decryptedCustId);
-          formDataToSend.append("FullName", leadPayload.fullName);
-          formDataToSend.append("PhoneNumber", leadPayload.phoneNumber);
-          formDataToSend.append("Email", email);
-          formDataToSend.append("ProfileImageFile", "");
-          formDataToSend.append("IsActive", true);
+      // if (user?.name === "GUEST") {
+      try {
+        const formDataToSend = new FormData();
+        formDataToSend.append("custID", decryptedCustId);
+        formDataToSend.append("FullName", leadPayload.fullName);
+        formDataToSend.append("PhoneNumber", leadPayload.phoneNumber);
+        formDataToSend.append("Email", email);
+        formDataToSend.append("ProfileImageFile", "");
+        formDataToSend.append("IsActive", true);
 
-          await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          // ✅ Update user object in localStorage after success
-          const updatedUser = { ...user, email: email };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+        await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        // ✅ Update user object in localStorage after success
+        const updatedUser = { ...user, email: email };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
 
-        } catch (error) {
-          console.error("Guest registration error:", error);
-        }
+      } catch (error) {
+        console.error("Guest registration error:", error);
       }
+      // }
 
       const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
 
@@ -402,6 +402,32 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
 
   const normalSubmit = async () => {
     const leadPayload = buildLeadPayload(false); // false = without inspection
+
+    // Update guest user details if needed
+    const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+    const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("custID", decryptedCustId);
+      formDataToSend.append("FullName", leadPayload.fullName);
+      formDataToSend.append("PhoneNumber", leadPayload.phoneNumber);
+      formDataToSend.append("Email", email);
+      formDataToSend.append("ProfileImageFile", "");
+      formDataToSend.append("IsActive", true);
+
+      await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      // ✅ Update user object in localStorage after success
+      const updatedUser = { ...user, email: email };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    } catch (error) {
+      console.error("Guest registration error:", error);
+    }
 
     await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
     window.dispatchEvent(new Event("userProfileUpdated"));

@@ -215,11 +215,11 @@
   transition: all 0.3s ease;
 }
 
-.about-two-highlight:hover {
+/* .about-two-highlight:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(10, 98, 100, 0.1);
   border-color: rgba(10, 98, 100, 0.2);
-}
+} */
 
 .about-two-highlight i {
   color: #0a6264;

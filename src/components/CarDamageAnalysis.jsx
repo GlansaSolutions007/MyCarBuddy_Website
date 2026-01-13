@@ -16,7 +16,8 @@ const CarDamageAnalysis = () => {
 	const [signInVisible, setSignInVisible] = useState(false);
 	const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 	const [dragActive, setDragActive] = useState(false);
-	const ai = new GoogleGenAI({ apiKey: "AIzaSyANYyBfF19iL8GMTGUwg_JTrwCBP-n8Ft0" });
+	const apiKeyNew = process.env.REACT_APP_GOOGLE_GENAI_API_KEY;
+	const ai = new GoogleGenAI({ apiKey: apiKeyNew });
 	const navigate = useNavigate();
 
 	const handleImagesChange = (event) => {

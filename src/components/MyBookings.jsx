@@ -1258,6 +1258,14 @@ const MyBookings = () => {
                           ) : null}
                         </div>}
 
+                      {/* Payment Status */}
+                      {(
+                        <div className={`payment-status ${booking?.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "danger"
+                          }`}>
+                          Payment: {booking?.Payments?.[0]?.PaymentStatus || "Pending"}
+                        </div>)
+                      }
+
                       {/* Show either Confirm Booking (before confirm) OR View (after confirm) in the same place */}
                       {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 ? (
                         <button
@@ -2405,59 +2413,59 @@ const MyBookings = () => {
                   )}
 
                   {/* Review Section (only if not cancelling) */}
-{!showCancelSection &&
-  selectedBooking.BookingStatus === "Completed" && (
-    <div className="review-section">
-      <h6 className="review-title">Rate Your Experience</h6>
+                  {!showCancelSection &&
+                    selectedBooking.BookingStatus === "Completed" && (
+                      <div className="review-section">
+                        <h6 className="review-title">Rate Your Experience</h6>
 
-      {/* Service Quality */}
-      <div className="review-block">
-        <label className="review-label">Service Quality</label>
-        <p className="review-helper">
-          How satisfied were you with the overall service?
-        </p>
-        <StarRating
-          rating={serviceQuality}
-          onRatingChange={setServiceQuality}
-        />
-      </div>
+                        {/* Service Quality */}
+                        <div className="review-block">
+                          <label className="review-label">Service Quality</label>
+                          <p className="review-helper">
+                            How satisfied were you with the overall service?
+                          </p>
+                          <StarRating
+                            rating={serviceQuality}
+                            onRatingChange={setServiceQuality}
+                          />
+                        </div>
 
-      {/* Technician Rating */}
-      <div className="review-block">
-        <label className="review-label">Technician</label>
-        <p className="review-helper">
-          How would you rate the professionalism and expertise?
-        </p>
-        <StarRating
-          rating={technicianRating}
-          onRatingChange={setTechnicianRating}
-        />
-      </div>
+                        {/* Technician Rating */}
+                        <div className="review-block">
+                          <label className="review-label">Technician</label>
+                          <p className="review-helper">
+                            How would you rate the professionalism and expertise?
+                          </p>
+                          <StarRating
+                            rating={technicianRating}
+                            onRatingChange={setTechnicianRating}
+                          />
+                        </div>
 
-      {/* Feedback */}
-      <div className="review-block">
-        <label className="review-label">Your Feedback</label>
-        <textarea
-          className="review-textarea"
-          rows="3"
-          placeholder="Share your thoughts to help us improve"
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-        />
-      </div>
+                        {/* Feedback */}
+                        <div className="review-block">
+                          <label className="review-label">Your Feedback</label>
+                          <textarea
+                            className="review-textarea"
+                            rows="3"
+                            placeholder="Share your thoughts to help us improve"
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                          />
+                        </div>
 
-      {!feedbackExists && (
-        <button
-          className="mb-detail-back-btn-new review-submit-btn"
-          onClick={() =>
-            handleSubmitReview(selectedBooking.BookingID)
-          }
-        >
-          Submit Review
-        </button>
-      )}
-    </div>
-  )}
+                        {!feedbackExists && (
+                          <button
+                            className="mb-detail-back-btn-new review-submit-btn"
+                            onClick={() =>
+                              handleSubmitReview(selectedBooking.BookingID)
+                            }
+                          >
+                            Submit Review
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                 </>
               )}

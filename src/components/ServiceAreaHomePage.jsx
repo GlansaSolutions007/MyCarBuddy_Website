@@ -22,7 +22,7 @@ const steps = [
     icon: MapPin,
     title: "Doorstep Service at Your Location",
     description:
-      "Our certified technician arrives at your home or office, diagnoses the problem, and completes the repair or service on-site.",
+      "Our certified technician arrives at your home or office, diagnoses the problem, and completes the repair or service on-site, according to our Garage Information and Pickup & Drop options.",
   },
   {
     icon: CheckCircle,
@@ -308,7 +308,7 @@ const ServiceAreaHomePage = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="search-container mb-4">
+        {/* <div className="search-container mb-4">
           <div className="search-wrapper">
             <FaSearch className="search-icon" />
             <input
@@ -318,7 +318,7 @@ const ServiceAreaHomePage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Services Grid */}
@@ -461,7 +461,11 @@ const ServiceAreaHomePage = () => {
                 </p>
                 <button
                   className="support-btn"
-                  onClick={() => navigate("/car-damage-analysis")}
+                  onClick={() => {
+                    if (window.Tawk_API) {
+                      window.Tawk_API.toggle();
+                    }
+                  }}
                 >
                   <FaRobot />
                   <span>Chat with AI</span>

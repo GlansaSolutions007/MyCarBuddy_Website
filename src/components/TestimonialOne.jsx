@@ -96,6 +96,7 @@ const TestimonialOne = () => {
           autoplay={{
             delay: 5000,
             disableOnInteraction: false,
+            pauseOnMouseEnter: true,
           }}
           navigation={{
             nextEl: ".testimonial-next",

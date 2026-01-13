@@ -183,9 +183,9 @@
 }
 
 .checklist-item:hover {
-  transform: translateX(5px);
+  /* transform: translateX(5px);
   box-shadow: 0 8px 25px rgba(10, 98, 100, 0.12);
-  border-color: rgba(10, 98, 100, 0.15);
+  border-color: rgba(10, 98, 100, 0.15); */
 }
 
 .checklist-item .check-icon {
@@ -203,7 +203,7 @@
 }
 
 .checklist-item:hover .check-icon {
-  transform: scale(1.1) rotate(10deg);
+  /* transform: scale(1.1) rotate(10deg); */
 }
 
 .checklist-item span {

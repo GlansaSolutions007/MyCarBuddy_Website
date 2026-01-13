@@ -3,6 +3,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
+import "./MainProfile.css";
 
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 
@@ -24,6 +25,7 @@ const Profile = () => {
   const bytes = CryptoJS.AES.decrypt(userdata.id, secretKey);
   const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
   const [originalUser, setOriginalUser] = useState(null);
+  const [hasUploadedImage, setHasUploadedImage] = useState(false);
 
 
   useEffect(() => {
@@ -144,6 +146,7 @@ const Profile = () => {
 
       window.dispatchEvent(new Event("userProfileUpdated"));
       setEditing(false);
+      setHasUploadedImage(false);
       showAlert("success", "Profile updated successfully!", 3000, "success");
       window.location.reload();
     } catch (err) {
@@ -163,6 +166,12 @@ const Profile = () => {
       setUser((prev) => ({ ...prev, ProfileImage: reader.result }));
     };
     reader.readAsDataURL(file);
+    setHasUploadedImage(true);
+  };
+
+  const handleRemoveImage = () => {
+    setUser((prev) => ({ ...prev, ProfileImage: "" }));
+    setHasUploadedImage(false);
   };
 
   const getProfileImageSrc = () => {
@@ -210,14 +219,25 @@ const Profile = () => {
                 }}
               />
               {editing && (
-                <label className="profile-image-upload">
-                  <i className="fas fa-camera" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                </label>
+                <div className="profile-image-actions">
+                  <label className="profile-image-upload">
+                    <i className="fas fa-camera" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                  {user.ProfileImage && (
+                    <button
+                      className="profile-image-remove"
+                      onClick={handleRemoveImage}
+                      title="Remove image"
+                    >
+                      <i className="fas fa-trash" />
+                    </button>
+                  )}
+                </div>
               )}
             </div>
 
@@ -356,6 +376,7 @@ const Profile = () => {
                     className="profile-btn profile-btn-secondary"
                     onClick={() => {
                       setEditing(false);
+                      setHasUploadedImage(false);
                       window.location.reload();
                     }}
                     disabled={saving}

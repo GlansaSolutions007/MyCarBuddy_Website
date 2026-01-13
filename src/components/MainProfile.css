@@ -324,8 +324,6 @@
 
 .profile-image-upload {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
   width: 48px;
   height: 48px;
   background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
@@ -339,6 +337,9 @@
   box-shadow: 0 5px 15px rgba(10, 98, 100, 0.3);
   cursor: pointer;
   transition: all 0.3s ease;
+  /* Position at bottom right of circle */
+  bottom: -10px;
+  right: -10px;
 }
 
 .profile-image-upload:hover {
@@ -347,6 +348,40 @@
 
 .profile-image-upload input {
   display: none;
+}
+
+.profile-image-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 175px;
+  height: 175px;
+}
+
+.profile-image-remove {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  border: 3px solid #fff;
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* Position at bottom left of circle */
+  bottom: -2px;
+  left: -8px;
+}
+
+.profile-image-remove:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #c82333 0%, #a02622 100%);
 }
 
 .profile-user-info h4 {

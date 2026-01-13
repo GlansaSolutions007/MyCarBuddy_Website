@@ -82,7 +82,7 @@ const ServiceAreaTwo = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="search-container mb-4">
+        {/* <div className="search-container mb-4">
           <div className="search-wrapper">
             <FaSearch className="search-icon" />
             <input
@@ -92,7 +92,7 @@ const ServiceAreaTwo = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Services Grid */}
         {filteredServices.length > 0 ? (

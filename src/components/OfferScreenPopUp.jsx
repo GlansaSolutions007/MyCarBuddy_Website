@@ -198,13 +198,12 @@ const OfferScreenPopUp = () => {
 
                     <h2 className="ny-wish">Wishing You A Very</h2>
                     <h1 className="ny-main-title">
-                        HAPPY NEW YEAR <br />
+                        HAPPY MAKAR SANKRANTI<br />
                         <span className="year">2026</span>
                     </h1>
 
                     <p className="ny-message">
-                        May your journey this year be smooth, <br />
-                        safe, and filled with joy!
+                        On this auspicious Makar Sankranti, may the sun bring new energy, happiness, and safe journeys throughout the year.
                     </p>
                 </div>
             </div>

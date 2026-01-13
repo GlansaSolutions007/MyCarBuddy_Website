@@ -289,8 +289,9 @@
 }
 
 .si-otp-input {
-  letter-spacing: 8px;
+  letter-spacing: 6px;
   font-size: 1.2rem;
+  /* font-weight: 700; */
 }
 
 .si-edit-btn {
