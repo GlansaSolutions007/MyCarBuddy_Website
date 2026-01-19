@@ -690,7 +690,7 @@
 .mb-detail-card {
   background: #fff;
   border-radius: 24px;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: 0 10px 50px rgba(10, 98, 100, 0.12);
   border: 1px solid rgba(10, 98, 100, 0.08);
   position: relative;

@@ -1415,7 +1415,7 @@ const MyBookings = () => {
         )}
 
         {selectedBooking && (
-          <div className="mb-detail-card">
+          <div className="mb-detail-card mb-scroll-container">
             {/* Detail Header */}
             <div className="mb-detail-header">
               <div className="mb-detail-header-top">
