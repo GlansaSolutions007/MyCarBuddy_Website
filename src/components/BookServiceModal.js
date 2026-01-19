@@ -579,7 +579,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Transparent Diagnosis Report</span>
+                  <span>Transparent Diagnosis</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
@@ -587,7 +587,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />
-                  <span>Technician Visits Your Home</span>
+                  <span>Technician Visits Your Doorstep</span>
                 </div>
                 <div className="bsm-left-benefit">
                   <FaCheckCircle />

@@ -410,7 +410,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 
     // Debug fuel changes
     useEffect(() => {
-        console.log("Fuel state changed:", fuel, "Available fuels:", fuels);
+        // console.log("Fuel state changed:", fuel, "Available fuels:", fuels);
         if (fuel) {
             const selectedFuel = fuels.find(f => f.id === fuel);
             console.log("Selected fuel:", selectedFuel);
@@ -501,7 +501,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 							name: b.BrandName,
 							logo: `${imageBaseURL}${b.BrandLogo.startsWith("/") ? b.BrandLogo.slice(1) : b.BrandLogo}`,
 						}));
-					console.log("Formatted brands:", formattedBrands);
+					// console.log("Formatted brands:", formattedBrands);
 					setBrands(formattedBrands);
 				}
 			} catch (err) {

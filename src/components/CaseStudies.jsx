@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import BookServiceModal from "./BookServiceModal"
 import {
@@ -27,11 +27,11 @@ const caseStudiesData = [
     location: "Madhapur",
     duration: "2 Days",
     savings: "12,000",
-    image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=800&auto=format&fit=crop",
+    image: "./assets/img/case-studies/engine-noise-fixed.jpg",
     beforeIssue: "Loud engine knocking",
-    afterResult: "Smooth & silent engine",
+    afterResult: "Smooth silent engine",
     rating: 5,
-    customerName: "Rajesh K."
+    customerName: "Rajesh Kumar"
   },
   {
     id: 2,
@@ -42,11 +42,11 @@ const caseStudiesData = [
     location: "Gachibowli",
     duration: "4 Hours",
     savings: "5,500",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=800&auto=format&fit=crop",
+    image: "./assets/img/case-studies/AC-Cooling-Restored.jpg",
     beforeIssue: "AC not cooling",
     afterResult: "Ice-cold AC in 5 mins",
-    rating: 5,
-    customerName: "Priya S."
+    rating: 4.5,
+    customerName: "Priya Singh"
   },
   {
     id: 3,
@@ -57,22 +57,22 @@ const caseStudiesData = [
     location: "Kondapur",
     duration: "5 Days",
     savings: "25,000",
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop",
-    beforeIssue: "Multiple dents & scratches",
+    image: "./assets/img/case-studies/Dent-paint-repair.jpg",
+    beforeIssue: "Dents & scratches",
     afterResult: "Showroom-like finish",
-    rating: 5,
+    rating: 4,
     customerName: "Amit P."
   },
   {
     id: 4,
     title: "Full Car Detailing",
     category: "Detailing",
-    carModel: "Toyota Fortuner",
+    carModel: "Maruti Suzuki Ciaz",
     year: "2020",
     location: "Jubilee Hills",
     duration: "1 Day",
     savings: "8,000",
-    image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=800&auto=format&fit=crop",
+    image: "./assets/img/case-studies/Full-car-detailing.jpg",
     beforeIssue: "Faded & dirty interior",
     afterResult: "Brand new look",
     rating: 5,
@@ -87,7 +87,7 @@ const caseStudiesData = [
     location: "HITEC City",
     duration: "3 Hours",
     savings: "4,000",
-    image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=800&auto=format&fit=crop",
+    image: "./assets/img/case-studies/Brake-service.jpg",
     beforeIssue: "Squeaking brakes",
     afterResult: "Safe & silent brakes",
     rating: 5,
@@ -102,10 +102,10 @@ const caseStudiesData = [
     location: "Banjara Hills",
     duration: "1 Day",
     savings: "15,000",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=800&auto=format&fit=crop",
+    image: "./assets/img/case-studies/Suspension-repair.jpg",
     beforeIssue: "Rough bumpy ride",
-    afterResult: "Smooth comfortable ride",
-    rating: 5,
+    afterResult: "Smooth ride",
+    rating: 4.5,
     customerName: "Deepak M."
   }
 ];
@@ -116,23 +116,55 @@ const CaseStudies = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const [companyPhone, setCompanyPhone] = useState("");
 
   const filteredStudies = activeCategory === "All"
     ? caseStudiesData
     : caseStudiesData.filter(study => study.category === activeCategory);
 
   const handleContactClick = () => {
-    const phone = "7075243939";
+    if (!companyPhone) return;
+
+    const phone = companyPhone.replace("+", "");
     const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
       navigator.userAgent
     );
 
     if (isMobile) {
-      window.location.href = `tel:+91${phone}`;
+      window.location.href = `tel:${companyPhone}`;
     } else {
-      window.open(`https://wa.me/91${phone}`, "_blank");
+      window.open(`https://wa.me/${phone}`, "_blank");
     }
   };
+
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const res = await fetch(`${BaseURL}CompanyInfo`);
+        const result = await res.json();
+
+        if (result?.status && Array.isArray(result.data)) {
+          const firstActivePhone = result.data.find(
+            (item) =>
+              item.Type === "PhoneNumber" && item.IsActive === true
+          );
+
+          if (firstActivePhone?.Description) {
+            // Remove spaces just in case
+            const cleanedPhone = firstActivePhone.Description.replace(/\s+/g, "");
+            setCompanyPhone(cleanedPhone);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching company info:", error);
+      }
+    };
+
+    fetchCompanyInfo();
+  }, []);
+
 
   return (
     <div className="cs-page">
@@ -329,7 +361,7 @@ const CaseStudies = () => {
                   setIsModalOpen(true);
                 }}
               >
-                Book Service <FaArrowRight className="cs-btn-arrow" />
+                Book Service Now <FaArrowRight className="cs-btn-arrow" />
               </Link>
 
               <button className="cs-btn-secondary" onClick={handleContactClick}>

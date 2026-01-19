@@ -493,7 +493,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
               </div>
               <div className="ip-left-benefit">
                 <FaCheckCircle />
-                <span>Transparent Diagnosis Report</span>
+                <span>Transparent Diagnosis</span>
               </div>
               <div className="ip-left-benefit">
                 <FaCheckCircle />
@@ -501,7 +501,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
               </div>
               <div className="ip-left-benefit">
                 <FaCheckCircle />
-                <span>Technician Visits Your Home</span>
+                <span>Technician Visits Your Doorstep</span>
               </div>
               <div className="ip-left-benefit">
                 <FaCheckCircle />

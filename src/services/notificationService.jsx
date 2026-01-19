@@ -15,8 +15,8 @@ class NotificationService {
     try {
       // userId is now already decrypted from HeaderOne
       const url = `${this.baseUrl}Bookings/notifications?userId=${userId}&userRole=customer`;
-      console.log('Notification API URL:', url);
-      console.log('Using decrypted userId:', userId);
+      // console.log('Notification API URL:', url);
+      // console.log('Using decrypted userId:', userId);
       const response = await axios.get(url);
       // console.log('Notification API Raw Response:', response.data);
       const payload = response?.data;

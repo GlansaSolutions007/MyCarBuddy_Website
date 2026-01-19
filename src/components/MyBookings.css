@@ -473,9 +473,8 @@
 }
 
 .payment-status {
-  background-color: rgb(209, 209, 209);
-  color: #000000;
-  /* warm dark amber */
+  background-color: white;
+  color: #06393a;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.75rem;

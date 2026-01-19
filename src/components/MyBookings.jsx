@@ -1068,7 +1068,7 @@ const MyBookings = () => {
 
   const totalPaidAmount = (selectedBooking?.Payments || []).reduce(
     (sum, payment) =>
-      payment.PaymentStatus === "Success"
+      payment.PaymentStatus === "Success" || payment.PaymentStatus === "Partialpaid" 
         ? sum + Number(payment.AmountPaid || 0)
         : sum,
     0
@@ -1882,9 +1882,17 @@ const MyBookings = () => {
                                         <span className="mb-addon-label">Service Charges</span>
                                         <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
                                       </div>
-                                      <div className="mb-addon-row">
+                                      {/* <div className="mb-addon-row">
                                         <span className="mb-addon-label">GST ({addOn.GSTPercent}%)</span>
                                         <span className="mb-addon-value">₹{Number(addOn.GSTPrice || 0).toLocaleString()}</span>
+                                      </div> */}
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">SGST ({addOn.GSTPercent / 2}%)</span>
+                                        <span className="mb-addon-value">₹{Number(addOn.GSTPrice / 2 || 0).toLocaleString()}</span>
+                                      </div>
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">CGST ({addOn.GSTPercent / 2}%)</span>
+                                        <span className="mb-addon-value">₹{Number(addOn.GSTPrice / 2 || 0).toLocaleString()}</span>
                                       </div>
                                       <div className="mb-addon-row mb-addon-row-total border-top pt-2">
                                         <span className="mb-addon-label text-dark fw-bold">Total Amount</span>
@@ -2030,7 +2038,7 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
-                                {/* <div className="d-flex justify-content-between mb-2">
+                                <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
@@ -2042,14 +2050,14 @@ const MyBookings = () => {
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                                   </div>
-                                </div> */}
+                                </div>
 
-                                <div className="d-flex justify-content-between mb-2">
+                                {/* <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">GST(18%)</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                                   </div>
-                                </div>
+                                </div> */}
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Paid Amount</div>
@@ -2058,11 +2066,18 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Unpaid Amount</div>
+                                  <div className="fw-bold text-danger">
+                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
+                                  </div>
+                                </div>
+
                                 <hr />
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
+                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges))}
                                   </div>
                                 </div>
                               </div>
@@ -2259,7 +2274,7 @@ const MyBookings = () => {
                               </div>
                             )}
 
-                            {/* <div className="d-flex justify-content-between mb-2">
+                            <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">SGST (9%)</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
@@ -2270,19 +2285,26 @@ const MyBookings = () => {
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
                               </div>
-                            </div> */}
+                            </div>
 
-                            <div className="d-flex justify-content-between mb-2">
+                            {/* <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">GST(18%)</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                               </div>
-                            </div>
+                            </div> */}
 
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Paid Amount</div>
                               <div className="fw-bold text-success">
                                 ₹{formatPrice(getVal(totalPaidAmount))}
+                              </div>
+                            </div>
+                            
+                            <div className="d-flex justify-content-between mb-2">
+                              <div className="fw-semibold">Unpaid Amount</div>
+                              <div className="fw-bold text-danger">
+                                ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
                               </div>
                             </div>
 
@@ -2302,8 +2324,7 @@ const MyBookings = () => {
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
                                   getVal(selectedBooking.LabourCharges) +
-                                  getVal(selectedBooking.GSTAmount) +
-                                  getVal(totalPaidAmount) -
+                                  getVal(selectedBooking.GSTAmount) -
                                   getVal(selectedBooking.CouponAmount)
                                   // addOnTotal
                                 )}

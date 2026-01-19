@@ -3,7 +3,6 @@
 :root {
   --cs-primary: #0a6264;
   --cs-primary-light: #1aa1a4;
-  --cs-accent: #10b981;
   --cs-dark: #1a1a2e;
   --cs-text: #374151;
   --cs-muted: #6b7280;
@@ -201,8 +200,8 @@
 
 .cs-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 /* ===== Card Design ===== */
@@ -266,7 +265,7 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(240deg, #10B9AD 0%, #059767 100%);
   color: var(--cs-white);
   border-radius: 50px;
   font-size: 0.75rem;
@@ -339,7 +338,7 @@
 
 .cs-before, .cs-after {
   flex: 1;
-  padding: 16px 14px;
+  padding: 5px 14px;
   text-align: center;
   position: relative;
 }
@@ -419,9 +418,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  min-width: 40px;
-  background: linear-gradient(180deg, #0a6264 0%, #1aa1a4 100%);
+  width: 30px;
+  min-width: 30px;
+  background: linear-gradient(180deg, #556666 0%, #9ba0a0 100%);
   color: var(--cs-white);
   font-size: 14px;
   position: relative;
@@ -484,7 +483,7 @@
   gap: 5px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--cs-accent);
+  color: var(--cs-primary);
 }
 
 .cs-customer svg {

@@ -41,7 +41,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 							name: b.BrandName,
 							logo: `${imageBaseURL}${b.BrandLogo.startsWith("/") ? b.BrandLogo.slice(1) : b.BrandLogo}`,
 						}));
-					console.log("Formatted brands:", formattedBrands);
+					// console.log("Formatted brands:", formattedBrands);
 					setBrands(formattedBrands);
 				}
 			} catch (err) {

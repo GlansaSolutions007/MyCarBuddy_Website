@@ -196,14 +196,17 @@ const OfferScreenPopUp = () => {
                 <div className="ny-content">
                     <img src="/assets/img/MyCarBuddy-Logo1.png" alt="Logo" className="ny-logo" />
 
-                    <h2 className="ny-wish">Wishing You A Very</h2>
+                    <h2 className="ny-wish">Welcome to My Car Buddy</h2>
                     <h1 className="ny-main-title">
-                        HAPPY MAKAR SANKRANTI<br />
-                        <span className="year">2026</span>
+                        Your trusted doorstep car service provider.<br />
+                        {/* <span className="year">2026</span> */}
+                        <span className="year car-icon">
+                            <i className="bi bi-car-front-fill"></i>
+                        </span>
                     </h1>
 
                     <p className="ny-message">
-                        On this auspicious Makar Sankranti, may the sun bring new energy, happiness, and safe journeys throughout the year.
+                        From routine servicing to expert repairs, we ensure a smooth, safe, and hassle-free driving experience every time.
                     </p>
                 </div>
             </div>

@@ -12,7 +12,7 @@ const steps = [
     icon: "/assets/img/icon/process-icon-1-2.svg",
     title: "Doorstep Service at Your Location",
     description:
-      "Our certified technician visits your home or office, diagnoses the issue, and completes the service on-site with pickup & drop support if needed.",
+      "Our certified technician visits your home or office, diagnoses the issue, and completes the service on-site. If required, we also provide garage service with pickup & drop support for your convenience.",
     featured: true,
   },
   {

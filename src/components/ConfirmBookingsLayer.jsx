@@ -282,8 +282,14 @@ const ConfirmBookingsLayer = () => {
                                                     )}
                                                     {gstPercent > 0 && (
                                                         <div className="aos-price-item">
-                                                            <div className="aos-price-label">GST ({gstPercent}%)</div>
-                                                            <div className="aos-price-value">₹{gst.toFixed(2)}</div>
+                                                            <div className="aos-price-label">SGST ({gstPercent / 2}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
+                                                        </div>
+                                                    )}
+                                                    {gstPercent > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">CGST ({gstPercent / 2}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
                                                         </div>
                                                     )}
                                                     {Array.isArray(srv.Includes) && srv.Includes.length > 0 && (
@@ -341,8 +347,9 @@ const ConfirmBookingsLayer = () => {
                                             <th>Qty</th>
                                             <th>Price ₹</th>
                                             <th>Service Charges ₹</th>
-                                            <th>GST %</th>
-                                            <th>GST ₹</th>
+                                            {/* <th>GST %</th> */}
+                                            <th>SGST ₹</th>
+                                            <th>CGST ₹</th>
                                             <th>Total ₹</th>
                                         </tr>
                                     </thead>
@@ -382,8 +389,9 @@ const ConfirmBookingsLayer = () => {
                                                     <td>{srv.Quantity || 1}</td>
                                                     <td className="aos-table-price">₹{price.toFixed(2)}</td>
                                                     <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
-                                                    <td>{gstPercent}%</td>
-                                                    <td>₹{gst.toFixed(2)}</td>
+                                                    {/* <td>{gstPercent}%</td> */}
+                                                    <td>₹{gst.toFixed(2) / 2} ({gstPercent / 2}%)</td>
+                                                    <td>₹{gst.toFixed(2) / 2} ({gstPercent / 2}%)</td>
                                                     <td className="aos-table-total">₹{total.toFixed(2)}</td>
                                                 </tr>
                                             );
@@ -438,8 +446,14 @@ const ConfirmBookingsLayer = () => {
                                                     )}
                                                     {srv.GSTPercent > 0 && (
                                                         <div className="aos-price-item">
-                                                            <div className="aos-price-label">GST ({srv.GSTPercent}%)</div>
-                                                            <div className="aos-price-value">₹{gst.toFixed(2)}</div>
+                                                            <div className="aos-price-label">SGST ({srv.GSTPercent / 2}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
+                                                        </div>
+                                                    )}
+                                                    {srv.GSTPercent > 0 && (
+                                                        <div className="aos-price-item">
+                                                            <div className="aos-price-label">CGST ({srv.GSTPercent / 2}%)</div>
+                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
                                                         </div>
                                                     )}
                                                     {Array.isArray(srv.Includes) && srv.Includes.length > 0 && (
@@ -497,8 +511,9 @@ const ConfirmBookingsLayer = () => {
                                             <th>Qty</th>
                                             <th>Price ₹</th>
                                             <th>Service Charges ₹</th>
-                                            <th>GST %</th>
-                                            <th>GST ₹</th>
+                                            {/* <th>GST %</th> */}
+                                            <th>SGST ₹</th>
+                                            <th>CGST ₹</th>
                                             <th>Total ₹</th>
                                         </tr>
                                     </thead>
@@ -537,8 +552,9 @@ const ConfirmBookingsLayer = () => {
                                                     <td>{srv.Quantity || 1}</td>
                                                     <td className="aos-table-price">₹{price.toFixed(2)}</td>
                                                     <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
-                                                    <td>{srv.GSTPercent || 0}%</td>
-                                                    <td>₹{gst.toFixed(2)}</td>
+                                                    {/* <td>{srv.GSTPercent || 0}%</td> */}
+                                                    <td>₹{gst.toFixed(2) / 2} ({srv.GSTPercent / 2 || 0}%)</td>
+                                                    <td>₹{gst.toFixed(2) / 2} ({srv.GSTPercent / 2 || 0}%)</td>
                                                     <td className="aos-table-total">₹{total.toFixed(2)}</td>
                                                 </tr>
                                             );
@@ -566,8 +582,12 @@ const ConfirmBookingsLayer = () => {
                                 <div className="aos-summary-value">₹{totals.labourCharge.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">
-                                <div className="aos-summary-label">GST</div>
-                                <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2)}</div>
+                                <div className="aos-summary-label">SGST</div>
+                                <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2) / 2}</div>
+                            </div>
+                            <div className="aos-summary-item">
+                                <div className="aos-summary-label">CGST</div>
+                                <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2) / 2}</div>
                             </div>
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Grand Total</div>
