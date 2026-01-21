@@ -172,7 +172,7 @@ const CarDamageAnalysis = () => {
 									</div>
 								</>
 							) : (
-								<>
+								<> 
 									{/* Illustration */}
 									<div className="damage-illustration">
 										<div className="damage-illustration-badge">
