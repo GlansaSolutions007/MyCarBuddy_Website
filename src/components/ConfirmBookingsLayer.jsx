@@ -21,6 +21,7 @@ const ConfirmBookingsLayer = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
     const [openIncludes, setOpenIncludes] = useState(null);
+    const [isChecked, setIsChecked] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -363,7 +364,7 @@ const ConfirmBookingsLayer = () => {
                                             return (
                                                 <tr key={`confirmed-${idx}`} style={{ backgroundColor: "#f0f9f0" }}>
                                                     <td>{idx + 1}</td>
-                                                     <td>
+                                                    <td>
                                                         <span className="aos-table-name" title={srv.ServiceName}>
                                                             {srv.ServiceName}
                                                         </span>
@@ -604,12 +605,26 @@ const ConfirmBookingsLayer = () => {
                         )}
                     </div>
 
+                    <div className="form-check-a mb-3">
+                        <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id="approveCheck"
+                            checked={isChecked}
+                            onChange={(e) => setIsChecked(e.target.checked)}
+                            disabled={isSubmitting}
+                        />
+                        <label className="form-check-label" htmlFor="approveCheck">
+                            I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
+                        </label>
+                    </div>
+
                     {/* Footer Actions */}
                     <div className="aos-footer">
                         <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
                             Disapprove & Go Back
                         </button>
-                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit} disabled={isSubmitting || !isChecked}>
                             {isSubmitting ? (
                                 <>
                                     <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>

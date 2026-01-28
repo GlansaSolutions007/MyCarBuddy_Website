@@ -127,6 +127,8 @@ const OfferScreenPopUp = () => {
 
         if (alreadyShown === "true") return;
 
+         const showTimer = setTimeout(() => {
+
         sessionStorage.setItem("ny_popup_shown", "true");
 
         setIsVisible(true);
@@ -149,6 +151,10 @@ const OfferScreenPopUp = () => {
             clearTimeout(sparkTimer);
             clearTimeout(hideTimer);
         };
+
+         }, 4000);
+        return () => clearTimeout(showTimer);
+
     }, []);
 
     const handleClose = () => {
