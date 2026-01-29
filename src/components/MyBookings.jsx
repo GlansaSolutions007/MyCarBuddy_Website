@@ -1068,7 +1068,7 @@ const MyBookings = () => {
 
   const totalPaidAmount = (selectedBooking?.Payments || []).reduce(
     (sum, payment) =>
-      payment.PaymentStatus === "Success" || payment.PaymentStatus === "Partialpaid" 
+      payment.PaymentStatus === "Success" || payment.PaymentStatus === "Partialpaid"
         ? sum + Number(payment.AmountPaid || 0)
         : sum,
     0
@@ -1272,7 +1272,14 @@ const MyBookings = () => {
                           className="mb-view-btn"
                           onClick={() => {
                             navigate(
-                              `/confirm-bookings?custId=${decryptedCustId}&bookingId=${booking.BookingID}`
+                              `/confirm-bookings`,
+                              {
+                                state: {
+                                  custId: decryptedCustId,
+                                  bookingId: booking.BookingID,
+                                  booking: booking
+                                }
+                              }
                             );
                           }}
                         >
@@ -2300,7 +2307,7 @@ const MyBookings = () => {
                                 ₹{formatPrice(getVal(totalPaidAmount))}
                               </div>
                             </div>
-                            
+
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Unpaid Amount</div>
                               <div className="fw-bold text-danger">

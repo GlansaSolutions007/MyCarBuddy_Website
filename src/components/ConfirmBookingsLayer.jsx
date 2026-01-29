@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./ConfirmBookingsLayer.css";
@@ -7,13 +7,8 @@ import { FaTools, FaCheck, FaCog, FaBoxOpen, FaArrowLeft, FaExclamationCircle } 
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
-const ConfirmBookingsLayer = () => {
-    const [searchParams] = useSearchParams();
+const ConfirmBookingsLayer = ({ custId, bookingId, booking }) => {
     const navigate = useNavigate();
-
-    // 1. Get IDs from URL (Updated to get bookingId)
-    const custIdFromUrl = searchParams.get("custId");
-    const bookingIdFromUrl = searchParams.get("bookingId");
 
     const [services, setServices] = useState([]);
     const [confirmedAddons, setConfirmedAddons] = useState([]);
@@ -28,8 +23,8 @@ const ConfirmBookingsLayer = () => {
     // 2. Fetch Data
     useEffect(() => {
         const fetchBookings = async () => {
-            // Check for bookingId instead of trackId
-            if (!custIdFromUrl || !bookingIdFromUrl) {
+            // Check for bookingId from props
+            if (!custId || !bookingId) {
                 setIsLoading(false);
                 return;
             }
@@ -37,7 +32,7 @@ const ConfirmBookingsLayer = () => {
             try {
                 setIsLoading(true);
                 // We still fetch by CustID to get the list (assuming you don't have a GetBookingById endpoint)
-                const res = await axios.get(`${BaseURL}Bookings/${custIdFromUrl}`, {
+                const res = await axios.get(`${BaseURL}Bookings/${custId}`, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
                         "Content-Type": "application/json",
@@ -47,9 +42,9 @@ const ConfirmBookingsLayer = () => {
                 const data = res.data;
 
                 if (Array.isArray(data) && data.length > 0) {
-                    // UPDATED: Filter by BookingID now
+                    // Filter by BookingID from props
                     const matchedBooking = data.find(
-                        (b) => String(b.BookingID) === String(bookingIdFromUrl)
+                        (b) => String(b.BookingID) === String(bookingId)
                     );
 
                     if (matchedBooking) {
@@ -67,7 +62,7 @@ const ConfirmBookingsLayer = () => {
         };
 
         fetchBookings();
-    }, [custIdFromUrl, bookingIdFromUrl, user?.token]);
+    }, [custId, bookingId, user?.token]);
 
     // Calculate Totals for temp addons (pending confirmation)
     const tempTotals = useMemo(() => {
@@ -135,7 +130,7 @@ const ConfirmBookingsLayer = () => {
 
             // UPDATED: Sending empty object {} as body because no payload is required
             const response = await axios.post(
-                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingIdFromUrl}`,
+                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingId}`,
                 {}, // <--- Empty body here
                 {
                     headers: {
@@ -186,7 +181,7 @@ const ConfirmBookingsLayer = () => {
             <div className="aos-section text-center py-5">
                 <FaExclamationCircle className="text-danger mb-3" size={40} />
                 <h3>Booking Not Found</h3>
-                <p>We couldn't find the booking with ID: {bookingIdFromUrl}</p>
+                <p>We couldn't find the booking with ID: {bookingId}</p>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <button className="aos-btn aos-btn-primary mt-3" onClick={() => navigate(-1)} style={{ minWidth: "180px" }}>
                         <FaArrowLeft /> Go Back

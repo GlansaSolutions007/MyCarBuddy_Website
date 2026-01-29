@@ -4,14 +4,21 @@ import FooterAreaOne from "../components/FooterAreaOne";
 import Breadcrumb from "../components/Breadcrumb";
 import ConfirmBookingsLayer from "../components/ConfirmBookingsLayer";
 import Preloader from "../helper/Preloader";
+import { useLocation } from "react-router-dom";
 
 const ConfirmBookings = () => {
   let [active, setActive] = useState(true);
+  const location = useLocation();
+  
   useEffect(() => {
     setTimeout(function () {
       setActive(false);
     }, 2000);
   }, []);
+
+  // Get passed state from navigation
+  const { custId, bookingId, booking } = location.state || {};
+
   return (
     <>
       {/* Preloader */}
@@ -21,10 +28,10 @@ const ConfirmBookings = () => {
       <HeaderOne />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"My Bookings's"} />
+      <Breadcrumb title={"Confirm Booking"} />
 
-      {/* MyBookings */}
-      <ConfirmBookingsLayer />
+      {/* ConfirmBookingsLayer with props */}
+      <ConfirmBookingsLayer custId={custId} bookingId={bookingId} booking={booking} />
 
       {/* Footer Area One */}
       <FooterAreaOne />
