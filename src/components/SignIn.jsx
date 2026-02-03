@@ -4,6 +4,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
+import { saveUserFromVerifyOtp } from "../helper/authHelper";
 import { FaTimes, FaUser, FaPhone, FaEnvelope, FaMobileAlt, FaShieldAlt, FaArrowRight, FaRedo, FaCar, FaCheckCircle } from "react-icons/fa";
 
 const SignIn = ({ isVisible, onClose, onRegister }) => {
@@ -126,31 +127,11 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 				deviceToken: "web-token",
 				deviceId,
 			});
-			const savedName =
-				fullName?.trim() ||
-				(response.data?.name && response.data.name !== "GUEST"
-					? response.data.name
-					: "GUEST");
-
-			const savedEmail =
-				email?.trim() || response.data?.email || "";
-
-			localStorage.setItem(
-				"user",
-				JSON.stringify({
-					id: CryptoJS.AES.encrypt(
-						response.data?.custID.toString(),
-						secretKey
-					).toString(),
-					name: savedName,
-					// name: response.data?.name || fullName || "GUEST",
-					phone: identifier,
-					email: savedEmail,
-					// email: response.data?.email || email,
-					token: response.data?.token,
-					profileImage: response?.data?.profileImage,
-				})
-			);
+			saveUserFromVerifyOtp(response.data, {
+				phone: identifier,
+				name: fullName?.trim() || (response.data?.name && response.data.name !== "GUEST" ? response.data.name : "GUEST"),
+				email: email?.trim() || response.data?.email || "",
+			});
 
 			getVehicleList();
 			window.dispatchEvent(new Event("userProfileUpdated"));
