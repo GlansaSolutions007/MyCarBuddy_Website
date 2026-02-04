@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import { v4 as uuidv4 } from "uuid";
+import { saveUserFromVerifyOtp } from "../helper/authHelper";
 
 const validateVehicleNumber = (number) => {
     const cleaned = (number || "").toUpperCase().trim();
@@ -179,15 +180,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
                 deviceId,
             });
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    id: CryptoJS.AES.encrypt(response.data?.custID?.toString() || "", secretKey).toString(),
-                    name: response.data?.name || "GUEST",
-                    token: response.data?.token,
-                    profileImage: response?.data?.profileImage,
-                })
-            );
+            saveUserFromVerifyOtp(response.data, { phone: sanitized, name: response.data?.name || "GUEST" });
             setIsLoggedIn(true);
             setOtpSent(false);
             setIdentifier("");

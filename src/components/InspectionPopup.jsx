@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 import { useAlert } from "../context/AlertContext";
+import { saveUserFromVerifyOtp } from "../helper/authHelper";
 import {
   FaTimes,
   FaCarSide,
@@ -414,21 +415,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         deviceId,
       });
 
-      // Store user data
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: CryptoJS.AES.encrypt(
-            res.data?.custID.toString(),
-            secretKey
-          ).toString(),
-          name: res.data?.name || fullName,
-          phone: identifier,
-          email: res.data?.email || email,
-          token: res.data?.token,
-          profileImage: res?.data?.profileImage,
-        })
-      );
+      saveUserFromVerifyOtp(res.data, { phone: identifier, name: fullName, email });
 
       window.dispatchEvent(new Event("userProfileUpdated"));
 

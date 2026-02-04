@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
+import { saveUserFromVerifyOtp } from "../helper/authHelper";
 import BookServiceModal from "./BookServiceModal"
 import Fuse from "fuse.js";
 
@@ -115,15 +116,7 @@ const ServiceAreaHomePage = () => {
       });
 
       // 2. Store User Data (Auth Logic)
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: CryptoJS.AES.encrypt(res.data?.custID.toString(), secretKey).toString(),
-          name: res.data?.name || "GUEST",
-          token: res.data?.token,
-          profileImage: res?.data?.profileImage,
-        })
-      );
+      saveUserFromVerifyOtp(res.data, { phone: identifier, name: fullName });
 
       // 3. SEND LEAD DATA (The new requirement)
       // Note: We use res.data.custID from the response
