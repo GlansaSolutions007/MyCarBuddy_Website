@@ -24,17 +24,17 @@ function AIChatWidget() {
     }, [messages, isTyping]);
 
     useEffect(() => {
-  const openChatFromOutside = () => {
-    setOpen(true);
-    setClosing(false);
-  };
+        const openChatFromOutside = () => {
+            setOpen(true);
+            setClosing(false);
+        };
 
-  window.addEventListener("open-ai-chat", openChatFromOutside);
+        window.addEventListener("open-ai-chat", openChatFromOutside);
 
-  return () => {
-    window.removeEventListener("open-ai-chat", openChatFromOutside);
-  };
-}, []);
+        return () => {
+            window.removeEventListener("open-ai-chat", openChatFromOutside);
+        };
+    }, []);
 
 
     const handleSendMessage = async () => {
@@ -64,9 +64,14 @@ function AIChatWidget() {
             const data = await response.json();
 
             // Add AI Response
+            const aiText =
+                data.answer ||
+                data.message ||
+                "I'm sorry, I couldn't process that. Could you try again?";
+
             const aiMsg = {
                 id: Date.now() + 1,
-                text: data.answer || "I'm sorry, I couldn't process that. Could you try again?",
+                text: aiText,
                 sender: "ai"
             };
             setMessages((prev) => [...prev, aiMsg]);
