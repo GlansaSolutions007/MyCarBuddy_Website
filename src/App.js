@@ -33,6 +33,7 @@ import RedirectToPayment from "./pages/RedirectToPayment";
 import ConfirmBookings from "./pages/ConfirmBookingsPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotificationPopup from "./components/NotificationPopup";
+import AIChatWidget from "./components/AIChatWidget";
 
 function App() {
   useEffect(() => {
@@ -49,6 +50,8 @@ function App() {
         <RouteScrollToTop />
         <ScrollToTop smooth color="#E8092E" />
         <NotificationPopup />
+        <AIChatWidget />
+
         <Routes>
           <Route exact path="/" element={<HomePageThree />} />
           <Route exact path="/about" element={<AboutPage />} />

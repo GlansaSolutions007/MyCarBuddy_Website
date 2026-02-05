@@ -19,6 +19,7 @@
     "crypto-browserify": "^3.12.1",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
+    "env-cmd": "^11.0.0",
     "firebase": "^12.2.1",
     "fuse.js": "^7.1.0",
     "https-browserify": "^1.0.0",
@@ -57,8 +58,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "prebuild": "node scripts/generate-sitemap.js",
+    "prebuild:testing": "node scripts/generate-sitemap.js",
+    "build:testing": "env-cmd -f .env.staging react-scripts build",
+    "prebuild:prod": "node scripts/generate-sitemap.js",
+    "build:prod": "env-cmd -f .env.production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "generate:sitemap": "node scripts/generate-sitemap.js"

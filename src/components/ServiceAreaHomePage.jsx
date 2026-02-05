@@ -455,9 +455,7 @@ const ServiceAreaHomePage = () => {
                 <button
                   className="support-btn"
                   onClick={() => {
-                    if (window.Tawk_API) {
-                      window.Tawk_API.toggle();
-                    }
+                    window.dispatchEvent(new Event("open-ai-chat"));
                   }}
                 >
                   <FaRobot />
