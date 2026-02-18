@@ -4,20 +4,24 @@ import FooterAreaOne from "../components/FooterAreaOne";
 import Breadcrumb from "../components/Breadcrumb";
 import ConfirmBookingsLayer from "../components/ConfirmBookingsLayer";
 import Preloader from "../helper/Preloader";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 const ConfirmBookings = () => {
   let [active, setActive] = useState(true);
   const location = useLocation();
-  
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     setTimeout(function () {
       setActive(false);
     }, 2000);
   }, []);
 
-  // Get passed state from navigation
-  const { custId, bookingId, booking } = location.state || {};
+  // Get from navigation state first, then fall back to URL params (e.g. confirm-bookings?custId=6&bookingId=12)
+  const stateData = location.state || {};
+  const custId = stateData.custId ?? searchParams.get("custId");
+  const bookingId = stateData.bookingId ?? searchParams.get("bookingId");
+  const booking = stateData.booking;
 
   return (
     <>
