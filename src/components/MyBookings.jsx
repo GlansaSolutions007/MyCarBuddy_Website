@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import NewTicket from "./NewTicket";
 import "./MyBookings.css";
-import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle } from "react-icons/fa";
+import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse } from "react-icons/fa";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -1190,22 +1190,58 @@ const MyBookings = () => {
                 const tracking = Array.isArray(booking.TechnicianTracking)
                   ? booking.TechnicianTracking[0]
                   : {};
+                const isGarage = booking?.ServiceType === "ServiceAtGarage";
+                const pickupDelivery = Array.isArray(booking?.PickupDelivery)
+                  ? booking.PickupDelivery[booking.PickupDelivery.length - 1]
+                  : null;
 
-                const statusTimeline = [
+                // Get status date from BookingStatusTracking (ServiceAtHome flow)
+                const statusTracking = Array.isArray(booking?.BookingStatusTracking)
+                  ? booking.BookingStatusTracking
+                  : [];
+                const getStatusDate = (status) =>
+                  statusTracking.find((s) => s?.Status === status)?.Created_At || null;
+
+                // ServiceAtHome: technician comes to customer's location (uses BookingStatusTracking)
+                const firstPickup = Array.isArray(booking?.PickupDelivery) && booking.PickupDelivery.length > 0 ? booking.PickupDelivery[0] : null;
+                const buddyAssignedDate = firstPickup?.AssignDate || firstPickup?.CreatedDate || pickupDelivery?.AssignDate || booking?.TechAssignDate;
+                const statusTimelineHome = [
                   { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
                   ...(booking?.Reschedules?.length
-                    ? booking.Reschedules.map((r, index) => ({
-                      label: `Rescheduled`,
+                    ? booking.Reschedules.map((r) => ({
+                      label: "Rescheduled",
                       date: r.NewSchedule,
                       icon: <FaRedo />,
                     }))
                     : []),
-                  { label: "Buddy Assigned", date: booking.TechAssignDate, icon: <FaUserCheck /> },
-                  { label: "Buddy Started", date: tracking?.JourneyStartedAt, icon: <FaPlay /> },
-                  { label: "Buddy Reached", date: tracking?.ReachedAt, icon: <FaMapPin /> },
-                  { label: "Service Started", date: tracking?.ServiceStartedAt, icon: <FaTools /> },
-                  { label: "Completed", date: tracking?.ServiceEndedAt, icon: <FaCheck /> },
+                  { label: "Buddy Assigned", date: buddyAssignedDate, icon: <FaUserCheck /> },
+                  { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
+                  { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
+                  { label: "Service Started", date: getStatusDate("ServiceStarted"), icon: <FaTools /> },
+                  { label: "Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
                 ];
+
+                // ServiceAtGarage: CustomerToDealer → garage → DealerToCustomer (uses BookingStatusTracking)
+                const statusTimelineGarage = [
+                  { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
+                  ...(booking?.Reschedules?.length
+                    ? booking.Reschedules.map((r) => ({
+                      label: "Rescheduled",
+                      date: r.NewSchedule,
+                      icon: <FaRedo />,
+                    }))
+                    : []),
+                  { label: "Assigned", date: getStatusDate("Assigned") || pickupDelivery?.AssignDate, icon: <FaUserCheck /> },
+                  { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
+                  { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
+                  { label: "Car Picked", date: getStatusDate("CarPicked"), icon: <FaTruck /> },
+                  { label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> },
+                  { label: "Service Completed", date: getStatusDate("ServiceCompletedAndOutForDelivery"), icon: <FaCheck /> },
+                  { label: "Out for Delivery", date: getStatusDate("ServiceCompletedAndOutForDelivery"), icon: <FaTruck /> },
+                  { label: "Completed", date: getStatusDate("BookingCompleted"), icon: <FaCheck /> },
+                ];
+
+                const statusTimeline = isGarage ? statusTimelineGarage : statusTimelineHome;
 
                 const fullTimeline = [
                   ...statusTimeline,
@@ -2059,12 +2095,14 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
-                                {/* <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">GST(18%)</div>
-                                  <div className="fw-bold text-primary">
-                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
+                                {getVal(selectedBooking.CouponAmount) > 0 && (
+                                  <div className="d-flex justify-content-between mb-2">
+                                    <div className="fw-semibold">Coupon</div>
+                                    <div className="fw-bold text-danger">
+                                      -₹{formatPrice(selectedBooking.CouponAmount)}
+                                    </div>
                                   </div>
-                                </div> */}
+                                )}
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Paid Amount</div>
@@ -2076,7 +2114,10 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Unpaid Amount</div>
                                   <div className="fw-bold text-danger">
-                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
+                                    ₹{formatPrice(
+                                      getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
+                                      getVal(selectedBooking.CouponAmount) - getVal(totalPaidAmount)
+                                    )}
                                   </div>
                                 </div>
 
@@ -2084,7 +2125,9 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges))}
+                                    ₹{formatPrice(
+                                      getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(selectedBooking.CouponAmount)
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -2138,14 +2181,11 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
-                                {(getVal(selectedBooking.CouponAmount) > 0 || appliedCoupon) && (
+                                {getVal(selectedBooking.CouponAmount) > 0 && (
                                   <div className="d-flex justify-content-between mb-2">
                                     <div className="fw-semibold">Coupon</div>
                                     <div className="fw-bold text-danger">
-                                      -₹
-                                      {appliedCoupon
-                                        ? formatPrice(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking))
-                                        : formatPrice(selectedBooking.CouponAmount)}
+                                      -₹{formatPrice(selectedBooking.CouponAmount)}
                                     </div>
                                   </div>
                                 )}
@@ -2222,6 +2262,15 @@ const MyBookings = () => {
                                 </div>
                               </div>
 
+                              {getVal(selectedBooking.CouponAmount) > 0 && (
+                                <div className="d-flex justify-content-between mb-2">
+                                  <div className="fw-semibold">Coupon</div>
+                                  <div className="fw-bold text-danger">
+                                    -₹{formatPrice(selectedBooking.CouponAmount)}
+                                  </div>
+                                </div>
+                              )}
+
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">SGST (9%)</div>
                                 <div className="fw-bold text-primary">
@@ -2240,7 +2289,9 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold fs-5">Total</div>
                                 <div className="fw-bold text-success fs-5">
-                                  ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount))}
+                                  ₹{formatPrice(
+                                    getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) - getVal(selectedBooking.CouponAmount)
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -2269,14 +2320,11 @@ const MyBookings = () => {
                               </div>
                             </div>
 
-                            {(getVal(selectedBooking.CouponAmount) > 0 || appliedCoupon) && (
+                            {getVal(selectedBooking.CouponAmount) > 0 && (
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">Coupon</div>
                                 <div className="fw-bold text-danger">
-                                  -₹
-                                  {appliedCoupon
-                                    ? formatPrice(getBookingOriginalTotal(selectedBooking) - getBookingFinalTotalWithCoupon(selectedBooking))
-                                    : formatPrice(selectedBooking.CouponAmount)}
+                                  -₹{formatPrice(selectedBooking.CouponAmount)}
                                 </div>
                               </div>
                             )}
@@ -2311,7 +2359,10 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Unpaid Amount</div>
                               <div className="fw-bold text-danger">
-                                ₹{formatPrice(getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(totalPaidAmount))}
+                                ₹{formatPrice(
+                                  getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
+                                  getVal(selectedBooking.CouponAmount) - getVal(totalPaidAmount)
+                                )}
                               </div>
                             </div>
 
