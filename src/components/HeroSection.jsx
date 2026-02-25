@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./HeroSection.css"; // Imports the new CSS
 import InspectionPopup from "./InspectionPopup";
+import AppStoreBadges from "./AppStoreBadges";
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -144,6 +145,8 @@ const HeroSection = () => {
                   Call for Free Consultation
                 </button>
               </div>
+
+              <AppStoreBadges variant="hero" />
 
             </div>
           </div>

@@ -1,0 +1,217 @@
+/* App Store Badges - Hero / Footer variants */
+.app-store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.app-store-badges--hero {
+  margin-top: 28px;
+}
+
+.app-store-badges--hero .app-badge {
+  min-height: 52px;
+  padding: 10px 20px 10px 16px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.app-store-badges--hero .app-badge:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(252, 163, 17, 0.9);
+  box-shadow: 0 8px 24px rgba(252, 163, 17, 0.25);
+  transform: translateY(-2px);
+}
+
+.app-store-badges--hero .app-badge__icon {
+  color: #fff;
+}
+
+.app-store-badges--footer .app-badge {
+  min-height: 48px;
+  padding: 8px 18px 8px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.app-store-badges--footer .app-badge:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(252, 163, 17, 0.7);
+}
+
+/* Banner variant - Swiggy-style: dark buttons with official badge images */
+.app-store-badges--banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-top: 0;
+}
+
+.app-store-badges--banner .app-badge-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background: #1a1a2e;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.app-store-badges--banner .app-badge-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: #2d2d3a;
+}
+
+.app-store-badges--banner .app-badge-img {
+  height: 44px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.app-store-badges--banner .app-badge-link--apple .app-badge-img {
+  height: 40px;
+}
+
+@media (max-width: 767px) {
+  .app-store-badges--banner {
+    justify-content: center;
+  }
+
+  .app-store-badges--banner .app-badge-img {
+    height: 38px;
+  }
+
+  .app-store-badges--banner .app-badge-link--apple .app-badge-img {
+    height: 34px;
+  }
+}
+
+/* Section variant - for light backgrounds (e.g. below FAQ) */
+.app-store-badges--section {
+  margin-top: 0;
+  justify-content: center;
+}
+
+.app-store-badges--section .app-badge {
+  min-height: 54px;
+  padding: 12px 22px 12px 18px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  color: #1f2937;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.app-store-badges--section .app-badge:hover {
+  border-color: #fca311;
+  box-shadow: 0 8px 24px rgba(252, 163, 17, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Original brand colors: App Store = black, Google Play = green (#00C853) */
+.app-store-badges--section .app-badge--apple .app-badge__icon {
+  color: #000000;
+}
+
+.app-store-badges--section .app-badge--google .app-badge__icon {
+  color: #00C853;
+}
+
+.app-store-badges--section .app-badge__label {
+  color: #6b7280;
+}
+
+.app-store-badges--section .app-badge__store {
+  color: #111827;
+}
+
+/* Badge Base */
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  text-align: left;
+}
+
+.app-badge:focus-visible {
+  outline: 2px solid #fca311;
+  outline-offset: 3px;
+}
+
+.app-badge__icon {
+  flex-shrink: 0;
+  font-size: 1.8rem;
+}
+
+.app-badge__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.app-badge__label {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  text-transform: none;
+  letter-spacing: 0.3px;
+}
+
+.app-badge__store {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Hero-specific: stagger animation with hero content */
+.hero-section .app-store-badges {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.hero-section .hero-slide.active .app-store-badges {
+  animation: fadeUp 0.8s forwards 1s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-store-badges {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .app-store-badges--hero {
+    margin-top: 22px;
+  }
+
+  .app-store-badges--hero .app-badge {
+    min-height: 48px;
+    padding: 8px 16px 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .app-badge__icon {
+    font-size: 1.5rem;
+  }
+
+  .app-badge__store {
+    font-size: 0.95rem;
+  }
+}

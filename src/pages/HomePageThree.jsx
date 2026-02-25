@@ -6,6 +6,7 @@ import FaqAreaTwo from "../components/FaqAreaTwo";
 import MarqueeOne from "../components/MarqueeOne";
 import CTAAreaOne from "../components/CTAAreaOne";
 import TestimonialOne from "../components/TestimonialOne";
+import AppDownloadSection from "../components/AppDownloadSection";
 import FooterAreaOne from "../components/FooterAreaOne";
 // import SubscribeOne from "../components/SubscribeOne";
 import Preloader from "../helper/Preloader";
@@ -183,7 +184,7 @@ const HomePageThree = () => {
         </div>
       )}
 
-      <ProcessAreaTwo />
+      <ProcessAreaTwo /> 
 
       {/* Feature Area One */}
       <AboutFour />
@@ -194,6 +195,9 @@ const HomePageThree = () => {
 
       {/* Faq Area Two */}
       <FaqAreaTwo />
+
+      {/* App Download Section */}
+      <AppDownloadSection />
 
       {/* Testimonial One */}
       <TestimonialOne />
