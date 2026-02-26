@@ -44,11 +44,11 @@
   border-color: rgba(252, 163, 17, 0.7);
 }
 
-/* Banner variant - Swiggy-style: dark buttons with official badge images */
+/* Banner variant - Zomato-style: black buttons with official badge images */
 .app-store-badges--banner {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
   margin-top: 0;
 }
@@ -58,7 +58,7 @@
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  background: #1a1a2e;
+  background: #000;
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -66,9 +66,9 @@
 }
 
 .app-store-badges--banner .app-badge-link:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  background: #2d2d3a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(17, 109, 110, 0.25);
+  background: #1a2f2f;
 }
 
 .app-store-badges--banner .app-badge-img {
