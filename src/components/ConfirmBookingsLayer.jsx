@@ -2,12 +2,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import CryptoJS from "crypto-js";
 import "./ConfirmBookingsLayer.css";
 import { FaTools, FaCheck, FaCog, FaBoxOpen, FaArrowLeft, FaExclamationCircle } from "react-icons/fa";
 
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
+const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 
-const ConfirmBookingsLayer = ({ custId, bookingId, booking }) => {
+const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const navigate = useNavigate();
 
     const [services, setServices] = useState([]);
@@ -19,6 +21,20 @@ const ConfirmBookingsLayer = ({ custId, bookingId, booking }) => {
     const [isChecked, setIsChecked] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
+
+    // Resolve custId: prop first, then decrypted from user
+    const custId = useMemo(() => {
+        if (custIdProp) return custIdProp;
+        if (user?.id && secretKey) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
+                return bytes.toString(CryptoJS.enc.Utf8) || null;
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    }, [custIdProp, user?.id]);
 
     // 2. Fetch Data
     useEffect(() => {
@@ -125,12 +141,17 @@ const ConfirmBookingsLayer = ({ custId, bookingId, booking }) => {
     const handleSubmit = async () => {
         if (!bookingDetails) return;
 
+        const custIdToSend = custId ?? bookingDetails?.CustID;
+        if (!custIdToSend) {
+            Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
+            return;
+        }
+
         try {
             setIsSubmitting(true);
 
-            // UPDATED: Sending empty object {} as body because no payload is required
             const response = await axios.post(
-                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingId}`,
+                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingId}&custId=${custIdToSend}`,
                 {}, // <--- Empty body here
                 {
                     headers: {
