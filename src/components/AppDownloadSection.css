@@ -158,13 +158,13 @@
 
 /* Google Play - green accent border */
 .app-qr-card--play {
-  border: 2px solid #34a8533d;
+  border: 2px solid #34a85346;
 }
 
 /* App Store - dark gray border (Apple style) */
 .app-qr-card--apple {
-  border: 2px solid #2402e22c;
-}
+  border: 2px solid #0294e23c;
+} 
 
 .app-qr-card .app-qr-img {
   padding: 8px;
