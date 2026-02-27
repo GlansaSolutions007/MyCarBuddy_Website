@@ -1996,7 +1996,7 @@ const MyBookings = () => {
                     </div>
 
                     {/* Technician */}
-                    <div className="mb-booking-info-row">
+                    {/* <div className="mb-booking-info-row">
                       <span className="mb-booking-info-label">Technician</span>
                       <span className={`mb-booking-info-status ${selectedBooking?.TechID ? "success" : "pending"}`}>
                         {selectedBooking?.TechID ? "Assigned" : "Pending"}
@@ -2013,7 +2013,7 @@ const MyBookings = () => {
                           <em>Not assigned yet</em>
                         )}
                       </span>
-                    </div>
+                    </div> */}
 
                     {/* Payment */}
                     <div className="mb-booking-info-row">

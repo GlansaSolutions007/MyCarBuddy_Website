@@ -130,36 +130,90 @@
   display: block;
 }
 
-/* QR card - beside phone, fills section */
+/* QR cards container - two separate cards */
+.app-qr-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .app-qr-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 14px 18px;
   background: #fff;
-  border: 2px solid var(--appdl-primary);
-  border-radius: 16px;
-  flex-shrink: 0;
-  align-self: center;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
 }
 
-.app-qr-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #1a2f2f;
-  margin: 0 0 10px 0;
+.app-qr-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.app-qr-wrap {
+/* Google Play - green accent border */
+.app-qr-card--play {
+  border: 2px solid #34a8533d;
+}
+
+/* App Store - dark gray border (Apple style) */
+.app-qr-card--apple {
+  border: 2px solid #2402e22c;
+}
+
+.app-qr-card .app-qr-img {
   padding: 8px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.app-qr-card--play .app-qr-img {
+  border: 1px solid rgba(52, 168, 83, 0.25);
+}
+
+.app-qr-card--apple .app-qr-img {
+  border: 1px solid rgba(85, 85, 85, 0.2);
+}
+
+.app-qr-store {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a2f2f;
+}
+
+.app-qr-card--play .app-qr-store {
+  color: #2d7d46;
+}
+
+.app-qr-card--apple .app-qr-store {
+  color: #333;
+}
+
+.app-qr-store-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.app-qr-card--play .app-qr-store-icon {
+  color: #34a853;
+}
+
+.app-qr-card--apple .app-qr-store-icon {
+  color: #555;
 }
 
 .app-qr-img {
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
   display: block;
   object-fit: contain;
 }
@@ -197,7 +251,7 @@
     align-items: center;
   }
 
-  .app-qr-card {
+  .app-qr-cards {
     order: -1;
   }
 
@@ -246,8 +300,13 @@
     align-items: center;
   }
 
-  .app-qr-card {
+  .app-qr-cards {
     order: -1;
+    gap: 12px;
+  }
+
+  .app-qr-card {
+    padding: 12px 14px;
   }
 
   .app-phone-mockup {
@@ -268,7 +327,7 @@
   }
 
   .app-qr-img {
-    width: 90px;
-    height: 90px;
+    width: 72px;
+    height: 72px;
   }
 }
