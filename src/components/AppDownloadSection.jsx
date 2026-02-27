@@ -1,14 +1,15 @@
 import React from "react";
+import { SiAppstore, SiGoogleplay } from "react-icons/si";
 import AppStoreBadges from "./AppStoreBadges";
 import homePageImg from "../images/homepagess.png";
 import "./AppDownloadSection.css";
 
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.itglansa.mycarbuddy&pcampaignid=web_share";
+const APP_STORE_URL = "https://apps.apple.com/in/app/mycarbuddy-services/id6758207165";
 
-const QR_CODE_URL = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-  PLAY_STORE_URL
-)}&color=116d6e&bgcolor=ffffff`;
+const makeQrUrl = (url) =>
+  `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}&color=116d6e&bgcolor=ffffff`;
 
 const AppDownloadSection = () => {
   const imgSrc = homePageImg?.default || homePageImg;
@@ -35,14 +36,28 @@ const AppDownloadSection = () => {
                 <img src={imgSrc} alt="My Car Buddy App" className="app-phone-img" />
               </div>
             </div>
-            <div className="app-qr-card">
-              <p className="app-qr-label">Scan to download</p>
-              <div className="app-qr-wrap">
+            <div className="app-qr-cards">
+              <div className="app-qr-card app-qr-card--play">
                 <img
-                  src={QR_CODE_URL}
-                  alt="QR Code - Scan to download My Car Buddy"
+                  src={makeQrUrl(PLAY_STORE_URL)}
+                  alt="QR Code - Google Play"
                   className="app-qr-img"
                 />
+                <span className="app-qr-store">
+                  <SiGoogleplay className="app-qr-store-icon" aria-hidden />
+                  Google Play
+                </span>
+              </div>
+              <div className="app-qr-card app-qr-card--apple">
+                <img
+                  src={makeQrUrl(APP_STORE_URL)}
+                  alt="QR Code - App Store"
+                  className="app-qr-img"
+                />
+                <span className="app-qr-store">
+                  <SiAppstore className="app-qr-store-icon" aria-hidden />
+                  App Store
+                </span>
               </div>
             </div>
           </div>
