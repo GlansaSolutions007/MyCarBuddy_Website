@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import NewTicket from "./NewTicket";
 import "./MyBookings.css";
-import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse } from "react-icons/fa";
+import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse, FaClock } from "react-icons/fa";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -1218,7 +1218,7 @@ const MyBookings = () => {
                   { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
                   { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
                   { label: "Service Started", date: getStatusDate("ServiceStarted"), icon: <FaTools /> },
-                  { label: "Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
+                  { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
                 ];
 
                 // ServiceAtGarage: CustomerToDealer → garage → DealerToCustomer (uses BookingStatusTracking)
@@ -1236,9 +1236,9 @@ const MyBookings = () => {
                   { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
                   { label: "Car Picked", date: getStatusDate("CarPicked"), icon: <FaTruck /> },
                   { label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> },
-                  { label: "Service Completed", date: getStatusDate("ServiceCompletedAndOutForDelivery"), icon: <FaCheck /> },
-                  { label: "Out for Delivery", date: getStatusDate("ServiceCompletedAndOutForDelivery"), icon: <FaTruck /> },
-                  { label: "Completed", date: getStatusDate("BookingCompleted"), icon: <FaCheck /> },
+                  { label: "Service Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
+                  { label: "Out for Delivery", date: getStatusDate("OutForDelivery"), icon: <FaTruck /> },
+                  { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
                 ];
 
                 const statusTimeline = isGarage ? statusTimelineGarage : statusTimelineHome;
@@ -1302,34 +1302,44 @@ const MyBookings = () => {
                         </div>)
                       }
 
-                      {/* Show either Confirm Booking (before confirm) OR View (after confirm) in the same place */}
-                      {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 ? (
-                        <button
-                          className="mb-view-btn"
-                          onClick={() => {
-                            navigate(
-                              `/confirm-bookings`,
-                              {
-                                state: {
-                                  custId: decryptedCustId,
-                                  bookingId: booking.BookingID,
-                                  booking: booking
-                                }
-                              }
-                            );
-                          }}
-                        >
-                          <FaCheckCircle /> Approve Booking
-                        </button>
-                      ) : (
+                      {/* Show Approve Booking when temp addons exist, View when approved addons exist (can show both) */}
+                      <div className="mb-card-actions">
+                        {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
+                          <button
+                            className="mb-view-btn mb-view-btn-approve"
+                            onClick={() => {
+                              navigate(`/confirm-bookings`, {
+                                state: { custId: decryptedCustId, bookingId: booking.BookingID, booking: booking }
+                              });
+                            }}
+                          >
+                            <FaCheckCircle /> Approve ({booking.BookingsTempAddons.length})
+                          </button>
+                        )}
                         <button
                           className="mb-view-btn"
                           onClick={() => setSelectedBooking(booking)}
                         >
                           <FaEye /> View
                         </button>
-                      )}
+                      </div>
                     </div>
+
+                    {/* Services summary - differentiate pending vs approved */}
+                    {(booking.BookingsTempAddons?.length > 0 || booking.BookingAddOns?.length > 0) && (
+                      <div className="mb-services-summary">
+                        {booking.BookingsTempAddons?.length > 0 && (
+                          <span className="mb-services-badge mb-services-badge-pending">
+                            <FaClock /> {booking.BookingsTempAddons.length} pending approval
+                          </span>
+                        )}
+                        {booking.BookingAddOns?.length > 0 && (
+                          <span className="mb-services-badge mb-services-badge-approved">
+                            <FaCheck /> {booking.BookingAddOns.length} approved
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Timeline */}
                     <div className="mb-timeline">
@@ -1516,6 +1526,22 @@ const MyBookings = () => {
                       <FaPlay /> Resume Booking
                     </button>
                   ) : null} */}
+                  {selectedBooking.BookingsTempAddons?.length > 0 && (
+                    <button
+                      className="mb-detail-action-btn primary"
+                      onClick={() =>
+                        navigate(`/confirm-bookings`, {
+                          state: {
+                            custId: decryptedCustId,
+                            bookingId: selectedBooking.BookingID,
+                            booking: selectedBooking
+                          }
+                        })
+                      }
+                    >
+                      <FaCheckCircle /> Approve {selectedBooking.BookingsTempAddons.length} Service{selectedBooking.BookingsTempAddons.length > 1 ? "s" : ""}
+                    </button>
+                  )}
                   {selectedBooking.BookingStatus !== "Cancelled" && (
                     <button className="mb-detail-action-btn warning" onClick={() => setShowNewTicket(true)}>
                       <FaTicketAlt /> Raise Ticket
@@ -1882,14 +1908,53 @@ const MyBookings = () => {
                     </div>
                   )}
 
-                  {/* Additional Services (accordion with responsive cards) */}
+                  {/* Pending Approval - BookingsTempAddons */}
+                  {selectedBooking.BookingsTempAddons?.length > 0 && (
+                    <div className="mb-addons-section mb-4">
+                      <h5 className="fw-semibold mb-3 d-flex align-items-center">
+                        <span className="badge bg-warning text-dark me-2">
+                          {selectedBooking.BookingsTempAddons.length}
+                        </span>
+                        Pending Approval
+                      </h5>
+                      <p className="text-muted small mb-3">
+                        These services require your approval. Click &quot;Approve Booking&quot; above to confirm.
+                      </p>
+                      <div className="mb-addons-grid">
+                        {selectedBooking.BookingsTempAddons.map((addOn, idx) => (
+                          <div key={`temp-${idx}`} className="mb-addon-card mb-addon-card-pending">
+                            <div className="mb-addon-header">
+                              <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
+                              <span className="badge bg-warning text-dark">Pending</span>
+                            </div>
+                            <div className="mb-addon-body">
+                              <div className="mb-addon-row">
+                                <span className="mb-addon-label">Price</span>
+                                <span className="mb-addon-value">₹{Number(addOn.Price || addOn.BasePrice || 0).toLocaleString()}</span>
+                              </div>
+                              <div className="mb-addon-row">
+                                <span className="mb-addon-label">Labour</span>
+                                <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
+                              </div>
+                              <div className="mb-addon-row mb-addon-row-total border-top pt-2">
+                                <span className="mb-addon-label text-dark fw-bold">Total</span>
+                                <span className="mb-addon-total">₹{(Number(addOn.Price || addOn.BasePrice || 0) + Number(addOn.LabourCharges || 0)).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Additional Services - Approved (BookingAddOns) */}
                   {selectedBooking.BookingAddOns?.length > 0 && (
                     <div className="mb-addons-section mb-4">
                       <h5 className="fw-semibold mb-3 d-flex align-items-center">
-                        <span className="badge bg-primary-light text-primary me-2">
+                        <span className="badge bg-success me-2">
                           {selectedBooking.BookingAddOns.length}
                         </span>
-                        View Services
+                        Approved Services
                       </h5>
 
                       <div className="accordion" id="addOnsAccordion">

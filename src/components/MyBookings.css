@@ -241,6 +241,11 @@
   gap: 10px;
 }
 
+.mb-addon-card-pending {
+  border-color: rgba(255, 193, 7, 0.4);
+  background: linear-gradient(135deg, #fffef8 0%, #fffbf0 100%);
+}
+
 .mb-addon-header {
   display: flex;
   justify-content: space-between;
@@ -499,6 +504,50 @@
 .mb-view-btn:hover {
   background: #fff;
   color: #0a6264;
+}
+
+.mb-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mb-view-btn-approve {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.mb-view-btn-approve:hover {
+  background: #fff;
+  color: #28a745;
+}
+
+.mb-services-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px 12px;
+  margin-top: 8px;
+}
+
+.mb-services-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mb-services-badge-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #856404;
+}
+
+.mb-services-badge-approved {
+  background: rgba(40, 167, 69, 0.15);
+  color: #155724;
 }
 
 /* Timeline */
@@ -800,6 +849,17 @@
   align-items: center;
   gap: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mb-detail-action-btn.primary {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+}
+
+.mb-detail-action-btn.primary:hover {
+  background: linear-gradient(135deg, #084d4f 0%, #0a6264 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(10, 98, 100, 0.4);
 }
 
 .mb-detail-action-btn.warning {
@@ -1768,10 +1828,15 @@
     justify-content: space-between;
   }
 
-  .mb-view-btn {
+  .mb-card-actions {
     width: 100%;
+  }
+
+  .mb-view-btn {
+    flex: 1;
+    min-width: 120px;
     justify-content: center;
-    margin-top: 8px;
+    margin-top: 0;
   }
 
   .mb-detail-header {
