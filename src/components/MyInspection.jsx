@@ -171,7 +171,7 @@ const MyInspection = () => {
                             setFilterDate("");
                             setFilterStatus("");
                         }}
-                    >
+                    >       
                         Clear Filters
                     </button>
                 </div>
