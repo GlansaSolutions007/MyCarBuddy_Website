@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import OfferSceenPopUp from '../components/OfferScreenPopUp';
+// import OfferSceenPopUp from '../components/OfferScreenPopUp';
 
 const CartContext = createContext();
 
@@ -96,7 +96,7 @@ export const CartProvider = ({ children }) => {
 
     return (
         <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart }}>
-            <OfferSceenPopUp />
+            {/* <OfferSceenPopUp /> */}
             {children}
         </CartContext.Provider>
     );

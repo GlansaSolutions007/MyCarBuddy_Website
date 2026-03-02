@@ -33,6 +33,7 @@ import RedirectToPayment from "./pages/RedirectToPayment";
 import ConfirmBookings from "./pages/ConfirmBookingsPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotificationPopup from "./components/NotificationPopup";
+import OfferScreenPopUp from "./components/OfferScreenPopUp";
 // import AIChatWidget from "./components/AIChatWidget";
 
 function App() {
@@ -53,7 +54,7 @@ function App() {
         {/* <AIChatWidget /> */}
 
         <Routes>
-          <Route exact path="/" element={<HomePageThree />} />
+          <Route exact path="/" element={<><HomePageThree /> <OfferScreenPopUp/></>} />
           <Route exact path="/about" element={<AboutPage />} />
           <Route exact path="/service" element={<ServicePage />} />
           {/* <Route exact path="/service-details/:categoryId" element={<ServiceDetailsPage />} /> */}
