@@ -1444,6 +1444,12 @@ const MyBookings = () => {
                 />
                 <h4>No bookings yet</h4>
                 <p>Looks like you haven't booked any services yet. Book your first service!</p>
+                <button
+                  className="btn btn-primary mt-4"
+                  onClick={() => navigate("/service")}
+                >
+                  Explore Services
+                </button>
               </div>
             )}
 
