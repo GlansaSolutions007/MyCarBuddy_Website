@@ -222,7 +222,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
 
                     <span className="aos-title-text">
                         <span className="aos-main-title">
-                            Confirm Booking: #{bookingDetails.BookingTrackID}
+                            Confirm Booking: #{bookingDetails.BookingTrackID} (Vehicle Number: {bookingDetails?.Leads?.Vehicle?.RegistrationNumber})
                         </span>
                         <span className="aos-subtitle">
                             Review the services and final charges, then confirm your booking to start the service.
