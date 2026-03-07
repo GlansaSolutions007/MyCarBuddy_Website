@@ -1218,6 +1218,7 @@ const MyBookings = () => {
                   { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
                   { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
                   { label: "Service Started", date: getStatusDate("ServiceStarted"), icon: <FaTools /> },
+                  { label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> },
                   { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
                 ];
 
