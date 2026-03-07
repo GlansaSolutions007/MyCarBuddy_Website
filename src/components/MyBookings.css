@@ -513,14 +513,14 @@
   align-items: center;
 }
 
-.mb-view-btn-approve {
+/* .mb-view-btn-approve {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 }
 
 .mb-view-btn-approve:hover {
   background: #fff;
   color: #28a745;
-}
+} */
 
 .mb-services-summary {
   display: flex;

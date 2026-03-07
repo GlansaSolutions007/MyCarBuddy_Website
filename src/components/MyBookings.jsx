@@ -1306,14 +1306,14 @@ const MyBookings = () => {
                       <div className="mb-card-actions">
                         {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
                           <button
-                            className="mb-view-btn mb-view-btn-approve"
+                            className="mb-view-btn"
                             onClick={() => {
                               navigate(`/confirm-bookings`, {
                                 state: { custId: decryptedCustId, bookingId: booking.BookingID, booking: booking }
                               });
                             }}
                           >
-                            <FaCheckCircle /> Approve ({booking.BookingsTempAddons.length})
+                            <FaCheckCircle /> Approve Service ({booking.BookingsTempAddons.length})
                           </button>
                         )}
                         <button
@@ -1326,7 +1326,7 @@ const MyBookings = () => {
                     </div>
 
                     {/* Services summary - differentiate pending vs approved */}
-                    {(booking.BookingsTempAddons?.length > 0 || booking.BookingAddOns?.length > 0) && (
+                    {/* {(booking.BookingsTempAddons?.length > 0 || booking.BookingAddOns?.length > 0) && (
                       <div className="mb-services-summary">
                         {booking.BookingsTempAddons?.length > 0 && (
                           <span className="mb-services-badge mb-services-badge-pending">
@@ -1339,7 +1339,7 @@ const MyBookings = () => {
                           </span>
                         )}
                       </div>
-                    )}
+                    )} */}
 
                     {/* Timeline */}
                     <div className="mb-timeline">
