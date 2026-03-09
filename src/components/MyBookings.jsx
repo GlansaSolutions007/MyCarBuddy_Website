@@ -1307,7 +1307,7 @@ const MyBookings = () => {
                       <div className="mb-card-actions">
                         {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
                           <button
-                            className="mb-view-btn"
+                            className="mb-view-btn-approve"
                             onClick={() => {
                               navigate(`/confirm-bookings`, {
                                 state: { custId: decryptedCustId, bookingId: booking.BookingID, booking: booking }

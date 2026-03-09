@@ -513,14 +513,25 @@
   align-items: center;
 }
 
-/* .mb-view-btn-approve {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+.mb-view-btn-approve {
+   display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #eb8704 0%, #f9b358 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .mb-view-btn-approve:hover {
   background: #fff;
-  color: #28a745;
-} */
+  color: #eb8704;
+}
 
 .mb-services-summary {
   display: flex;
