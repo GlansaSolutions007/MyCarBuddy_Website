@@ -88,6 +88,15 @@
   border-bottom: 1px solid rgba(10, 98, 100, 0.06);
 }
 
+.aos-card-header-approve {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  background: linear-gradient(135deg, rgba(100, 97, 10, 0.04) 0%, rgba(164, 164, 26, 0.04) 100%);
+  border-bottom: 1px solid rgba(10, 98, 100, 0.06);
+}
+
 .aos-card-info {
   flex: 1;
 }

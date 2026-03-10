@@ -1920,9 +1920,9 @@ const MyBookings = () => {
                   {selectedBooking.BookingsTempAddons?.length > 0 && (
                     <div className="mb-addons-section mb-4">
                       <h5 className="fw-semibold mb-3 d-flex align-items-center">
-                        <span className="badge bg-warning text-dark me-2">
+                        {/* <span className="badge bg-warning text-dark me-2">
                           {selectedBooking.BookingsTempAddons.length}
-                        </span>
+                        </span> */}
                         Pending Approval
                       </h5>
                       <p className="text-muted small mb-3">
@@ -1931,17 +1931,17 @@ const MyBookings = () => {
                       <div className="mb-addons-grid">
                         {selectedBooking.BookingsTempAddons.map((addOn, idx) => (
                           <div key={`temp-${idx}`} className="mb-addon-card mb-addon-card-pending">
-                            <div className="mb-addon-header">
+                            {/* <div className="mb-addon-header">
                               <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
                               <span className="badge bg-warning text-dark">Pending</span>
-                            </div>
+                            </div> */}
                             <div className="mb-addon-body">
                               <div className="mb-addon-row">
-                                <span className="mb-addon-label">Price</span>
+                                <span className="mb-addon-label">Parts Price</span>
                                 <span className="mb-addon-value">₹{Number(addOn.Price || addOn.BasePrice || 0).toLocaleString()}</span>
                               </div>
                               <div className="mb-addon-row">
-                                <span className="mb-addon-label">Labour</span>
+                                <span className="mb-addon-label">Service Charges</span>
                                 <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
                               </div>
                               <div className="mb-addon-row mb-addon-row-total border-top pt-2">
@@ -1959,9 +1959,9 @@ const MyBookings = () => {
                   {selectedBooking.BookingAddOns?.length > 0 && (
                     <div className="mb-addons-section mb-4">
                       <h5 className="fw-semibold mb-3 d-flex align-items-center">
-                        <span className="badge bg-success me-2">
+                        {/* <span className="badge bg-success me-2">
                           {selectedBooking.BookingAddOns.length}
-                        </span>
+                        </span> */}
                         Approved Services
                       </h5>
 

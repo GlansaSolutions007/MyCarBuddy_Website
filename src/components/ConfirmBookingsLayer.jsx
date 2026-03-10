@@ -85,17 +85,17 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         return services.reduce(
             (acc, srv) => {
                 const qty = Number(srv.Quantity || 1);
-                const price = Number(srv.Price || srv.BasePrice || 0);
-                const gst = Number(srv.GSTAmount || 0);
-                const totalLineItem = (price + gst);
+                const price = Number(srv.ServicePrice || srv.BasePrice || 0);
+                const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
                 const labourCharge = Number(srv.LabourCharges || 0);
+                const totalLineItem = price + labourCharge + gst;
 
                 return {
-                    price: acc.price + (price),
-                    gstAmount: acc.gstAmount + (gst),
+                    price: acc.price + (price * qty),
+                    gstAmount: acc.gstAmount + (gst * qty),
                     totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
-                    labourCharge: (acc.labourCharge || 0) + labourCharge
+                    labourCharge: (acc.labourCharge || 0) + (labourCharge * qty)
                 };
             },
             { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
@@ -107,17 +107,17 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         return confirmedAddons.reduce(
             (acc, srv) => {
                 const qty = Number(srv.Quantity || 1);
-                const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
-                const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
-                const totalLineItem = (price + gst);
+                const price = Number(srv.ServicePrice || 0);
+                const totalLineItem = Number(srv.TotalPrice || 0);
                 const labourCharge = Number(srv.LabourCharges || 0);
+                const gstAmount = Number(srv.GSTPrice || srv.GSTAmount || 0);
 
                 return {
-                    price: acc.price + (price),
-                    gstAmount: acc.gstAmount + (gst),
+                    price: acc.price + (price * qty),
+                    gstAmount: acc.gstAmount + (gstAmount * qty),
                     totalAmount: acc.totalAmount + totalLineItem,
                     quantity: acc.quantity + qty,
-                    labourCharge: (acc.labourCharge || 0) + labourCharge
+                    labourCharge: acc.labourCharge + (labourCharge * qty)
                 };
             },
             { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
@@ -129,7 +129,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         return {
             price: tempTotals.price + confirmedTotals.price,
             gstAmount: tempTotals.gstAmount + confirmedTotals.gstAmount,
-            totalAmount: tempTotals.totalAmount + confirmedTotals.totalAmount + tempTotals.labourCharge + confirmedTotals.labourCharge,
+            totalAmount: tempTotals.totalAmount + confirmedTotals.totalAmount,
             quantity: tempTotals.quantity + confirmedTotals.quantity,
             labourCharge: tempTotals.labourCharge + confirmedTotals.labourCharge
         };
@@ -264,10 +264,10 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                             {/* Mobile Cards View - Confirmed */}
                             <div className="aos-grid">
                                 {confirmedAddons.map((srv, index) => {
-                                    const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
-                                    const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
-                                    const total = price + gst + Number(srv.LabourCharges || 0);
+                                    const price = Number(srv.ServicePrice || 0);
+                                    const total = Number(srv.TotalPrice || 0);
                                     const labourCharge = Number(srv.LabourCharges || 0);
+                                    const gstAmount = Number(srv.GSTPrice || srv.GSTAmount || 0);
                                     const gstPercent = srv.GSTPercent || 0;
                                     return (
                                         <div key={`confirmed-${index}`} className="aos-card" style={{ borderLeft: "4px solid #28a745" }}>
@@ -300,13 +300,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                                     {gstPercent > 0 && (
                                                         <div className="aos-price-item">
                                                             <div className="aos-price-label">SGST ({gstPercent / 2}%)</div>
-                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
+                                                            <div className="aos-price-value">₹{(gstAmount / 2).toFixed(2)}</div>
                                                         </div>
                                                     )}
                                                     {gstPercent > 0 && (
                                                         <div className="aos-price-item">
                                                             <div className="aos-price-label">CGST ({gstPercent / 2}%)</div>
-                                                            <div className="aos-price-value">₹{gst.toFixed(2) / 2}</div>
+                                                            <div className="aos-price-value">₹{(gstAmount / 2).toFixed(2)}</div>
                                                         </div>
                                                     )}
                                                     {Array.isArray(srv.Includes) && srv.Includes.length > 0 && (
@@ -372,10 +372,10 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                     </thead>
                                     <tbody>
                                         {confirmedAddons.map((srv, idx) => {
-                                            const price = Number(srv.ServicePrice || srv.TotalPrice || srv.BasePrice || 0);
-                                            const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
+                                            const price = Number(srv.ServicePrice || 0);
+                                            const total = Number(srv.TotalPrice || 0);
                                             const labourCharge = Number(srv.LabourCharges || 0);
-                                            const total = price + gst + labourCharge;
+                                            const gstAmount = Number(srv.GSTPrice || srv.GSTAmount || 0);
                                             const gstPercent = srv.GSTPercent || 0;
                                             return (
                                                 <tr key={`confirmed-${idx}`} style={{ backgroundColor: "#f0f9f0" }}>
@@ -407,8 +407,8 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                                     <td className="aos-table-price">₹{price.toFixed(2)}</td>
                                                     <td className="aos-table-price">₹{(srv.LabourCharges || 0).toFixed(2)}</td>
                                                     {/* <td>{gstPercent}%</td> */}
-                                                    <td>₹{gst.toFixed(2) / 2} ({gstPercent / 2}%)</td>
-                                                    <td>₹{gst.toFixed(2) / 2} ({gstPercent / 2}%)</td>
+                                                    <td>₹{(gstAmount / 2).toFixed(2)} ({gstPercent / 2}%)</td>
+                                                    <td>₹{(gstAmount / 2).toFixed(2)} ({gstPercent / 2}%)</td>
                                                     <td className="aos-table-total">₹{total.toFixed(2)}</td>
                                                 </tr>
                                             );
@@ -435,7 +435,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                     const total = price + gst + labourCharge;
                                     return (
                                         <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: "4px solid #ffc107" }}>
-                                            <div className="aos-card-header">
+                                            <div className="aos-card-header-approve">
                                                 <div className="aos-card-info">
                                                     <h4 className="aos-card-name">{srv.ServiceName}</h4>
                                                     <span className={`aos-card-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>
