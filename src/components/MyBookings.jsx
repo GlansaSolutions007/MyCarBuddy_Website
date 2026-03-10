@@ -1205,6 +1205,7 @@ const MyBookings = () => {
                 // ServiceAtHome: technician comes to customer's location (uses BookingStatusTracking)
                 const firstPickup = Array.isArray(booking?.PickupDelivery) && booking.PickupDelivery.length > 0 ? booking.PickupDelivery[0] : null;
                 const buddyAssignedDate = firstPickup?.AssignDate || firstPickup?.CreatedDate || pickupDelivery?.AssignDate || booking?.TechAssignDate;
+                const hasServiceInProgress = statusTracking.some(s => s?.Status === "ServiceInProgress");
                 const statusTimelineHome = [
                   { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
                   ...(booking?.Reschedules?.length
@@ -1218,7 +1219,7 @@ const MyBookings = () => {
                   { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
                   { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
                   { label: "Service Started", date: getStatusDate("ServiceStarted"), icon: <FaTools /> },
-                  { label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> },
+                  ...(hasServiceInProgress ? [{ label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> }] : []),
                   { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
                 ];
 
@@ -1236,7 +1237,7 @@ const MyBookings = () => {
                   { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
                   { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
                   { label: "Car Picked", date: getStatusDate("CarPicked"), icon: <FaTruck /> },
-                  { label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> },
+                  ...(hasServiceInProgress ? [{ label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> }] : []),
                   { label: "Service Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
                   { label: "Out for Delivery", date: getStatusDate("OutForDelivery"), icon: <FaTruck /> },
                   { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
