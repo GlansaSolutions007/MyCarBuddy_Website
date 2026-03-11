@@ -40,6 +40,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [loading, setLoading] = useState(false);
   const [otpExpired, setOtpExpired] = useState(false);
 
+  // validation error messages (inline)
+  const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const { showAlert } = useAlert();
@@ -85,6 +92,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       setDescription("");
       setOtpSent(false);
       setEmail(isLoggedIn ? user?.email : "");
+      // clear any previous validation errors
+      setNameError("");
+      setPhoneError("");
+      setEmailError("");
+      setOtpError("");
+      setDescriptionError("");
     }
   }, [isOpen, isLoggedIn]);
 
@@ -448,16 +461,64 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     onClose();
   };
 
+  const validateName = (name) => {
+    if (!name.trim()) return "Name is required";
+    if (name.trim().length < 2) return "Name must be at least 2 characters";
+    if (!/^[a-zA-Z\s]+$/.test(name.trim()))
+      return "Name can only contain letters and spaces";
+    return ""; // empty string means valid, like SignIn
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone.trim()) return "Mobile number is required";
+    if (!/^\d+$/.test(phone)) return "Mobile number must contain only digits";
+    if (!/^[6-9]/.test(phone)) return "Mobile number must start with 6, 7, 8, or 9";
+    if (phone.length !== 10) return "Mobile number must be exactly 10 digits";
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) return ""; // optional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim()))
+      return "Please enter a valid email address";
+    return "";
+  };
+
+  const validateOTP = (otp) => {
+    if (!otp.trim()) return "OTP is required";
+    if (!/^\d{6}$/.test(otp)) return "OTP must be exactly 6 digits";
+    return "";
+  };
+
+  const validateDescription = (desc) => {
+    if (!desc.trim()) return "Description is required";
+    if (desc.trim().length < 10) return "Description must be at least 10 characters";
+    return "";
+  };
+
   const handleSendOTP = async () => {
-    if (!identifier) {
-      showAlert("Error", "Please enter a valid phone number", 3000, "error");
+
+    // reset previous otp error if any
+    setOtpError("");
+    const nameErr = validateName(fullName);
+    const phoneErr = validatePhone(identifier);
+    const emailErr = validateEmail(email);
+
+    // set inline errors as well
+    setNameError(nameErr);
+    setPhoneError(phoneErr);
+    setEmailError(emailErr);
+
+    if (nameErr || phoneErr || emailErr) {
+      // also notify user via toast for first error
+      const first = nameErr || phoneErr || emailErr;
+      showAlert("Error", first, 3000, "error");
       return;
     }
-    if (!fullName) {
-      showAlert("Error", "Please enter your name", 3000, "error");
-      return;
-    }
+
     setLoading(true);
+    
     try {
       await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier, email });
       setOtpSent(true);
@@ -473,6 +534,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   };
 
   const handleVerifyOTP = async () => {
+    const otpErr = validateOTP(otp);
+    setOtpError(otpErr);
+    if (otpErr) {
+      showAlert("Error", otpErr, 3000, "error");
+      return;
+    }
+
     const deviceId = getDeviceId();
     setLoading(true);
     try {
@@ -497,7 +565,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     } catch (err) {
       console.error("OTP Verify Error", err);
       if (err.response?.config?.url?.includes("verify-otp")) {
-        showAlert("Error", "Invalid OTP", 3000, "error");
+        const msg = "Invalid OTP";
+        showAlert("Error", msg, 3000, "error");
+        setOtpError(msg);
       } else {
         showAlert("Error", "OTP verified but failed to save enquiry details.", 3000, "warning");
       }
@@ -525,6 +595,23 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (isLoggedIn) {
+      // Validate fields before submitting for logged-in users
+      const nameErr = validateName(fullName);
+      const phoneErr = validatePhone(identifier);
+      const emailErr = validateEmail(email);
+      const descErr = validateDescription(description);
+
+      setNameError(nameErr);
+      setPhoneError(phoneErr);
+      setEmailError(emailErr);
+      setDescriptionError(descErr);
+
+      if (nameErr || phoneErr || emailErr || descErr) {
+        const firstErr = nameErr || phoneErr || emailErr || descErr;
+        showAlert("Error", firstErr, 3000, "error");
+        return;
+      }
+
       handleLoggedInSubmit();
     } else {
       otpStep ? handleVerifyOTP() : handleSendOTP();
@@ -747,28 +834,29 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 )}
               </div>
 
-              <form className="bsm-form" onSubmit={handleFormSubmit}>
+              <form className="bsm-form" onSubmit={handleFormSubmit} noValidate>
                 {/* Name & Phone Row */}
                 <div className="bsm-form-row">
                   <div className="bsm-form-group">
                     <label className="bsm-label">
                       <FaUser style={{ marginRight: 6 }} />
-                      Your Name
+                      Your Nammmme
                     </label>
                     <input
                       type="text"
-                      className="bsm-input"
+                      className={`bsm-input ${nameError ? 'bsm-input-error' : ''}`}
                       placeholder="Enter full name"
                       value={fullName}
-                      onChange={(e) =>
-                        setFullName(
-                          e.target.value
-                            ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
-                            : ""
-                        )
-                      }
+                      onChange={(e) => {
+                        const v = e.target.value
+                          ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                          : "";
+                        setFullName(v);
+                        setNameError(validateName(v));
+                      }}
                       required
                     />
+                    {nameError && <p className="bsm-helper-text">{nameError}</p>}
                   </div>
                   <div className="bsm-form-group">
                     <label className="bsm-label">
@@ -777,13 +865,24 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     </label>
                     <input
                       type="tel"
-                      className="bsm-input"
+                      className={`bsm-input ${phoneError ? 'bsm-input-error' : ''}`}
                       placeholder="10-digit mobile"
                       value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        if (
+                          value === "" ||
+                          (value.length === 1 && /^[6-9]$/.test(value)) ||
+                          (value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0]))
+                        ) {
+                          setIdentifier(value);
+                          setPhoneError(validatePhone(value));
+                        }
+                      }}
                       disabled={isLoggedIn || otpStep}
                       required
                     />
+                    {phoneError && <p className="bsm-helper-text">{phoneError}</p>}
                   </div>
                   <div className="bsm-form-group full-width">
                     <label className="bsm-label">
@@ -792,13 +891,17 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     </label>
                     <input
                       type="email"
-                      className="bsm-input"
+                      className={`bsm-input ${emailError ? 'bsm-input-error' : ''}`}
                       placeholder="yourname@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError(validateEmail(e.target.value));
+                      }}
                       // disabled={isLoggedIn || otpStep}
                       required
                     />
+                    {emailError && <p className="bsm-helper-text">{emailError}</p>}
                   </div>
                 </div>
 
@@ -806,15 +909,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 <div className="bsm-form-group">
                   <label className="bsm-label">
                     <FaComment style={{ marginRight: 6 }} />
-                    What are you looking for? (Optional)
+                    What are you looking for?
                   </label>
                   <textarea
-                    className="bsm-textarea"
+                    className={`bsm-textarea ${descriptionError ? 'bsm-input-error' : ''}`}
                     placeholder="Describe your car issue..."
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      setDescriptionError(validateDescription(e.target.value));
+                    }}
                     disabled={otpStep}
+                    required
                   />
+                  {descriptionError && <p className="bsm-helper-text">{descriptionError}</p>}
                 </div>
 
                 {/* OTP Section */}
@@ -842,14 +950,23 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     </div>
                     <input
                       type="text"
-                      className="bsm-otp-input"
+                      className={`bsm-otp-input ${otpError ? 'bsm-input-error' : ''}`}
                       placeholder="• • • • • •"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setOtp(v);
+                        const err = validateOTP(v);
+                        setOtpError(err);
+                        if (v.length === 6 && !err) {
+                          handleVerifyOTP();
+                        }
+                      }}
                       maxLength={6}
                       required
                       autoFocus
                     />
+                    {otpError && <p className="bsm-helper-text">{otpError}</p>}
                   </div>
                 )}
 
@@ -858,7 +975,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <button
                     type="button"
                     className="bsm-btn bsm-btn-secondary"
-                    onClick={() => otpStep ? setOtpStep(false) : setCurrentStep("inspection")}
+                    onClick={() => {
+                      if (otpStep) {
+                        setOtpStep(false);
+                        setOtpError("");
+                      } else {
+                        setCurrentStep("inspection");
+                      }
+                    }}
                   >
                     Back
                   </button>

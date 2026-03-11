@@ -19,6 +19,8 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const [bookingDetails, setBookingDetails] = useState(null);
     const [openIncludes, setOpenIncludes] = useState(null);
     const [isChecked, setIsChecked] = useState(false);
+    const [isRejectMode, setIsRejectMode] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -138,8 +140,14 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
     // ---------------------------------------------------------
-    const handleSubmit = async () => {
+    const handleSubmit = async (action = "approve") => {
         if (!bookingDetails) return;
+
+        // For reject, validate reason
+        if (action === "reject" && !rejectionReason.trim()) {
+            Swal.fire("Error", "Please provide a reason for rejection.", "error");
+            return;
+        }
 
         const custIdToSend = custId ?? bookingDetails?.CustID;
         if (!custIdToSend) {
@@ -150,9 +158,14 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         try {
             setIsSubmitting(true);
 
+            const requestBody = {
+                status: action === "approve" ? "Confirmed" : "Reject",
+                reason: action === "reject" ? rejectionReason : ""
+            };
+
             const response = await axios.post(
                 `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingId}&custId=${custIdToSend}`,
-                {}, // <--- Empty body here
+                requestBody,
                 {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -162,11 +175,16 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             );
 
             if (response.status === 200 || response.status === 201) {
+                const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
+                const message = action === "approve" 
+                    ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
+                    : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
+                const icon = action === "approve" ? "success" : "info";
+
                 Swal.fire({
-                    title: "Booking Confirmed!",
-                    text: `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`,
-                    icon: "success",
-                    // confirmButtonText: "Go to My Bookings",
+                    title: title,
+                    text: message,
+                    icon: icon,
                     confirmButtonColor: "#0a6264",
                 }).then(() => {
                     navigate("/", { replace: true });
@@ -176,10 +194,11 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             }
 
         } catch (error) {
-            console.error("Error confirming booking:", error);
+            console.error("Error processing booking:", error);
+            const actionText = action === "approve" ? "confirm" : "reject";
             Swal.fire(
                 "Submission Failed",
-                "Could not confirm services. Please try again.",
+                `Could not ${actionText} services. Please try again.`,
                 "error"
             );
         } finally {
@@ -621,35 +640,82 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         )}
                     </div>
 
-                    <div className="form-check-a mb-3">
-                        <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="approveCheck"
-                            checked={isChecked}
-                            onChange={(e) => setIsChecked(e.target.checked)}
-                            disabled={isSubmitting}
-                        />
-                        <label className="form-check-label" htmlFor="approveCheck">
-                            I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
-                        </label>
-                    </div>
+                    {/* Rejection Reason Textarea - Hidden until reject mode */}
+                    {isRejectMode && (
+                        <div className="mb-3 p-3" style={{ backgroundColor: "#ffe6e6", borderRadius: "8px", border: "1px solid #ff6b6b" }}>
+                            <label className="form-label" style={{ fontWeight: "600", color: "#c92a2a", marginBottom: "10px" }}>
+                                Reason for Rejection <span style={{ color: "#ff0000" }}>*</span>
+                            </label>
+                            <textarea
+                                className="form-control"
+                                placeholder="Please provide a detailed reason for rejecting this booking..."
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                disabled={isSubmitting}
+                                rows="4"
+                                style={{ borderColor: "#ff6b6b" }}
+                            />
+                            <small style={{ color: "#c92a2a" }}>
+                                Required field - Please be specific about the reason for rejection.
+                            </small>
+                        </div>
+                    )}
+
+                    {/* Approval Checkbox - Only show in approve mode */}
+                    {!isRejectMode && (
+                        <div className="form-check-a mb-3">
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id="approveCheck"
+                                checked={isChecked}
+                                onChange={(e) => setIsChecked(e.target.checked)}
+                                disabled={isSubmitting}
+                            />
+                            <label className="form-check-label" htmlFor="approveCheck">
+                                I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
+                            </label>
+                        </div>
+                    )}
 
                     {/* Footer Actions */}
                     <div className="aos-footer">
-                        <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
-                            Disapprove & Go Back
-                        </button>
-                        <button className="aos-btn aos-btn-primary" onClick={handleSubmit} disabled={isSubmitting || !isChecked}>
-                            {isSubmitting ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                                    Processing...
-                                </>
-                            ) : (
-                                <><FaCheck /> Approve Services</>
-                            )}
-                        </button>
+                        {!isRejectMode ? (
+                            <>
+                                <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
+                                    Cancel
+                                </button>
+                                <button className="aos-btn aos-btn-primary me-3" onClick={() => handleSubmit("approve")} disabled={isSubmitting || !isChecked}>
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <><FaCheck /> Approve Services</>
+                                    )}
+                                </button>
+                                <button className="aos-btn aos-btn-danger" onClick={() => setIsRejectMode(true)} disabled={isSubmitting}>
+                                    Reject
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button className="aos-btn aos-btn-secondary me-3" onClick={() => setIsRejectMode(false)} disabled={isSubmitting}>
+                                    Back
+                                </button>
+                                <button className="aos-btn aos-btn-danger" onClick={() => handleSubmit("reject")} disabled={isSubmitting || !rejectionReason.trim()}>
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>Confirm Rejection</>
+                                    )}
+                                </button>
+                            </>
+                        )}
                     </div>
                 </>
             )}

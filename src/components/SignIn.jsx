@@ -21,9 +21,10 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 	const { showAlert } = useAlert();
 	const [fullName, setFullName] = useState("");
 	const [email, setEmail] = useState("");
-
-
-
+	const [nameError, setNameError] = useState("");
+	const [emailError, setEmailError] = useState("");
+	const [phoneError, setPhoneError] = useState("");
+	const [otpError, setOtpError] = useState("");
 
 	const modalRef = useRef();
 
@@ -52,6 +53,10 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			setLoading(false);
 			setTimer(0);
 			setOtp("");
+			setPhoneError("");
+			setOtpError("");
+			setEmailError("");
+			setNameError("");
 		}
 	}, [isVisible]);
 
@@ -77,13 +82,52 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 		return deviceId;
 	};
 
+	const validatePhone = (phone) => {
+		if (!phone.trim()) return "Mobile number is required";
+		if (!/^\d+$/.test(phone)) return "Mobile number must contain only digits";
+		if (!/^[6-9]/.test(phone)) return "Mobile number must start with 6, 7, 8, or 9";
+		if (phone.length !== 10) return "Mobile number must be exactly 10 digits";
+		return "";
+	};
+
+	const validateOTP = (otp) => {
+		if (!otp.trim()) return "OTP is required";
+		if (!/^\d{6}$/.test(otp)) return "OTP must be exactly 6 digits";
+		return "";
+	};
+
+	const validateEmail = (email) => {
+		if (!email.trim()) return "";
+		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!regex.test(email)) return "Please enter a valid email address";
+		return "";
+	};
+
+	const validateName = (name) => {
+		if (!name.trim()) return "";
+		if (name.length < 2) return "Name must be at least 2 characters";
+		if (!/^[a-zA-Z\s]+$/.test(name)) return "Name can only contain letters";
+		return "";
+	};
+
 	const handleSendOTP = async (e) => {
 		e.preventDefault();
 
-		if (!identifier || identifier.length !== 10) {
-			showAlert("Error", "Enter valid mobile number", 3000, "error");
+		const phoneErr = validatePhone(identifier);
+		const emailErr = validateEmail(email);
+		const nameErr = validateName(fullName);
+
+		setPhoneError(phoneErr);
+		setEmailError(emailErr);
+		setNameError(nameErr);
+
+		if (phoneErr || emailErr || nameErr) {
+			// show first error in popup as well
+			const first = phoneErr || emailErr || nameErr;
+			showAlert("Error", first, 3000, "error");
 			return;
 		}
+
 
 		// if (!fullName) {
 		// 	showAlert("Error", "Please enter your name", 3000, "error");
@@ -115,6 +159,14 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 
 	const handleVerifyOTP = async (e) => {
 		e.preventDefault();
+		const otpErr = validateOTP(otp);
+		setOtpError(otpErr);
+
+		if (otpErr) {
+			showAlert("Error", otpErr, 3000, "error");
+			return;
+		}
+
 		const deviceId = getDeviceId();
 		setLoading(true);
 
@@ -233,7 +285,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 				{/* Right Panel - Form */}
 				<div className="si-right-panel">
 					<div className="si-form-header">
-						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome Back!"}</h3>
+						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome to My Car Buddy"}</h3>
 						<p className="si-subtitle">
 							{otpSent
 								? `Enter the OTP sent to +91 ${identifier}`
@@ -241,7 +293,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 						</p>
 					</div>
 
-					<form className="si-form" onSubmit={otpSent ? handleVerifyOTP : handleSendOTP}>
+					<form className="si-form" onSubmit={otpSent ? handleVerifyOTP : handleSendOTP} noValidate>
 
 						{!otpSent && (
 							<>
@@ -288,32 +340,41 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 							<div className="si-input-icon">
 								<FaPhone />
 							</div>
+
 							<div className="si-input-wrapper">
 								<label className="si-label">Mobile Number</label>
+
 								<div className="si-input-row">
 									<span className="si-country-code">+91</span>
+
 									<input
 										type="text"
 										inputMode="numeric"
-										pattern="[0-9]*"
-										className="si-input"
-										placeholder="Enter 10-digit number" 
+										className={`si-input ${phoneError ? "si-input-error" : ""}`}
+										placeholder="Enter 10-digit number"
 										value={identifier}
 										onChange={(e) => {
 											const value = e.target.value.replace(/\D/g, "");
-											// Allow empty value or values starting with 6-9
-											if (value === "" || (value.length === 1 && /^[6-9]$/.test(value))) {
+
+											if (
+												value === "" ||
+												(value.length === 1 && /^[6-9]$/.test(value)) ||
+												(value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0]))
+											) {
 												setIdentifier(value);
-											} else if (value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0])) {
-												setIdentifier(value);
+												setPhoneError(validatePhone(value));
 											}
 										}}
 										maxLength={10}
-										required
 										disabled={otpSent}
 									/>
 								</div>
+
+								{phoneError && (
+									<p className="si-helper-text">{phoneError}</p>
+								)}
 							</div>
+
 							{otpSent && (
 								<button
 									type="button"
@@ -321,6 +382,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 									onClick={() => {
 										setOtpSent(false);
 										setOtp("");
+										setOtpError("");
 										setOtpExpired(false);
 									}}
 								>
@@ -336,19 +398,33 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 									<div className="si-input-icon">
 										<FaShieldAlt />
 									</div>
+
 									<div className="si-input-wrapper">
 										<label className="si-label">One-Time Password</label>
+
 										<input
 											type="text"
 											inputMode="numeric"
-											className="si-input si-otp-input"
-											placeholder="Enter 6-digit OTP"
+											className={`si-input si-otp-input ${otpError ? "si-input-error" : ""}`} placeholder="Enter 6-digit OTP"
 											value={otp}
-											onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+											onChange={(e) => {
+												const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+												setOtp(value);
+
+												const err = validateOTP(value);
+												setOtpError(err);
+
+												if (value.length === 6 && !err) {
+													handleVerifyOTP(e);
+												}
+											}}
 											maxLength={6}
-											required
 											autoFocus
 										/>
+
+										{otpError && (
+											<p className="si-helper-text">{otpError}</p>
+										)}
 									</div>
 								</div>
 

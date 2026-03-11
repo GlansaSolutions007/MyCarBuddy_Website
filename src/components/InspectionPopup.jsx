@@ -37,6 +37,12 @@ const InspectionPopup = ({ isOpen, onClose }) => {
   const [otpExpired, setOtpExpired] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // inline validation errors
+  const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [otpError, setOtpError] = useState("");
+
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const user = JSON.parse(localStorage.getItem("user"));
@@ -70,6 +76,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       setTimer(60);
       setOtpExpired(false);
       setSelectedOffer(1); // Reset to first offer
+      // clear errors
+      setNameError("");
+      setPhoneError("");
+      setEmailError("");
+      setOtpError("");
     }
   }, [isOpen, isLoggedIn]);
 
@@ -149,8 +160,32 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     fetchInspectionPackages();
   }, []);
 
+  const validateName = (name) => { if (!name.trim()) return "Name is required"; if (name.trim().length < 2) return "Name must be at least 2 characters"; if (!/^[a-zA-Z\s]+$/.test(name.trim())) return "Name can only contain letters and spaces"; return ""; };
+
+  const validatePhone = (phone) => {
+    if (!phone.trim()) return "Mobile number is required";
+    if (!/^\d+$/.test(phone)) return "Mobile number must contain only digits";
+    if (!/^[6-9]/.test(phone)) return "Mobile number must start with 6, 7, 8, or 9";
+    if (phone.length !== 10) return "Mobile number must be exactly 10 digits";
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) return ""; // optional field
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validateOTP = (otp) => {
+    if (!otp.trim()) return "OTP is required";
+    if (!/^\d{6}$/.test(otp)) return "OTP must be exactly 6 digits";
+    return "";
+  };
+
   // --- PAYMENT LOGIC (Backend Initiated) ---
   const handlePayment = async () => {
+
     try {
       // Get the selected offer
       const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
@@ -374,7 +409,24 @@ const InspectionPopup = ({ isOpen, onClose }) => {
 
   // --- OTP & AUTH LOGIC ---
 
-  const handleSendOTP = async () => {
+  const handleSendOTP = async () => {    // reset otp error if user resends
+    setOtpError("");
+    const nameErr = validateName(fullName);
+    const phoneErr = validatePhone(identifier);
+    const emailErr = validateEmail(email);
+
+    // set inline states so helpers show
+    setNameError(nameErr);
+    setPhoneError(phoneErr);
+    setEmailError(emailErr);
+
+    if (nameErr || phoneErr || emailErr) {
+      // show first error as toast
+      const first = nameErr || phoneErr || emailErr;
+      showAlert("Error", first, 3000, "error");
+      return;
+    }
+
     if (!identifier) {
       showAlert("Error", "Please enter a valid phone number", 3000, "error");
       return;
@@ -433,7 +485,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       handlePayment();
     } catch (err) {
       console.error("OTP Verify Error", err);
-      showAlert("Error", "Invalid OTP", 3000, "error");
+      const message = "Invalid OTP";
+      showAlert("Error", message, 3000, "error");
+      setOtpError(message);
       setLoading(false);
     }
   };
@@ -621,7 +675,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                   </p>
                 </div>
 
-                <form className="ip-form" onSubmit={handleFormSubmit}>
+                <form className="ip-form" onSubmit={handleFormSubmit} noValidate>
                   <div className="ip-row">
                     {/* Name Field */}
                     <div className="ip-form-group half">
@@ -631,18 +685,19 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                       </label>
                       <input
                         type="text"
-                        className="ip-input"
+                        className={`ip-input ${nameError ? 'bsm-input-error' : ''}`}
                         placeholder="Enter full name"
                         value={fullName}
-                        onChange={(e) =>
-                          setFullName(
-                            e.target.value
-                              ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
-                              : ""
-                          )
-                        }
+                        onChange={(e) => {
+                          const v = e.target.value
+                            ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                            : "";
+                          setFullName(v);
+                          setNameError(validateName(v));
+                        }}
                         required
                       />
+                      {nameError && <p className="bsm-helper-text">{nameError}</p>}
                     </div>
 
                     {/* Phone Field */}
@@ -653,17 +708,24 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                       </label>
                       <input
                         type="tel"
-                        className="ip-input"
+                        className={`ip-input ${phoneError ? 'bsm-input-error' : ''}`}
                         placeholder="10-digit mobile number"
                         value={identifier}
-                        onChange={(e) =>
-                          setIdentifier(
-                            e.target.value.replace(/\D/g, "").slice(0, 10)
-                          )
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          if (
+                            value === "" ||
+                            (value.length === 1 && /^[6-9]$/.test(value)) ||
+                            (value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0]))
+                          ) {
+                            setIdentifier(value);
+                            setPhoneError(validatePhone(value));
+                          }
+                        }}
                         disabled={otpStep}
                         required
                       />
+                      {phoneError && <p className="bsm-helper-text">{phoneError}</p>}
                     </div>
                   </div>
 
@@ -675,13 +737,16 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     </label>
                     <input
                       type="email"
-                      className="ip-input"
+                      className={`ip-input ${emailError ? 'bsm-input-error' : ''}`}
                       placeholder="yourname@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      // disabled={otpStep}
-                      required
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError(validateEmail(e.target.value));
+                      }}
+                    // disabled={otpStep}
                     />
+                    {emailError && <p className="bsm-helper-text">{emailError}</p>}
                   </div>
 
                   {/* OTP Section */}
@@ -709,16 +774,21 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                       </div>
                       <input
                         type="text"
-                        className="ip-otp-input"
+                        className={`ip-otp-input ${otpError ? 'bsm-input-error' : ''}`}
                         placeholder="• • • • • •"
                         value={otp}
-                        onChange={(e) =>
-                          setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                        }
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setOtp(v);
+                          if (v.length === 6) {
+                            setOtpError(""); // Clear error when 6 digits are entered
+                          }
+                        }}
                         maxLength={6}
                         required
                         autoFocus
                       />
+                      {otpError && <p className="bsm-helper-text">{otpError}</p>}
                     </div>
                   )}
 
@@ -727,11 +797,14 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <button
                       type="button"
                       className="ip-btn ip-btn-secondary"
-                      onClick={() =>
-                        otpStep
-                          ? setOtpStep(false)
-                          : setCurrentStep("offer")
-                      }
+                      onClick={() => {
+                        if (otpStep) {
+                          setOtpStep(false);
+                          setOtpError("");
+                        } else {
+                          setCurrentStep("offer");
+                        }
+                      }}
                     >
                       Back
                     </button>

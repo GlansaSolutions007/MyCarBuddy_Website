@@ -452,6 +452,34 @@
   border: 1px solid #99f6e4;
 }
 
+/* Validation helper text style (reused from SignInModal.css) */
+.bsm-helper-text {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  font-weight: 500;
+  animation: ipErrorFade 0.2s ease;
+}
+
+@keyframes ipErrorFade {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* input error border (reuse bsm class) */
+.bsm-input-error {
+  border-color: #ef4444 !important;
+}
+.bsm-input-error:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
 /* Action Buttons - Compact */
 .ip-actions {
   display: flex;
