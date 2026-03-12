@@ -485,9 +485,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     return "";
   };
 
-  const validateOTP = (otp) => {
-    if (!otp.trim()) return "OTP is required";
-    if (!/^\d{6}$/.test(otp)) return "OTP must be exactly 6 digits";
+ const validateOTP = (otp) => {
+    // const cleanOtp = otp.trim();
+
+    // if (!cleanOtp) return "OTP is required";
+    // if (!/^\d{6}$/.test(cleanOtp)) return "OTP must be exactly 6 digits";
+
     return "";
   };
 
