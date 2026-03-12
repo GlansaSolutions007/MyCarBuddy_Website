@@ -140,71 +140,73 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
     // ---------------------------------------------------------
-    const handleSubmit = async (action = "approve") => {
-        if (!bookingDetails) return;
+        const handleSubmit = async (action = "approve") => {
+            if (!bookingDetails) return;
 
-        // For reject, validate reason
-        if (action === "reject" && !rejectionReason.trim()) {
-            Swal.fire("Error", "Please provide a reason for rejection.", "error");
-            return;
-        }
-
-        const custIdToSend = custId ?? bookingDetails?.CustID;
-        if (!custIdToSend) {
-            Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
-            return;
-        }
-
-        try {
-            setIsSubmitting(true);
-
-            const requestBody = {
-                status: action === "approve" ? "Confirmed" : "Reject",
-                reason: action === "reject" ? rejectionReason : ""
-            };
-
-            const response = await axios.post(
-                `${BaseURL}Supervisor/MoveSupervisorBookings?bookingId=${bookingId}&custId=${custIdToSend}`,
-                requestBody,
-                {
-                    headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (response.status === 200 || response.status === 201) {
-                const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
-                const message = action === "approve" 
-                    ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
-                    : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
-                const icon = action === "approve" ? "success" : "info";
-
-                Swal.fire({
-                    title: title,
-                    text: message,
-                    icon: icon,
-                    confirmButtonColor: "#0a6264",
-                }).then(() => {
-                    navigate("/", { replace: true });
-                });
-            } else {
-                throw new Error("Unexpected response code");
+            // For reject, validate reason
+            if (action === "reject" && !rejectionReason.trim()) {
+                Swal.fire("Error", "Please provide a reason for rejection.", "error");
+                return;
             }
 
-        } catch (error) {
-            console.error("Error processing booking:", error);
-            const actionText = action === "approve" ? "confirm" : "reject";
-            Swal.fire(
-                "Submission Failed",
-                `Could not ${actionText} services. Please try again.`,
-                "error"
-            );
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+            const custIdToSend = custId ?? bookingDetails?.CustID;
+            if (!custIdToSend) {
+                Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
+                return;
+            }
+            const addOnIds =
+                bookingDetails?.BookingsTempAddons?.map((a) => a.Id).join(",") || "";
+
+            try {
+                setIsSubmitting(true);
+
+                const requestBody = {
+                    status: action === "approve" ? "Confirmed" : "Reject",
+                    reason: action === "reject" ? rejectionReason : ""
+                };
+
+                const response = await axios.post(
+                    `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${addOnIds}&custId=${custIdToSend}`,
+                    requestBody,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user?.token}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                if (response.status === 200 || response.status === 201) {
+                    const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
+                    const message = action === "approve"
+                        ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
+                        : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
+                    const icon = action === "approve" ? "success" : "warning";
+
+                    Swal.fire({
+                        title: title,
+                        text: message,
+                        icon: icon,
+                        confirmButtonColor: "#0a6264",
+                    }).then(() => {
+                        navigate("/", { replace: true });
+                    });
+                } else {
+                    throw new Error("Unexpected response code");
+                }
+
+            } catch (error) {
+                console.error("Error processing booking:", error);
+                const actionText = action === "approve" ? "confirm" : "reject";
+                Swal.fire(
+                    "Submission Failed",
+                    `Could not ${actionText} services. Please try again.`,
+                    "error"
+                );
+            } finally {
+                setIsSubmitting(false);
+            }
+        };
 
     if (isLoading) {
         return (
@@ -381,7 +383,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
-                                            <th>Price ₹</th>
+                                            <th>Part Price ₹</th>
                                             <th>Service Charges ₹</th>
                                             {/* <th>GST %</th> */}
                                             <th>SGST ₹</th>
@@ -471,7 +473,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                                 {srv.Description && <p className="aos-card-desc">{srv.Description}</p>}
                                                 <div className="aos-card-pricing">
                                                     <div className="aos-price-item">
-                                                        <div className="aos-price-label">Price</div>
+                                                        <div className="aos-price-label">Parts Price</div>
                                                         <div className="aos-price-value">₹{price.toFixed(2)}</div>
                                                     </div>
                                                     {labourCharge > 0 && (
@@ -545,7 +547,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                             <th>Type</th>
                                             <th>Description</th>
                                             <th>Qty</th>
-                                            <th>Price ₹</th>
+                                            <th>Part Price ₹</th>
                                             <th>Service Charges ₹</th>
                                             {/* <th>GST %</th> */}
                                             <th>SGST ₹</th>
@@ -610,7 +612,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <div className="aos-summary-value">{totals.quantity}</div>
                             </div>
                             <div className="aos-summary-item">
-                                <div className="aos-summary-label">Subtotal</div>
+                                <div className="aos-summary-label">Parts Subtotal</div>
                                 <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>
                             </div>
                             <div className="aos-summary-item">

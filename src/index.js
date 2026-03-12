@@ -8,6 +8,7 @@ import { AlertProvider } from "./context/AlertContext";
 import { HelmetProvider } from "react-helmet-async";
 import { initFCM } from "./fcmSetup";
 import "./helper/axiosAuthInterceptor";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
