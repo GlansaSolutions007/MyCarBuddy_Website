@@ -2185,7 +2185,7 @@ const MyBookings = () => {
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Unpaid Amount</div>
+                                  <div className="fw-semibold">Balance</div>
                                   <div className="fw-bold text-danger">
                                     ₹{formatPrice(
                                       getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
@@ -2430,7 +2430,7 @@ const MyBookings = () => {
                             </div>
 
                             <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">Unpaid Amount</div>
+                              <div className="fw-semibold">Balance</div>
                               <div className="fw-bold text-danger">
                                 ₹{formatPrice(
                                   getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
