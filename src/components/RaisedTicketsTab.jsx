@@ -422,10 +422,10 @@ const RaisedTicketsTab = () => {
                       </div>
 
                       {/* Right Column - Status */}
-                      <div className="rt-ticket-status-section">
+                      {/* <div className="rt-ticket-status-section">
                         <div className="rt-status-label">Current Status</div>
                         {getStatusDisplay(currentStatus)}
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Timeline Section */}

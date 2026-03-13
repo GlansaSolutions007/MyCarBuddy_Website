@@ -11,6 +11,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import "./MainProfile.css";
+import { translate } from "react-range/lib/utils";
 
 const ImageURL = process.env.REACT_APP_CARBUDDY_IMAGE_URL;
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
@@ -223,7 +224,7 @@ const MainProfile = () => {
                   {userData.FullName || "User"}
                 </h4>
                 <p className="profile-sidebar-phone">
-                  <i className="fas fa-phone" />
+                  <i className="fas fa-phone" style={{ transform: "scaleX(-1)" }}  />
                   {userData.PhoneNumber || "No phone"}
                 </p>
               </div>

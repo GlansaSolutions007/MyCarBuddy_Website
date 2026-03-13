@@ -77,11 +77,12 @@ const ContactArea = () => {
     setLoading(false);
   };
 
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+
   const handlePhoneClick = (phone) => {
     const number = phone.replace(/\D/g, "");
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
-      navigator.userAgent
-    );
 
     if (isMobile) {
       window.location.href = `tel:${number}`;
@@ -136,10 +137,18 @@ const ContactArea = () => {
           {/* Phone Card */}
           <div className="contact-info-card">
             <div className="contact-info-icon">
-              <i className="fas fa-phone-alt" />
+              {isMobile ? (
+                <i className="fas fa-phone-alt" />
+              ) : (
+                <i className="fab fa-whatsapp" style={{ fontSize: 28 }}></i>
+              )}
             </div>
             <div className="contact-info-content">
-              <h4 className="contact-info-title">Phone Number</h4>
+              {isMobile ? (
+                <h4 className="contact-info-title">Phone Number</h4>
+              ) : (
+                <h4 className="contact-info-title">WhatsApp Number</h4>
+              )}
               <p className="contact-info-text">
 
                 {companyInfo.phones.length > 0 ? (
@@ -314,11 +323,19 @@ const ContactArea = () => {
             {/* Quick Contact Card */}
             <div className="contact-quick-card">
               <div className="contact-quick-icon">
-                <i className="fas fa-headset" />
+                {isMobile ? (
+                  <i className="fas fa-phone-alt" />
+                ) : (
+                  <i className="fab fa-whatsapp" style={{ fontSize: 22 }}></i>
+                )}
               </div>
               <div className="contact-quick-content">
                 <h4>Need Quick Free Support?</h4>
-                <p>Call us now for immediate assistance with your car service needs.</p>
+                {isMobile ? (
+                  <p>Call us now for immediate assistance with your car service needs.</p>
+                ) : (
+                  <p>Chat with us on WhatsApp for instant support and inquiries.</p>
+                )}
                 {companyInfo.phones.length > 0 ? (
                   <p
                     className="contact-quick-phone"

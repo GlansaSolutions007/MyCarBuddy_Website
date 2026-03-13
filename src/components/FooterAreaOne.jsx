@@ -70,12 +70,13 @@ const FooterAreaOne = () => {
       .replace(/^-+|-+$/g, "");
   };
 
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+
   // Reusable Contact Handler
   const handleContactClick = (phone) => {
     const number = phone.replace(/\D/g, "");
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
-      navigator.userAgent
-    );
 
     if (isMobile) {
       window.location.href = `tel:${number}`;
@@ -199,7 +200,11 @@ const FooterAreaOne = () => {
                 </div>
 
                 <div className="contact-item">
-                  <i className="fas fa-phone-alt contact-icon"></i>
+                  {isMobile ? (
+                    <i className="fas fa-phone-alt contact-icon"></i>
+                  ) : (
+                    <i className="fab fa-whatsapp contact-icon" style={{ fontSize: 22 }}></i>
+                  )}
                   <div>
                     {companyInfo.phones.length > 0 ? (
                       companyInfo.phones.map((phone, index) => (

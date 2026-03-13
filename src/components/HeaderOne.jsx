@@ -87,12 +87,13 @@ const HeaderOne = () => {
     return phone;
   };
 
+  const isMobileDevice = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+
   const handleContactClick = () => {
     if (!companyInfo.phone) return;
 
     const number = companyInfo.phone.replace(/\D/g, "");
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
-    if (isMobile) {
+    if (isMobileDevice) {
       window.location.href = `tel:${number}`;
     } else {
       window.open(`https://wa.me/${number}`, "_blank");
@@ -332,28 +333,12 @@ const HeaderOne = () => {
                 </a>
               </div>
               <div className="mcb-top-divider" />
-              <div className="mcb-city-wrapper">
-                <div className="mcb-top-item" onClick={handleCityPicker}>
-                  <MapPin size={13} />
-                  <span>{isServiceAvailable === false ? "Service unavailable" : locationText || "Pick your city"}</span>
-                </div>
-                <div className="mcb-city-tooltip">
-                  <div className="mcb-tooltip-glow"></div>
-                  <div className="mcb-tooltip-content">
-                    <div className="mcb-tooltip-icon-wrap">
-                      <MapPin size={24} className="mcb-tooltip-icon" />
-                      <span className="mcb-tooltip-pulse"></span>
-                    </div>
-                    <div className="mcb-tooltip-info">
-                      <span className="mcb-tooltip-title">Select Your City</span>
-                      <span className="mcb-tooltip-desc">Choose your location for<br />nearby services & offers!</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mcb-top-divider" />
               <div className="mcb-top-item" onClick={handleContactClick}>
-                <Phone size={13} />
+                {isMobileDevice ? (
+                  <Phone size={18} className="mcb-contact-icon" />
+                ) : (
+                  <i className="fab fa-whatsapp mcb-contact-icon" style={{ fontSize: 18 }}></i>
+                )}
                 <span>
                   {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
                 </span>
@@ -441,9 +426,16 @@ const HeaderOne = () => {
                 {/* Contact Button */}
                 <div className="mcb-contact-wrapper">
                   <div className="mcb-contact-btn" onClick={handleContactClick}>
-                    <Phone size={18} className="mcb-contact-icon" />
+                    {isMobileDevice ? (
+                      <Phone size={18} className="mcb-contact-icon" />
+                    ) : (
+                      <i className="fab fa-whatsapp mcb-contact-icon" style={{ fontSize: 18 }}></i>
+                    )}
+
                     <div className="mcb-contact-text">
-                      <span className="mcb-contact-label">Free Call Support</span>
+                      <span className="mcb-contact-label">
+                        {isMobileDevice ? "Call Support" : "WhatsApp Support"}
+                      </span>
                       <span className="mcb-contact-number">
                         {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
                       </span>

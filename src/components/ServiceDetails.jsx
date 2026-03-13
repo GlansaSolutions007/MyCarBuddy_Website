@@ -348,11 +348,12 @@ const ServiceDetails = () => {
       .replace(/^-+|-+$/g, ""); // trim starting/ending "-"
   };
 
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
+    navigator.userAgent
+  );
+
   const handlePhoneClick = (phone) => {
     const number = phone.replace(/\D/g, "");
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|webOS|BlackBerry/i.test(
-      navigator.userAgent
-    );
 
     if (isMobile) {
       // On mobile, open phone dialer
@@ -450,7 +451,7 @@ const ServiceDetails = () => {
                   }}
                   disabled={companyInfo.phones.length === 0}
                 >
-                  <FaHeadset />
+                  {isMobile ? (<FaHeadset />) : (<i className="fab fa-whatsapp" style={{ fontSize: 22 }}></i>)}
                   <span>Free Quick Support</span>
                 </button>
 
@@ -598,7 +599,8 @@ const ServiceDetails = () => {
               {/* Contact Card */}
               <div className="sd-contact-card">
                 <div className="sd-contact-icon">
-                  <FaPhone style={{ transform: "scaleX(-1)" }} />
+                  {isMobile ? (<FaPhone style={{ transform: "scaleX(-1)" }} />) : (<i className="fab fa-whatsapp" style={{ fontSize: 28 }}></i>)
+                  }
                 </div>
                 <h4 className="sd-contact-title">Need Free Help?</h4>
                 <p className="sd-contact-text">
@@ -612,7 +614,9 @@ const ServiceDetails = () => {
                         className="sd-phone-link"
                         onClick={() => handlePhoneClick(phone)}
                       >
-                        <FaPhone style={{ transform: "scaleX(-1)" }} /> +91 {formatPhoneNumber(phone)}
+                        {isMobile ? (<FaPhone style={{ transform: "scaleX(-1)" }} />) : (<i className="fab fa-whatsapp" style={{ fontSize: 22 }}></i>)
+                        }
+                        +91 {formatPhoneNumber(phone)}
                       </button>
                     ))
                   ) : (

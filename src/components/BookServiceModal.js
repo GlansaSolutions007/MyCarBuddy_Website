@@ -204,15 +204,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         isInspection: true
       });
 
-      // Add the selected service
-      // services.push({
-      //   serviceId: serviceIdCollect || 0,
-      //   serviceName: selectedService?.title || "N/A",
-      //   serviceType: serviceTypeDetail || "N/A",
-      //   isUserClicked: true,
-      //   price: 0, // Selected service price (to be determined after inspection)
-      //   isInspection: true
-      // });
     } else {
       // Without inspection - only send the selected service
       services.push({
@@ -290,13 +281,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         handler: function (response) {
           setPaymentProcessing(true);  // <-- show blur + loader instantly
 
-
-          // Show a modal indicating processing
-          // setPaymentStatus("processing");
-          // setPaymentMessage("Please wait... your booking is being processed.");
-          // setShowPaymentModal(true);
-
-          // Wait for 5 seconds before calling confirm-payment
           setTimeout(async () => {
             try {
               const res = await axios.post(
@@ -317,9 +301,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
 
               if (res?.data?.success || res?.status === 200) {
                 navigate("/payment-successful");
-                // setPaymentStatus("success");
-                // setPaymentMessage("Payment was successful!");
-                // clearCart();
               } else {
                 setPaymentProcessing(false);
                 Swal.fire({
@@ -337,10 +318,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   icon: "error",
                   confirmButtonColor: "#0a6264",
                 });
-
-                // setPaymentStatus("error");
-                // setPaymentMessage("Payment failed! Please try again.");
-                // clearCart();
               }
             } catch (error) {
               console.error(error);
@@ -363,26 +340,6 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             }
           }, 2000); // 2 seconds delay
 
-          // Swal.fire({
-          //   title: "Payment Successful!",
-          //   html: `
-          //   <div style="text-align: center; padding: 10px 0;">
-          //     <p style="margin-bottom: 10px; color: #374151;">
-          //       Your inspection has been booked!
-          //     </p>
-          //     <p style="color: #6b7280; font-size: 14px;">
-          //       Our expert technician will contact you shortly.
-          //     </p>
-          //     <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">
-          //       Payment ID: ${response.razorpay_payment_id}
-          //     </p>
-          //   </div>
-          // `,
-          //   icon: "success",
-          //   confirmButtonColor: "#0a6264",
-          // });
-          // navigate("/payment-successful");
-          // onClose();
         },
 
         prefill: {
@@ -485,12 +442,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     return "";
   };
 
- const validateOTP = (otp) => {
-    // const cleanOtp = otp.trim();
-
-    // if (!cleanOtp) return "OTP is required";
-    // if (!/^\d{6}$/.test(cleanOtp)) return "OTP must be exactly 6 digits";
-
+  const validateOTP = (otp) => {
+    if (!otp) return "OTP is required";
+    if (!/^\d+$/.test(otp)) return "OTP must contain only digits";
+    if (otp.length !== 6) return "OTP must be 6 digits";
     return "";
   };
 
@@ -507,21 +462,23 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const nameErr = validateName(fullName);
     const phoneErr = validatePhone(identifier);
     const emailErr = validateEmail(email);
+    const descErr = validateDescription(description);
 
     // set inline errors as well
     setNameError(nameErr);
     setPhoneError(phoneErr);
     setEmailError(emailErr);
+    setDescriptionError(descErr);
 
-    if (nameErr || phoneErr || emailErr) {
+    if (nameErr || phoneErr || emailErr || descErr) {
       // also notify user via toast for first error
-      const first = nameErr || phoneErr || emailErr;
+      const first = nameErr || phoneErr || emailErr || descErr;
       showAlert("Error", first, 3000, "error");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       await axios.post(`${baseUrl}Auth/send-otp`, { loginId: identifier, email });
       setOtpSent(true);
@@ -567,13 +524,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       }
     } catch (err) {
       console.error("OTP Verify Error", err);
-      if (err.response?.config?.url?.includes("verify-otp")) {
-        const msg = "Invalid OTP";
-        showAlert("Error", msg, 3000, "error");
-        setOtpError(msg);
-      } else {
-        showAlert("Error", "OTP verified but failed to save enquiry details.", 3000, "warning");
-      }
+
+      const msg = "Invalid OTP";
+      setOtpError(msg);
+      showAlert("Error", msg, 3000, "error");
+
     } finally {
       setLoading(false);
     }
@@ -711,13 +666,13 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       <FaCar className="bsm-car-icon" />
 
                       {offer1.packageName?.includes(" - ") && (
-                        <>
-                          <br />
-                          <span className="bsm-offer-desc">
+                        <div className="bsm-marquee">
+                          <span className="bsm-marquee-text">
                             {offer1.packageName.split(" - ")[1]}
                           </span>
-                        </>
+                        </div>
                       )}
+
                     </p>
 
                   </div>
@@ -747,12 +702,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       <FaCar className="bsm-car-icon" />
 
                       {offer2.packageName?.includes(" - ") && (
-                        <>
-                          <br />
-                          <span className="bsm-offer-desc">
+                        <div className="bsm-marquee">
+                          <span className="bsm-marquee-text">
                             {offer2.packageName.split(" - ")[1]}
                           </span>
-                        </>
+                        </div>
                       )}
                     </p>
                   </div>
@@ -774,7 +728,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
               {/* Trust */}
               <div className="bsm-trust">
                 <span>✓ 120K+ Customers</span>
-                <span>✓ Certified Mechanics</span>
+                <span>✓ 50+ Certified Mechanics</span>
               </div>
             </div>
           </div>
@@ -843,7 +797,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-form-group">
                     <label className="bsm-label">
                       <FaUser style={{ marginRight: 6 }} />
-                      Your Nammmme
+                      Your Name <span style={{ color: "#ef4444" }}>*</span>
                     </label>
                     <input
                       type="text"
@@ -864,7 +818,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-form-group">
                     <label className="bsm-label">
                       <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
-                      Phone Number
+                      Phone Number <span style={{ color: "#ef4444" }}>*</span>
                     </label>
                     <input
                       type="tel"
@@ -912,7 +866,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 <div className="bsm-form-group">
                   <label className="bsm-label">
                     <FaComment style={{ marginRight: 6 }} />
-                    What are you looking for?
+                    What are you looking for? <span style={{ color: "#ef4444" }}>*</span>
                   </label>
                   <textarea
                     className={`bsm-textarea ${descriptionError ? 'bsm-input-error' : ''}`}
@@ -957,12 +911,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       placeholder="• • • • • •"
                       value={otp}
                       onChange={(e) => {
-                        const v = e.target.value.replace(/\D/g, "").slice(0, 6);
-                        setOtp(v);
-                        const err = validateOTP(v);
-                        setOtpError(err);
-                        if (v.length === 6 && !err) {
-                          handleVerifyOTP();
+                        const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setOtp(value);
+
+                        // Show validation only if less than 6 digits
+                        if (value.length < 6) {
+                          setOtpError("OTP must be 6 digits");
+                        } else {
+                          setOtpError("");
                         }
                       }}
                       maxLength={6}

@@ -178,10 +178,10 @@ const InspectionPopup = ({ isOpen, onClose }) => {
   };
 
   const validateOTP = (otp) => {
-    // const cleanOtp = otp.trim();
+    const cleanOtp = otp.trim();
 
-    // if (!cleanOtp) return "OTP is required";
-    // if (!/^\d{6}$/.test(cleanOtp)) return "OTP must be exactly 6 digits";
+    if (!cleanOtp) return "OTP is required";
+    if (!/^\d{6}$/.test(cleanOtp)) return "OTP must be exactly 6 digits";
 
     return "";
   };
@@ -458,6 +458,14 @@ const InspectionPopup = ({ isOpen, onClose }) => {
   };
 
   const handleVerifyOTP = async () => {
+    const otpErr = validateOTP(otp);
+    setOtpError(otpErr);
+
+    if (otpErr) {
+      showAlert("Error", otpErr, 3000, "error");
+      return;
+    }
+
     const deviceId = getDeviceId();
     setLoading(true);
     try {
@@ -590,14 +598,15 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         {offer1.packageName?.split(" - ")[0]}
                         <FaCar className="bsm-car-icon" />
 
+
                         {offer1.packageName?.includes(" - ") && (
-                          <>
-                            <br />
-                            <span className="bsm-offer-desc">
+                          <div className="bsm-marquee">
+                            <span className="bsm-marquee-text">
                               {offer1.packageName.split(" - ")[1]}
                             </span>
-                          </>
+                          </div>
                         )}
+
                       </p>
                     </div>
                   </div>
@@ -626,12 +635,11 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         <FaCar className="bsm-car-icon" />
 
                         {offer2.packageName?.includes(" - ") && (
-                          <>
-                            <br />
-                            <span className="bsm-offer-desc">
+                          <div className="bsm-marquee">
+                            <span className="bsm-marquee-text">
                               {offer2.packageName.split(" - ")[1]}
                             </span>
-                          </>
+                          </div>
                         )}
                       </p>
                     </div>
@@ -659,7 +667,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 {/* Trust Badge */}
                 <div className="ip-trust">
                   <span>✓ 120K+ Customers</span>
-                  <span>✓ Certified Mechanics</span>
+                  <span>✓ 50+ Certified Mechanics</span>
                 </div>
               </>
             )}
@@ -684,7 +692,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-form-group half">
                       <label className="ip-label">
                         <FaUser style={{ marginRight: 6 }} />
-                        Your Name
+                        Your Name <span style={{ color: "#ef4444" }}>*</span>
                       </label>
                       <input
                         type="text"
@@ -707,7 +715,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-form-group half">
                       <label className="ip-label">
                         <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
-                        Phone Number
+                        Phone Number <span style={{ color: "#ef4444" }}>*</span>
                       </label>
                       <input
                         type="tel"
@@ -786,6 +794,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                           if (v.length === 6) {
                             setOtpError(""); // Clear error when 6 digits are entered
                           }
+                          else {
+                            setOtpError("OTP must be exactly 6 digits");
+                          }
                         }}
                         maxLength={6}
                         required
@@ -814,7 +825,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <button
                       type="submit"
                       className="ip-btn ip-btn-primary"
-                      disabled={loading || (otpStep && otpExpired)}
+                      disabled={loading || (otpStep && (otpExpired || otp.length !== 6))}
                     >
                       <span className={loading ? "ip-text-blur" : ""}>
                         {loading ? (

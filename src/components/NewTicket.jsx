@@ -4,9 +4,9 @@ import CryptoJS from 'crypto-js';
 import { useAlert } from '../context/AlertContext';
 import Swal from "sweetalert2";
 import "./NewTicket.css";
-import { 
-  FaTicketAlt, FaTimes, FaPaperclip, FaArrowRight, 
-  FaPaperPlane, FaArrowLeft, FaFileAlt 
+import {
+  FaTicketAlt, FaTimes, FaPaperclip, FaArrowRight,
+  FaPaperPlane, FaArrowLeft, FaFileAlt
 } from "react-icons/fa";
 
 const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
@@ -202,26 +202,52 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
     }
   }, [selectedTicketBookingId, bookings]);
 
+  // const handleReasonChange = (reason) => {
+  //   setSelectedReasonType(reason);
+  //   setSelectedSubReason('');
+  //   if (selectedTicketBookingId) {
+  //     if (reason === 'Others') {
+  //       setStep(4);
+  //     } else {
+  //       setStep(3);
+  //     }
+  //   } else {
+  //     setStep(2);
+  //     setTimeout(() => {
+  //       if (bookings.length === 0) {
+  //         setStep(3);
+  //       }
+  //     }, 300);
+  //   }
+  //   setTimeout(() => {
+  //     if (chatContainerRef.current) {
+  //       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  //     }
+  //   }, 100);
+  // };
+
   const handleReasonChange = (reason) => {
     setSelectedReasonType(reason);
     setSelectedSubReason('');
-    if (selectedTicketBookingId) {
-      // Pre-selected flow: booking already selected, go to sub-reason or description
-      if (reason === 'Others') {
-        setStep(4);
-      } else {
-        setStep(3);
-      }
+
+    // ✅ If Others → directly go to description step
+    if (reason === 'Others') {
+      setStep(4);
+    } else if (selectedTicketBookingId) {
+      // Pre-selected booking flow
+      setStep(3);
     } else {
-      // Normal flow: go to booking selection
+      // Normal flow
       setStep(2);
-      // Check if no bookings, skip to sub-reason
+
+      // If no bookings → skip to sub reason
       setTimeout(() => {
         if (bookings.length === 0) {
           setStep(3);
         }
       }, 300);
     }
+
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -402,8 +428,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                     </div>
                   ) : reasonTypes.length > 0 ? (
                     reasonTypes.map((reasonType) => (
-                      <div 
-                        key={reasonType.value} 
+                      <div
+                        key={reasonType.value}
                         className={`nt-option ${selectedReasonType === reasonType.value ? 'selected' : ''} ${step > 2 ? 'disabled' : ''}`}
                         onClick={() => step <= 2 && handleReasonChange(reasonType.value)}
                       >
@@ -413,7 +439,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                           id={`reason-${reasonType.value}`}
                           value={reasonType.value}
                           checked={selectedReasonType === reasonType.value}
-                          onChange={() => {}}
+                          onChange={() => { }}
                           disabled={step > 2}
                         />
                         <label className="nt-option-label" htmlFor={`reason-${reasonType.value}`}>
@@ -451,8 +477,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                   ) : bookings.length > 0 ? (
                     <>
                       {(showAllBookings ? bookings : bookings.slice(0, 5)).map((booking) => (
-                        <div 
-                          key={booking.BookingTrackID} 
+                        <div
+                          key={booking.BookingTrackID}
                           className={`nt-option ${bookingId === booking.BookingID.toString() ? 'selected' : ''} ${step > 2 ? 'disabled' : ''}`}
                           onClick={() => {
                             if (step <= 2) {
@@ -467,7 +493,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                             id={`booking-${booking.BookingID}`}
                             value={booking.BookingID}
                             checked={bookingId === booking.BookingID.toString()}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             disabled={step > 2}
                           />
                           <label className="nt-option-label" htmlFor={`booking-${booking.BookingID}`}>
@@ -546,8 +572,8 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                 <div className="nt-bubble-title">Choose a specific reason</div>
                 <div className="nt-options">
                   {reasonTypes.find(r => r.value === selectedReasonType)?.Reasons.map((subReason) => (
-                    <div 
-                      key={subReason.id} 
+                    <div
+                      key={subReason.id}
                       className={`nt-option ${selectedSubReasonId === subReason.id ? 'selected' : ''} ${step > 3 ? 'disabled' : ''}`}
                       onClick={() => step <= 3 && handleSubReasonChange(subReason)}
                     >
@@ -557,7 +583,7 @@ const NewTicket = ({ onClose, onTicketCreated, selectedTicketBookingId }) => {
                         id={`subReason-${subReason.id}`}
                         value={subReason.id}
                         checked={selectedSubReasonId === subReason.id}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         disabled={step > 3}
                       />
                       <label className="nt-option-label" htmlFor={`subReason-${subReason.id}`}>

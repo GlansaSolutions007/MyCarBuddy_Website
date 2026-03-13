@@ -91,13 +91,12 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 	};
 
 	const validateOTP = (otp) => {
-		// const cleanOtp = otp.trim();
-
-		// if (!cleanOtp) return "OTP is required";
-		// if (!/^\d{6}$/.test(cleanOtp)) return "OTP must be exactly 6 digits";
-
+		if (!otp) return "OTP is required";
+		if (!/^\d+$/.test(otp)) return "OTP must contain only digits";
+		if (otp.length !== 6) return "OTP must be 6 digits";
 		return "";
 	};
+
 	const validateEmail = (email) => {
 		if (!email.trim()) return "";
 		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -129,17 +128,6 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			showAlert("Error", first, 3000, "error");
 			return;
 		}
-
-
-		// if (!fullName) {
-		// 	showAlert("Error", "Please enter your name", 3000, "error");
-		// 	return;
-		// }
-
-		// if (!email) {
-		// 	showAlert("Error", "Please enter your email", 3000, "error");
-		// 	return;
-		// }
 
 		setLoading(true);
 		try {
@@ -191,6 +179,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			window.dispatchEvent(new Event("userProfileUpdated"));
 			onClose();
 		} catch (error) {
+			setOtpError("Invalid OTP");
 			showAlert("Error", "Invalid OTP", 3000, "error");
 		} finally {
 			setLoading(false);
@@ -261,7 +250,13 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 							<FaCar />
 						</div>
 						<h2 className="si-brand-title">My Car Buddy</h2>
-						<p className="si-brand-tagline">Your Trusted Car Care Partner <span style={{ color: "#fbbf24", fontWeight: "bold" }}>at your Doorstep</span></p>
+						<p className="si-brand-tagline">
+							Your Trusted Car Care Partner
+							<br />
+							<span style={{ color: "#fbbf24", fontWeight: "bold", display: "inline-block", marginTop: "1px" }}>
+								at your Doorstep
+							</span>
+						</p>
 					</div>
 
 					<div className="si-features">
@@ -287,7 +282,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 				{/* Right Panel - Form */}
 				<div className="si-right-panel">
 					<div className="si-form-header">
-						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome to My Car Buddy"}</h3>
+						<h3 className="si-title">{otpSent ? "Verify OTP" : "Welcome to My Car Buddy!"}</h3>
 						<p className="si-subtitle">
 							{otpSent
 								? `Enter the OTP sent to +91 ${identifier}`
@@ -413,11 +408,11 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 												const value = e.target.value.replace(/\D/g, "").slice(0, 6);
 												setOtp(value);
 
-												const err = validateOTP(value);
-												setOtpError(err);
-
-												if (value.length === 6 && !err) {
-													handleVerifyOTP(e);
+												// Show validation only if less than 6 digits
+												if (value.length < 6) {
+													setOtpError("OTP must be 6 digits");
+												} else {
+													setOtpError("");
 												}
 											}}
 											maxLength={6}

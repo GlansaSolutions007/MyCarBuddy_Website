@@ -21,7 +21,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
-              0 2px 8px rgba(0, 0, 0, 0.1);
+    0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
@@ -32,7 +32,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: linear-gradient(135deg, #E8092E 0%, #c40726 100%);
+  background: linear-gradient(135deg, #158d8f 0%, #0c5658 100%);
   color: white;
 }
 
@@ -48,15 +48,22 @@
 }
 
 @keyframes ring {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: rotate(0deg);
   }
-  10%, 30% {
+
+  10%,
+  30% {
     transform: rotate(-10deg);
   }
-  20%, 40% {
+
+  20%,
+  40% {
     transform: rotate(10deg);
   }
+
   50% {
     transform: rotate(0deg);
   }
@@ -145,21 +152,20 @@
     max-width: calc(100% - 20px);
     min-width: auto;
   }
-  
+
   .notification-popup-content {
     border-radius: 10px;
   }
-  
+
   .notification-popup-body {
     padding: 14px;
   }
-  
+
   .notification-popup-title {
     font-size: 15px;
   }
-  
+
   .notification-popup-message {
     font-size: 13px;
   }
 }
-

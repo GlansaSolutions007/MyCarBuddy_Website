@@ -76,15 +76,17 @@ const HeroSection = () => {
     fetchCompanyInfo();
   }, [BASE_URL]);
 
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+
+
   // --- CONTACT HANDLER ---
   const handleContactClick = () => {
     if (companyInfo.phones.length === 0) return;
 
     const phone = companyInfo.phones[0];
     const number = phone.replace(/\D/g, "");
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
-      navigator.userAgent
-    );
 
     if (isMobile) {
       window.location.href = `tel:${number}`;
@@ -140,9 +142,17 @@ const HeroSection = () => {
                   className="btn-outline-custom"
                   disabled={companyInfo.phones.length === 0}
                 >
-                  {/* Get Free Inspection on Call */}
-                  <i className="fas fa-headset pe-2 "></i>
-                  Call for Free Consultation
+                  {isMobile ? (
+                    <>
+                      <i className="fas fa-headset pe-2"></i>
+                      Call for Free Consultation
+                    </>
+                  ) : (
+                    <>
+                      <i className="fab fa-whatsapp pe-2" style={{ fontSize: 22 }}></i>
+                      Chat for Free Consultation
+                    </>
+                  )}
                 </button>
               </div>
 
