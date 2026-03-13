@@ -122,50 +122,6 @@ const MyBookings = () => {
     }
   };
 
-  // Add booking packages to cart
-  const handleAddBookingToCart = async (booking) => {
-    if (!booking?.Packages || booking.Packages.length === 0) {
-      showAlert("No packages found in this booking.", "warning");
-      return;
-    }
-
-    try {
-      setIsProcessingBookAgain(true);
-
-      // Clear existing cart first
-      clearCart();
-
-      // Add each package to cart
-      let addedCount = 0;
-      for (const pkg of booking.Packages) {
-        const cartItem = {
-          id: pkg.PackageID,
-          title: pkg.PackageName,
-          price: pkg.PackagePrice || 0,
-          image: pkg.PackageImage
-            ? `${ImageURL}${pkg.PackageImage}`
-            : "/assets/img/service-1-1.png",
-          category: pkg.CategoryName || "Service",
-          subCategory: pkg.SubCategoryName || "",
-        };
-        addToCart(cartItem);
-        addedCount++;
-      }
-
-      // showAlert(`Cart cleared and ${addedCount} package(s) added to your cart!`, "success");
-
-      // Redirect to cart page
-      setTimeout(() => {
-        navigate("/cart");
-      }, 1500);
-    } catch (error) {
-      console.error("Error adding packages to cart:", error);
-      showAlert("Failed to add packages to cart. Please try again.", "error");
-    } finally {
-      setIsProcessingBookAgain(false);
-    }
-  };
-
   const fetchBookings = async () => {
     try {
       setIsLoading(true);
@@ -775,64 +731,6 @@ const MyBookings = () => {
     rzp.open();
   };
 
-  const handleCancel = async (
-    bookingId,
-    paymentMethod,
-    transactionID,
-    type,
-    Amount
-  ) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) {
-      return;
-    }
-
-    try {
-      const res = await axios.post(
-        `${BaseURL}TechnicianTracking/UpdateTechnicianTracking`,
-        {
-          bookingId: bookingId,
-          actionType: type,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (paymentMethod === "Razorpay" || paymentMethod === "razorpay") {
-        showAlert("Refund has been initiated");
-        const res_refund = await axios.post(
-          `${BaseURL}Refund/Refund`,
-          {
-            paymentId: transactionID,
-            amount: Amount,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (res_refund.status === 200) {
-          if (res_refund.data.status === "success") {
-            showAlert("Refund has been initiated");
-          }
-        }
-      }
-
-      if (res.status === 200) {
-        if (type === "Cancelled") {
-          showAlert("Booking has been cancelled");
-        }
-      }
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-    }
-  };
-
   // New function to handle showing cancel section
   const openCancelModal = () => {
     setShowCancelSection(true);
@@ -903,28 +801,6 @@ const MyBookings = () => {
           showAlert("Booking cancellation submitted successfully.");
         }
 
-        //       const res_refund = await axios.post(`${BaseURL}Refund/Refund`, {
-        //         paymentId: selectedBooking.TransactionID,
-        //         amount: selectedBooking.TotalPrice + selectedBooking.GSTAmount - selectedBooking.CouponAmount
-        //       },
-        //       {
-        //         headers: {
-        //           Authorization: `Bearer ${user?.token}`,
-        //           "Content-Type": "application/json",
-        //         },
-        //       }
-        //       );
-
-        //       if(res_refund.status === 200 ){
-        //         if(res_refund.data.status === 'success'){
-        //            setShowCancelSection(false);
-        //           showAlert("Refund has been initiated");
-        //         }
-        //       }
-        //   }
-        //   else{
-        //       setShowCancelSection(false);
-        //   }
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
             booking.BookingID === selectedBooking.BookingID
@@ -1007,15 +883,39 @@ const MyBookings = () => {
     );
   };
 
+  // const visibleBookings = Array.isArray(filteredBookings)
+  //   ? filteredBookings.filter((booking) => {
+  //     // If no temp addons → show booking
+  //     if (!Array.isArray(booking.BookingsTempAddons)) return true;
+
+  //     // Hide booking if ANY addon is not confirmed
+  //     return booking.BookingsTempAddons.every(
+  //       (addon) => addon.IsSupervisor_Confirm === 1
+  //     );
+  //   })
+  //   : [];
+
   const visibleBookings = Array.isArray(filteredBookings)
     ? filteredBookings.filter((booking) => {
-      // If no temp addons → show booking
-      if (!Array.isArray(booking.BookingsTempAddons)) return true;
+      const hasTempAddons =
+        Array.isArray(booking.BookingsTempAddons) &&
+        booking.BookingsTempAddons.length > 0;
+      const hasAddOns =
+        Array.isArray(booking.BookingAddOns) &&
+        booking.BookingAddOns.length > 0;
 
-      // Hide booking if ANY addon is not confirmed
-      return booking.BookingsTempAddons.every(
-        (addon) => addon.IsSupervisor_Confirm === 1
-      );
+      // Hide booking if BOTH are null/empty
+      if (!hasTempAddons && !hasAddOns) return false;
+
+      // If temp addons exist, hide if ANY addon is not confirmed
+      if (hasTempAddons) {
+        return booking.BookingsTempAddons.every(
+          (addon) => addon.IsSupervisor_Confirm === 1
+        );
+      }
+
+      // Has only approved addons → show
+      return true;
     })
     : [];
 
