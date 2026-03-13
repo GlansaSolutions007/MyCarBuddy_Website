@@ -1831,10 +1831,10 @@ const MyBookings = () => {
                       <div className="mb-addons-grid">
                         {selectedBooking.BookingsTempAddons.map((addOn, idx) => (
                           <div key={`temp-${idx}`} className="mb-addon-card mb-addon-card-pending">
-                            {/* <div className="mb-addon-header">
+                            <div className="mb-addon-header">
                               <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
-                              <span className="badge bg-warning text-dark">Pending</span>
-                            </div> */}
+                              {/* <span className="badge bg-warning text-dark">Pending</span> */}
+                            </div>
                             <div className="mb-addon-body">
                               <div className="mb-addon-row">
                                 <span className="mb-addon-label">Parts Price</span>
