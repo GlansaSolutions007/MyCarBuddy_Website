@@ -140,73 +140,73 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
     // ---------------------------------------------------------
-        const handleSubmit = async (action = "approve") => {
-            if (!bookingDetails) return;
+    const handleSubmit = async (action = "approve") => {
+        if (!bookingDetails) return;
 
-            // For reject, validate reason
-            if (action === "reject" && !rejectionReason.trim()) {
-                Swal.fire("Error", "Please provide a reason for rejection.", "error");
-                return;
-            }
+        // For reject, validate reason
+        if (action === "reject" && !rejectionReason.trim()) {
+            Swal.fire("Error", "Please provide a reason for rejection.", "error");
+            return;
+        }
 
-            const custIdToSend = custId ?? bookingDetails?.CustID;
-            if (!custIdToSend) {
-                Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
-                return;
-            }
-            const addOnIds =
-                bookingDetails?.BookingsTempAddons?.map((a) => a.Id).join(",") || "";
+        const custIdToSend = custId ?? bookingDetails?.CustID;
+        if (!custIdToSend) {
+            Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
+            return;
+        }
+        const addOnIds =
+            bookingDetails?.BookingsTempAddons?.map((a) => a.Id).join(",") || "";
 
-            try {
-                setIsSubmitting(true);
+        try {
+            setIsSubmitting(true);
 
-                const requestBody = {
-                    status: action === "approve" ? "Confirmed" : "Reject",
-                    reason: action === "reject" ? rejectionReason : ""
-                };
+            const requestBody = {
+                status: action === "approve" ? "Confirmed" : "Reject",
+                reason: action === "reject" ? rejectionReason : ""
+            };
 
-                const response = await axios.post(
-                    `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${addOnIds}&custId=${custIdToSend}`,
-                    requestBody,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${user?.token}`,
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-
-                if (response.status === 200 || response.status === 201) {
-                    const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
-                    const message = action === "approve"
-                        ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
-                        : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
-                    const icon = action === "approve" ? "success" : "warning";
-
-                    Swal.fire({
-                        title: title,
-                        text: message,
-                        icon: icon,
-                        confirmButtonColor: "#0a6264",
-                    }).then(() => {
-                        navigate("/", { replace: true });
-                    });
-                } else {
-                    throw new Error("Unexpected response code");
+            const response = await axios.post(
+                `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${addOnIds}&custId=${custIdToSend}`,
+                requestBody,
+                {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        "Content-Type": "application/json",
+                    },
                 }
+            );
 
-            } catch (error) {
-                console.error("Error processing booking:", error);
-                const actionText = action === "approve" ? "confirm" : "reject";
-                Swal.fire(
-                    "Submission Failed",
-                    `Could not ${actionText} services. Please try again.`,
-                    "error"
-                );
-            } finally {
-                setIsSubmitting(false);
+            if (response.status === 200 || response.status === 201) {
+                const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
+                const message = action === "approve"
+                    ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
+                    : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
+                const icon = action === "approve" ? "success" : "warning";
+
+                Swal.fire({
+                    title: title,
+                    text: message,
+                    icon: icon,
+                    confirmButtonColor: "#0a6264",
+                }).then(() => {
+                    navigate("/", { replace: true });
+                });
+            } else {
+                throw new Error("Unexpected response code");
             }
-        };
+
+        } catch (error) {
+            console.error("Error processing booking:", error);
+            const actionText = action === "approve" ? "confirm" : "reject";
+            Swal.fire(
+                "Submission Failed",
+                `Could not ${actionText} services. Please try again.`,
+                "error"
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -664,7 +664,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                     )}
 
                     {/* Approval Checkbox - Only show in approve mode */}
-                    {!isRejectMode && (
+                    {!isRejectMode && services.length > 0 && (
                         <div className="form-check-a mb-3">
                             <input
                                 type="checkbox"
@@ -682,34 +682,79 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
 
                     {/* Footer Actions */}
                     <div className="aos-footer">
-                        {!isRejectMode ? (
+                        {services.length === 0 && confirmedAddons.length > 0 ? (
+                            // All services already approved — no pending temp addons
+                            <div
+                                className="w-100 p-3 d-flex align-items-center gap-2"
+                                style={{
+                                    backgroundColor: "#f0f9f0",
+                                    borderRadius: "8px",
+                                    border: "1px solid #28a745",
+                                }}
+                            >
+                                <FaCheck style={{ color: "#28a745", flexShrink: 0 }} />
+                                <span style={{ color: "#1a6e2e", fontWeight: "500" }}>
+                                    {confirmedAddons.length === 1
+                                        ? "The service for this booking has already been approved."
+                                        : `All ${confirmedAddons.length} services for this booking have already been approved.`}
+                                </span>
+                            </div>
+                        ) : !isRejectMode ? (
                             <>
-                                <button className="aos-btn aos-btn-secondary me-3" onClick={() => navigate(-1)} disabled={isSubmitting}>
+                                <button
+                                    className="aos-btn aos-btn-secondary me-3"
+                                    onClick={() => navigate(-1)}
+                                    disabled={isSubmitting}
+                                >
                                     Cancel
                                 </button>
-                                <button className="aos-btn aos-btn-primary me-3" onClick={() => handleSubmit("approve")} disabled={isSubmitting || !isChecked}>
+                                <button
+                                    className="aos-btn aos-btn-primary me-3"
+                                    onClick={() => handleSubmit("approve")}
+                                    disabled={isSubmitting || !isChecked}
+                                >
                                     {isSubmitting ? (
                                         <>
-                                            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                            <span
+                                                className="spinner-border spinner-border-sm me-2"
+                                                aria-hidden="true"
+                                            ></span>
                                             Processing...
                                         </>
                                     ) : (
-                                        <><FaCheck /> Approve Services</>
+                                        <>
+                                            <FaCheck /> Approve Services
+                                        </>
                                     )}
                                 </button>
-                                <button className="aos-btn aos-btn-danger" onClick={() => setIsRejectMode(true)} disabled={isSubmitting}>
+                                <button
+                                    className="aos-btn aos-btn-danger"
+                                    onClick={() => setIsRejectMode(true)}
+                                    disabled={isSubmitting}
+                                >
                                     Reject
                                 </button>
                             </>
                         ) : (
                             <>
-                                <button className="aos-btn aos-btn-secondary me-3" onClick={() => setIsRejectMode(false)} disabled={isSubmitting}>
+                                <button
+                                    className="aos-btn aos-btn-secondary me-3"
+                                    onClick={() => setIsRejectMode(false)}
+                                    disabled={isSubmitting}
+                                >
                                     Back
                                 </button>
-                                <button className="aos-btn aos-btn-danger" onClick={() => handleSubmit("reject")} disabled={isSubmitting || !rejectionReason.trim()}>
+                                <button
+                                    className="aos-btn aos-btn-danger"
+                                    onClick={() => handleSubmit("reject")}
+                                    disabled={isSubmitting || !rejectionReason.trim()}
+                                >
                                     {isSubmitting ? (
                                         <>
-                                            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                            <span
+                                                className="spinner-border spinner-border-sm me-2"
+                                                aria-hidden="true"
+                                            ></span>
                                             Processing...
                                         </>
                                     ) : (
