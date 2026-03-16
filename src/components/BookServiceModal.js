@@ -77,6 +77,15 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     }
   }, [isLoggedIn]);
 
+  // Pre-fill description based on selected service when modal opens
+  useEffect(() => {
+    if (isOpen && selectedService?.title) {
+      const defaultDesc = `Requesting for ${selectedService.title}`;
+      setDescription(defaultDesc);
+      setDescriptionError("");
+    }
+  }, [isOpen, selectedService]);
+
   // console.log(`email is = ${fullName}`);
 
   // Reset form when modal opens/closes
