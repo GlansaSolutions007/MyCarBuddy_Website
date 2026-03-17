@@ -150,6 +150,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           setOffer2({
             oldPrice: package2.Serv_Reg_Price || 999,
             newPrice: package2.Serv_Off_Price || 699,
+            gstAmount: package2.gst_amt || 0,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -631,7 +632,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer2.oldPrice}</span>
-                        <span className="ip-price-new">₹{offer2.newPrice}</span>
+                        <span className="ip-price-new">₹{offer2.newPrice + offer2.gstAmount}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
