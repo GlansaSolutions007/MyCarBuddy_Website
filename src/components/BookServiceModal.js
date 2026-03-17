@@ -173,7 +173,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
           setOffer1({
             oldPrice: package1.Serv_Reg_Price || 599,
             newPrice: package1.Serv_Off_Price || 399,
-            gstAmount: package1.gst_amt || 0,
+            gstPrice: package1.gst_amt || 0,
+            gstPercent: package1.gst_p || 0,
+            totalPrice: Math.round(package1.Serv_Off_Price + package1.gst_amt),
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -186,7 +188,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
           setOffer2({
             oldPrice: package2.Serv_Reg_Price || 999,
             newPrice: package2.Serv_Off_Price || 699,
-            gstAmount: package2.gst_amt || 0,
+            gstPrice: package2.gst_amt || 0,
+            gstPercent: package2.gst_p || 0,
+            totalPrice: Math.round(package2.Serv_Off_Price + package2.gst_amt),
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -211,7 +215,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
         isUserClicked: true,
-        price: selectedOfferData.newPrice,
+        price: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        gstPrice: selectedOfferData.gstPrice,
+        gstPercent: selectedOfferData.gstPercent,
+        totalPrice: Math.round(selectedOfferData.newPrice),
         isInspection: true
       });
 
@@ -233,7 +240,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       description: description || "No description provided",
       platform: "Web",
       type: withInspection ? "online" : "cos",
-      amount: withInspection ? selectedOfferData.newPrice : 0,
+      amount: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      gstPrice: selectedOfferData.gstPrice,
+      gstPercent: selectedOfferData.gstPercent,
+      totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
+      description: `Rs.${selectedOfferData.newPrice} Rs Offered - Doorstep Car Inspection`,
       services
     };
   };
@@ -278,7 +290,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const leadId = res.data.leadId;
       const razorKey = res.data.razorpayKey;
       // const amount = res.data.amount * 100; // Razorpay requires paise
-      const amount = leadPayload.amount; // Razorpay requires paise
+      const amount = Math.round(leadPayload.amount); // Razorpay requires paise
 
       // 2️⃣ Open Razorpay Checkout using backend key & orderID
       const options = {
@@ -669,7 +681,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer1.oldPrice}</span>
-                      <span className="bsm-price-new">₹{Math.round(offer1.newPrice + offer1.gstAmount)}</span>
+                      <span className="bsm-price-new">₹{Math.round(offer1.totalPrice)}</span>
                     </div>
                     {/* <p className="bsm-offer-text">{offer1.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
@@ -705,7 +717,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer2.oldPrice}</span>
-                      <span className="bsm-price-new">₹{Math.round(offer2.newPrice + offer2.gstAmount)}</span>
+                      <span className="bsm-price-new">₹{Math.round(offer2.totalPrice)}</span>
                     </div>
                     {/* <p className="bsm-offer-text">{offer2.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
@@ -968,7 +980,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                           : (otpStep ? "Verifying..." : "Sending OTP...")
                       ) : isLoggedIn ? (
                         <>
-                          {inspection ? `Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice} & Book` : "Submit Enquiry"}
+                          {inspection ? `Pay ₹${selectedOffer === 1 ? offer1.totalPrice : offer2.totalPrice} & Book` : "Submit Enquiry"}
                           <FaArrowRight className="bsm-btn-arrow" />
                         </>
                       ) : otpStep ? (

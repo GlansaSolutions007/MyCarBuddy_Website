@@ -137,7 +137,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           setOffer1({
             oldPrice: package1.Serv_Reg_Price || 599,
             newPrice: package1.Serv_Off_Price || 399,
-            gstAmount: package1.gst_amt || 0,
+            gstPrice: package1.gst_amt || 0,
+            gstPercent: package1.gst_p || 0,
+            totalPrice: Math.round(package1.Serv_Off_Price + package1.gst_amt),
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -150,7 +152,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           setOffer2({
             oldPrice: package2.Serv_Reg_Price || 999,
             newPrice: package2.Serv_Off_Price || 699,
-            gstAmount: package2.gst_amt || 0,
+            gstPrice: package2.gst_amt || 0,
+            gstPercent: package2.gst_p || 0,
+            totalPrice: Math.round(package2.Serv_Off_Price + package2.gst_amt),
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -194,6 +198,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     try {
       // Get the selected offer
       const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
+      console.log("selectedOfferData", selectedOfferData);
 
       // 1️⃣ First create order by calling backend
       const services = [{
@@ -201,7 +206,10 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
         isUserClicked: true,
-        price: selectedOfferData.newPrice,
+        price: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        gstPrice: selectedOfferData.gstPrice,
+        gstPercent: selectedOfferData.gstPercent,
+        totalPrice: selectedOfferData.newPrice,
         isInspection: true
       }];
 
@@ -211,9 +219,10 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         email: email || user?.email || "",
         platform: "Web",
         type: "online",
-        amount: selectedOfferData.newPrice,
-        gstAmount: selectedOfferData.gstAmount,
+        amount: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        gstPrice: selectedOfferData.gstPrice,
         gstPercent: selectedOfferData.gstPercent,
+        totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
         // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
         description: `Rs.${selectedOfferData.newPrice} Rs Offered - Doorstep Car Inspection`,
         services
@@ -596,7 +605,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer1.oldPrice}</span>
-                        <span className="ip-price-new"> ₹{Math.round(offer1.newPrice + offer1.gstAmount)}</span>
+                        <span className="ip-price-new"> ₹{Math.round(offer1.totalPrice)}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
@@ -632,7 +641,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer2.oldPrice}</span>
-                        <span className="ip-price-new">₹{offer2.newPrice + offer2.gstAmount}</span>
+                        <span className="ip-price-new"> ₹{Math.round(offer2.totalPrice)}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
