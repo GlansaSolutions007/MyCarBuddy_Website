@@ -173,6 +173,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
           setOffer1({
             oldPrice: package1.Serv_Reg_Price || 599,
             newPrice: package1.Serv_Off_Price || 399,
+            gstAmount: package1.gst_amt || 0,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -667,7 +668,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer1.oldPrice}</span>
-                      <span className="bsm-price-new">₹{offer1.newPrice}</span>
+                      <span className="bsm-price-new">₹{Math.round(offer1.newPrice + offer1.gstAmount)}</span>
                     </div>
                     {/* <p className="bsm-offer-text">{offer1.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">

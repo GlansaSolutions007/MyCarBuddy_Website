@@ -137,6 +137,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           setOffer1({
             oldPrice: package1.Serv_Reg_Price || 599,
             newPrice: package1.Serv_Off_Price || 399,
+            gstAmount: package1.gst_amt || 0,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -592,7 +593,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer1.oldPrice}</span>
-                        <span className="ip-price-new">₹{offer1.newPrice}</span>
+                        <span className="ip-price-new"> ₹{Math.round(offer1.newPrice + offer1.gstAmount)}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
