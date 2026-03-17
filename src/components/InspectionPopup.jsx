@@ -211,6 +211,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         platform: "Web",
         type: "online",
         amount: selectedOfferData.newPrice,
+        gstAmount: selectedOfferData.gstAmount,
+        gstPercent: selectedOfferData.gstPercent,
         // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
         description: `Rs.${selectedOfferData.newPrice} Rs Offered - Doorstep Car Inspection`,
         services
