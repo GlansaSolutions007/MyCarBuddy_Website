@@ -705,7 +705,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer2.oldPrice}</span>
-                      <span className="bsm-price-new">₹{offer2.newPrice}</span>
+                      <span className="bsm-price-new">₹{Math.round(offer2.newPrice + offer2.gstAmount)}</span>
                     </div>
                     {/* <p className="bsm-offer-text">{offer2.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
