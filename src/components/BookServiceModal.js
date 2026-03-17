@@ -186,6 +186,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
           setOffer2({
             oldPrice: package2.Serv_Reg_Price || 999,
             newPrice: package2.Serv_Off_Price || 699,
+            gstAmount: package2.gst_amt || 0,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -194,7 +195,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         console.error('Failed to fetch inspection packages:', err);
       }
     };
-    fetchInspectionPackages();
+    fetchInspectionPackages();  
   }, []);
 
   // Common function to build lead payload

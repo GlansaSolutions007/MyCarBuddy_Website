@@ -150,6 +150,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
           setOffer2({
             oldPrice: package2.Serv_Reg_Price || 999,
             newPrice: package2.Serv_Off_Price || 699,
+            gstAmount: package2.gst_amt || 0,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
