@@ -224,7 +224,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         gstPercent: selectedOfferData.gstPercent,
         totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
         // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-        description: `Rs.${selectedOfferData.newPrice} Rs Offered - Doorstep Car Inspection`,
+        description: `Rs.${Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice)} Rs Offered - Doorstep Car Inspection`,
         services
       };
 
