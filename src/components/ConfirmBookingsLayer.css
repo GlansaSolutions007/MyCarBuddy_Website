@@ -392,7 +392,7 @@
 }
 
 .aos-table tbody td {
-  padding: 14px 16px;
+  /* padding: 14px 16px; */
   font-size: 0.9rem;
   color: #333;
   vertical-align: middle;
@@ -452,6 +452,32 @@
   color: #0a6264;
 }
 
+.aos-select-col {
+  width: 60px;
+  text-align: center;
+}
+
+.aos-select-toggle {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid #0a6264;
+  background-color: #ffffff;
+  color: #0a6264;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.aos-select-toggle.selected {
+  background-color: #0a6264;
+  color: #ffffff;
+}
 /* ===== Responsive ===== */
 @media (max-width: 991px) {
   .aos-summary-grid {

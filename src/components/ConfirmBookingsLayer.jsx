@@ -19,6 +19,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const [bookingDetails, setBookingDetails] = useState(null);
     const [openIncludes, setOpenIncludes] = useState(null);
     const [isChecked, setIsChecked] = useState(false);
+    const [selectedServiceIds, setSelectedServiceIds] = useState([]);
     const [isRejectMode, setIsRejectMode] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
 
@@ -65,11 +66,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         (b) => String(b.BookingID) === String(bookingId)
                     );
 
-                    if (matchedBooking) {
-                        setBookingDetails(matchedBooking);
-                        setServices(matchedBooking.BookingsTempAddons || []);
-                        setConfirmedAddons(matchedBooking.BookingAddOns || []);
-                    }
+                        if (matchedBooking) {
+                            setBookingDetails(matchedBooking);
+                            const tempAddons = matchedBooking.BookingsTempAddons || [];
+                            setServices(tempAddons);
+                            setConfirmedAddons(matchedBooking.BookingAddOns || []);
+                            setSelectedServiceIds(tempAddons.map((a) => a.Id));
+                        }
                 }
             } catch (error) {
                 console.error("Error fetching bookings:", error);
@@ -137,6 +140,12 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         };
     }, [tempTotals, confirmedTotals]);
 
+    const toggleServiceSelection = (id) => {
+        setSelectedServiceIds((prev) =>
+            prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+        );
+    };
+
     // ---------------------------------------------------------
     //  HANDLE SUBMIT
     // ---------------------------------------------------------
@@ -154,8 +163,22 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             Swal.fire("Error", "Customer ID is required. Please ensure you are logged in.", "error");
             return;
         }
-        const addOnIds =
-            bookingDetails?.BookingsTempAddons?.map((a) => a.Id).join(",") || "";
+
+        const effectiveSelectedIds =
+            selectedServiceIds && selectedServiceIds.length > 0
+                ? selectedServiceIds
+                : [];
+
+        if (services.length > 0 && effectiveSelectedIds.length === 0) {
+            Swal.fire(
+                "No Services Selected",
+                "Please select at least one service to proceed.",
+                "warning"
+            );
+            return;
+        }
+
+        const addOnIds = effectiveSelectedIds.join(",");
 
         try {
             setIsSubmitting(true);
@@ -454,9 +477,20 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                     const gst = Number(srv.GSTAmount || 0);
                                     const labourCharge = Number(srv.LabourCharges || 0);
                                     const total = price + gst + labourCharge;
+                                    const isSelected = selectedServiceIds.includes(srv.Id);
                                     return (
                                         <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: "4px solid #ffc107" }}>
                                             <div className="aos-card-header-approve">
+                                                <div className="aos-card-select">
+                                                    <button
+                                                        type="button"
+                                                        className={`aos-select-toggle ${isSelected ? "selected" : ""}`}
+                                                        onClick={() => toggleServiceSelection(srv.Id)}
+                                                        disabled={isSubmitting}
+                                                    >
+                                                        {isSelected ? "✓" : ""}
+                                                    </button>
+                                                </div>
                                                 <div className="aos-card-info">
                                                     <h4 className="aos-card-name">{srv.ServiceName}</h4>
                                                     <span className={`aos-card-type ${srv.ServiceType?.toLowerCase().includes("part") ? "bodyparts" : "services"}`}>
@@ -542,6 +576,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <table className="aos-table">
                                     <thead>
                                         <tr>
+                                            <th className="aos-select-col">Select</th>
                                             <th>S.No</th>
                                             <th>Service Name & Includes</th>
                                             <th>Type</th>
@@ -561,8 +596,19 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                             const gst = Number(srv.GSTAmount || 0);
                                             const labourCharge = Number(srv.LabourCharges || 0);
                                             const total = price + gst + labourCharge;
+                                            const isSelected = selectedServiceIds.includes(srv.Id);
                                             return (
                                                 <tr key={`temp-${idx}`} style={{ backgroundColor: "#fffbf0" }}>
+                                                    <td className="aos-select-col">
+                                                        <button
+                                                            type="button"
+                                                            className={`aos-select-toggle ${isSelected ? "selected" : ""}`}
+                                                            onClick={() => toggleServiceSelection(srv.Id)}
+                                                            disabled={isSubmitting}
+                                                        >
+                                                            {isSelected ? "✓" : ""}
+                                                        </button>
+                                                    </td>
                                                     <td>{idx + 1}</td>
                                                     <td>
                                                         <span className="aos-table-name" title={srv.ServiceName}>
@@ -663,20 +709,20 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         </div>
                     )}
 
-                    {/* Approval Checkbox - Only show in approve mode */}
+                    {/* Approval Toggle - Only show in approve mode */}
                     {!isRejectMode && services.length > 0 && (
                         <div className="form-check-a mb-3">
-                            <input
-                                type="checkbox"
-                                className="form-check-input"
-                                id="approveCheck"
-                                checked={isChecked}
-                                onChange={(e) => setIsChecked(e.target.checked)}
+                            <button
+                                type="button"
+                                className={`aos-select-toggle ${isChecked ? "selected" : ""}`}
+                                onClick={() => setIsChecked((prev) => !prev)}
                                 disabled={isSubmitting}
-                            />
-                            <label className="form-check-label" htmlFor="approveCheck">
+                            >
+                                {isChecked ? "✓" : ""}
+                            </button>
+                            <span className="form-check-label">
                                 I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
-                            </label>
+                            </span>
                         </div>
                     )}
 
