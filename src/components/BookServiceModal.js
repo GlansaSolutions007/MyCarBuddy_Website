@@ -175,7 +175,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             newPrice: package1.Serv_Off_Price || 399,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: Math.round(package1.Serv_Off_Price + package1.gst_amt),
+            totalPrice: Math.round(parseFloat(package1.inc_gstamt)) || 399,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -190,7 +190,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             newPrice: package2.Serv_Off_Price || 699,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: Math.round(package2.Serv_Off_Price + package2.gst_amt),
+            totalPrice: Math.round(parseFloat(package2.inc_gstamt)) || 699,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -199,7 +199,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         console.error('Failed to fetch inspection packages:', err);
       }
     };
-    fetchInspectionPackages();  
+    fetchInspectionPackages();
   }, []);
 
   // Common function to build lead payload
@@ -215,10 +215,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
         isUserClicked: true,
-        price: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        price: selectedOfferData.totalPrice,
         gstPrice: selectedOfferData.gstPrice,
         gstPercent: selectedOfferData.gstPercent,
-        totalPrice: Math.round(selectedOfferData.newPrice),
+        totalPrice: selectedOfferData.newPrice,
         isInspection: true
       });
 
@@ -240,12 +240,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       description: description || "No description provided",
       platform: "Web",
       type: withInspection ? "online" : "cos",
-      amount: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      amount: selectedOfferData.totalPrice,
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
-      totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      totalPrice: selectedOfferData.totalPrice,
       // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-      description: `Rs.${selectedOfferData.newPrice} Rs Offered - Doorstep Car Inspection`,
+      description: `${selectedOfferData.packageName} - ${description || "No description provided"}`,
       services
     };
   };
@@ -771,7 +771,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </h2>
                 <p className="bsm-left-subtitle">
                   {inspection
-                    ? `Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice} & book your slot`
+                    ? `Pay ₹${selectedOffer === 1 ? offer1.totalPrice : offer2.totalPrice} & book your slot`
                     : "We'll get back to you soon"}
                 </p>
               </div>

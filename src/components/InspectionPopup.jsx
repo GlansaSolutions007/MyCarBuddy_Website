@@ -139,7 +139,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             newPrice: package1.Serv_Off_Price || 399,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: Math.round(package1.Serv_Off_Price + package1.gst_amt),
+            totalPrice: Math.round(parseFloat(package1.inc_gstamt)) || 399,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -154,7 +154,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             newPrice: package2.Serv_Off_Price || 699,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: Math.round(package2.Serv_Off_Price + package2.gst_amt),
+            totalPrice: Math.round(parseFloat(package2.inc_gstamt)) || 699,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -224,7 +224,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         gstPercent: selectedOfferData.gstPercent,
         totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
         // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-        description: `Rs.${Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice)} Rs Offered - Doorstep Car Inspection`,
+        description: `Rs.${Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice)} - ${selectedOfferData.packageName} `,
         services
       };
 

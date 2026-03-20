@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./Footer.css"; // Ensure you import the CSS file
+import AppStoreBadges from "./AppStoreBadges";
 
 const FooterAreaOne = () => {
   const [categories, setCategories] = useState([]);
@@ -146,6 +147,7 @@ const FooterAreaOne = () => {
                   <i className="fab fa-linkedin-in" />
                 </Link>
               </div>
+              <AppStoreBadges variant="hero" />
             </div>
           </div>
 

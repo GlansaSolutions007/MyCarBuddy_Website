@@ -226,7 +226,7 @@
 
 .sr-sort-select {
   width: 100%;
-  padding: 14px 44px 14px 16px;
+  /* padding: 14px 44px 14px 16px; */
   border: 2px solid rgba(10, 98, 100, 0.15);
   border-radius: 14px;
   font-size: 0.95rem;
