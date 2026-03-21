@@ -263,15 +263,15 @@ const ServiceAreaHomePage = () => {
     return phone;
   };
 
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+      navigator.userAgent
+    );
+
   const handleContactClick = () => {
     if (companyInfo.phones.length === 0) return;
 
     const phone = companyInfo.phones[0];
     const number = phone.replace(/\D/g, "");
-
-    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
-      navigator.userAgent
-    );
 
     if (isMobile) {
       window.location.href = `tel:${number}`;
@@ -409,13 +409,25 @@ const ServiceAreaHomePage = () => {
               <div className="overlay" />
               <div className="content">
                 <div className="icon-wrapper">
-                  <i className="bi bi-telephone"></i>
+                  {isMobile ? (
+                    <i className="bi bi-telephone"></i>
+                  ) : (
+                    <i className="bi bi-whatsapp"></i>
+                  ) }
                 </div>
-                <h4>
-                  Quick Call Support - {companyInfo.phones.length > 0
-                    ? `(+91 ${formatPhoneNumber(companyInfo.phones[0])})`
-                    : '(Loading...)'}
-                </h4>
+                {isMobile ? (
+                  <h4>
+                    Quick Call Support - {companyInfo.phones.length > 0
+                      ? `(+91 ${formatPhoneNumber(companyInfo.phones[0])})`
+                      : '(Loading...)'}
+                  </h4>
+                ) : (
+                  <h4>
+                    Quick WhatsApp Support - {companyInfo.phones.length > 0
+                      ? `(+91 ${formatPhoneNumber(companyInfo.phones[0])})`
+                      : '(Loading...)'}
+                  </h4>
+                )}
                 <p>
                   Connect directly with our support team for immediate help.
                   <br />
@@ -426,8 +438,8 @@ const ServiceAreaHomePage = () => {
                   onClick={handleContactClick}
                   disabled={companyInfo.phones.length === 0}
                 >
-                  <FaPhoneAlt />
-                  <span>Get Free Call Support</span>
+                  {isMobile ? <FaPhoneAlt /> : <i className="bi bi-whatsapp" style={{ fontSize: 18 }} ></i>}
+                  {isMobile ? <span>Get Free Call Support</span> : <span>Chat on WhatsApp</span>}
                   <FaArrowRight className="btn-arrow" />
                 </button>
               </div>

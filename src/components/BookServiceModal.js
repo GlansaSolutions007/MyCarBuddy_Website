@@ -658,7 +658,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             {/* Right Panel */}
             <div className="bsm-right-panel">
               <div className="bsm-right-header">
-                <h3 className="bsm-title">Inspection Required</h3>
+                <h3 className="bsm-title">Inspection Required?</h3>
                 <p className="bsm-subtitle">Mandatory step for accurate service</p>
                 <p className="bsm-subtitle">Select your car category to choose the right plan</p>
               </div>
@@ -744,7 +744,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <FaArrowRight className="bsm-btn-arrow" />
                 </button>
                 <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
-                  Skip & Submit Enquiry
+                  Skip & Submit Enquiry for Service
                 </button>
               </div>
 
