@@ -91,14 +91,22 @@
 .aos-card-header-approve {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  gap: 10px;
   padding: 16px 16px 12px;
   background: linear-gradient(135deg, rgba(100, 97, 10, 0.04) 0%, rgba(164, 164, 26, 0.04) 100%);
   border-bottom: 1px solid rgba(10, 98, 100, 0.06);
 }
 
+.aos-card-select {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 3px;
+  flex-shrink: 0;
+}
+
 .aos-card-info {
   flex: 1;
+  min-width: 0;
 }
 
 .aos-card-name {
@@ -352,7 +360,9 @@
   background: #fff;
   border-radius: 16px;
   text-align: center;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(10, 98, 100, 0.08);
   margin-bottom: 20px;
@@ -360,6 +370,7 @@
 
 .aos-table {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
 }
 
@@ -392,10 +403,11 @@
 }
 
 .aos-table tbody td {
-  /* padding: 14px 16px; */
+  padding: 12px 14px;
   font-size: 0.9rem;
   color: #333;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .aos-table-name {
@@ -485,6 +497,7 @@
   }
 }
 
+/* ── Tablet: keep table but make it scroll horizontally ── */
 @media (max-width: 767px) {
   .aos-header {
     flex-direction: column;
@@ -527,14 +540,37 @@
 }
 
 @media (min-width: 768px) {
-
-  /* Show table on desktop, hide cards */
+  /* Show table on desktop/tablet, hide cards */
   .aos-grid {
     display: none;
   }
 
   .aos-table-wrapper {
     display: block;
+  }
+}
+
+/* ── Tablet mid-range: compact table header/cells ── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .aos-table thead th {
+    padding: 10px 10px;
+    font-size: 0.72rem;
+  }
+
+  .aos-table tbody td {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+  }
+
+  .aos-table-name {
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .aos-table-desc {
+    max-width: 120px;
   }
 }
 
@@ -555,6 +591,11 @@
 
   .aos-card-header {
     padding: 14px 14px 10px;
+  }
+
+  .aos-card-header-approve {
+    padding: 14px 14px 10px;
+    gap: 10px;
   }
 
   .aos-card-name {
@@ -581,6 +622,13 @@
   .aos-btn {
     padding: 10px 20px;
     font-size: 0.85rem;
+  }
+
+  /* Mobile card select toggle alignment */
+  .aos-card-select {
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
   }
 }
 
@@ -696,13 +744,19 @@
 
 .form-check-a {
     background: #f8f9fa;
-    padding: 12px 14px;
+    padding: 14px 16px;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
     transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+/* Keep toggle vertically centred with the first text line */
+.form-check-a .aos-select-toggle {
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 .form-check-a--error {
@@ -754,8 +808,13 @@
 /* Mobile responsive for footer / checkbox */
 @media (max-width: 575px) {
     .form-check-a {
-        padding: 10px 12px;
+        padding: 12px 14px;
+        gap: 10px;
         align-items: flex-start;
+    }
+
+    .form-check-a .aos-select-toggle {
+        margin-top: 2px;
     }
 
     .form-check-label {
