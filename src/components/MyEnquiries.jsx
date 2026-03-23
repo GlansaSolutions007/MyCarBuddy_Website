@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import CryptoJS from "crypto-js";
 import {
   FaClipboardList,
   FaFilter,
@@ -9,97 +11,20 @@ import {
   FaEye,
   FaArrowLeft,
   FaCalendarAlt,
-  FaCar,
+  FaClock,
   FaChevronRight,
   FaPhone,
   FaMapMarkerAlt,
   FaTag,
-  FaClock,
   FaHashtag,
-  FaWrench,
   FaInfoCircle,
   FaUser,
+  FaEnvelope,
 } from "react-icons/fa";
 import "./MyEnquiries.css";
 
-// ─── Static dummy data ────────────────────────────────────────────────────────
-const DUMMY_ENQUIRIES = [
-  {
-    EnquiryID: "MCBI00034",
-    CreatedDate: "2026-03-23T12:26:25.000",
-    ServiceName: "Standard Car Plan - Hatchback • Sedan • Compact SUV",
-    ServiceType: "ServiceAtHome",
-    VehicleNumber: "TS10112",
-    BrandName: "Honda",
-    ModelName: "Amaze",
-    FuelTypeName: "Petrol",
-    CustomerName: "Vijay",
-    PhoneNumber: "8790071223",
-    City: "Madhapur",
-    EnquiryStatus: "Closed",
-    Platform: "Organic",
-  },
-  {
-    EnquiryID: "MCBI00031",
-    CreatedDate: "2026-03-20T09:14:00.000",
-    ServiceName: "Full Car Detailing - Premium Package",
-    ServiceType: "ServiceAtGarage",
-    VehicleNumber: "TS09AB1234",
-    BrandName: "Maruti Suzuki",
-    ModelName: "Swift",
-    FuelTypeName: "Petrol",
-    CustomerName: "Ravi Kumar",
-    PhoneNumber: "9876543210",
-    City: "Gachibowli",
-    EnquiryStatus: "Open",
-    Platform: "Organic",
-  },
-  {
-    EnquiryID: "MCBI00028",
-    CreatedDate: "2026-03-17T15:45:10.000",
-    ServiceName: "AC Service & Regas",
-    ServiceType: "ServiceAtHome",
-    VehicleNumber: "AP28CD5678",
-    BrandName: "Hyundai",
-    ModelName: "Creta",
-    FuelTypeName: "Diesel",
-    CustomerName: "Priya Sharma",
-    PhoneNumber: "9123456789",
-    City: "Banjara Hills",
-    EnquiryStatus: "Converted",
-    Platform: "Referral",
-  },
-  {
-    EnquiryID: "MCBI00025",
-    CreatedDate: "2026-03-12T11:00:00.000",
-    ServiceName: "Wheel Alignment & Balancing",
-    ServiceType: "ServiceAtGarage",
-    VehicleNumber: "TS07EF9012",
-    BrandName: "Tata",
-    ModelName: "Nexon",
-    FuelTypeName: "Electric",
-    CustomerName: "Arjun Reddy",
-    PhoneNumber: "9000112233",
-    City: "Kukatpally",
-    EnquiryStatus: "Cancelled",
-    Platform: "Organic",
-  },
-  {
-    EnquiryID: "MCBI00019",
-    CreatedDate: "2026-03-05T08:30:45.000",
-    ServiceName: "Battery Replacement",
-    ServiceType: "ServiceAtHome",
-    VehicleNumber: "TS14GH3456",
-    BrandName: "Kia",
-    ModelName: "Seltos",
-    FuelTypeName: "Petrol",
-    CustomerName: "Sneha Patel",
-    PhoneNumber: "9988776655",
-    City: "Jubilee Hills",
-    EnquiryStatus: "Open",
-    Platform: "Organic",
-  },
-];
+const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (dateStr) => {
@@ -122,16 +47,17 @@ const formatTime = (dateStr) => {
   });
 };
 
-const statusMeta = {
-  Open: { label: "Open", className: "eq-status-open" },
-  Closed: { label: "Closed", className: "eq-status-closed" },
-  Converted: { label: "Converted", className: "eq-status-converted" },
-  Cancelled: { label: "Cancelled", className: "eq-status-cancelled" },
-};
-
-const serviceTypeMeta = {
-  ServiceAtHome: { label: "At Home", icon: "🏠" },
-  ServiceAtGarage: { label: "At Garage", icon: "🔧" },
+// LeadStatus from API can be null — derive display status
+const getStatusMeta = (leadStatus, isAnswered) => {
+  if (leadStatus === "Closed")
+    return { label: "Closed", className: "eq-status-closed" };
+  if (leadStatus === "Converted")
+    return { label: "Converted", className: "eq-status-converted" };
+  if (leadStatus === "Cancelled")
+    return { label: "Cancelled", className: "eq-status-cancelled" };
+  if (isAnswered)
+    return { label: "Answered", className: "eq-status-converted" };
+  return { label: "Open", className: "eq-status-open" };
 };
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -147,42 +73,87 @@ const EnquirySkeleton = () => (
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const MyEnquiries = () => {
+  const [enquiries, setEnquiries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
 
-  // Tab counts
-  const allCount = DUMMY_ENQUIRIES.length;
-  const openCount = DUMMY_ENQUIRIES.filter((e) => e.EnquiryStatus === "Open").length;
-  const closedCount = DUMMY_ENQUIRIES.filter(
-    (e) => e.EnquiryStatus === "Closed" || e.EnquiryStatus === "Converted"
+  const user = JSON.parse(localStorage.getItem("user"));
+  const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
+  const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchEnquiries = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `${BaseURL}Leads/GetFacebookLeads?custId=${decryptedCustId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = Array.isArray(response.data) ? response.data : [];
+        const sorted = data.sort(
+          (a, b) => new Date(b.CreatedDate) - new Date(a.CreatedDate)
+        );
+        setEnquiries(sorted);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          setEnquiries([]);
+        } else {
+          console.error("Failed to fetch enquiries:", error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchEnquiries();
+  }, []);
+
+  // ── Tab counts ─────────────────────────────────────────────────────────────
+  const allCount = enquiries.length;
+  const openCount = enquiries.filter(
+    (e) => !e.LeadStatus || e.LeadStatus === "Open"
   ).length;
-  const cancelledCount = DUMMY_ENQUIRIES.filter(
-    (e) => e.EnquiryStatus === "Cancelled"
+  const closedCount = enquiries.filter(
+    (e) => e.LeadStatus === "Closed" || e.LeadStatus === "Converted"
+  ).length;
+  const cancelledCount = enquiries.filter(
+    (e) => e.LeadStatus === "Cancelled"
   ).length;
 
-  // Filter
-  const filtered = DUMMY_ENQUIRIES.filter((e) => {
+  // ── Filter ─────────────────────────────────────────────────────────────────
+  const filtered = enquiries.filter((e) => {
     const q = searchTerm.toLowerCase();
     const matchesSearch =
-      e.EnquiryID.toLowerCase().includes(q) ||
-      e.ServiceName.toLowerCase().includes(q) ||
-      e.VehicleNumber?.toLowerCase().includes(q);
+      e.Id?.toLowerCase().includes(q) ||
+      e.FullName?.toLowerCase().includes(q) ||
+      e.PhoneNumber?.toLowerCase().includes(q) ||
+      e.City?.toLowerCase().includes(q);
+
     let matchesTab = true;
-    if (activeTab === "Open") matchesTab = e.EnquiryStatus === "Open";
+    if (activeTab === "Open")
+      matchesTab = !e.LeadStatus || e.LeadStatus === "Open";
     else if (activeTab === "Closed")
-      matchesTab =
-        e.EnquiryStatus === "Closed" || e.EnquiryStatus === "Converted";
+      matchesTab = e.LeadStatus === "Closed" || e.LeadStatus === "Converted";
     else if (activeTab === "Cancelled")
-      matchesTab = e.EnquiryStatus === "Cancelled";
+      matchesTab = e.LeadStatus === "Cancelled";
+
     return matchesSearch && matchesTab;
   });
 
-  // ── Detail View ──────────────────────────────────────────────────────────
+  // ── Detail View ────────────────────────────────────────────────────────────
   if (selectedEnquiry) {
-    const st = statusMeta[selectedEnquiry.EnquiryStatus] || {};
-    const svc = serviceTypeMeta[selectedEnquiry.ServiceType] || {};
+    const st = getStatusMeta(
+      selectedEnquiry.LeadStatus,
+      selectedEnquiry.Is_Answered
+    );
     return (
       <div className="eq-section">
         <div className="container py-4">
@@ -206,9 +177,9 @@ const MyEnquiries = () => {
                   <FaClipboardList />
                 </div>
                 <div>
-                  <p className="eq-detail-id-label">Enquiry ID</p>
-                  <h3 className="eq-detail-id-value">
-                    #{selectedEnquiry.EnquiryID}
+                  <p className="eq-detail-id-label eq-detail-id-text">Enquiry ID</p>
+                  <h3 className="eq-detail-id-value eq-detail-id-text">
+                    #{selectedEnquiry.Id}
                   </h3>
                 </div>
               </div>
@@ -220,87 +191,27 @@ const MyEnquiries = () => {
                   {formatTime(selectedEnquiry.CreatedDate)}
                 </span>
                 <span className="eq-pill">
-                  {svc.icon} {svc.label || selectedEnquiry.ServiceType}
-                </span>
-                <span className="eq-pill">
-                  <FaTag /> {selectedEnquiry.Platform}
+                  <FaTag /> {selectedEnquiry.Platform || "Organic"}
                 </span>
               </div>
             </div>
 
             {/* Detail Body */}
             <div className="eq-detail-body">
-              {/* Service Info */}
-              <div className="eq-info-card">
-                <div className="eq-info-card-header">
-                  <div className="eq-info-card-icon">
-                    <FaWrench />
-                  </div>
-                  <h6>Service</h6>
-                </div>
-                <div className="eq-info-card-body">
-                  <p className="eq-service-name">{selectedEnquiry.ServiceName}</p>
-                  <div className="eq-detail-row">
-                    <span className="eq-detail-label">Type</span>
-                    <span className="eq-detail-value">
-                      {svc.icon} {svc.label || selectedEnquiry.ServiceType}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vehicle Info */}
-              <div className="eq-info-card">
-                <div className="eq-info-card-header">
-                  <div className="eq-info-card-icon">
-                    <FaCar />
-                  </div>
-                  <h6>Vehicle</h6>
-                </div>
-                <div className="eq-info-card-body">
-                  <div className="eq-detail-grid">
-                    <div className="eq-detail-row">
-                      <span className="eq-detail-label">Number</span>
-                      <span className="eq-detail-value">
-                        {selectedEnquiry.VehicleNumber || "N/A"}
-                      </span>
-                    </div>
-                    <div className="eq-detail-row">
-                      <span className="eq-detail-label">Brand</span>
-                      <span className="eq-detail-value">
-                        {selectedEnquiry.BrandName || "N/A"}
-                      </span>
-                    </div>
-                    <div className="eq-detail-row">
-                      <span className="eq-detail-label">Model</span>
-                      <span className="eq-detail-value">
-                        {selectedEnquiry.ModelName || "N/A"}
-                      </span>
-                    </div>
-                    <div className="eq-detail-row">
-                      <span className="eq-detail-label">Fuel</span>
-                      <span className="eq-detail-value">
-                        {selectedEnquiry.FuelTypeName || "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Customer Info */}
               <div className="eq-info-card">
                 <div className="eq-info-card-header">
                   <div className="eq-info-card-icon">
                     <FaUser />
                   </div>
-                  <h6>Customer</h6>
+                  <h6>Customer Details</h6>
                 </div>
                 <div className="eq-info-card-body">
                   <div className="eq-detail-grid">
                     <div className="eq-detail-row">
                       <span className="eq-detail-label">Name</span>
                       <span className="eq-detail-value">
-                        {selectedEnquiry.CustomerName || "N/A"}
+                        {selectedEnquiry.FullName || "N/A"}
                       </span>
                     </div>
                     <div className="eq-detail-row">
@@ -311,19 +222,24 @@ const MyEnquiries = () => {
                       </span>
                     </div>
                     <div className="eq-detail-row">
+                      <span className="eq-detail-label">Email</span>
+                      <span className="eq-detail-value">
+                        <FaEnvelope style={{ fontSize: "0.75rem", marginRight: 4 }} />
+                        {selectedEnquiry.Email || "N/A"}
+                      </span>
+                    </div>
+                    <div className="eq-detail-row">
                       <span className="eq-detail-label">City</span>
                       <span className="eq-detail-value">
-                        <FaMapMarkerAlt
-                          style={{ fontSize: "0.75rem", marginRight: 4 }}
-                        />
-                        {selectedEnquiry.City || "N/A"}
+                        <FaMapMarkerAlt style={{ fontSize: "0.75rem", marginRight: 4 }} />
+                        {selectedEnquiry.City?.trim() || "N/A"}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Enquiry Status Info */}
+              {/* Enquiry Info */}
               <div className="eq-info-card">
                 <div className="eq-info-card-header">
                   <div className="eq-info-card-icon">
@@ -342,7 +258,13 @@ const MyEnquiries = () => {
                     <div className="eq-detail-row">
                       <span className="eq-detail-label">Source</span>
                       <span className="eq-detail-value">
-                        {selectedEnquiry.Platform}
+                        {selectedEnquiry.Platform || "Organic"}
+                      </span>
+                    </div>
+                    <div className="eq-detail-row">
+                      <span className="eq-detail-label">Answered</span>
+                      <span className="eq-detail-value">
+                        {selectedEnquiry.Is_Answered ? "Yes" : "No"}
                       </span>
                     </div>
                     <div className="eq-detail-row">
@@ -362,7 +284,7 @@ const MyEnquiries = () => {
     );
   }
 
-  // ── List View ────────────────────────────────────────────────────────────
+  // ── List View ──────────────────────────────────────────────────────────────
   return (
     <div className="eq-section">
       <div className="container py-4">
@@ -390,11 +312,7 @@ const MyEnquiries = () => {
                 { key: "All", icon: <FaThLarge />, count: allCount },
                 { key: "Open", icon: <FaBolt />, count: openCount },
                 { key: "Closed", icon: <FaCheckCircle />, count: closedCount },
-                {
-                  key: "Cancelled",
-                  icon: <FaTimesCircle />,
-                  count: cancelledCount,
-                },
+                { key: "Cancelled", icon: <FaTimesCircle />, count: cancelledCount },
               ].map(({ key, icon, count }) => (
                 <button
                   key={key}
@@ -411,7 +329,7 @@ const MyEnquiries = () => {
               <input
                 type="text"
                 className="eq-search-input"
-                placeholder="Search by Enquiry ID, service or vehicle number…"
+                placeholder="Search by ID, name, phone or city…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -429,20 +347,27 @@ const MyEnquiries = () => {
 
         {/* Cards */}
         <div className="eq-scroll-container">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <>
+              <EnquirySkeleton />
+              <EnquirySkeleton />
+              <EnquirySkeleton />
+            </>
+          ) : filtered.length === 0 ? (
             <div className="eq-empty-state">
               <FaClipboardList className="eq-empty-icon" />
               <h5>No enquiries found</h5>
               <p className="text-muted">
-                Try adjusting your filters or search term.
+                {searchTerm || activeTab !== "All"
+                  ? "Try adjusting your filters or search term."
+                  : "You have no enquiries yet."}
               </p>
             </div>
           ) : (
             filtered.map((enq) => {
-              const st = statusMeta[enq.EnquiryStatus] || {};
-              const svc = serviceTypeMeta[enq.ServiceType] || {};
+              const st = getStatusMeta(enq.LeadStatus, enq.Is_Answered);
               return (
-                <div key={enq.EnquiryID} className="eq-card">
+                <div key={enq.Id} className="eq-card">
                   {/* Card Header */}
                   <div className="eq-card-header">
                     <div className="eq-card-id-block">
@@ -452,7 +377,7 @@ const MyEnquiries = () => {
                       <div>
                         <h4 className="eq-card-id">
                           <FaHashtag className="eq-hash" />
-                          {enq.EnquiryID}
+                          {enq.Id}
                         </h4>
                         <span className="eq-card-date">
                           <FaCalendarAlt />
@@ -467,29 +392,38 @@ const MyEnquiries = () => {
                       <span className={`eq-status-badge ${st.className}`}>
                         {st.label}
                       </span>
-                      <span className="eq-service-type-badge">
-                        {svc.icon} {svc.label || enq.ServiceType}
-                      </span>
+                      {enq.Platform && (
+                        <span className="eq-service-type-badge">
+                          <FaTag /> {enq.Platform}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   {/* Card Body */}
                   <div className="eq-card-body">
                     <div className="eq-card-service">
-                      <FaWrench className="eq-card-service-icon" />
-                      <span>{enq.ServiceName}</span>
+                      <FaUser className="eq-card-service-icon" />
+                      <span>{enq.FullName || "N/A"}</span>
                     </div>
 
                     <div className="eq-card-meta">
                       <span className="eq-meta-item">
-                        <FaCar />
-                        {enq.BrandName} {enq.ModelName}
-                        {enq.VehicleNumber ? ` · ${enq.VehicleNumber}` : ""}
+                        <FaPhone />
+                        {enq.PhoneNumber || "N/A"}
                       </span>
-                      <span className="eq-meta-item">
-                        <FaMapMarkerAlt />
-                        {enq.City}
-                      </span>
+                      {enq.City && (
+                        <span className="eq-meta-item">
+                          <FaMapMarkerAlt />
+                          {enq.City.trim()}
+                        </span>
+                      )}
+                      {enq.Email && (
+                        <span className="eq-meta-item">
+                          <FaEnvelope />
+                          {enq.Email}
+                        </span>
+                      )}
                     </div>
                   </div>
 
