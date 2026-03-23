@@ -7,7 +7,7 @@ import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import NewTicket from "./NewTicket";
 import "./MyBookings.css";
-import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse, FaClock } from "react-icons/fa";
+import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse, FaHome } from "react-icons/fa";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -1124,6 +1124,10 @@ const MyBookings = () => {
                 ];
 
                 // ServiceAtGarage: CustomerToDealer → garage → DealerToCustomer (uses BookingStatusTracking)
+                const hasSuccessfulPayment = Array.isArray(booking?.Payments)
+                  ? booking.Payments.some((p) => p?.PaymentStatus === "Success")
+                  : false;
+
                 const statusTimelineGarage = [
                   { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
                   ...(booking?.Reschedules?.length
@@ -1140,8 +1144,8 @@ const MyBookings = () => {
                   ...(hasServiceInProgress ? [{ label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> }] : []),
                   { label: "Service Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
                   { label: "Out for Delivery", date: getStatusDate("OutForDelivery"), icon: <FaTruck /> },
-                  { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
-                ];
+                  { label: "Delivered", date: getStatusDate("Completed"), icon: <FaHome /> },
+                  { label: "Completed", date: hasSuccessfulPayment ? getStatusDate("Completed") : null, icon: <FaCheck /> },];
 
                 const statusTimeline = isGarage ? statusTimelineGarage : statusTimelineHome;
 
@@ -1181,20 +1185,15 @@ const MyBookings = () => {
                       </div>
 
                       {(booking.CompletedOTP || booking.BookingOTP) &&
-                        <div className="mb-card-badges">
-                          {booking.BookingStatus !== "Completed" &&
-                            booking.BookingStatus !== "Cancelled" &&
-                            booking.BookingStatus !== "Failed" ? (
-                            <>
-                              {/* <span className={`mb-badge mb-badge-payment ${booking.Payments?.[0]?.PaymentStatus === "Success" ? "success" : "pending"}`}>
-                              {booking.Payments?.[0]?.PaymentStatus || "Pending"}
-                            </span> */}
-                              <span className="mb-badge mb-badge-otp">
-                                OTP: {booking.CompletedOTP || booking.BookingOTP}
-                              </span>
-                            </>
-                          ) : null}
-                        </div>}
+                        booking.BookingStatus !== "Completed" &&
+                        booking.BookingStatus !== "Cancelled" &&
+                        booking.BookingStatus !== "Failed" && (
+                          <div className="mb-card-badges">
+                            <span className="mb-badge mb-badge-otp">
+                              OTP: {booking.CompletedOTP || booking.BookingOTP}
+                            </span>
+                          </div>
+                        )}
 
                       {/* Payment Status */}
                       {(

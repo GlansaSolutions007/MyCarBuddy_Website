@@ -700,8 +700,44 @@
     border-radius: 8px;
     border: 1px solid #e5e7eb;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.form-check-a--error {
+    background: #fff5f5;
+    border-color: #e53e3e;
+    animation: shake 0.35s ease;
+}
+
+@keyframes shake {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-6px); }
+    40%  { transform: translateX(6px); }
+    60%  { transform: translateX(-4px); }
+    80%  { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+.form-check-label-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.form-check-error-msg {
+    display: flex;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #e53e3e;
+    margin-top: 2px;
+}
+
+.aos-select-toggle--error {
+    border-color: #e53e3e !important;
 }
 
 .form-check-input {
@@ -712,4 +748,39 @@
 .form-check-label {
     margin: 0;
     cursor: pointer;
+    line-height: 1.45;
+}
+
+/* Mobile responsive for footer / checkbox */
+@media (max-width: 575px) {
+    .form-check-a {
+        padding: 10px 12px;
+        align-items: flex-start;
+    }
+
+    .form-check-label {
+        font-size: 0.82rem;
+    }
+
+    .form-check-error-msg {
+        font-size: 0.75rem;
+    }
+
+    .aos-footer {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .aos-footer .aos-btn {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 0;
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        justify-content: center;
+    }
+
+    .aos-footer .aos-btn-primary {
+        flex: 1 1 100%;
+        order: -1;
+    }
 }

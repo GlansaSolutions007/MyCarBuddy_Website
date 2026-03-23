@@ -22,6 +22,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const [selectedServiceIds, setSelectedServiceIds] = useState([]);
     const [isRejectMode, setIsRejectMode] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
+    const [checkboxError, setCheckboxError] = useState(false);
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -151,6 +152,15 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     // ---------------------------------------------------------
     const handleSubmit = async (action = "approve") => {
         if (!bookingDetails) return;
+
+        // For approve, validate checkbox
+        if (action === "approve" && services.length > 0 && !isChecked) {
+            setCheckboxError(true);
+            // Scroll to checkbox section
+            const el = document.getElementById("confirm-checkbox-section");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+        }
 
         // For reject, validate reason
         if (action === "reject" && !rejectionReason.trim()) {
@@ -709,20 +719,33 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         </div>
                     )}
 
-                    {/* Approval Toggle - Only show in approve mode */}
                     {!isRejectMode && services.length > 0 && (
-                        <div className="form-check-a mb-3">
+                        <div
+                            id="confirm-checkbox-section"
+                            className={`form-check-a mb-3${checkboxError ? " form-check-a--error" : ""}`}
+                        >
                             <button
                                 type="button"
-                                className={`aos-select-toggle ${isChecked ? "selected" : ""}`}
-                                onClick={() => setIsChecked((prev) => !prev)}
+                                className={`aos-select-toggle ${isChecked ? "selected" : ""}${checkboxError ? " aos-select-toggle--error" : ""}`}
+                                onClick={() => {
+                                    setIsChecked((prev) => !prev);
+                                    setCheckboxError(false);
+                                }}
                                 disabled={isSubmitting}
                             >
                                 {isChecked ? "✓" : ""}
                             </button>
-                            <span className="form-check-label">
-                                I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
-                            </span>
+                            <div className="form-check-label-wrap">
+                                <span className="form-check-label">
+                                    I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
+                                </span>
+                                {checkboxError && (
+                                    <span className="form-check-error-msg">
+                                        <FaExclamationCircle className="me-1" />
+                                        Please check this box before approving services.
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -757,7 +780,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <button
                                     className="aos-btn aos-btn-primary me-3"
                                     onClick={() => handleSubmit("approve")}
-                                    disabled={isSubmitting || !isChecked}
+                                    disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
                                         <>

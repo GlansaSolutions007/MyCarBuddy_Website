@@ -7,6 +7,7 @@ import MyInspection from "./MyInspection";
 import MyCarList from "./MyCarList";
 import InvoicesTab from "./InvoicesTab";
 import RaisedTicketsTab from "./RaisedTicketsTab";
+import MyEnquiries from "./MyEnquiries";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
@@ -149,6 +150,8 @@ const MainProfile = () => {
         return <MyBookings />;
       case "myinspection":
         return <MyInspection />;
+      case "myenquires":
+        return <MyEnquiries />;
       case "mycars":
         return <MyCarList />;
       case "invoices":
@@ -184,6 +187,7 @@ const MainProfile = () => {
     { key: "profile", label: "Profile", icon: "fas fa-user" },
     { key: "mybookings", label: "My Services", icon: "fas fa-briefcase" },
     { key: "myinspection", label: "My Inspections", icon: "fas fa-question-circle" },
+    {key: "myenquires", label: "My Enquiries", icon: "fas fa-question"},
     // { key: "addresses", label: "Addresses", icon: "fas fa-map-marker-alt" },
     // { key: "mycars", label: "My Cars", icon: "fas fa-car" },
     { key: "invoices", label: "Invoices", icon: "fas fa-file-invoice" },
