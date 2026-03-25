@@ -515,12 +515,12 @@ const HeaderOne = () => {
                         </button>
                         <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=mybookings")}>
                           <i className="fas fa-calendar-check"></i>
-                          <span>My Bookings</span>
+                          <span>My Services</span>
                         </button>
-                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=invoices")}>
+                        {/* <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=invoices")}>
                           <i className="fas fa-file-invoice"></i>
                           <span>Invoices</span>
-                        </button>
+                        </button> */}
                       </div>
                       <div className="mcb-user-dropdown-footer">
                         <button

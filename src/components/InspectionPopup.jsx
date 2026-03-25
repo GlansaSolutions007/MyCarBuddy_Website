@@ -139,7 +139,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             newPrice: package1.Serv_Off_Price || 399,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: Math.round(parseFloat(package1.inc_gstamt)) || 399,
+            totalPrice: package1.inc_gstamt || 399,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -154,7 +154,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             newPrice: package2.Serv_Off_Price || 699,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: Math.round(parseFloat(package2.inc_gstamt)) || 699,
+            totalPrice: package2.inc_gstamt || 699,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -219,12 +219,12 @@ const InspectionPopup = ({ isOpen, onClose }) => {
         email: email || user?.email || "",
         platform: "Web",
         type: "online",
-        amount: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        amount: selectedOfferData.newPrice + selectedOfferData.gstPrice,
         gstPrice: selectedOfferData.gstPrice,
         gstPercent: selectedOfferData.gstPercent,
         totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
         // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-        description: `Rs.${Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice)} - ${selectedOfferData.packageName} `,
+        description: `Rs.${selectedOfferData.newPrice + selectedOfferData.gstPrice} - ${selectedOfferData.packageName} `,
         services
       };
 
@@ -547,7 +547,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
               </div>
               <h2 className="ip-left-title">Doorstep Car Inspection</h2>
               <p className="ip-left-subtitle">
-                Expert technicians at your location
+                Expert Technicians at Your Location
               </p>
             </div>
 
@@ -605,7 +605,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer1.oldPrice}</span>
-                        <span className="ip-price-new"> ₹{Math.round(offer1.totalPrice)}</span>
+                        <span className="ip-price-new"> ₹{offer1.totalPrice}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
@@ -641,7 +641,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     <div className="ip-offer-content">
                       <div className="ip-offer-price">
                         <span className="ip-price-old">₹{offer2.oldPrice}</span>
-                        <span className="ip-price-new"> ₹{Math.round(offer2.totalPrice)}</span>
+                        <span className="ip-price-new"> ₹{offer2.totalPrice}</span>
                       </div>
                       {/* <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
@@ -681,7 +681,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                 {/* Trust Badge */}
                 <div className="ip-trust">
                   <span>✓ 120K+ Customers</span>
-                  <span>✓ 50+ Certified Mechanics</span>
+                  <span>✓ 50+ Verified Mechanics</span>
                 </div>
               </>
             )}

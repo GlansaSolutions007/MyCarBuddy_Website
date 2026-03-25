@@ -171,7 +171,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			});
 			saveUserFromVerifyOtp(response.data, {
 				phone: identifier,
-				name: fullName?.trim() || (response.data?.name && response.data.name !== "GUEST" ? response.data.name : "GUEST"),
+				name: fullName?.trim() || (response.data?.name && response.data.name !== "User" ? response.data.name : "User"),
 				email: email?.trim() || response.data?.email || "",
 			});
 
@@ -266,7 +266,7 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 						</div>
 						<div className="si-feature">
 							<FaCheckCircle />
-							<span>Certified Mechanics</span>
+							<span>Verified Mechanics</span>
 						</div>
 						<div className="si-feature">
 							<FaCheckCircle />

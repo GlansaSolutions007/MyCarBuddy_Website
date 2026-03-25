@@ -77,7 +77,8 @@
 /* Horizontal Layout */
 .bsm-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* grid-template-columns: 1fr 1fr; */
+  grid-template-columns: 40% 60%;
 }
 
 /* Close Button */
@@ -188,7 +189,7 @@
   padding: 35px 30px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   max-height: 85vh;
   overflow-y: auto;
 }
@@ -976,4 +977,168 @@
   .bsm-offer-text {
     font-size: 0.84rem;
   }
+}
+/* The "OR" Divider */
+.bsm-path-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 5px 0;
+  color: #9ca3af;
+}
+
+.bsm-path-separator::before,
+.bsm-path-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.bsm-path-separator span {
+  padding: 0 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* The Enquiry Box */
+.bsm-enquiry-section {
+  background-color: #f9fafb; /* Light gray background */
+  border: 1px dashed #d1d5db; /* Dashed border to look "secondary" */
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.bsm-enquiry-section:hover {
+    border-color: #0a6264;
+    background-color: #f0fdfa;
+}
+
+.bsm-enquiry-header {
+  margin-bottom: 15px;
+}
+
+.bsm-enquiry-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.bsm-enquiry-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* The Secondary Button Style */
+.bsm-btn-secondary {
+  width: 100%;
+  background: #ffffff;
+  color: #374151;
+  border: 1.5px solid #d1d5db;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+
+.bsm-btn-secondary:hover {
+  background: #ffffff;
+  border-color: #0a6264;
+  color: #0a6264;
+  transform: translateY(-1px);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* 1. Reduce overall padding of the right panel */
+.bsm-right-panel {
+  padding: 20px 25px; /* Reduced from 35px 30px */
+  max-height: 90vh;
+  overflow-y: auto; /* Keep auto but content should fit now */
+}
+
+/* 2. Tighten the Header */
+.bsm-right-header {
+  margin-bottom: 15px; /* Reduced from 20px */
+}
+
+.bsm-title {
+  font-size: 1.3rem; /* Slightly smaller */
+}
+
+.bsm-subtitle {
+  font-size: 0.85rem;
+}
+
+.bsm-offer-badge {
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  margin-bottom: 8px;
+}
+
+.bsm-price-new {
+  font-size: 1.6rem; /* Smaller font for price */
+}
+
+.bsm-offer-text {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.bsm-marquee-text {
+  font-size: 11px; /* Smaller marquee */
+}
+
+/* 4. Tighten Action Area */
+.bsm-actions {
+  margin-top: 5px;
+}
+
+.bsm-btn {
+  padding: 11px 20px; /* Thinner buttons */
+  font-size: 0.9rem;
+}
+
+/* 5. Compact the "OR" Separator */
+.bsm-path-separator {
+  margin: 10px 0; /* Reduced vertical space */
+}
+
+/* 6. Compact the Enquiry Box */
+.bsm-enquiry-section {
+  padding: 12px; /* Thinner padding */
+  border-radius: 12px;
+}
+
+.bsm-enquiry-header {
+  margin-bottom: 8px;
+}
+
+.bsm-enquiry-text {
+  font-size: 0.8rem;
+}
+
+.bsm-btn-secondary {
+  padding: 8px 15px; /* Smaller secondary button */
+}
+
+/* 7. Tighten Trust Section */
+.bsm-trust {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+.bsm-btn-secondary:hover .bsm-btn-arrow {
+  transform: translateX(4px);
 }

@@ -175,7 +175,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             newPrice: package1.Serv_Off_Price || 399,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: Math.round(parseFloat(package1.inc_gstamt)) || 399,
+            totalPrice: package1.inc_gstamt || 399,
             packageId: 174,
             packageName: package1.PackageName || '5-Seater Car'
           });
@@ -190,7 +190,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             newPrice: package2.Serv_Off_Price || 699,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: Math.round(parseFloat(package2.inc_gstamt)) || 699,
+            totalPrice: package2.inc_gstamt || 699,
             packageId: 175,
             packageName: package2.PackageName || '7-Seater Car'
           });
@@ -681,7 +681,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer1.oldPrice}</span>
-                      <span className="bsm-price-new">₹{Math.round(offer1.totalPrice)}</span>
+                      <span className="bsm-price-new">₹{offer1.totalPrice}</span>
                     </div>
                     {/* <p className="bsm-offer-text">{offer1.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
@@ -717,7 +717,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer2.oldPrice}</span>
-                      <span className="bsm-price-new">₹{Math.round(offer2.totalPrice)}</span>
+                      <span className="bsm-price-new">₹{offer2.totalPrice}</span> 
                     </div>
                     {/* <p className="bsm-offer-text">{offer2.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
@@ -740,18 +740,36 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
               <div className="bsm-actions">
                 <button className="bsm-btn bsm-btn-primary" onClick={handleInspectionYes}>
                   <FaCreditCard />
-                  Continue with Inspection
+                  Book Inspection
                   <FaArrowRight className="bsm-btn-arrow" />
                 </button>
+                {/* <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
+                  Submit Enquiry for Service
+                </button> */}
+              </div>
+
+              {/* Separator Line */}
+              <div className="bsm-path-separator">
+                <span>OR</span>
+              </div>
+
+              {/* Bottom Enquiry Section */}
+              <div className="bsm-enquiry-section">
+                <div className="bsm-enquiry-header">
+                  {/* <h4 className="bsm-enquiry-title">Not ready to book yet?</h4> */}
+                  <p className="bsm-enquiry-text">Get service details for your requirement</p>
+                </div>
+                
                 <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
-                  Skip & Submit Enquiry for Service
+                  Enquiry for Service
+                  <FaArrowRight className="bsm-btn-arrow" />
                 </button>
               </div>
 
               {/* Trust */}
               <div className="bsm-trust">
                 <span>✓ 120K+ Customers</span>
-                <span>✓ 50+ Certified Mechanics</span>
+                <span>✓ 50+ Verified Mechanics</span>
               </div>
             </div>
           </div>

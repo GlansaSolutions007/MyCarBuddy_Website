@@ -152,7 +152,7 @@ const OfferScreenPopUp = () => {
             clearTimeout(hideTimer);
         };
 
-         }, 10000);
+         }, 2000);
         return () => clearTimeout(showTimer);
 
     }, []);
