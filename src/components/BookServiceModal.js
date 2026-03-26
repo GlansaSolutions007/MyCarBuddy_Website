@@ -245,7 +245,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: selectedOfferData.totalPrice,
       // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
-      description: `${selectedOfferData.packageName} - ${description || "No description provided"}`,
+      // description: `${selectedOfferData.packageName} - ${description || "No description provided"}`,
+      description: withInspection
+        ? `${selectedOfferData.packageName} - ${description || "No description provided"}`
+        : `${selectedService?.title || "Service"} - ${description || "No description provided"}`,
       services
     };
   };
@@ -1003,7 +1006,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                         </>
                       ) : otpStep ? (
                         <>
-                          {inspection ? `Verify & Pay ₹${selectedOffer === 1 ? offer1.newPrice : offer2.newPrice}` : "Verify & Submit"}
+                          {inspection ? `Verify & Pay ₹${selectedOffer === 1 ? offer1.totalPrice : offer2.totalPrice}` : "Verify & Submit"}
                           <FaArrowRight className="bsm-btn-arrow" />
                         </>
                       ) : (

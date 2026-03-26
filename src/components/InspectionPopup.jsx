@@ -850,7 +850,7 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                           )
                         ) : otpStep ? (
                           <>
-                            Verify & Pay ₹{selectedOffer === 1 ? offer1.newPrice : offer2.newPrice}
+                            Verify & Pay ₹{selectedOffer === 1 ? offer1.totalPrice : offer2.totalPrice}
                             <FaArrowRight className="ip-btn-arrow" />
                           </>
                         ) : (
