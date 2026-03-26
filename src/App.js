@@ -35,7 +35,7 @@ import ThankYouPage from "./pages/ThankYouPage";
 import NotificationPopup from "./components/NotificationPopup";
 import OfferScreenPopUp from "./components/OfferScreenPopUp";
 import AIChatWidget from "./components/AIChatWidget";
-
+import FeedbackPage from "./pages/FeedbackPage"
 function App() {
   useEffect(() => {
     // Check if notification was received in background
@@ -78,6 +78,7 @@ function App() {
           <Route path="/redirect-to-payment/:encodedUrl" element={<RedirectToPayment />} />
           <Route path="/confirm-bookings" element={<ConfirmBookings />} />
           <Route path="/payment-successful" element={<ThankYouPage />} />
+          <Route path="/customer-feedback" element={<FeedbackPage />} />
           <Route path="*" element={<NotFoundPage />} />
 
         </Routes>
