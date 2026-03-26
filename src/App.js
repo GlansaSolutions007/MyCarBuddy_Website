@@ -34,7 +34,7 @@ import ConfirmBookings from "./pages/ConfirmBookingsPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotificationPopup from "./components/NotificationPopup";
 import OfferScreenPopUp from "./components/OfferScreenPopUp";
-import AIChatWidget from "./components/AIChatWidget";
+// import AIChatWidget from "./components/AIChatWidget";
 import FeedbackPage from "./pages/FeedbackPage"
 function App() {
   useEffect(() => {
@@ -51,7 +51,7 @@ function App() {
         <RouteScrollToTop />
         <ScrollToTop smooth color="#E8092E" />
         <NotificationPopup />
-        <AIChatWidget />
+        {/* <AIChatWidget /> */}
 
         <Routes>
           <Route exact path="/" element={<><HomePageThree /> <OfferScreenPopUp/></>} />
