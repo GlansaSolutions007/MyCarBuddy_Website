@@ -124,7 +124,7 @@ const FeedbackLayer = () => {
                 <span>We value your experience, <strong>Let's make it better!</strong></span>
              </div>
              <div className="mcb-premium-badge">
-                <ShieldCheck size={14} /> <span>Premium Partner</span>
+                <ShieldCheck size={14} /> <span>Verified Feedback</span>
              </div>
           </header>
 
