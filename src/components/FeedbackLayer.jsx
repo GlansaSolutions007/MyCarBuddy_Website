@@ -156,7 +156,7 @@ const FeedbackLayer = () => {
                 </div>
 
                 <button onClick={() => navigate("/")} className="mcb-fb-btn-back">
-                  <ChevronLeft size={18} /> Back to Dashboard
+                  <ChevronLeft size={18} /> Back to Home
                 </button>
               </div>
             ) : (
