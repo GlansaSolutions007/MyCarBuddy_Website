@@ -216,13 +216,28 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                     : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
                 const icon = action === "approve" ? "success" : "warning";
 
+                // Swal.fire({
+                //     title: title,
+                //     text: message,
+                //     icon: icon,
+                //     confirmButtonColor: "#0a6264",
+                // }).then(() => {
+                //     navigate("/", { replace: true });
+                // });
                 Swal.fire({
-                    title: title,
-                    text: message,
-                    icon: icon,
-                    confirmButtonColor: "#0a6264",
+                title: title,
+                text: message,
+                icon: icon,
+                confirmButtonColor: "#0a6264",
                 }).then(() => {
-                    navigate("/", { replace: true });
+
+                    // 🔥 MAIN CONDITION
+                    if (services.length === 0) {
+                        navigate("/", { replace: true });
+                    } else {
+                        window.location.reload();
+                    }
+
                 });
             } else {
                 throw new Error("Unexpected response code");
@@ -622,6 +637,9 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                                     <td>{idx + 1}</td>
                                                     <td>
                                                         <span className="aos-table-name" title={srv.ServiceName}>
+                                                        {/* <span className={`aos-table-name ${
+                                                            srv.Includes?.length > 0 ? "text-left" : "text-center"
+                                                        }`} title={srv.ServiceName}> */}
                                                             {srv.ServiceName}
                                                         </span>
                                                         {srv.Includes?.length > 0 && (
@@ -683,7 +701,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <div className="aos-summary-label">CGST</div>
                                 <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2) / 2}</div>
                             </div>
-                            <div className="aos-summary-item">
+                            <div className="aos-summary-item bg-warning text-dark">
                                 <div className="aos-summary-label">Grand Total</div>
                                 <div className="aos-summary-value">₹{totals.totalAmount.toFixed(2)}</div>
                             </div>

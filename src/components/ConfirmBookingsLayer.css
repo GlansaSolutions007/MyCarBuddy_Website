@@ -418,7 +418,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+  text-align: left;
 }
+
+/* .text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+} */
 
 .aos-table-desc {
   color: #666;
