@@ -7,7 +7,38 @@ import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import NewTicket from "./NewTicket";
 import "./MyBookings.css";
-import { FaReceipt, FaFilter, FaThLarge, FaBolt, FaCheckCircle, FaTimesCircle, FaEye, FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaCar, FaBoxOpen, FaCartPlus, FaChevronDown, FaInfoCircle, FaPhone, FaTicketAlt, FaRedo, FaPlay, FaMapPin, FaTools, FaCheck, FaTimes, FaClipboardCheck, FaUserCheck, FaExclamationTriangle, FaTruck, FaWarehouse, FaHome } from "react-icons/fa";
+import {
+  FaReceipt,
+  FaFilter,
+  FaThLarge,
+  FaBolt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaEye,
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUser,
+  FaCar,
+  FaBoxOpen,
+  FaCartPlus,
+  FaChevronDown,
+  FaInfoCircle,
+  FaPhone,
+  FaTicketAlt,
+  FaRedo,
+  FaPlay,
+  FaMapPin,
+  FaTools,
+  FaCheck,
+  FaTimes,
+  FaClipboardCheck,
+  FaUserCheck,
+  FaExclamationTriangle,
+  FaTruck,
+  FaWarehouse,
+  FaHome,
+} from "react-icons/fa";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
 const BaseURL = process.env.REACT_APP_CARBUDDY_BASE_URL;
@@ -172,7 +203,7 @@ const MyBookings = () => {
       const found = bookings.find(
         (b) =>
           String(b.BookingID) === String(targetId) ||
-          String(b.BookingTrackID) === String(targetId)
+          String(b.BookingTrackID) === String(targetId),
       );
       if (found) setSelectedBooking(found);
     } catch (_) {
@@ -185,16 +216,16 @@ const MyBookings = () => {
     useMemo(() => {
       const all = bookings.length;
       const completed = bookings.filter(
-        (b) => b.BookingStatus === "Completed"
+        (b) => b.BookingStatus === "Completed",
       ).length;
       const cancelled = bookings.filter(
-        (b) => b.BookingStatus === "Cancelled"
+        (b) => b.BookingStatus === "Cancelled",
       ).length;
       const active = bookings.filter(
         (b) =>
           !["Completed", "Cancelled", "Failed", "Refunded"].includes(
-            b.BookingStatus
-          )
+            b.BookingStatus,
+          ),
       ).length;
       return {
         allCount: all,
@@ -226,7 +257,7 @@ const MyBookings = () => {
         matchesTab = booking.BookingStatus === "Cancelled";
       else if (activeTab === "Active")
         matchesTab = !["Completed", "Cancelled", "Failed", "Refunded"].includes(
-          booking.BookingStatus
+          booking.BookingStatus,
         );
       return matchesSearch && matchesTab;
     });
@@ -251,7 +282,7 @@ const MyBookings = () => {
     };
 
     const scrollContainer = document.querySelector(
-      ".bookings-scroll-container"
+      ".bookings-scroll-container",
     );
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);
@@ -313,37 +344,37 @@ const MyBookings = () => {
         setSelectedBooking((prev) =>
           prev
             ? {
-              ...prev,
-              BookingStatus:
-                prev.BookingStatus === "Cancelled"
-                  ? prev.BookingStatus
-                  : "Refunded",
-              Payments: Array.isArray(prev.Payments)
-                ? [
-                  {
-                    ...prev.Payments[0],
-                    isRefunded: true,
-                    IsRefunded1: true,
-                    RefundStatus: null,
-                  },
-                  ...prev.Payments.slice(1),
-                ]
-                : prev.Payments,
-            }
-            : prev
+                ...prev,
+                BookingStatus:
+                  prev.BookingStatus === "Cancelled"
+                    ? prev.BookingStatus
+                    : "Refunded",
+                Payments: Array.isArray(prev.Payments)
+                  ? [
+                      {
+                        ...prev.Payments[0],
+                        isRefunded: true,
+                        IsRefunded1: true,
+                        RefundStatus: null,
+                      },
+                      ...prev.Payments.slice(1),
+                    ]
+                  : prev.Payments,
+              }
+            : prev,
         );
         setBookings((prev) =>
           prev.map((b) =>
             b.BookingID === selectedBooking.BookingID
               ? {
-                ...b,
-                BookingStatus:
-                  b.BookingStatus === "Cancelled"
-                    ? b.BookingStatus
-                    : "Refunded",
-              }
-              : b
-          )
+                  ...b,
+                  BookingStatus:
+                    b.BookingStatus === "Cancelled"
+                      ? b.BookingStatus
+                      : "Refunded",
+                }
+              : b,
+          ),
         );
       } else {
         showAlert("Failed to request refund. Please try again.");
@@ -424,7 +455,7 @@ const MyBookings = () => {
     const original = getBookingOriginalTotal(selectedBooking || {});
     if ((coupon.MinBookingAmount || 0) > original) {
       showAlert(
-        `This coupon requires a minimum booking amount of ₹${coupon.MinBookingAmount}`
+        `This coupon requires a minimum booking amount of ₹${coupon.MinBookingAmount}`,
       );
       return;
     }
@@ -453,7 +484,7 @@ const MyBookings = () => {
         // Calculate discount amount
         couponAmount = Number(
           getBookingOriginalTotal(selectedBooking) -
-          getBookingFinalTotalWithCoupon(selectedBooking)
+            getBookingFinalTotalWithCoupon(selectedBooking),
         ).toFixed(2);
 
         // Calculate new base amount after discount
@@ -478,7 +509,7 @@ const MyBookings = () => {
             selectedBooking.TotalPrice +
             selectedBooking.GSTAmount -
             selectedBooking.CouponAmount
-          ).toFixed(2)
+          ).toFixed(2),
         );
 
         form.append("CouponAmount", couponAmount);
@@ -573,7 +604,7 @@ const MyBookings = () => {
 
       // Filter for cancel reasons only
       const cancelReasons = response.data.filter(
-        (item) => item.ReasonType === "Cancel" && item.IsActive === true
+        (item) => item.ReasonType === "Cancel" && item.IsActive === true,
       );
 
       setCancelReasons(cancelReasons);
@@ -611,7 +642,7 @@ const MyBookings = () => {
       !resumePaymentMethod
     ) {
       showAlert(
-        "Please select date, at least one timeslot and payment method."
+        "Please select date, at least one timeslot and payment method.",
       );
       return;
     }
@@ -649,7 +680,7 @@ const MyBookings = () => {
             "success",
             "Booking resumed successfully!",
             3000,
-            "success"
+            "success",
           );
           setShowResumeForm(false);
           setSelectedBooking(null);
@@ -673,8 +704,9 @@ const MyBookings = () => {
       currency: "INR",
       name: "MyCarBuddy a product by Glansa Solutions Pvt. Ltd.",
       order_id: data?.razorpay?.orderID,
-      description: `Payment for ${selectedBooking?.BookingTrackID || selectedBooking?.BookingID
-        }`,
+      description: `Payment for ${
+        selectedBooking?.BookingTrackID || selectedBooking?.BookingID
+      }`,
       image: "/assets/img/MyCarBuddy-Logo1.png",
       handler: function (response) {
         // Wait for 5 seconds before calling confirm-payment (backend settlement time)
@@ -693,7 +725,7 @@ const MyBookings = () => {
                 razorpayOrderId: response.razorpay_order_id,
                 paymentMode: "Razorpay",
               },
-              { headers: { Authorization: `Bearer ${token}` } }
+              { headers: { Authorization: `Bearer ${token}` } },
             );
 
             if (res?.data?.success || res?.status === 200) {
@@ -760,7 +792,7 @@ const MyBookings = () => {
 
     if (!selectedReason && !otherChecked) {
       showAlert(
-        "Please select a reason or choose 'Other' and provide a reason."
+        "Please select a reason or choose 'Other' and provide a reason.",
       );
       return;
     }
@@ -795,7 +827,7 @@ const MyBookings = () => {
           selectedBooking.paymentMethod === "razorpay"
         ) {
           showAlert(
-            "Booking cancellation submitted successfully. Please wait for refund."
+            "Booking cancellation submitted successfully. Please wait for refund.",
           );
         } else {
           showAlert("Booking cancellation submitted successfully.");
@@ -805,8 +837,8 @@ const MyBookings = () => {
           prevBookings.map((booking) =>
             booking.BookingID === selectedBooking.BookingID
               ? { ...booking, BookingStatus: "Cancelled" }
-              : booking
-          )
+              : booking,
+          ),
         );
         setSelectedBooking((prev) => ({ ...prev, BookingStatus: "Cancelled" }));
       } else {
@@ -897,41 +929,39 @@ const MyBookings = () => {
 
   const visibleBookings = Array.isArray(filteredBookings)
     ? filteredBookings.filter((booking) => {
-      const hasTempAddons =
-        Array.isArray(booking.BookingsTempAddons) &&
-        booking.BookingsTempAddons.length > 0;
-      const hasAddOns =
-        Array.isArray(booking.BookingAddOns) &&
-        booking.BookingAddOns.length > 0;
+        const hasTempAddons =
+          Array.isArray(booking.BookingsTempAddons) &&
+          booking.BookingsTempAddons.length > 0;
+        const hasAddOns =
+          Array.isArray(booking.BookingAddOns) &&
+          booking.BookingAddOns.length > 0;
 
-      // Hide booking if BOTH are null/empty
-      if (!hasTempAddons && !hasAddOns) return false;
+        // Hide booking if BOTH are null/empty
+        if (!hasTempAddons && !hasAddOns) return false;
 
-      // If temp addons exist, hide if ANY addon is not confirmed
-      if (hasTempAddons) {
-        return booking.BookingsTempAddons.every(
-          (addon) => addon.IsSupervisor_Confirm === 1
-        );
-      }
+        // If temp addons exist, hide if ANY addon is not confirmed
+        if (hasTempAddons) {
+          return booking.BookingsTempAddons.every(
+            (addon) => addon.IsSupervisor_Confirm === 1,
+          );
+        }
 
-      // Has only approved addons → show
-      return true;
-    })
+        // Has only approved addons → show
+        return true;
+      })
     : [];
 
   let leadVehicle = null;
 
   if (Array.isArray(selectedBooking?.Leads)) {
     // Case 1: Leads is an array
-    leadVehicle = selectedBooking.Leads
-      .slice()
+    leadVehicle = selectedBooking.Leads.slice()
       .reverse()
-      .find(lead => lead?.Vehicle)?.Vehicle;
+      .find((lead) => lead?.Vehicle)?.Vehicle;
   } else if (selectedBooking?.Leads?.Vehicle) {
     // Case 2: Leads is a single object
     leadVehicle = selectedBooking.Leads.Vehicle;
   }
-
 
   const vehicleData = {
     number:
@@ -939,25 +969,15 @@ const MyBookings = () => {
       leadVehicle?.RegistrationNumber ||
       "N/A",
 
-    brand:
-      selectedBooking?.BrandName ||
-      leadVehicle?.BrandName ||
-      "N/A",
+    brand: selectedBooking?.BrandName || leadVehicle?.BrandName || "N/A",
 
-    model:
-      selectedBooking?.ModelName ||
-      leadVehicle?.ModelName ||
-      "N/A",
+    model: selectedBooking?.ModelName || leadVehicle?.ModelName || "N/A",
 
-    fuel:
-      selectedBooking?.FuelTypeName ||
-      leadVehicle?.FuelTypeName ||
-      "N/A",
+    fuel: selectedBooking?.FuelTypeName || leadVehicle?.FuelTypeName || "N/A",
 
-    image:
-      selectedBooking?.VehicleImage
-        ? `${ImageURL}${selectedBooking.VehicleImage}`
-        : "/assets/img/normal/car-placeholder.jpg"
+    image: selectedBooking?.VehicleImage
+      ? `${ImageURL}${selectedBooking.VehicleImage}`
+      : "/assets/img/normal/car-placeholder.jpg",
   };
 
   const hasVehicleInfo =
@@ -968,12 +988,12 @@ const MyBookings = () => {
 
   const totalPaidAmount = (selectedBooking?.Payments || []).reduce(
     (sum, payment) =>
-      payment.PaymentStatus === "Success" || payment.PaymentStatus === "Partialpaid"
+      payment.PaymentStatus === "Success" ||
+      payment.PaymentStatus === "Partialpaid"
         ? sum + Number(payment.AmountPaid || 0)
         : sum,
-    0
+    0,
   );
-
 
   return (
     <div className="mb-section">
@@ -1096,31 +1116,76 @@ const MyBookings = () => {
                   : null;
 
                 // Get status date from BookingStatusTracking (ServiceAtHome flow)
-                const statusTracking = Array.isArray(booking?.BookingStatusTracking)
+                const statusTracking = Array.isArray(
+                  booking?.BookingStatusTracking,
+                )
                   ? booking.BookingStatusTracking
                   : [];
                 const getStatusDate = (status) =>
-                  statusTracking.find((s) => s?.Status === status)?.Created_At || null;
+                  statusTracking.find((s) => s?.Status === status)
+                    ?.Created_At || null;
 
                 // ServiceAtHome: technician comes to customer's location (uses BookingStatusTracking)
-                const firstPickup = Array.isArray(booking?.PickupDelivery) && booking.PickupDelivery.length > 0 ? booking.PickupDelivery[0] : null;
-                const buddyAssignedDate = firstPickup?.AssignDate || firstPickup?.CreatedDate || pickupDelivery?.AssignDate || booking?.TechAssignDate;
-                const hasServiceInProgress = statusTracking.some(s => s?.Status === "ServiceInProgress");
+                const firstPickup =
+                  Array.isArray(booking?.PickupDelivery) &&
+                  booking.PickupDelivery.length > 0
+                    ? booking.PickupDelivery[0]
+                    : null;
+                const buddyAssignedDate =
+                  firstPickup?.AssignDate ||
+                  firstPickup?.CreatedDate ||
+                  pickupDelivery?.AssignDate ||
+                  booking?.TechAssignDate;
+                const hasServiceInProgress = statusTracking.some(
+                  (s) => s?.Status === "ServiceInProgress",
+                );
                 const statusTimelineHome = [
-                  { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
+                  {
+                    label: "Booking Created",
+                    date: booking.BookingDate,
+                    icon: <FaClipboardCheck />,
+                  },
                   ...(booking?.Reschedules?.length
                     ? booking.Reschedules.map((r) => ({
-                      label: "Rescheduled",
-                      date: r.NewSchedule,
-                      icon: <FaRedo />,
-                    }))
+                        label: "Rescheduled",
+                        date: r.NewSchedule,
+                        icon: <FaRedo />,
+                      }))
                     : []),
-                  { label: "Buddy Assigned", date: buddyAssignedDate, icon: <FaUserCheck /> },
-                  { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
-                  { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
-                  { label: "Service Started", date: getStatusDate("ServiceStarted"), icon: <FaTools /> },
-                  ...(hasServiceInProgress ? [{ label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> }] : []),
-                  { label: "Completed", date: getStatusDate("Completed"), icon: <FaCheck /> },
+                  {
+                    label: "Buddy Assigned",
+                    date: buddyAssignedDate,
+                    icon: <FaUserCheck />,
+                  },
+                  {
+                    label: "Buddy Started",
+                    date: getStatusDate("BuddyStarted"),
+                    icon: <FaPlay />,
+                  },
+                  {
+                    label: "Buddy Reached",
+                    date: getStatusDate("BuddyReached"),
+                    icon: <FaMapPin />,
+                  },
+                  {
+                    label: "Service Started",
+                    date: getStatusDate("ServiceStarted"),
+                    icon: <FaTools />,
+                  },
+                  ...(hasServiceInProgress
+                    ? [
+                        {
+                          label: "Service In Progress",
+                          date: getStatusDate("ServiceInProgress"),
+                          icon: <FaWarehouse />,
+                        },
+                      ]
+                    : []),
+                  {
+                    label: "Completed",
+                    date: getStatusDate("Completed"),
+                    icon: <FaCheck />,
+                  },
                 ];
 
                 // ServiceAtGarage: CustomerToDealer → garage → DealerToCustomer (uses BookingStatusTracking)
@@ -1129,33 +1194,95 @@ const MyBookings = () => {
                   : false;
 
                 const statusTimelineGarage = [
-                  { label: "Booking Created", date: booking.BookingDate, icon: <FaClipboardCheck /> },
+                  {
+                    label: "Booking Created",
+                    date: booking.BookingDate,
+                    icon: <FaClipboardCheck />,
+                  },
                   ...(booking?.Reschedules?.length
                     ? booking.Reschedules.map((r) => ({
-                      label: "Rescheduled",
-                      date: r.NewSchedule,
-                      icon: <FaRedo />,
-                    }))
+                        label: "Rescheduled",
+                        date: r.NewSchedule,
+                        icon: <FaRedo />,
+                      }))
                     : []),
-                  { label: "Assigned", date: getStatusDate("Assigned") || pickupDelivery?.AssignDate, icon: <FaUserCheck /> },
-                  { label: "Buddy Started", date: getStatusDate("BuddyStarted"), icon: <FaPlay /> },
-                  { label: "Buddy Reached", date: getStatusDate("BuddyReached"), icon: <FaMapPin /> },
-                  { label: "Car Picked", date: getStatusDate("CarPicked"), icon: <FaTruck /> },
-                  ...(hasServiceInProgress ? [{ label: "Service In Progress", date: getStatusDate("ServiceInProgress"), icon: <FaWarehouse /> }] : []),
-                  { label: "Service Completed", date: getStatusDate("ServiceCompleted"), icon: <FaCheck /> },
-                  { label: "Out for Delivery", date: getStatusDate("OutForDelivery"), icon: <FaTruck /> },
-                  { label: "Delivered", date: getStatusDate("Completed"), icon: <FaHome /> },
-                  { label: "Completed", date: hasSuccessfulPayment ? getStatusDate("Completed") : null, icon: <FaCheck /> },];
+                  {
+                    label: "Assigned",
+                    date:
+                      getStatusDate("Assigned") || pickupDelivery?.AssignDate,
+                    icon: <FaUserCheck />,
+                  },
+                  {
+                    label: "Buddy Started",
+                    date: getStatusDate("BuddyStarted"),
+                    icon: <FaPlay />,
+                  },
+                  {
+                    label: "Buddy Reached",
+                    date: getStatusDate("BuddyReached"),
+                    icon: <FaMapPin />,
+                  },
+                  {
+                    label: "Car Picked",
+                    date: getStatusDate("CarPicked"),
+                    icon: <FaTruck />,
+                  },
+                  ...(hasServiceInProgress
+                    ? [
+                        {
+                          label: "Service In Progress",
+                          date: getStatusDate("ServiceInProgress"),
+                          icon: <FaWarehouse />,
+                        },
+                      ]
+                    : []),
+                  {
+                    label: "Service Completed",
+                    date: getStatusDate("ServiceCompleted"),
+                    icon: <FaCheck />,
+                  },
+                  {
+                    label: "Out for Delivery",
+                    date: getStatusDate("OutForDelivery"),
+                    icon: <FaTruck />,
+                  },
+                  {
+                    label: "Delivered",
+                    date: getStatusDate("Completed"),
+                    icon: <FaHome />,
+                  },
+                  {
+                    label: "Completed",
+                    date: hasSuccessfulPayment
+                      ? getStatusDate("Completed")
+                      : null,
+                    icon: <FaCheck />,
+                  },
+                ];
 
-                const statusTimeline = isGarage ? statusTimelineGarage : statusTimelineHome;
+                const statusTimeline = isGarage
+                  ? statusTimelineGarage
+                  : statusTimelineHome;
 
                 const fullTimeline = [
                   ...statusTimeline,
                   ...(booking.BookingStatus === "Cancelled"
-                    ? [{ label: "Cancelled", date: new Date(), icon: <FaTimes /> }]
+                    ? [
+                        {
+                          label: "Cancelled",
+                          date: new Date(),
+                          icon: <FaTimes />,
+                        },
+                      ]
                     : []),
                   ...(booking.BookingStatus === "Failed"
-                    ? [{ label: "Failed", date: new Date(), icon: <FaExclamationTriangle /> }]
+                    ? [
+                        {
+                          label: "Failed",
+                          date: new Date(),
+                          icon: <FaExclamationTriangle />,
+                        },
+                      ]
                     : []),
                 ];
 
@@ -1168,7 +1295,8 @@ const MyBookings = () => {
                           <FaReceipt />
                         </div>
                         <div className="mb-booking-info">
-                          <h4>BID : #{booking.BookingTrackID}
+                          <h4>
+                            BID : #{booking.BookingTrackID}
                             {/* (<span>
                             {booking.BookingDate
                               ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
@@ -1178,7 +1306,9 @@ const MyBookings = () => {
                           <span>
                             Date :&nbsp;
                             {booking.BookingDate
-                              ? new Date(booking.BookingDate).toLocaleDateString("en-GB")
+                              ? new Date(
+                                  booking.BookingDate,
+                                ).toLocaleDateString("en-GB")
                               : "N/A"}
                           </span>
                         </div>
@@ -1196,27 +1326,41 @@ const MyBookings = () => {
                         )}
 
                       {/* Payment Status */}
-                      {(
-                        <div className={`payment-status ${booking?.Payments?.[booking.Payments.length - 1]?.PaymentStatus === "Success" ? "success" : "danger"
-                          }`}>
-                          Payment: {booking?.Payments?.[booking.Payments.length - 1]?.PaymentStatus || "Pending"}
-                        </div>)
+                      {
+                        <div
+                          className={`payment-status ${
+                            booking?.Payments?.[booking.Payments.length - 1]
+                              ?.PaymentStatus === "Success"
+                              ? "success"
+                              : "danger"
+                          }`}
+                        >
+                          Payment:{" "}
+                          {booking?.Payments?.[booking.Payments.length - 1]
+                            ?.PaymentStatus || "Pending"}
+                        </div>
                       }
 
                       {/* Show Approve Booking when temp addons exist, View when approved addons exist (can show both) */}
                       <div className="mb-card-actions">
-                        {booking.BookingsTempAddons && booking.BookingsTempAddons.length > 0 && (
-                          <button
-                            className="mb-view-btn-approve"
-                            onClick={() => {
-                              navigate(`/confirm-bookings`, {
-                                state: { custId: decryptedCustId, bookingId: booking.BookingID, booking: booking }
-                              });
-                            }}
-                          >
-                            <FaCheckCircle /> Approve Service ({booking.BookingsTempAddons.length})
-                          </button>
-                        )}
+                        {booking.BookingsTempAddons &&
+                          booking.BookingsTempAddons.length > 0 && (
+                            <button
+                              className="mb-view-btn-approve"
+                              onClick={() => {
+                                navigate(`/confirm-bookings`, {
+                                  state: {
+                                    custId: decryptedCustId,
+                                    bookingId: booking.BookingID,
+                                    booking: booking,
+                                  },
+                                });
+                              }}
+                            >
+                              <FaCheckCircle /> Approve Service (
+                              {booking.BookingsTempAddons.length})
+                            </button>
+                          )}
                         <button
                           className="mb-view-btn"
                           onClick={() => setSelectedBooking(booking)}
@@ -1248,21 +1392,36 @@ const MyBookings = () => {
                       <div className="mb-timeline-desktop">
                         {fullTimeline.map((step, index, arr) => {
                           const isCompleted = !!step.date;
-                          const isBad = step.label === "Cancelled" || step.label === "Failed";
+                          const isBad =
+                            step.label === "Cancelled" ||
+                            step.label === "Failed";
 
                           return (
-                            <div key={`${booking.BookingID}-h-${index}`} className="mb-timeline-step">
+                            <div
+                              key={`${booking.BookingID}-h-${index}`}
+                              className="mb-timeline-step"
+                            >
                               <div className="mb-timeline-content">
-                                <div className={`mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
+                                <div
+                                  className={`mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}
+                                >
                                   {step.icon}
                                 </div>
-                                <div className="mb-timeline-label">{step.label}</div>
+                                <div className="mb-timeline-label">
+                                  {step.label}
+                                </div>
                                 <div className="mb-timeline-date">
-                                  {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
+                                  {step.date
+                                    ? new Date(step.date).toLocaleDateString(
+                                        "en-GB",
+                                      )
+                                    : "Pending"}
                                 </div>
                               </div>
                               {index < arr.length - 1 && (
-                                <div className={`mb-timeline-line ${isCompleted && !isBad ? "completed" : "pending"}`}></div>
+                                <div
+                                  className={`mb-timeline-line ${isCompleted && !isBad ? "completed" : "pending"}`}
+                                ></div>
                               )}
                             </div>
                           );
@@ -1273,18 +1432,33 @@ const MyBookings = () => {
                       <div className="mb-timeline-mobile">
                         {fullTimeline.map((step, index, arr) => {
                           const isCompleted = !!step.date;
-                          const isBad = step.label === "Cancelled" || step.label === "Failed";
+                          const isBad =
+                            step.label === "Cancelled" ||
+                            step.label === "Failed";
 
                           return (
-                            <div key={`${booking.BookingID}-v-${index}`} className="mb-timeline-mobile-step">
-                              <div className={`mb-timeline-mobile-icon mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}>
+                            <div
+                              key={`${booking.BookingID}-v-${index}`}
+                              className="mb-timeline-mobile-step"
+                            >
+                              <div
+                                className={`mb-timeline-mobile-icon mb-timeline-icon ${isBad ? "error" : isCompleted ? "completed" : "pending"}`}
+                              >
                                 {step.icon}
                               </div>
-                              {index < arr.length - 1 && <div className="mb-timeline-mobile-line"></div>}
+                              {index < arr.length - 1 && (
+                                <div className="mb-timeline-mobile-line"></div>
+                              )}
                               <div className="mb-timeline-mobile-content">
-                                <div className="mb-timeline-mobile-label">{step.label}</div>
+                                <div className="mb-timeline-mobile-label">
+                                  {step.label}
+                                </div>
                                 <div className="mb-timeline-mobile-date">
-                                  {step.date ? new Date(step.date).toLocaleDateString("en-GB") : "Pending"}
+                                  {step.date
+                                    ? new Date(step.date).toLocaleDateString(
+                                        "en-GB",
+                                      )
+                                    : "Pending"}
                                 </div>
                               </div>
                             </div>
@@ -1344,7 +1518,10 @@ const MyBookings = () => {
                   className="mb-no-bookings-img"
                 />
                 <h4>No bookings yet</h4>
-                <p>Looks like you haven't booked any services yet. Book your first service!</p>
+                <p>
+                  Looks like you haven't booked any services yet. Book your
+                  first service!
+                </p>
                 <button
                   className="btn btn-primary mt-4"
                   onClick={() => navigate("/service")}
@@ -1363,14 +1540,15 @@ const MyBookings = () => {
             )}
 
             {/* End of Results */}
-            {visibleCount >= visibleBookings.length && visibleBookings.length > 0 && (
-              <div className="text-center py-3">
-                <div className="text-muted">
-                  <FaCheckCircle className="me-2" />
-                  You've reached the end of your bookings
+            {visibleCount >= visibleBookings.length &&
+              visibleBookings.length > 0 && (
+                <div className="text-center py-3">
+                  <div className="text-muted">
+                    <FaCheckCircle className="me-2" />
+                    You've reached the end of your bookings
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         )}
 
@@ -1441,16 +1619,21 @@ const MyBookings = () => {
                           state: {
                             custId: decryptedCustId,
                             bookingId: selectedBooking.BookingID,
-                            booking: selectedBooking
-                          }
+                            booking: selectedBooking,
+                          },
                         })
                       }
                     >
-                      <FaCheckCircle /> Approve {selectedBooking.BookingsTempAddons.length} Service{selectedBooking.BookingsTempAddons.length > 1 ? "s" : ""}
+                      <FaCheckCircle /> Approve{" "}
+                      {selectedBooking.BookingsTempAddons.length} Service
+                      {selectedBooking.BookingsTempAddons.length > 1 ? "s" : ""}
                     </button>
                   )}
                   {selectedBooking.BookingStatus !== "Cancelled" && (
-                    <button className="mb-detail-action-btn warning" onClick={() => setShowNewTicket(true)}>
+                    <button
+                      className="mb-detail-action-btn warning"
+                      onClick={() => setShowNewTicket(true)}
+                    >
                       <FaTicketAlt /> Raise Ticket
                     </button>
                   )}
@@ -1466,15 +1649,43 @@ const MyBookings = () => {
                   <label>Date & Time</label>
                   {selectedBooking?.BookingDate && selectedBooking?.TimeSlot ? (
                     <span>
-                      {new Date(selectedBooking.BookingDate).toLocaleDateString("en-GB")} •{" "}
-                      {selectedBooking.TimeSlot.includes(",")
-                        ? selectedBooking.TimeSlot.split(",").map((t, i) => (
-                          <span key={i}>
-                            {t.trim()}
-                            {i < selectedBooking.TimeSlot.split(",").length - 1 && " • "}
-                          </span>
-                        ))
-                        : selectedBooking.TimeSlot}
+                      {new Date(selectedBooking.BookingDate).toLocaleDateString(
+                        "en-GB",
+                      )}{" "}
+                      <div style={{ marginTop: "6px" }}>
+                        <span style={{ fontWeight: "600" }}>Time Slots: </span>
+
+                        {selectedBooking.TimeSlot &&
+                          selectedBooking.TimeSlot.split(",").map((t, i) => {
+                            const [start, end] = t.trim().split("-");
+
+                            const formatTime = (time) => {
+                              const [h, m, s] = time.split(":");
+                              const date = new Date();
+                              date.setHours(h, m, s);
+                              return date.toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              });
+                            };
+
+                            return (
+                              <span
+                                key={i}
+                                style={{
+                                  display: "inline-block",
+                                  padding: "4px 10px",
+                                  margin: "4px",
+                                  background: "#ffffff20",
+                                  borderRadius: "6px",
+                                }}
+                              >
+                                {formatTime(start)} - {formatTime(end)}
+                              </span>
+                            );
+                          })}
+                      </div>
                     </span>
                   ) : (
                     <span>N/A</span>
@@ -1532,9 +1743,14 @@ const MyBookings = () => {
                             id="pm-razorpay"
                             value="razorpay"
                             checked={resumePaymentMethod === "razorpay"}
-                            onChange={(e) => setResumePaymentMethod(e.target.value)}
+                            onChange={(e) =>
+                              setResumePaymentMethod(e.target.value)
+                            }
                           />
-                          <label className="form-check-label" htmlFor="pm-razorpay">
+                          <label
+                            className="form-check-label"
+                            htmlFor="pm-razorpay"
+                          >
                             razorpay
                           </label>
                         </div>
@@ -1546,7 +1762,9 @@ const MyBookings = () => {
                             id="pm-cos"
                             value="COS"
                             checked={resumePaymentMethod === "COS"}
-                            onChange={(e) => setResumePaymentMethod(e.target.value)}
+                            onChange={(e) =>
+                              setResumePaymentMethod(e.target.value)
+                            }
                           />
                           <label className="form-check-label" htmlFor="pm-cos">
                             COS
@@ -1578,7 +1796,7 @@ const MyBookings = () => {
                                 setSelectedResumeTimes((prev) =>
                                   e.target.checked
                                     ? [...prev, s.label]
-                                    : prev.filter((x) => x !== s.label)
+                                    : prev.filter((x) => x !== s.label),
                                 );
                               }}
                             />
@@ -1608,7 +1826,7 @@ const MyBookings = () => {
                                 setSelectedResumeTimes((prev) =>
                                   e.target.checked
                                     ? [...prev, s.label]
-                                    : prev.filter((x) => x !== s.label)
+                                    : prev.filter((x) => x !== s.label),
                                 );
                               }}
                             />
@@ -1638,7 +1856,7 @@ const MyBookings = () => {
                                 setSelectedResumeTimes((prev) =>
                                   e.target.checked
                                     ? [...prev, s.label]
-                                    : prev.filter((x) => x !== s.label)
+                                    : prev.filter((x) => x !== s.label),
                                 );
                               }}
                             />
@@ -1676,11 +1894,12 @@ const MyBookings = () => {
                   {/* Timeline removed as requested */}
                   {(() => {
                     const fullTracking = Array.isArray(
-                      selectedBooking?.TechnicianTracking
+                      selectedBooking?.TechnicianTracking,
                     )
                       ? selectedBooking.TechnicianTracking[0]
                       : {};
-                    var hasServiceStartedFull = !!fullTracking?.ServiceStartedAt;
+                    var hasServiceStartedFull =
+                      !!fullTracking?.ServiceStartedAt;
                     return null;
                   })()}
 
@@ -1695,18 +1914,34 @@ const MyBookings = () => {
                       </div>
                       <div className="mb-info-card-body">
                         <h5>
-                          {selectedBooking.IsOthers ? selectedBooking.OthersFullName : selectedBooking.CustomerName}
-                          <span style={{ fontWeight: 400, fontSize: '0.85rem', color: '#666' }}>
-                            {" "}({selectedBooking.IsOthers ? selectedBooking.OthersPhoneNumber : selectedBooking.PhoneNumber})
+                          {selectedBooking.IsOthers
+                            ? selectedBooking.OthersFullName
+                            : selectedBooking.CustomerName}
+                          <span
+                            style={{
+                              fontWeight: 400,
+                              fontSize: "0.85rem",
+                              color: "#666",
+                            }}
+                          >
+                            {" "}
+                            (
+                            {selectedBooking.IsOthers
+                              ? selectedBooking.OthersPhoneNumber
+                              : selectedBooking.PhoneNumber}
+                            )
                           </span>
                         </h5>
                         <p>
                           <strong>Address:</strong>{" "}
-                          {selectedBooking?.FullAddress || selectedBooking?.Pincode
-                            ? `${selectedBooking?.FullAddress || ""}${selectedBooking?.FullAddress && selectedBooking?.Pincode
-                              ? ", "
-                              : ""
-                            }${selectedBooking?.Pincode || ""}`
+                          {selectedBooking?.FullAddress ||
+                          selectedBooking?.Pincode
+                            ? `${selectedBooking?.FullAddress || ""}${
+                                selectedBooking?.FullAddress &&
+                                selectedBooking?.Pincode
+                                  ? ", "
+                                  : ""
+                              }${selectedBooking?.Pincode || ""}`
                             : "N/A"}
                         </p>
                       </div>
@@ -1748,7 +1983,6 @@ const MyBookings = () => {
                         </div>
                       </div>
                     )}
-
                   </div>
 
                   {/* Packages Section */}
@@ -1793,18 +2027,27 @@ const MyBookings = () => {
                                 <span className="mb-accordion-title">
                                   <FaBoxOpen /> {pkg.PackageName}
                                 </span>
-                                <FaChevronDown className={`mb-accordion-icon ${isOpen ? "open" : ""}`} />
+                                <FaChevronDown
+                                  className={`mb-accordion-icon ${isOpen ? "open" : ""}`}
+                                />
                               </div>
                               {isOpen && (
                                 <div className="mb-accordion-body">
-                                  {pkg.Category?.SubCategories?.[0]?.Includes?.length ? (
+                                  {pkg.Category?.SubCategories?.[0]?.Includes
+                                    ?.length ? (
                                     <ul>
-                                      {pkg.Category.SubCategories[0].Includes.map((inc) => (
-                                        <li key={inc.IncludeID}>{inc.IncludeName}</li>
-                                      ))}
+                                      {pkg.Category.SubCategories[0].Includes.map(
+                                        (inc) => (
+                                          <li key={inc.IncludeID}>
+                                            {inc.IncludeName}
+                                          </li>
+                                        ),
+                                      )}
                                     </ul>
                                   ) : (
-                                    <p className="text-muted">No includes available.</p>
+                                    <p className="text-muted">
+                                      No includes available.
+                                    </p>
                                   )}
                                 </div>
                               )}
@@ -1825,31 +2068,62 @@ const MyBookings = () => {
                         Pending Approval
                       </h5>
                       <p className="text-muted small mb-3">
-                        These services require your approval. Click &quot;Approve Booking&quot; above to confirm.
+                        These services require your approval. Click
+                        &quot;Approve Booking&quot; above to confirm.
                       </p>
                       <div className="mb-addons-grid">
-                        {selectedBooking.BookingsTempAddons.map((addOn, idx) => (
-                          <div key={`temp-${idx}`} className="mb-addon-card mb-addon-card-pending">
-                            <div className="mb-addon-header">
-                              <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
-                              {/* <span className="badge bg-warning text-dark">Pending</span> */}
+                        {selectedBooking.BookingsTempAddons.map(
+                          (addOn, idx) => (
+                            <div
+                              key={`temp-${idx}`}
+                              className="mb-addon-card mb-addon-card-pending"
+                            >
+                              <div className="mb-addon-header">
+                                <h6 className="mb-addon-title">
+                                  {addOn.ServiceName}
+                                </h6>
+                                {/* <span className="badge bg-warning text-dark">Pending</span> */}
+                              </div>
+                              <div className="mb-addon-body">
+                                <div className="mb-addon-row">
+                                  <span className="mb-addon-label">
+                                    Parts Price
+                                  </span>
+                                  <span className="mb-addon-value">
+                                    ₹
+                                    {Number(
+                                      addOn.Price || addOn.BasePrice || 0,
+                                    ).toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="mb-addon-row">
+                                  <span className="mb-addon-label">
+                                    Service Charges
+                                  </span>
+                                  <span className="mb-addon-value">
+                                    ₹
+                                    {Number(
+                                      addOn.LabourCharges || 0,
+                                    ).toLocaleString()}
+                                  </span>
+                                </div>
+                                <div className="mb-addon-row mb-addon-row-total border-top pt-2">
+                                  <span className="mb-addon-label text-dark fw-bold">
+                                    Total
+                                  </span>
+                                  <span className="mb-addon-total">
+                                    ₹
+                                    {(
+                                      Number(
+                                        addOn.Price || addOn.BasePrice || 0,
+                                      ) + Number(addOn.LabourCharges || 0)
+                                    ).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="mb-addon-body">
-                              <div className="mb-addon-row">
-                                <span className="mb-addon-label">Parts Price</span>
-                                <span className="mb-addon-value">₹{Number(addOn.Price || addOn.BasePrice || 0).toLocaleString()}</span>
-                              </div>
-                              <div className="mb-addon-row">
-                                <span className="mb-addon-label">Service Charges</span>
-                                <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
-                              </div>
-                              <div className="mb-addon-row mb-addon-row-total border-top pt-2">
-                                <span className="mb-addon-label text-dark fw-bold">Total</span>
-                                <span className="mb-addon-total">₹{(Number(addOn.Price || addOn.BasePrice || 0) + Number(addOn.LabourCharges || 0)).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -1877,69 +2151,127 @@ const MyBookings = () => {
                             </button>
                           </h2>
 
-                          <div className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""}`}>
+                          <div
+                            className={`accordion-collapse collapse ${isAddOnsOpen ? "show" : ""}`}
+                          >
                             <div className="accordion-body p-1 pt-3">
                               <div className="mb-addons-grid">
-                                {selectedBooking.BookingAddOns.map((addOn, idx) => (
-                                  <div key={idx} className="mb-addon-card">
-                                    {/* Header */}
-                                    <div className="mb-addon-header">
-                                      <h6 className="mb-addon-title">{addOn.ServiceName}</h6>
-                                    </div>
+                                {selectedBooking.BookingAddOns.map(
+                                  (addOn, idx) => (
+                                    <div key={idx} className="mb-addon-card">
+                                      {/* Header */}
+                                      <div className="mb-addon-header">
+                                        <h6 className="mb-addon-title">
+                                          {addOn.ServiceName}
+                                        </h6>
+                                      </div>
 
-                                    {/* Pricing Body */}
-                                    <div className="mb-addon-body">
-                                      <div className="mb-addon-row">
-                                        <span className="mb-addon-label">Parts Price</span>
-                                        <span className="mb-addon-value">₹{Number(addOn.ServicePrice || 0).toLocaleString()}</span>
-                                      </div>
-                                      <div className="mb-addon-row">
-                                        <span className="mb-addon-label">Service Charges</span>
-                                        <span className="mb-addon-value">₹{Number(addOn.LabourCharges || 0).toLocaleString()}</span>
-                                      </div>
-                                      {/* <div className="mb-addon-row">
+                                      {/* Pricing Body */}
+                                      <div className="mb-addon-body">
+                                        <div className="mb-addon-row">
+                                          <span className="mb-addon-label">
+                                            Parts Price
+                                          </span>
+                                          <span className="mb-addon-value">
+                                            ₹
+                                            {Number(
+                                              addOn.ServicePrice || 0,
+                                            ).toLocaleString()}
+                                          </span>
+                                        </div>
+                                        <div className="mb-addon-row">
+                                          <span className="mb-addon-label">
+                                            Service Charges
+                                          </span>
+                                          <span className="mb-addon-value">
+                                            ₹
+                                            {Number(
+                                              addOn.LabourCharges || 0,
+                                            ).toLocaleString()}
+                                          </span>
+                                        </div>
+                                        {/* <div className="mb-addon-row">
                                         <span className="mb-addon-label">GST ({addOn.GSTPercent}%)</span>
                                         <span className="mb-addon-value">₹{Number(addOn.GSTPrice || 0).toLocaleString()}</span>
                                       </div> */}
-                                      <div className="mb-addon-row">
-                                        <span className="mb-addon-label">SGST ({addOn.GSTPercent / 2}%)</span>
-                                        <span className="mb-addon-value">₹{Number(addOn.GSTPrice / 2 || 0).toLocaleString()}</span>
-                                      </div>
-                                      <div className="mb-addon-row">
-                                        <span className="mb-addon-label">CGST ({addOn.GSTPercent / 2}%)</span>
-                                        <span className="mb-addon-value">₹{Number(addOn.GSTPrice / 2 || 0).toLocaleString()}</span>
-                                      </div>
-                                      <div className="mb-addon-row mb-addon-row-total border-top pt-2">
-                                        <span className="mb-addon-label text-dark fw-bold">Total Amount</span>
-                                        <span className="mb-addon-total">₹{Number(addOn.TotalPrice || 0).toLocaleString()}</span>
-                                      </div>
-
-                                      {/* Includes Dropdown Section */}
-                                      {Array.isArray(addOn.Includes) && addOn.Includes.length > 0 && (
-                                        <div className="mt-3">
-                                          <button
-                                            className={`btn-toggle-includes w-100 ${expandedIncludes[idx] ? "active" : ""}`}
-                                            onClick={() => toggleIncludes(idx)}
-                                          >
-                                            <small>Includes ({addOn.Includes.length})</small>
-                                            <i className={`bi bi-chevron-down transition-icon ${expandedIncludes[idx] ? "rotate" : ""}`}></i>
-                                          </button>
-
-                                          <div className={`includes-expandable-content ${expandedIncludes[idx] ? "show" : ""}`}>
-                                            <ul className="mb-addon-includes-list shadow-sm">
-                                              {addOn.Includes.map((item) => (
-                                                <li key={item.IncludeID} className="mb-addon-include-item">
-                                                  <i className="bi bi-check2-circle text-success"></i>
-                                                  <span>{item.IncludeName}</span>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
+                                        <div className="mb-addon-row">
+                                          <span className="mb-addon-label">
+                                            SGST ({addOn.GSTPercent / 2}%)
+                                          </span>
+                                          <span className="mb-addon-value">
+                                            ₹
+                                            {Number(
+                                              addOn.GSTPrice / 2 || 0,
+                                            ).toLocaleString()}
+                                          </span>
                                         </div>
-                                      )}
+                                        <div className="mb-addon-row">
+                                          <span className="mb-addon-label">
+                                            CGST ({addOn.GSTPercent / 2}%)
+                                          </span>
+                                          <span className="mb-addon-value">
+                                            ₹
+                                            {Number(
+                                              addOn.GSTPrice / 2 || 0,
+                                            ).toLocaleString()}
+                                          </span>
+                                        </div>
+                                        <div className="mb-addon-row mb-addon-row-total border-top pt-2">
+                                          <span className="mb-addon-label text-dark fw-bold">
+                                            Total Amount
+                                          </span>
+                                          <span className="mb-addon-total">
+                                            ₹
+                                            {Number(
+                                              addOn.TotalPrice || 0,
+                                            ).toLocaleString()}
+                                          </span>
+                                        </div>
+
+                                        {/* Includes Dropdown Section */}
+                                        {Array.isArray(addOn.Includes) &&
+                                          addOn.Includes.length > 0 && (
+                                            <div className="mt-3">
+                                              <button
+                                                className={`btn-toggle-includes w-100 ${expandedIncludes[idx] ? "active" : ""}`}
+                                                onClick={() =>
+                                                  toggleIncludes(idx)
+                                                }
+                                              >
+                                                <small>
+                                                  Includes (
+                                                  {addOn.Includes.length})
+                                                </small>
+                                                <i
+                                                  className={`bi bi-chevron-down transition-icon ${expandedIncludes[idx] ? "rotate" : ""}`}
+                                                ></i>
+                                              </button>
+
+                                              <div
+                                                className={`includes-expandable-content ${expandedIncludes[idx] ? "show" : ""}`}
+                                              >
+                                                <ul className="mb-addon-includes-list shadow-sm">
+                                                  {addOn.Includes.map(
+                                                    (item) => (
+                                                      <li
+                                                        key={item.IncludeID}
+                                                        className="mb-addon-include-item"
+                                                      >
+                                                        <i className="bi bi-check2-circle text-success"></i>
+                                                        <span>
+                                                          {item.IncludeName}
+                                                        </span>
+                                                      </li>
+                                                    ),
+                                                  )}
+                                                </ul>
+                                              </div>
+                                            </div>
+                                          )}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  ),
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1959,12 +2291,23 @@ const MyBookings = () => {
 
                     {/* Booking Status */}
                     <div className="mb-booking-info-row">
-                      <span className="mb-booking-info-label">Booking Status</span>
-                      <span className={`mb-booking-info-status ${["Success", "Completed", "Assigned"].includes(selectedBooking?.BookingStatus) ? "success" : "danger"
-                        }`}>
+                      <span className="mb-booking-info-label">
+                        Booking Status
+                      </span>
+                      <span
+                        className={`mb-booking-info-status ${
+                          ["Success", "Completed", "Assigned"].includes(
+                            selectedBooking?.BookingStatus,
+                          )
+                            ? "success"
+                            : "danger"
+                        }`}
+                      >
                         {selectedBooking?.BookingStatus || "Pending"}
                       </span>
-                      <span className="mb-booking-info-value">#{selectedBooking?.BookingTrackID || "N/A"}</span>
+                      <span className="mb-booking-info-value">
+                        #{selectedBooking?.BookingTrackID || "N/A"}
+                      </span>
                     </div>
 
                     {/* Technician */}
@@ -1990,9 +2333,18 @@ const MyBookings = () => {
                     {/* Payment */}
                     <div className="mb-booking-info-row">
                       <span className="mb-booking-info-label">Payment</span>
-                      <span className={`mb-booking-info-status ${selectedBooking?.Payments?.[selectedBooking.Payments.length - 1]?.PaymentStatus === "Success" ? "success" : "danger"
-                        }`}>
-                        {selectedBooking?.Payments?.[selectedBooking.Payments.length - 1]?.PaymentStatus || "Pending"}
+                      <span
+                        className={`mb-booking-info-status ${
+                          selectedBooking?.Payments?.[
+                            selectedBooking.Payments.length - 1
+                          ]?.PaymentStatus === "Success"
+                            ? "success"
+                            : "danger"
+                        }`}
+                      >
+                        {selectedBooking?.Payments?.[
+                          selectedBooking.Payments.length - 1
+                        ]?.PaymentStatus || "Pending"}
                       </span>
                       <span className="mb-booking-info-value">
                         Method: {selectedBooking?.PaymentMethod || "N/A"}
@@ -2007,16 +2359,18 @@ const MyBookings = () => {
                       const addOnTotal =
                         selectedBooking.BookingAddOns?.reduce(
                           (sum, addOn) => sum + Number(addOn.TotalPrice || 0),
-                          0
+                          0,
                         ) || 0;
 
-                      const isPaid = selectedBooking?.Payments?.[0]?.PaymentStatus === "Success";
+                      const isPaid =
+                        selectedBooking?.Payments?.[0]?.PaymentStatus ===
+                        "Success";
                       const isCOS = selectedBooking?.PaymentMethod === "COS";
                       const isCOSUnpaid =
                         isCOS &&
                         !isPaid &&
                         ["Pending", "Confirmed", "JourneyStarted"].includes(
-                          selectedBooking?.BookingStatus
+                          selectedBooking?.BookingStatus,
                         );
 
                       const hasAddOns = addOnTotal > 0;
@@ -2047,23 +2401,32 @@ const MyBookings = () => {
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Service Charges</div>
+                                  <div className="fw-semibold">
+                                    Service Charges
+                                  </div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(selectedBooking.LabourCharges)}
+                                    ₹
+                                    {formatPrice(selectedBooking.LabourCharges)}
                                   </div>
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                    ₹
+                                    {formatPrice(
+                                      getVal(selectedBooking.GSTAmount) / 2,
+                                    )}
                                   </div>
                                 </div>
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">CGST (9%)</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                    ₹
+                                    {formatPrice(
+                                      getVal(selectedBooking.GSTAmount) / 2,
+                                    )}
                                   </div>
                                 </div>
 
@@ -2071,7 +2434,10 @@ const MyBookings = () => {
                                   <div className="d-flex justify-content-between mb-2">
                                     <div className="fw-semibold">Coupon</div>
                                     <div className="fw-bold text-danger">
-                                      -₹{formatPrice(selectedBooking.CouponAmount)}
+                                      -₹
+                                      {formatPrice(
+                                        selectedBooking.CouponAmount,
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -2086,9 +2452,13 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Balance</div>
                                   <div className="fw-bold text-danger">
-                                    ₹{formatPrice(
-                                      getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
-                                      getVal(selectedBooking.CouponAmount) - getVal(totalPaidAmount)
+                                    ₹
+                                    {formatPrice(
+                                      getVal(selectedBooking.TotalPrice) +
+                                        getVal(selectedBooking.GSTAmount) +
+                                        getVal(selectedBooking.LabourCharges) -
+                                        getVal(selectedBooking.CouponAmount) -
+                                        getVal(totalPaidAmount),
                                     )}
                                   </div>
                                 </div>
@@ -2097,8 +2467,12 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(
-                                      getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) - getVal(selectedBooking.CouponAmount)
+                                    ₹
+                                    {formatPrice(
+                                      getVal(selectedBooking.TotalPrice) +
+                                        getVal(selectedBooking.GSTAmount) +
+                                        getVal(selectedBooking.LabourCharges) -
+                                        getVal(selectedBooking.CouponAmount),
                                     )}
                                   </div>
                                 </div>
@@ -2157,7 +2531,10 @@ const MyBookings = () => {
                                   <div className="d-flex justify-content-between mb-2">
                                     <div className="fw-semibold">Coupon</div>
                                     <div className="fw-bold text-danger">
-                                      -₹{formatPrice(selectedBooking.CouponAmount)}
+                                      -₹
+                                      {formatPrice(
+                                        selectedBooking.CouponAmount,
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -2178,13 +2555,19 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">GST</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
+                                    ₹
+                                    {formatPrice(
+                                      getVal(selectedBooking.GSTAmount),
+                                    )}
                                   </div>
                                 </div>
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Service Charges</div>
+                                  <div className="fw-semibold">
+                                    Service Charges
+                                  </div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(selectedBooking.LabourCharges)}
+                                    ₹
+                                    {formatPrice(selectedBooking.LabourCharges)}
                                   </div>
                                 </div>
 
@@ -2203,12 +2586,13 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold fs-5">Total</div>
                                   <div className="fw-bold text-success fs-5">
-                                    ₹{formatPrice(
+                                    ₹
+                                    {formatPrice(
                                       getVal(selectedBooking.TotalPrice) +
-                                      getVal(selectedBooking.GSTAmount) -
-                                      getVal(selectedBooking.CouponAmount) +
-                                      // addOnTotal +
-                                      getVal(selectedBooking.LabourCharges)
+                                        getVal(selectedBooking.GSTAmount) -
+                                        getVal(selectedBooking.CouponAmount) +
+                                        // addOnTotal +
+                                        getVal(selectedBooking.LabourCharges),
                                     )}
                                   </div>
                                 </div>
@@ -2238,7 +2622,8 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Coupon</div>
                                   <div className="fw-bold text-danger">
-                                    -₹{formatPrice(selectedBooking.CouponAmount)}
+                                    -₹
+                                    {formatPrice(selectedBooking.CouponAmount)}
                                   </div>
                                 </div>
                               )}
@@ -2246,14 +2631,20 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">SGST (9%)</div>
                                 <div className="fw-bold text-primary">
-                                  ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                  ₹
+                                  {formatPrice(
+                                    getVal(selectedBooking.GSTAmount) / 2,
+                                  )}
                                 </div>
                               </div>
 
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold">CGST (9%)</div>
                                 <div className="fw-bold text-primary">
-                                  ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                  ₹
+                                  {formatPrice(
+                                    getVal(selectedBooking.GSTAmount) / 2,
+                                  )}
                                 </div>
                               </div>
 
@@ -2261,8 +2652,11 @@ const MyBookings = () => {
                               <div className="d-flex justify-content-between mb-2">
                                 <div className="fw-semibold fs-5">Total</div>
                                 <div className="fw-bold text-success fs-5">
-                                  ₹{formatPrice(
-                                    getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) - getVal(selectedBooking.CouponAmount)
+                                  ₹
+                                  {formatPrice(
+                                    getVal(selectedBooking.TotalPrice) +
+                                      getVal(selectedBooking.GSTAmount) -
+                                      getVal(selectedBooking.CouponAmount),
                                   )}
                                 </div>
                               </div>
@@ -2304,13 +2698,19 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">SGST (9%)</div>
                               <div className="fw-bold text-primary">
-                                ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                ₹
+                                {formatPrice(
+                                  getVal(selectedBooking.GSTAmount) / 2,
+                                )}
                               </div>
                             </div>
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">CGST (9%)</div>
                               <div className="fw-bold text-primary">
-                                ₹{formatPrice(getVal(selectedBooking.GSTAmount) / 2)}
+                                ₹
+                                {formatPrice(
+                                  getVal(selectedBooking.GSTAmount) / 2,
+                                )}
                               </div>
                             </div>
 
@@ -2331,9 +2731,13 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Balance</div>
                               <div className="fw-bold text-danger">
-                                ₹{formatPrice(
-                                  getVal(selectedBooking.TotalPrice) + getVal(selectedBooking.GSTAmount) + getVal(selectedBooking.LabourCharges) -
-                                  getVal(selectedBooking.CouponAmount) - getVal(totalPaidAmount)
+                                ₹
+                                {formatPrice(
+                                  getVal(selectedBooking.TotalPrice) +
+                                    getVal(selectedBooking.GSTAmount) +
+                                    getVal(selectedBooking.LabourCharges) -
+                                    getVal(selectedBooking.CouponAmount) -
+                                    getVal(totalPaidAmount),
                                 )}
                               </div>
                             </div>
@@ -2351,11 +2755,12 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold fs-5">Total</div>
                               <div className="fw-bold text-success fs-5">
-                                ₹{formatPrice(
+                                ₹
+                                {formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
-                                  getVal(selectedBooking.LabourCharges) +
-                                  getVal(selectedBooking.GSTAmount) -
-                                  getVal(selectedBooking.CouponAmount)
+                                    getVal(selectedBooking.LabourCharges) +
+                                    getVal(selectedBooking.GSTAmount) -
+                                    getVal(selectedBooking.CouponAmount),
                                   // addOnTotal
                                 )}
                               </div>
@@ -2399,7 +2804,8 @@ const MyBookings = () => {
                                 id={`reason-${reason.ID}`}
                                 value={reason.Reason}
                                 checked={
-                                  selectedReason === reason.Reason && !otherChecked
+                                  selectedReason === reason.Reason &&
+                                  !otherChecked
                                 }
                                 onChange={() => {
                                   setSelectedReason(reason.Reason);
@@ -2471,7 +2877,9 @@ const MyBookings = () => {
 
                         {/* Service Quality */}
                         <div className="review-block">
-                          <label className="review-label">Service Quality</label>
+                          <label className="review-label">
+                            Service Quality
+                          </label>
                           <p className="review-helper">
                             How satisfied were you with the overall service?
                           </p>
@@ -2485,7 +2893,8 @@ const MyBookings = () => {
                         <div className="review-block">
                           <label className="review-label">Technician</label>
                           <p className="review-helper">
-                            How would you rate the professionalism and expertise?
+                            How would you rate the professionalism and
+                            expertise?
                           </p>
                           <StarRating
                             rating={technicianRating}
@@ -2517,7 +2926,6 @@ const MyBookings = () => {
                         )}
                       </div>
                     )}
-
                 </>
               )}
             </div>
