@@ -25,7 +25,7 @@ import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
 
-const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect }) => {
+const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly }) => {
   // --- STATES ---
   const [currentStep, setCurrentStep] = useState("inspection"); // "inspection" or "booking"
   const [inspection, setInspection] = useState(false);
@@ -613,7 +613,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         </div>
       )}
 
-      <div className="bsm-modal" onClick={(e) => e.stopPropagation()}>
+      {/* <div className="bsm-modal" onClick={(e) => e.stopPropagation()}> */}
+      <div className={`bsm-modal ${inspectionOnly ? "is-inspection-only" : ""}`} onClick={(e) => e.stopPropagation()}>
 
         {/* Close Button */}
         <button className="bsm-close-btn" onClick={onClose}>
@@ -751,6 +752,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </button> */}
               </div>
 
+              {!inspectionOnly && (
+              <>
               {/* Separator Line */}
               <div className="bsm-path-separator">
                 <span>OR</span>
@@ -768,6 +771,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <FaArrowRight className="bsm-btn-arrow" />
                 </button>
               </div>
+               </>
+              )}
 
               {/* Trust */}
               <div className="bsm-trust">

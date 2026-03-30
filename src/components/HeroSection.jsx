@@ -136,7 +136,7 @@ const HeroSection = () => {
                   // onClick={() => setShowInspectionPopup(true)}
                   onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedService();
+                            setSelectedService({ title: "Doorstep Inspection", id: 0 });
                             setIsModalOpen(true);
                           }}
                   className="btn-primary-custom"
@@ -193,6 +193,7 @@ const HeroSection = () => {
         selectedService={selectedService}
         serviceTypeDetail="Package"
         serviceIdCollect= {selectedService ? selectedService.id : 0}
+        inspectionOnly={true}
       />
     </section>
   );

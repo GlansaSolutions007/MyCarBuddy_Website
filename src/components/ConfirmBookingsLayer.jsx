@@ -216,29 +216,29 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                     : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
                 const icon = action === "approve" ? "success" : "warning";
 
-                // Swal.fire({
-                //     title: title,
-                //     text: message,
-                //     icon: icon,
-                //     confirmButtonColor: "#0a6264",
-                // }).then(() => {
-                //     navigate("/", { replace: true });
-                // });
                 Swal.fire({
-                title: title,
-                text: message,
-                icon: icon,
-                confirmButtonColor: "#0a6264",
+                    title: title,
+                    text: message,
+                    icon: icon,
+                    confirmButtonColor: "#0a6264",
                 }).then(() => {
-
-                    // 🔥 MAIN CONDITION
-                    if (services.length === 0) {
-                        navigate("/", { replace: true });
-                    } else {
-                        window.location.reload();
-                    }
-
+                    navigate("/", { replace: true });
                 });
+                // Swal.fire({
+                // title: title,
+                // text: message,
+                // icon: icon,
+                // confirmButtonColor: "#0a6264",
+                // }).then(() => {
+
+                //     // 🔥 MAIN CONDITION
+                //     if (services.length === 0) {
+                //         navigate("/", { replace: true });
+                //     } else {
+                //         window.location.reload();
+                //     }
+
+                // });
             } else {
                 throw new Error("Unexpected response code");
             }

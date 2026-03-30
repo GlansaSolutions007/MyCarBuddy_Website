@@ -1142,3 +1142,56 @@
 .bsm-btn-secondary:hover .bsm-btn-arrow {
   transform: translateX(4px);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* If inspectionOnly is true, hide the separator and enquiry section */
+.is-inspection-only .bsm-path-separator,
+.is-inspection-only .bsm-enquiry-section {
+  display: none !important;
+}
+
+/* 1. Reduce overall padding only when in inspection-only mode */
+.is-inspection-only .bsm-right-panel {
+  padding: 20px 25px; 
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content if items are hidden */
+}
+
+/* 2. Tighten the Header in inspection mode */
+.is-inspection-only .bsm-right-header {
+  margin-bottom: 15px;
+}
+
+.is-inspection-only .bsm-title {
+  font-size: 1.3rem;
+}
+
+/* 4. Tighten Action Area in inspection mode */
+.is-inspection-only .bsm-actions {
+  margin-top: 5px;
+}
+
+.is-inspection-only .bsm-btn {
+  padding: 11px 20px;
+  font-size: 0.9rem;
+}
+
+/* 7. Tighten Trust Section in inspection mode */
+.is-inspection-only .bsm-trust {
+  margin-top: 10px;
+  padding-top: 10px;
+}
