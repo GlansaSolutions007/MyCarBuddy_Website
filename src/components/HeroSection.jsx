@@ -3,12 +3,15 @@ import axios from "axios";
 import "./HeroSection.css"; // Imports the new CSS
 import InspectionPopup from "./InspectionPopup";
 import AppStoreBadges from "./AppStoreBadges";
+import BookServiceModal from "./BookServiceModal"
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [showInspectionPopup, setShowInspectionPopup] = useState(false);
+  const [showInspectionPopup, setShowInspectionPopup] = useState(false); 
   const [companyInfo, setCompanyInfo] = useState({ phones: [] });
   const BASE_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   // --- SLIDE DATA CONFIGURATION ---
   // Add as many slides as you want here.
@@ -130,7 +133,12 @@ const HeroSection = () => {
 
               <div className="hero-btns">
                 <button
-                  onClick={() => setShowInspectionPopup(true)}
+                  // onClick={() => setShowInspectionPopup(true)}
+                  onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedService();
+                            setIsModalOpen(true);
+                          }}
                   className="btn-primary-custom"
                 >
                   <i className="fas fa-tools pe-2 "></i>
@@ -178,6 +186,13 @@ const HeroSection = () => {
       <InspectionPopup
         isOpen={showInspectionPopup}
         onClose={() => setShowInspectionPopup(false)}
+      />
+      <BookServiceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedService={selectedService}
+        serviceTypeDetail="Package"
+        serviceIdCollect= {selectedService ? selectedService.id : 0}
       />
     </section>
   );
