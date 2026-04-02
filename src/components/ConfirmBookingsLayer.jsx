@@ -67,13 +67,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         (b) => String(b.BookingID) === String(bookingId)
                     );
 
-                        if (matchedBooking) {
-                            setBookingDetails(matchedBooking);
-                            const tempAddons = matchedBooking.BookingsTempAddons || [];
-                            setServices(tempAddons);
-                            setConfirmedAddons(matchedBooking.BookingAddOns || []);
-                            setSelectedServiceIds(tempAddons.map((a) => a.Id));
-                        }
+                    if (matchedBooking) {
+                        setBookingDetails(matchedBooking);
+                        const tempAddons = matchedBooking.BookingsTempAddons || [];
+                        setServices(tempAddons);
+                        setConfirmedAddons(matchedBooking.BookingAddOns || []);
+                        setSelectedServiceIds(tempAddons.map((a) => a.Id));
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching bookings:", error);
@@ -210,19 +210,43 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             );
 
             if (response.status === 200 || response.status === 201) {
-                const title = action === "approve" ? "Booking Confirmed!" : "Booking Rejected!";
-                const message = action === "approve"
-                    ? `Services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
-                    : `Booking #${bookingDetails.BookingTrackID} has been rejected.`;
-                const icon = action === "approve" ? "success" : "warning";
+                const isApprove = action === "approve";
+                const title = isApprove ? "Booking Confirmed!" : "Booking Rejected!";
+                const message = isApprove
+                    ? `Selected services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
+                    : `Selected services for Booking #${bookingDetails.BookingTrackID} have been rejected.`;
+                const icon = isApprove ? "success" : "warning";
+
+                // local state update for partial approve/reject
+                const selectedSet = new Set(effectiveSelectedIds.map((id) => String(id)));
+                const updatedRemainingServices = services.filter((srv) => !selectedSet.has(String(srv.Id)));
+
+                if (isApprove) {
+                    const newlyConfirmed = services.filter((srv) => selectedSet.has(String(srv.Id)));
+                    setConfirmedAddons((prev) => [...prev, ...newlyConfirmed]);
+                }
+
+                setServices(updatedRemainingServices);
+                setSelectedServiceIds(updatedRemainingServices.map((srv) => srv.Id));
+                setIsChecked(false);
+                setRejectionReason("");
+                setIsRejectMode(false);
+
+                const allDone = updatedRemainingServices.length === 0;
 
                 Swal.fire({
                     title: title,
-                    text: message,
+                    text: message + (allDone ? "" : " You still have remaining services to process."),
                     icon: icon,
                     confirmButtonColor: "#0a6264",
                 }).then(() => {
-                    navigate("/", { replace: true });
+                    if (allDone) {
+                        if (user) {
+                            navigate("/profile?tab=mybookings", { replace: true });
+                        } else {
+                            navigate("/", { replace: true });
+                        }
+                    }
                 });
                 // Swal.fire({
                 // title: title,
@@ -493,7 +517,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         <div className="mb-4">
                             <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
                                 <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
-                                Added Services (Pending Approve)
+                                Added Services (Approval Pending)
                             </h3>
                             {/* Mobile Cards View - Temp Addons */}
                             <div className="aos-grid">
@@ -637,7 +661,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                                     <td>{idx + 1}</td>
                                                     <td>
                                                         <span className="aos-table-name" title={srv.ServiceName}>
-                                                        {/* <span className={`aos-table-name ${
+                                                            {/* <span className={`aos-table-name ${
                                                             srv.Includes?.length > 0 ? "text-left" : "text-center"
                                                         }`} title={srv.ServiceName}> */}
                                                             {srv.ServiceName}
@@ -710,7 +734,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                             <div className="mt-3 p-3" style={{ backgroundColor: "#fffbf0", borderRadius: "8px", border: "1px solid #ffc107" }}>
                                 <small style={{ color: "#856404" }}>
                                     <FaExclamationCircle className="me-1" />
-                                    <strong>Note:</strong> {services.length} extra service{services.length !== 1 ? "s" : ""} {services.length !== 1 ? "are" : "is"} pending approve. Please review and confirm to proceed.
+                                    <strong>Note:</strong> {services.length}  service{services.length !== 1 ? "s" : ""} {services.length !== 1 ? "are" : "is"} pending for approval. Please review and confirm to proceed.
                                 </small>
                             </div>
                         )}
@@ -741,15 +765,16 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         <div
                             id="confirm-checkbox-section"
                             className={`form-check-a mb-3${checkboxError ? " form-check-a--error" : ""}`}
+                            onClick={() => {
+                                setIsChecked((prev) => !prev);
+                                setCheckboxError(false);
+                            }}
+                            disabled={isSubmitting}
                         >
                             <button
                                 type="button"
                                 className={`aos-select-toggle ${isChecked ? "selected" : ""}${checkboxError ? " aos-select-toggle--error" : ""}`}
-                                onClick={() => {
-                                    setIsChecked((prev) => !prev);
-                                    setCheckboxError(false);
-                                }}
-                                disabled={isSubmitting}
+
                             >
                                 {isChecked ? "✓" : ""}
                             </button>
