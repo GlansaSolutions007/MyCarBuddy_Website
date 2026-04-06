@@ -1195,3 +1195,324 @@
   margin-top: 10px;
   padding-top: 10px;
 }
+/* ── View Checklist Button (on offer cards) ── */
+.bsm-view-checklist-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0a6264;
+  background: rgba(10, 98, 100, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.25);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.bsm-view-checklist-btn:hover {
+  background: rgba(10, 98, 100, 0.18);
+  color: #064748;
+}
+.bsm-offer-card-selected .bsm-view-checklist-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.bsm-offer-card-selected .bsm-view-checklist-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ── Checklist Drawer ── */
+.bsm-checklist-drawer {
+  margin: 10px 0 4px;
+  border-radius: 10px;
+  border: 1px solid #d1e8e8;
+  background: #f4fafa;
+  overflow: hidden;
+  animation: bsm-drawer-in 0.22s ease;
+}
+@keyframes bsm-drawer-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bsm-checklist-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #0a6264, #0d7c7e);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.bsm-checklist-header-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.bsm-checklist-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.bsm-checklist-body::-webkit-scrollbar {
+  width: 4px;
+}
+.bsm-checklist-body::-webkit-scrollbar-thumb {
+  background: #b2d8d8;
+  border-radius: 4px;
+}
+.bsm-checklist-category {
+  background: #fff;
+  border-radius: 7px;
+  border: 1px solid #e0eeee;
+  overflow: hidden;
+}
+.bsm-checklist-category-title {
+  padding: 6px 12px;
+  background: #e8f4f4;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0a6264;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.bsm-checklist-items {
+  list-style: none;
+  margin: 0;
+  padding: 6px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.bsm-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  color: #374151;
+  line-height: 1.4;
+}
+.bsm-checklist-item-icon {
+  color: #0a6264;
+  font-size: 11px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+/* ─────────────────────────────────────────
+   Inspection Includes — Tabbed Panel (new)
+   ───────────────────────────────────────── */
+
+/* Wrapper between offer cards and CTA */
+.bsm-includes-wrapper {
+  margin: 2px 0 12px;
+}
+
+/* Toggle row */
+.bsm-includes-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.bsm-includes-label {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.bsm-includes-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.bsm-includes-toggle-btn:hover {
+  background: #e5e7eb;
+}
+
+.bsm-includes-toggle-btn--open {
+  background: #f0fdfa;
+  border-color: #0a6264;
+  color: #0a6264;
+}
+
+.bsm-includes-chevron {
+  display: inline-block;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.bsm-includes-chevron--up {
+  transform: rotate(180deg);
+}
+
+/* Panel */
+.bsm-includes-panel {
+  border: 1px solid #d1e8e8;
+  border-radius: 10px;
+  background: #f4fafa;
+  overflow: hidden;
+  animation: bsmIncludesIn 0.2s ease;
+}
+
+@keyframes bsmIncludesIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Panel header bar */
+.bsm-includes-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #0a6264, #0d7c7e);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bsm-includes-panel-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.bsm-includes-count-pill {
+  margin-left: auto;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* Category tabs */
+.bsm-includes-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid #d1e8e8;
+  background: #fff;
+}
+
+.bsm-includes-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.bsm-includes-tab {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.bsm-includes-tab:hover {
+  color: #374151;
+}
+
+.bsm-includes-tab--active {
+  color: #0a6264;
+  border-bottom-color: #0a6264;
+}
+
+/* Items grid */
+.bsm-includes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 5px;
+  padding: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.bsm-includes-grid::-webkit-scrollbar {
+  width: 3px;
+}
+
+.bsm-includes-grid::-webkit-scrollbar-thumb {
+  background: #b2d8d8;
+  border-radius: 3px;
+}
+
+/* Item chip */
+.bsm-includes-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: #fff;
+  border: 1px solid #e0eeee;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.3;
+}
+
+.bsm-includes-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0a6264;
+  flex-shrink: 0;
+}
+
+/* Footer summary bar */
+.bsm-includes-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-top: 1px solid #d1e8e8;
+  background: #eaf4f4;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.bsm-includes-footer-cat {
+  color: #0a6264;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .bsm-includes-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bsm-includes-toggle-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
