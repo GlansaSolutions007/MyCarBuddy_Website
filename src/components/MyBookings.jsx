@@ -112,6 +112,22 @@ const MyBookings = () => {
     setSelectedBooking(null);
   };
 
+  const getBookingStatusClass = (status) => {
+    switch (status) {
+      case "Completed":
+      case "Success":
+        return "success";
+      case "Pending":
+        return "pending";
+      case "Confirmed":
+      case "Assigned":
+      case "JourneyStarted":
+        return "confirmed";
+      default:
+        return "danger";
+    }
+  };
+
   const handleRaisedTicket = () => {
     setShowRaisedTicketModal(true);
     setTicketDescription("");
@@ -344,35 +360,35 @@ const MyBookings = () => {
         setSelectedBooking((prev) =>
           prev
             ? {
-                ...prev,
-                BookingStatus:
-                  prev.BookingStatus === "Cancelled"
-                    ? prev.BookingStatus
-                    : "Refunded",
-                Payments: Array.isArray(prev.Payments)
-                  ? [
-                      {
-                        ...prev.Payments[0],
-                        isRefunded: true,
-                        IsRefunded1: true,
-                        RefundStatus: null,
-                      },
-                      ...prev.Payments.slice(1),
-                    ]
-                  : prev.Payments,
-              }
+              ...prev,
+              BookingStatus:
+                prev.BookingStatus === "Cancelled"
+                  ? prev.BookingStatus
+                  : "Refunded",
+              Payments: Array.isArray(prev.Payments)
+                ? [
+                  {
+                    ...prev.Payments[0],
+                    isRefunded: true,
+                    IsRefunded1: true,
+                    RefundStatus: null,
+                  },
+                  ...prev.Payments.slice(1),
+                ]
+                : prev.Payments,
+            }
             : prev,
         );
         setBookings((prev) =>
           prev.map((b) =>
             b.BookingID === selectedBooking.BookingID
               ? {
-                  ...b,
-                  BookingStatus:
-                    b.BookingStatus === "Cancelled"
-                      ? b.BookingStatus
-                      : "Refunded",
-                }
+                ...b,
+                BookingStatus:
+                  b.BookingStatus === "Cancelled"
+                    ? b.BookingStatus
+                    : "Refunded",
+              }
               : b,
           ),
         );
@@ -484,7 +500,7 @@ const MyBookings = () => {
         // Calculate discount amount
         couponAmount = Number(
           getBookingOriginalTotal(selectedBooking) -
-            getBookingFinalTotalWithCoupon(selectedBooking),
+          getBookingFinalTotalWithCoupon(selectedBooking),
         ).toFixed(2);
 
         // Calculate new base amount after discount
@@ -704,9 +720,8 @@ const MyBookings = () => {
       currency: "INR",
       name: "MyCarBuddy a product by Glansa Solutions Pvt. Ltd.",
       order_id: data?.razorpay?.orderID,
-      description: `Payment for ${
-        selectedBooking?.BookingTrackID || selectedBooking?.BookingID
-      }`,
+      description: `Payment for ${selectedBooking?.BookingTrackID || selectedBooking?.BookingID
+        }`,
       image: "/assets/img/MyCarBuddy-Logo1.png",
       handler: function (response) {
         // Wait for 5 seconds before calling confirm-payment (backend settlement time)
@@ -929,26 +944,26 @@ const MyBookings = () => {
 
   const visibleBookings = Array.isArray(filteredBookings)
     ? filteredBookings.filter((booking) => {
-        const hasTempAddons =
-          Array.isArray(booking.BookingsTempAddons) &&
-          booking.BookingsTempAddons.length > 0;
-        const hasAddOns =
-          Array.isArray(booking.BookingAddOns) &&
-          booking.BookingAddOns.length > 0;
+      const hasTempAddons =
+        Array.isArray(booking.BookingsTempAddons) &&
+        booking.BookingsTempAddons.length > 0;
+      const hasAddOns =
+        Array.isArray(booking.BookingAddOns) &&
+        booking.BookingAddOns.length > 0;
 
-        // Hide booking if BOTH are null/empty
-        if (!hasTempAddons && !hasAddOns) return false;
+      // Hide booking if BOTH are null/empty
+      if (!hasTempAddons && !hasAddOns) return false;
 
-        // If temp addons exist, hide if ANY addon is not confirmed
-        if (hasTempAddons) {
-          return booking.BookingsTempAddons.every(
-            (addon) => addon.IsSupervisor_Confirm === 1,
-          );
-        }
+      // If temp addons exist, hide if ANY addon is not confirmed
+      if (hasTempAddons) {
+        return booking.BookingsTempAddons.every(
+          (addon) => addon.IsSupervisor_Confirm === 1,
+        );
+      }
 
-        // Has only approved addons → show
-        return true;
-      })
+      // Has only approved addons → show
+      return true;
+    })
     : [];
 
   let leadVehicle = null;
@@ -989,7 +1004,7 @@ const MyBookings = () => {
   const totalPaidAmount = (selectedBooking?.Payments || []).reduce(
     (sum, payment) =>
       payment.PaymentStatus === "Success" ||
-      payment.PaymentStatus === "Partialpaid"
+        payment.PaymentStatus === "Partialpaid"
         ? sum + Number(payment.AmountPaid || 0)
         : sum,
     0,
@@ -1128,7 +1143,7 @@ const MyBookings = () => {
                 // ServiceAtHome: technician comes to customer's location (uses BookingStatusTracking)
                 const firstPickup =
                   Array.isArray(booking?.PickupDelivery) &&
-                  booking.PickupDelivery.length > 0
+                    booking.PickupDelivery.length > 0
                     ? booking.PickupDelivery[0]
                     : null;
                 const buddyAssignedDate =
@@ -1147,10 +1162,10 @@ const MyBookings = () => {
                   },
                   ...(booking?.Reschedules?.length
                     ? booking.Reschedules.map((r) => ({
-                        label: "Rescheduled",
-                        date: r.NewSchedule,
-                        icon: <FaRedo />,
-                      }))
+                      label: "Rescheduled",
+                      date: r.NewSchedule,
+                      icon: <FaRedo />,
+                    }))
                     : []),
                   {
                     label: "Buddy Assigned",
@@ -1174,12 +1189,12 @@ const MyBookings = () => {
                   },
                   ...(hasServiceInProgress
                     ? [
-                        {
-                          label: "Service In Progress",
-                          date: getStatusDate("ServiceInProgress"),
-                          icon: <FaWarehouse />,
-                        },
-                      ]
+                      {
+                        label: "Service In Progress",
+                        date: getStatusDate("ServiceInProgress"),
+                        icon: <FaWarehouse />,
+                      },
+                    ]
                     : []),
                   {
                     label: "Completed",
@@ -1201,10 +1216,10 @@ const MyBookings = () => {
                   },
                   ...(booking?.Reschedules?.length
                     ? booking.Reschedules.map((r) => ({
-                        label: "Rescheduled",
-                        date: r.NewSchedule,
-                        icon: <FaRedo />,
-                      }))
+                      label: "Rescheduled",
+                      date: r.NewSchedule,
+                      icon: <FaRedo />,
+                    }))
                     : []),
                   {
                     label: "Assigned",
@@ -1229,12 +1244,12 @@ const MyBookings = () => {
                   },
                   ...(hasServiceInProgress
                     ? [
-                        {
-                          label: "Service In Progress",
-                          date: getStatusDate("ServiceInProgress"),
-                          icon: <FaWarehouse />,
-                        },
-                      ]
+                      {
+                        label: "Service In Progress",
+                        date: getStatusDate("ServiceInProgress"),
+                        icon: <FaWarehouse />,
+                      },
+                    ]
                     : []),
                   {
                     label: "Service Completed",
@@ -1268,21 +1283,21 @@ const MyBookings = () => {
                   ...statusTimeline,
                   ...(booking.BookingStatus === "Cancelled"
                     ? [
-                        {
-                          label: "Cancelled",
-                          date: new Date(),
-                          icon: <FaTimes />,
-                        },
-                      ]
+                      {
+                        label: "Cancelled",
+                        date: new Date(),
+                        icon: <FaTimes />,
+                      },
+                    ]
                     : []),
                   ...(booking.BookingStatus === "Failed"
                     ? [
-                        {
-                          label: "Failed",
-                          date: new Date(),
-                          icon: <FaExclamationTriangle />,
-                        },
-                      ]
+                      {
+                        label: "Failed",
+                        date: new Date(),
+                        icon: <FaExclamationTriangle />,
+                      },
+                    ]
                     : []),
                 ];
 
@@ -1307,8 +1322,8 @@ const MyBookings = () => {
                             Date :&nbsp;
                             {booking.BookingDate
                               ? new Date(
-                                  booking.BookingDate,
-                                ).toLocaleDateString("en-GB")
+                                booking.BookingDate,
+                              ).toLocaleDateString("en-GB")
                               : "N/A"}
                           </span>
                         </div>
@@ -1328,12 +1343,11 @@ const MyBookings = () => {
                       {/* Payment Status */}
                       {
                         <div
-                          className={`payment-status ${
-                            booking?.Payments?.[booking.Payments.length - 1]
-                              ?.PaymentStatus === "Success"
-                              ? "success"
-                              : "danger"
-                          }`}
+                          className={`payment-status ${booking?.Payments?.[booking.Payments.length - 1]
+                            ?.PaymentStatus === "Success"
+                            ? "success"
+                            : "danger"
+                            }`}
                         >
                           Payment:{" "}
                           {booking?.Payments?.[booking.Payments.length - 1]
@@ -1413,8 +1427,8 @@ const MyBookings = () => {
                                 <div className="mb-timeline-date">
                                   {step.date
                                     ? new Date(step.date).toLocaleDateString(
-                                        "en-GB",
-                                      )
+                                      "en-GB",
+                                    )
                                     : "Pending"}
                                 </div>
                               </div>
@@ -1456,8 +1470,8 @@ const MyBookings = () => {
                                 <div className="mb-timeline-mobile-date">
                                   {step.date
                                     ? new Date(step.date).toLocaleDateString(
-                                        "en-GB",
-                                      )
+                                      "en-GB",
+                                    )
                                     : "Pending"}
                                 </div>
                               </div>
@@ -1935,13 +1949,12 @@ const MyBookings = () => {
                         <p>
                           <strong>Address:</strong>{" "}
                           {selectedBooking?.FullAddress ||
-                          selectedBooking?.Pincode
-                            ? `${selectedBooking?.FullAddress || ""}${
-                                selectedBooking?.FullAddress &&
-                                selectedBooking?.Pincode
-                                  ? ", "
-                                  : ""
-                              }${selectedBooking?.Pincode || ""}`
+                            selectedBooking?.Pincode
+                            ? `${selectedBooking?.FullAddress || ""}${selectedBooking?.FullAddress &&
+                              selectedBooking?.Pincode
+                              ? ", "
+                              : ""
+                            }${selectedBooking?.Pincode || ""}`
                             : "N/A"}
                         </p>
                       </div>
@@ -2295,13 +2308,9 @@ const MyBookings = () => {
                         Booking Status
                       </span>
                       <span
-                        className={`mb-booking-info-status ${
-                          ["Success", "Completed", "Assigned"].includes(
-                            selectedBooking?.BookingStatus,
-                          )
-                            ? "success"
-                            : "danger"
-                        }`}
+                        className={`mb-booking-info-status ${getBookingStatusClass(
+                          selectedBooking?.BookingStatus,
+                        )}`}
                       >
                         {selectedBooking?.BookingStatus || "Pending"}
                       </span>
@@ -2334,13 +2343,12 @@ const MyBookings = () => {
                     <div className="mb-booking-info-row">
                       <span className="mb-booking-info-label">Payment</span>
                       <span
-                        className={`mb-booking-info-status ${
-                          selectedBooking?.Payments?.[
-                            selectedBooking.Payments.length - 1
-                          ]?.PaymentStatus === "Success"
-                            ? "success"
-                            : "danger"
-                        }`}
+                        className={`mb-booking-info-status ${selectedBooking?.Payments?.[
+                          selectedBooking.Payments.length - 1
+                        ]?.PaymentStatus === "Success"
+                          ? "success"
+                          : "danger"
+                          }`}
                       >
                         {selectedBooking?.Payments?.[
                           selectedBooking.Payments.length - 1
@@ -2390,11 +2398,11 @@ const MyBookings = () => {
                             <div className="col-md-12">
                               <div className="card border-0 shadow-sm rounded-4 p-3">
                                 <h6 className="fw-semibold mb-3 text-muted">
-                                  Paid Service Amount
+                                  Amount Summary
                                 </h6>
 
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Amount</div>
+                                  <div className="fw-semibold">Parts Total</div>
                                   <div className="fw-bold text-primary">
                                     ₹{formatPrice(selectedBooking.TotalPrice)}
                                   </div>
@@ -2441,7 +2449,7 @@ const MyBookings = () => {
                                     </div>
                                   </div>
                                 )}
-
+                                <hr />
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Paid Amount</div>
                                   <div className="fw-bold text-success">
@@ -2455,10 +2463,10 @@ const MyBookings = () => {
                                     ₹
                                     {formatPrice(
                                       getVal(selectedBooking.TotalPrice) +
-                                        getVal(selectedBooking.GSTAmount) +
-                                        getVal(selectedBooking.LabourCharges) -
-                                        getVal(selectedBooking.CouponAmount) -
-                                        getVal(totalPaidAmount),
+                                      getVal(selectedBooking.GSTAmount) +
+                                      getVal(selectedBooking.LabourCharges) -
+                                      getVal(selectedBooking.CouponAmount) -
+                                      getVal(totalPaidAmount),
                                     )}
                                   </div>
                                 </div>
@@ -2470,9 +2478,9 @@ const MyBookings = () => {
                                     ₹
                                     {formatPrice(
                                       getVal(selectedBooking.TotalPrice) +
-                                        getVal(selectedBooking.GSTAmount) +
-                                        getVal(selectedBooking.LabourCharges) -
-                                        getVal(selectedBooking.CouponAmount),
+                                      getVal(selectedBooking.GSTAmount) +
+                                      getVal(selectedBooking.LabourCharges) -
+                                      getVal(selectedBooking.CouponAmount),
                                     )}
                                   </div>
                                 </div>
@@ -2589,10 +2597,10 @@ const MyBookings = () => {
                                     ₹
                                     {formatPrice(
                                       getVal(selectedBooking.TotalPrice) +
-                                        getVal(selectedBooking.GSTAmount) -
-                                        getVal(selectedBooking.CouponAmount) +
-                                        // addOnTotal +
-                                        getVal(selectedBooking.LabourCharges),
+                                      getVal(selectedBooking.GSTAmount) -
+                                      getVal(selectedBooking.CouponAmount) +
+                                      // addOnTotal +
+                                      getVal(selectedBooking.LabourCharges),
                                     )}
                                   </div>
                                 </div>
@@ -2655,8 +2663,8 @@ const MyBookings = () => {
                                   ₹
                                   {formatPrice(
                                     getVal(selectedBooking.TotalPrice) +
-                                      getVal(selectedBooking.GSTAmount) -
-                                      getVal(selectedBooking.CouponAmount),
+                                    getVal(selectedBooking.GSTAmount) -
+                                    getVal(selectedBooking.CouponAmount),
                                   )}
                                 </div>
                               </div>
@@ -2670,10 +2678,10 @@ const MyBookings = () => {
                         <>
                           <div className="mb-2">
                             <h6 className="fw-semibold mb-3 text-muted">
-                              Paid Service Amount
+                              Amount Summary
                             </h6>
                             <div className="d-flex justify-content-between mb-2">
-                              <div className="fw-semibold">Amount</div>
+                              <div className="fw-semibold">Parts Total</div>
                               <div className="fw-bold text-primary">
                                 ₹{formatPrice(selectedBooking.TotalPrice)}
                               </div>
@@ -2720,7 +2728,7 @@ const MyBookings = () => {
                                 ₹{formatPrice(getVal(selectedBooking.GSTAmount))}
                               </div>
                             </div> */}
-
+                            <hr />
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Paid Amount</div>
                               <div className="fw-bold text-success">
@@ -2734,10 +2742,10 @@ const MyBookings = () => {
                                 ₹
                                 {formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
-                                    getVal(selectedBooking.GSTAmount) +
-                                    getVal(selectedBooking.LabourCharges) -
-                                    getVal(selectedBooking.CouponAmount) -
-                                    getVal(totalPaidAmount),
+                                  getVal(selectedBooking.GSTAmount) +
+                                  getVal(selectedBooking.LabourCharges) -
+                                  getVal(selectedBooking.CouponAmount) -
+                                  getVal(totalPaidAmount),
                                 )}
                               </div>
                             </div>
@@ -2758,9 +2766,9 @@ const MyBookings = () => {
                                 ₹
                                 {formatPrice(
                                   getVal(selectedBooking.TotalPrice) +
-                                    getVal(selectedBooking.LabourCharges) +
-                                    getVal(selectedBooking.GSTAmount) -
-                                    getVal(selectedBooking.CouponAmount),
+                                  getVal(selectedBooking.LabourCharges) +
+                                  getVal(selectedBooking.GSTAmount) -
+                                  getVal(selectedBooking.CouponAmount),
                                   // addOnTotal
                                 )}
                               </div>

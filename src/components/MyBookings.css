@@ -1253,6 +1253,10 @@
   color: #ffc107;
 }
 
+.mb-booking-info-status.confirmed {
+  color: #0d6efd;
+}
+
 .mb-booking-info-status.danger {
   color: #dc3545;
 }

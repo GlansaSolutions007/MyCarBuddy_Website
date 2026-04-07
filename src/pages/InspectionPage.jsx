@@ -273,7 +273,7 @@ const InspectionPage = () => {
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
         isUserClicked: true,
-        price: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        price: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
         gstPrice: selectedOfferData.gstPrice,
         gstPercent: selectedOfferData.gstPercent,
         totalPrice: selectedOfferData.newPrice,
@@ -301,7 +301,7 @@ const InspectionPage = () => {
       amount: selectedOfferData.newPrice + selectedOfferData.gstPrice,
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
-      totalPrice: Math.round(selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      totalPrice: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
       services,
       leadId: leadId,
     };
