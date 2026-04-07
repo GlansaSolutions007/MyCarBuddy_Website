@@ -576,7 +576,7 @@
 }
 
 /* Trust Badge - Compact */
-.ip-trust {
+.ip-modal .ip-trust {
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -585,18 +585,18 @@
   border-top: 1px solid #e5e7eb;
 }
 
-.ip-trust span {
+.ip-modal .ip-trust span {
   font-size: 0.7rem;
   color: #6b7280;
   font-weight: 500;
 }
 
 /* Form Styles - Compact */
-.ip-form {
+.ip-modal .ip-form {
   margin-bottom: 12px;
 }
 
-.ip-form-group {
+.ip-modal .ip-form-group {
   margin-bottom: 12px;
 }
 
@@ -643,7 +643,7 @@
 }
 
 /* Form Actions */
-.ip-form-actions {
+.ip-modal .ip-form-actions {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 10px;
@@ -873,13 +873,13 @@
     font-size: 0.85rem;
   }
 
-  .ip-trust {
+  .ip-modal .ip-trust {
     flex-direction: column;
     gap: 6px;
     align-items: center;
   }
 
-  .ip-form-actions {
+  .ip-modal .ip-form-actions {
     grid-template-columns: 1fr;
   }
 

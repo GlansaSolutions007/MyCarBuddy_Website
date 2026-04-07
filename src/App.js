@@ -32,6 +32,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import RedirectToPayment from "./pages/RedirectToPayment";
 import ConfirmBookings from "./pages/ConfirmBookingsPage";
 import ThankYouPage from "./pages/ThankYouPage";
+import InspectionPage from "./pages/InspectionPage";
 import NotificationPopup from "./components/NotificationPopup";
 import OfferScreenPopUp from "./components/OfferScreenPopUp";
 // import AIChatWidget from "./components/AIChatWidget";
@@ -63,6 +64,7 @@ function App() {
           <Route exact path="/cart" element={<CartPage />} />
           <Route exact path="/checkout" element={<CheckoutPage />} />
           <Route exact path="/contact" element={<ContactPage />} />
+          <Route exact path="/inspection" element={<InspectionPage />} />
           <Route exact path="/selecttimeslot" element={<TimeSlotPage />} />
           <Route exact path="/profile" element={<ProfilePage />} />
           <Route exact path="/mybookings" element={<MyBookingsPage />} />

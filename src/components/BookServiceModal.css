@@ -78,7 +78,7 @@
 .bsm-content {
   display: grid;
   /* grid-template-columns: 1fr 1fr; */
-  grid-template-columns: 40% 60%;
+  grid-template-columns: 35% 65%;
 }
 
 /* Close Button */
@@ -110,7 +110,7 @@
 /* Left Panel */
 .bsm-left-panel {
   background: linear-gradient(145deg, #0a6264 0%, #1aa1a4 100%);
-  padding: 40px 30px;
+  padding: 34px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -235,6 +235,31 @@
   font-size: 0.8rem;
   font-weight: 600;
   margin-top: 8px;
+}
+
+.bsm-compare-note {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(10, 98, 100, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(240, 253, 250, 0.95) 0%, rgba(236, 253, 245, 1) 100%);
+}
+
+.bsm-compare-note-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #0a6264;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.bsm-compare-note-text {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.84rem;
+  line-height: 1.55;
 }
 
 /* Info Card (Inspection Step) */
@@ -791,6 +816,17 @@
   opacity: 0.9;
   filter: blur(0px);
   transform: scale(1.02);
+}
+
+.bsm-offer-card-preview {
+  cursor: default;
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+.bsm-offer-card-preview:hover {
+  transform: translateY(-2px);
 }
 
 /* Checkmark Indicator */

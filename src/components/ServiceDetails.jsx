@@ -738,15 +738,14 @@ const ServiceDetails = () => {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      // setSelectedService({ title: s.PackageName });
                                       setSelectedService({
                                         id: s.PackageID,
-                                        title: s.PackageName
+                                        title: s.PackageName,
                                       });
                                       setIsModalOpen(true);
                                     }}
                                   >
-                                    <FaCalendarAlt /> Book Now
+                                    <FaCalendarAlt /> Book Service
                                   </button>
                                 )}
                               </div>
@@ -785,6 +784,7 @@ const ServiceDetails = () => {
         selectedService={selectedService}
         serviceTypeDetail="Package"
         serviceIdCollect={selectedService ? selectedService.id : 0}
+        redirectInspectionToPage={true}
       />
     </>
   );

@@ -1,0 +1,1075 @@
+.inspection-page {
+  background:
+    radial-gradient(circle at top left, rgba(255, 180, 71, 0.2), transparent 30%),
+    linear-gradient(180deg, #fff8f1 0%, #ffffff 28%, #f5f9fb 100%);
+  min-height: 100vh;
+  /* Isolate stacking so inner controls can sit above third-party fixed layers */
+  isolation: isolate;
+}
+
+.inspection-page .ip-left-panel,
+.inspection-page .ip-right-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.inspection-page .ip-left-panel {
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.inspection-page .ip-left-panel::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.inspection-page .ip-right-panel {
+  justify-content: flex-start;
+}
+
+.inspection-page .ip-right-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.inspection-page .ip-title {
+  margin: 0 0 6px;
+  color: #1a1a2e;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.inspection-page .ip-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.inspection-page .ip-left-header,
+.inspection-page .ip-left-benefits {
+  position: relative;
+  z-index: 1;
+}
+
+.inspection-page .ip-left-header {
+  color: #fff;
+  text-align: center;
+}
+
+.inspection-page .ip-header-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28px;
+}
+
+.inspection-page .ip-left-title {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.inspection-page .ip-left-subtitle {
+  margin: 0 0 24px;
+  font-size: 0.92rem;
+}
+
+.inspection-page .ip-left-benefit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.inspection-page .ip-left-benefit svg {
+  color: #1a1814;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.inspection-page .ip-form {
+  margin-bottom: 12px;
+}
+
+.inspection-page .ip-form-group {
+  margin-bottom: 12px;
+}
+
+.inspection-page .ip-row {
+  display: flex;
+  gap: 12px;
+}
+
+.inspection-page .ip-row .half {
+  flex: 1;
+}
+
+.inspection-page .ip-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.inspection-page .ip-input,
+.inspection-page .ip-otp-input {
+  width: 100%;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.inspection-page .ip-input {
+  padding: 10px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.inspection-page .ip-input:focus {
+  outline: none;
+  border-color: #0a6264;
+  box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.1);
+}
+
+.inspection-page .ip-input::placeholder {
+  color: #9ca3af;
+}
+
+.inspection-page .ip-input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.inspection-page .bsm-helper-text {
+  margin-top: 4px;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.inspection-page .bsm-input-error {
+  border-color: #ef4444 !important;
+}
+
+.inspection-page .bsm-input-error:focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.inspection-page .ip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.inspection-page .ip-btn-primary {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(10, 98, 100, 0.3);
+}
+
+.inspection-page .ip-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(10, 98, 100, 0.4);
+}
+
+.inspection-page .ip-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  padding: 10px 20px;
+}
+
+.inspection-page .ip-btn-secondary:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.inspection-page .ip-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.inspection-page .ip-btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+.inspection-page .ip-btn-primary:hover:not(:disabled) .ip-btn-arrow {
+  transform: translateX(4px);
+}
+
+.inspection-page .ip-trust {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 14px;
+}
+
+.inspection-page .ip-trust span {
+  color: #6b7280;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.inspection-page .ip-otp-section {
+  margin-top: 12px;
+  padding: 16px;
+  border: 2px solid #99f6e4;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #e0f7f5 100%);
+}
+
+.inspection-page .ip-otp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.inspection-page .ip-otp-label {
+  color: #0a6264;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.inspection-page .ip-otp-timer {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.inspection-page .ip-otp-timer strong {
+  color: #0a6264;
+}
+
+.inspection-page .ip-otp-expired {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 0.8rem;
+}
+
+.inspection-page .ip-otp-resend {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #0a6264;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inspection-page .ip-otp-resend:hover {
+  background: rgba(10, 98, 100, 0.1);
+}
+
+.inspection-page .ip-otp-input {
+  padding: 14px;
+  border: 2px solid #0a6264;
+  border-radius: 10px;
+  background: #fff;
+  color: #0a6264;
+  font-family: monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.inspection-page .ip-otp-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(10, 98, 100, 0.15);
+}
+
+.inspection-page .ip-otp-input::placeholder {
+  color: #d1d5db;
+  letter-spacing: 8px;
+}
+
+.inspection-page .ip-text-blur {
+  opacity: 0.9;
+  filter: blur(0.5px);
+}
+
+/* Third-party widgets (e.g. Tawk) append outside #root and can steal all clicks */
+body.page-inspection iframe[src*="tawk.to"],
+body.page-inspection iframe[src*="embed.tawk"],
+body.page-inspection #tawkchat-container,
+body.page-inspection #tawkchat-minimized-container {
+  pointer-events: none !important;
+}
+
+.inspection-page-hero {
+  padding: 24px 0 24px;
+}
+
+.inspection-page-shell {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Card header (replaces old separate back-link + plain header) ── */
+.ip-card-header {
+  position: relative;
+  padding: 28px 28px 22px;
+  background: linear-gradient(140deg, #0d3b3c 0%, #0a6264 55%, #1aa1a4 100%);
+  border-radius: 28px 28px 0 0;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.ip-card-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 20%, rgba(255,255,255,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.ip-card-back-btn {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 2;
+}
+
+.ip-card-back-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateX(-2px);
+}
+
+.ip-card-header-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ip-card-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 12px rgba(236, 72, 153, 0.35);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.ip-card-header-title {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #ffffff 0%, #b2f0f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ip-card-header-sub {
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+/* Remove top border-radius on the card body since header now owns it */
+.inspection-page-booking.ip-right-panel {
+  border-radius: 28px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.inspection-pricing-board.inspection-pricing-board--standalone,
+.inspection-page form.ip-form,
+.ip-trust,
+.inspection-page-summary {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+/* Bottom padding for offer step trust block */
+.inspection-page-booking--full .ip-trust:not(.ip-trust--after-actions) {
+  padding-bottom: 24px;
+}
+
+/* Form needs top breathing room */
+.inspection-page-booking--full .ip-form {
+  padding-top: 20px;
+  padding-bottom: 8px;
+}
+
+.inspection-page-intro.ip-left-panel,
+.inspection-page-booking.ip-right-panel {
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.12);
+}
+
+.inspection-page-intro.ip-left-panel {
+  min-height: auto;
+  position: sticky;
+  top: 110px;
+  padding: 28px 24px;
+}
+
+.inspection-page-booking.ip-right-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  padding: 0;
+}
+
+/* Details step: avoid vertical centering quirks; keep form hit targets predictable */
+.inspection-page-booking.ip-right-panel.inspection-page-booking--details {
+  justify-content: flex-start;
+}
+
+.inspection-page form.ip-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.inspection-page .ip-form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.inspection-page .ip-form-actions .ip-btn {
+  align-self: stretch;
+  min-height: 48px;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+/* Trust row lives *inside* the form after buttons so border-top cannot sit over the button hit area */
+.inspection-page form.ip-form .ip-trust--after-actions {
+  margin-top: 16px;
+  margin-bottom: 0;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Offer step only: trust block is still a sibling below pricing */
+.inspection-page .ip-trust:not(.ip-trust--after-actions) {
+  margin-top: 20px;
+}
+
+.inspection-page-booking--full.ip-right-panel {
+  width: 100%;
+}
+
+.inspection-page-header {
+  text-align: center;
+}
+
+.inspection-page-offers {
+  margin-bottom: 22px;
+}
+
+.inspection-page-intro .ip-header-icon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 14px;
+  font-size: 24px;
+}
+
+.inspection-page-intro .ip-left-title {
+  font-size: 1.35rem;
+}
+
+.inspection-page-intro .ip-left-subtitle {
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.inspection-page-intro .ip-left-benefit {
+  padding: 8px 0;
+  font-size: 0.88rem;
+}
+
+.inspection-page-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f7fbfb 0%, #eef6f6 100%);
+  border: 1px solid rgba(17, 109, 110, 0.1);
+}
+
+.inspection-page-summary strong {
+  display: block;
+  color: #14213d;
+  font-size: 1.05rem;
+}
+
+.inspection-page-textarea {
+  min-height: 116px;
+  resize: vertical;
+  border-radius: 14px;
+}
+
+.inspection-summary-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.inspection-benefits-section {
+  padding: 8px 0 78px;
+}
+
+.inspection-benefits-showcase {
+  position: relative;
+  overflow: hidden;
+  padding: 34px;
+  border: 1px solid rgba(17, 109, 110, 0.1);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at top right, rgba(52, 211, 153, 0.16), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.14), transparent 24%),
+    linear-gradient(135deg, #0f172a 0%, #123b4a 45%, #0a6264 100%);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.14);
+}
+
+.inspection-benefits-showcase::before {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% auto;
+  width: 320px;
+  height: 320px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.inspection-benefits-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.inspection-benefits-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d8fff7;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.inspection-benefits-heading-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  max-width: 700px;
+}
+
+.inspection-benefits-icon {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.inspection-benefits-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.inspection-benefits-subtitle {
+  margin: 12px 0 0;
+  max-width: 620px;
+  color: rgba(232, 245, 247, 0.88);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.inspection-benefits-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  min-width: min(360px, 100%);
+}
+
+.inspection-highlight-card {
+  padding: 18px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  text-align: left;
+}
+
+.inspection-highlight-card strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.inspection-highlight-card span {
+  color: rgba(232, 245, 247, 0.84);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.inspection-benefits-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.inspection-benefit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.inspection-benefit-card svg {
+  margin-top: 2px;
+  color: #9af7d9;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.inspection-benefit-card h3 {
+  margin: 0 0 6px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.inspection-benefit-card p {
+  margin: 0;
+  color: rgba(232, 245, 247, 0.84);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ── Pricing board ── */
+.inspection-pricing-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 80px;
+  margin-top: 24px;
+  width: min(100%, 980px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.inspection-plan-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.10);
+  border: 1.5px solid rgba(17, 109, 110, 0.10);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.inspection-plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(10, 98, 100, 0.16);
+}
+
+.inspection-plan-card--starter {
+  --plan-soft: #e7f7f7;
+  --plan-soft-strong: #d0eeee;
+  --plan-border: rgba(10, 98, 100, 0.12);
+}
+
+.inspection-plan-card--pro {
+  --plan-soft: #eef8f8;
+  --plan-soft-strong: #d8f2f2;
+  --plan-border: rgba(26, 161, 164, 0.16);
+}
+
+/* ── Card header ── */
+.inspection-plan-top {
+  padding: 22px 20px 18px;
+  background: linear-gradient(140deg, #0d3b3c 0%, #0a6264 55%, #1aa1a4 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.inspection-plan-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 12px rgba(236, 72, 153, 0.35);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.inspection-plan-offer-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.inspection-plan-car-icon {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+/* Single consolidated price row */
+.inspection-plan-price-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inspection-plan-strike {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(255, 255, 255, 0.5);
+}
+
+.inspection-plan-final-price {
+  font-size: clamp(1.7rem, 3vw, 2.1rem);
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #b2f0f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.inspection-plan-saving-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.inspection-plan-marquee {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.inspection-plan-marquee-text {
+  display: block;
+  white-space: nowrap;
+  animation: inspection-marquee 10s linear infinite;
+  font-size: 0.82rem;
+  opacity: 0.80;
+}
+
+@keyframes inspection-marquee {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ── CTA button ── */
+.inspection-plan-action {
+  padding: 16px 18px 12px;
+  text-align: center;
+  position: relative;
+  z-index: 4;
+  background: #fff;
+}
+
+.inspection-plan-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 20px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.inspection-plan-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.inspection-plan-btn:active {
+  transform: translateY(0);
+}
+
+.inspection-plan-btn--starter {
+  background: linear-gradient(135deg, #0a6264 0%, #1aa1a4 100%);
+  box-shadow: 0 8px 20px rgba(10, 98, 100, 0.28);
+}
+
+.inspection-plan-btn--pro {
+  background: linear-gradient(135deg, #0d4f6b 0%, #0a8e91 100%);
+  box-shadow: 0 8px 20px rgba(10, 98, 100, 0.28);
+}
+
+/* ── Features ── */
+.inspection-plan-features {
+  flex: 1;
+  padding-bottom: 16px;
+  border-top: 1px solid var(--plan-border);
+}
+
+.inspection-plan-category {
+  margin-bottom: 4px;
+}
+
+.inspection-plan-category-title {
+  padding: 9px 16px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0a6264;
+  background: var(--plan-soft);
+  border-bottom: 1px solid var(--plan-border);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inspection-plan-feature-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.inspection-plan-feature-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  color: #374151;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.inspection-plan-feature-row:last-child {
+  border-bottom: none;
+}
+
+.inspection-plan-feature-check {
+  color: #0a6264;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 991px) {
+  .inspection-page-intro.ip-left-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .inspection-page-shell {
+    width: min(100% - 20px, 1200px);
+  }
+
+  .inspection-page-hero {
+    padding-top: 20px;
+  }
+
+  .inspection-pricing-board {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .inspection-page-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .inspection-page-booking.ip-right-panel {
+    padding: 0;
+  }
+
+  .ip-card-header {
+    padding: 22px 16px 18px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .ip-card-header-title {
+    font-size: 1.25rem;
+  }
+
+  .inspection-pricing-board.inspection-pricing-board--standalone,
+  .inspection-page form.ip-form,
+  .ip-trust,
+  .inspection-page-summary {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .inspection-page .ip-trust {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .inspection-page .ip-form-actions {
+    flex-direction: column;
+  }
+
+  .inspection-benefits-showcase {
+    padding: 24px 18px;
+    border-radius: 24px;
+  }
+
+  .inspection-benefits-copy {
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  .inspection-benefits-heading-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .inspection-benefits-highlights,
+  .inspection-benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .inspection-page .ip-row,
+  .inspection-page .ip-otp-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inspection-benefits-title {
+    font-size: 1.8rem;
+  }
+
+  .inspection-benefit-card,
+  .inspection-highlight-card {
+    padding: 16px;
+  }
+}

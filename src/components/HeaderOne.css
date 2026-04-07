@@ -924,11 +924,14 @@
   visibility: hidden;
   transition: var(--mcb-transition);
   z-index: 998;
+  /* Opacity 0 alone still captures pointer events; ensure closed menu never blocks the page */
+  pointer-events: none;
 }
 
 .mcb-mobile-overlay.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .mcb-mobile-menu {
