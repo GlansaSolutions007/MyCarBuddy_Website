@@ -18,6 +18,7 @@ import {
   FaEnvelope,
   FaRedo,
   FaCar,
+  FaClipboardCheck,
 } from "react-icons/fa";
 import "./InspectionPopup.css";
 
@@ -53,15 +54,19 @@ const InspectionPopup = ({ isOpen, onClose }) => {
     oldPrice: 599,
     newPrice: 399,
     packageId: 174,
-    packageName: '5-Seater Car'
+    packageName: '5-Seater Car',
+    inspectionIncludes: []
   });
   const [offer2, setOffer2] = useState({
     oldPrice: 999,
     newPrice: 699,
     packageId: 175,
-    packageName: '7-Seater Car'
+    packageName: '7-Seater Car',
+    inspectionIncludes: []
   });
   const [selectedOffer, setSelectedOffer] = useState(1); // 1 for offer1, 2 for offer2
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -76,6 +81,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
       setTimer(60);
       setOtpExpired(false);
       setSelectedOffer(1); // Reset to first offer
+      setChecklistOpen(false);
+      setActiveCategory(null);
       // clear errors
       setNameError("");
       setPhoneError("");
@@ -141,7 +148,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             gstPercent: package1.gst_p || 0,
             totalPrice: package1.inc_gstamt || 399,
             packageId: 174,
-            packageName: package1.PackageName || '5-Seater Car'
+            packageName: package1.PackageName || '5-Seater Car',
+            inspectionIncludes: package1.InspectionIncludes || []
           });
         }
 
@@ -156,7 +164,8 @@ const InspectionPopup = ({ isOpen, onClose }) => {
             gstPercent: package2.gst_p || 0,
             totalPrice: package2.inc_gstamt || 699,
             packageId: 175,
-            packageName: package2.PackageName || '7-Seater Car'
+            packageName: package2.PackageName || '7-Seater Car',
+            inspectionIncludes: package2.InspectionIncludes || []
           });
         }
       } catch (err) {
@@ -592,7 +601,10 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                   {/* Offer 1 */}
                   <div
                     className={`ip-offer-card ${selectedOffer === 1 ? 'ip-offer-card-selected' : 'ip-offer-card-unselected'}`}
-                    onClick={() => setSelectedOffer(1)}
+                    onClick={() => {
+                      setSelectedOffer(1);
+                      setActiveCategory(null);
+                    }}
                   >
                     {selectedOffer === 1 && (
                       <div className="ip-selected-checkmark">
@@ -607,12 +619,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         <span className="ip-price-old">₹{offer1.oldPrice}</span>
                         <span className="ip-price-new"> ₹{offer1.totalPrice}</span>
                       </div>
-                      {/* <p className="ip-offer-text">{offer1.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
                         {offer1.packageName?.split(" - ")[0]}
                         <FaCar className="bsm-car-icon" />
-
-
                         {offer1.packageName?.includes(" - ") && (
                           <div className="bsm-marquee">
                             <span className="bsm-marquee-text">
@@ -620,7 +629,6 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                             </span>
                           </div>
                         )}
-
                       </p>
                     </div>
                   </div>
@@ -628,7 +636,10 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                   {/* Offer 2 */}
                   <div
                     className={`ip-offer-card ${selectedOffer === 2 ? 'ip-offer-card-selected' : 'ip-offer-card-unselected'}`}
-                    onClick={() => setSelectedOffer(2)}
+                    onClick={() => {
+                      setSelectedOffer(2);
+                      setActiveCategory(null);
+                    }}
                   >
                     {selectedOffer === 2 && (
                       <div className="ip-selected-checkmark">
@@ -643,11 +654,9 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                         <span className="ip-price-old">₹{offer2.oldPrice}</span>
                         <span className="ip-price-new"> ₹{offer2.totalPrice}</span>
                       </div>
-                      {/* <p className="ip-offer-text">{offer2.packageName} <FaCar className="ip-car-icon" /></p> */}
                       <p className="bsm-offer-text">
                         {offer2.packageName?.split(" - ")[0]}
                         <FaCar className="bsm-car-icon" />
-
                         {offer2.packageName?.includes(" - ") && (
                           <div className="bsm-marquee">
                             <span className="bsm-marquee-text">
@@ -659,6 +668,81 @@ const InspectionPopup = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                 </div>
+
+                {/* What's Included — Toggle + Tabbed Panel */}
+                {(() => {
+                  const activeOffer = selectedOffer === 1 ? offer1 : offer2;
+                  const includes = activeOffer.inspectionIncludes || [];
+                  if (includes.length === 0) return null;
+
+                  const grouped = includes.reduce((acc, item) => {
+                    if (!acc[item.Category]) acc[item.Category] = [];
+                    acc[item.Category].push(item.Includes);
+                    return acc;
+                  }, {});
+                  const categories = Object.keys(grouped);
+                  const resolvedCat = activeCategory && grouped[activeCategory] ? activeCategory : categories[0];
+                  const visibleItems = grouped[resolvedCat] || [];
+                  const totalItems = includes.length;
+
+                  return (
+                    <div className="bsm-includes-wrapper">
+                      {/* Toggle header */}
+                      <div className="bsm-includes-toggle-row">
+                        <span className="bsm-includes-label">See what's covered in this plan</span>
+                        <button
+                          className={`bsm-includes-toggle-btn ${checklistOpen ? 'bsm-includes-toggle-btn--open' : ''}`}
+                          onClick={() => setChecklistOpen(prev => !prev)}
+                        >
+                          <FaClipboardCheck style={{ fontSize: 11 }} />
+                          {checklistOpen ? 'Hide' : "What's included"}
+                          <span className={`bsm-includes-chevron ${checklistOpen ? 'bsm-includes-chevron--up' : ''}`}>▾</span>
+                        </button>
+                      </div>
+
+                      {/* Tabbed panel */}
+                      {checklistOpen && (
+                        <div className="bsm-includes-panel">
+                          {/* Panel header */}
+                          <div className="bsm-includes-panel-header">
+                            <FaClipboardCheck className="bsm-includes-panel-icon" />
+                            <span>Inspection checklist</span>
+                            <span className="bsm-includes-count-pill">{totalItems} items</span>
+                          </div>
+
+                          {/* Category tabs */}
+                          <div className="bsm-includes-tabs">
+                            {categories.map(cat => (
+                              <button
+                                key={cat}
+                                className={`bsm-includes-tab ${resolvedCat === cat ? 'bsm-includes-tab--active' : ''}`}
+                                onClick={() => setActiveCategory(cat)}
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Items grid */}
+                          <div className="bsm-includes-grid">
+                            {visibleItems.map((item, i) => (
+                              <div key={i} className="bsm-includes-chip">
+                                <span className="bsm-includes-dot" />
+                                {item}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Footer summary */}
+                          <div className="bsm-includes-footer">
+                            <span>Showing {visibleItems.length} of {totalItems} items</span>
+                            <span className="bsm-includes-footer-cat">{resolvedCat}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Action Buttons */}
                 <div className="ip-actions">

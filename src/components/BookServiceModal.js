@@ -25,7 +25,7 @@ import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
 
-const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly }) => {
+const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly, startInEnquiry = false, redirectInspectionToPage = false }) => {
   // --- STATES ---
   const [currentStep, setCurrentStep] = useState("inspection"); // "inspection" or "booking"
   const [inspection, setInspection] = useState(false);
@@ -59,15 +59,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     oldPrice: 599,
     newPrice: 399,
     packageId: 174,
-    packageName: '5-Seater Car'
+    packageName: '5-Seater Car',
+    inspectionIncludes: []
   });
   const [offer2, setOffer2] = useState({
     oldPrice: 999,
     newPrice: 699,
     packageId: 175,
-    packageName: '7-Seater Car'
+    packageName: '7-Seater Car',
+    inspectionIncludes: []
   });
   const [selectedOffer, setSelectedOffer] = useState(1); // 1 for offer1, 2 for offer2
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null); // tracks selected tab
+  const shouldPreviewPackages = redirectInspectionToPage;
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -110,6 +115,23 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     }
   }, [isOpen, isLoggedIn]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (startInEnquiry && !inspectionOnly) {
+      setInspection(false);
+      setCurrentStep("booking");
+      setOtpStep(false);
+      setOtpSent(false);
+      setOtpExpired(false);
+      setOtp("");
+      setTimer(60);
+    } else {
+      setCurrentStep("inspection");
+      setInspection(false);
+    }
+  }, [isOpen, startInEnquiry, inspectionOnly]);
+
   // Timer Logic
   useEffect(() => {
     let interval;
@@ -133,6 +155,19 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   };
 
   const handleInspectionYes = () => {
+    if (redirectInspectionToPage && !inspectionOnly) {
+      onClose();
+      navigate("/inspection", {
+        state: {
+          allowEnquiry: true,
+          selectedService,
+          serviceTypeDetail,
+          serviceIdCollect: serviceIdCollect || selectedService?.id || 0,
+          backPath: window.location.pathname,
+        },
+      });
+      return;
+    }
     setInspection(true);
     setCurrentStep("booking");
   };
@@ -177,7 +212,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             gstPercent: package1.gst_p || 0,
             totalPrice: package1.inc_gstamt || 399,
             packageId: 174,
-            packageName: package1.PackageName || '5-Seater Car'
+            packageName: package1.PackageName || '5-Seater Car',
+            inspectionIncludes: package1.InspectionIncludes || []
           });
         }
 
@@ -192,7 +228,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             gstPercent: package2.gst_p || 0,
             totalPrice: package2.inc_gstamt || 699,
             packageId: 175,
-            packageName: package2.PackageName || '7-Seater Car'
+            packageName: package2.PackageName || '7-Seater Car',
+            inspectionIncludes: package2.InspectionIncludes || []
           });
         }
       } catch (err) {
@@ -664,17 +701,39 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
               <div className="bsm-right-header">
                 <h3 className="bsm-title">Inspection Required?</h3>
                 <p className="bsm-subtitle">Mandatory step for accurate service</p>
-                <p className="bsm-subtitle">Select your car category to choose the right plan</p>
+                {shouldPreviewPackages ? (
+                  <p className="bsm-subtitle">
+                    Compare both inspection packages here. You will choose the best-fit plan on the next page before payment.
+                  </p>
+                ) : (
+                  <p className="bsm-subtitle">Select your car category to choose the right plan</p>
+                )}
               </div>
+
+              {shouldPreviewPackages && (
+                <div className="bsm-compare-note">
+                  <div className="bsm-compare-note-title">
+                    <FaClipboardCheck />
+                    Compare plans before you continue
+                  </div>
+                  <p className="bsm-compare-note-text">
+                    Review the starting prices and package coverage below. The next page shows the full side-by-side comparison and lets you select the right package for your car.
+                  </p>
+                </div>
+              )}
 
               {/* Offer Cards Row */}
               <div className="bsm-offer-row">
                 {/* Offer 1 - 5 Seater */}
                 <div
-                  className={`bsm-offer-card ${selectedOffer === 1 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
-                  onClick={() => setSelectedOffer(1)}
+                  className={`bsm-offer-card ${shouldPreviewPackages ? 'bsm-offer-card-preview' : selectedOffer === 1 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
+                  onClick={() => {
+                    if (shouldPreviewPackages) return;
+                    setSelectedOffer(1);
+                    setActiveCategory(null);
+                  }}
                 >
-                  {selectedOffer === 1 && (
+                  {!shouldPreviewPackages && selectedOffer === 1 && (
                     <div className="bsm-selected-checkmark">
                       <FaCheckCircle />
                     </div>
@@ -687,11 +746,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                       <span className="bsm-price-old">₹{offer1.oldPrice}</span>
                       <span className="bsm-price-new">₹{offer1.totalPrice}</span>
                     </div>
-                    {/* <p className="bsm-offer-text">{offer1.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
                       {offer1.packageName?.split(" - ")[0]}
                       <FaCar className="bsm-car-icon" />
-
                       {offer1.packageName?.includes(" - ") && (
                         <div className="bsm-marquee">
                           <span className="bsm-marquee-text">
@@ -699,18 +756,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                           </span>
                         </div>
                       )}
-
                     </p>
-
                   </div>
                 </div>
 
                 {/* Offer 2 - 7 Seater */}
                 <div
-                  className={`bsm-offer-card ${selectedOffer === 2 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
-                  onClick={() => setSelectedOffer(2)}
+                  className={`bsm-offer-card ${shouldPreviewPackages ? 'bsm-offer-card-preview' : selectedOffer === 2 ? 'bsm-offer-card-selected' : 'bsm-offer-card-unselected'}`}
+                  onClick={() => {
+                    if (shouldPreviewPackages) return;
+                    setSelectedOffer(2);
+                    setActiveCategory(null);
+                  }}
                 >
-                  {selectedOffer === 2 && (
+                  {!shouldPreviewPackages && selectedOffer === 2 && (
                     <div className="bsm-selected-checkmark">
                       <FaCheckCircle />
                     </div>
@@ -721,13 +780,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   <div className="bsm-offer-content">
                     <div className="bsm-offer-price">
                       <span className="bsm-price-old">₹{offer2.oldPrice}</span>
-                      <span className="bsm-price-new">₹{offer2.totalPrice}</span> 
+                      <span className="bsm-price-new">₹{offer2.totalPrice}</span>
                     </div>
-                    {/* <p className="bsm-offer-text">{offer2.packageName} <FaCar className="bsm-car-icon" /></p> */}
                     <p className="bsm-offer-text">
                       {offer2.packageName?.split(" - ")[0]}
                       <FaCar className="bsm-car-icon" />
-
                       {offer2.packageName?.includes(" - ") && (
                         <div className="bsm-marquee">
                           <span className="bsm-marquee-text">
@@ -740,6 +797,81 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                 </div>
               </div>
 
+              {/* What's Included — Toggle Row */}
+              {!shouldPreviewPackages && (() => {
+                const activeOffer = selectedOffer === 1 ? offer1 : offer2;
+                const includes = activeOffer.inspectionIncludes || [];
+                if (includes.length === 0) return null;
+
+                const grouped = includes.reduce((acc, item) => {
+                  if (!acc[item.Category]) acc[item.Category] = [];
+                  acc[item.Category].push(item.Includes);
+                  return acc;
+                }, {});
+                const categories = Object.keys(grouped);
+                const resolvedCat = activeCategory && grouped[activeCategory] ? activeCategory : categories[0];
+                const visibleItems = grouped[resolvedCat] || [];
+                const totalItems = includes.length;
+
+                return (
+                  <div className="bsm-includes-wrapper">
+                    {/* Toggle header */}
+                    <div className="bsm-includes-toggle-row">
+                      <span className="bsm-includes-label">See what's covered in this plan</span>
+                      <button
+                        className={`bsm-includes-toggle-btn ${checklistOpen ? 'bsm-includes-toggle-btn--open' : ''}`}
+                        onClick={() => setChecklistOpen(prev => !prev)}
+                      >
+                        <FaClipboardCheck style={{ fontSize: 11 }} />
+                        {checklistOpen ? 'Hide' : "What's included"}
+                        <span className={`bsm-includes-chevron ${checklistOpen ? 'bsm-includes-chevron--up' : ''}`}>▾</span>
+                      </button>
+                    </div>
+
+                    {/* Tabbed panel */}
+                    {checklistOpen && (
+                      <div className="bsm-includes-panel">
+                        {/* Panel header */}
+                        <div className="bsm-includes-panel-header">
+                          <FaClipboardCheck className="bsm-includes-panel-icon" />
+                          <span>Inspection checklist</span>
+                          <span className="bsm-includes-count-pill">{totalItems} items</span>
+                        </div>
+
+                        {/* Category tabs */}
+                        <div className="bsm-includes-tabs">
+                          {categories.map(cat => (
+                            <button
+                              key={cat}
+                              className={`bsm-includes-tab ${resolvedCat === cat ? 'bsm-includes-tab--active' : ''}`}
+                              onClick={() => setActiveCategory(cat)}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Items grid */}
+                        <div className="bsm-includes-grid">
+                          {visibleItems.map((item, i) => (
+                            <div key={i} className="bsm-includes-chip">
+                              <span className="bsm-includes-dot" />
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Footer summary */}
+                        <div className="bsm-includes-footer">
+                          <span>Showing {visibleItems.length} of {totalItems} items</span>
+                          <span className="bsm-includes-footer-cat">{resolvedCat}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Actions */}
               <div className="bsm-actions">
                 <button className="bsm-btn bsm-btn-primary" onClick={handleInspectionYes}>
@@ -747,31 +879,28 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   Book Inspection
                   <FaArrowRight className="bsm-btn-arrow" />
                 </button>
-                {/* <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
-                  Submit Enquiry for Service
-                </button> */}
               </div>
 
               {!inspectionOnly && (
-              <>
-              {/* Separator Line */}
-              <div className="bsm-path-separator">
-                <span>OR</span>
-              </div>
+                <>
+                  {/* Separator Line */}
+                  <div className="bsm-path-separator">
+                    <span>OR</span>
+                  </div>
 
-              {/* Bottom Enquiry Section */}
-              <div className="bsm-enquiry-section">
-                <div className="bsm-enquiry-header">
-                  {/* <h4 className="bsm-enquiry-title">Not ready to book yet?</h4> */}
-                  <p className="bsm-enquiry-text">Get service details for your requirement</p>
-                </div>
-                
-                <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
-                  Enquiry for Service
-                  <FaArrowRight className="bsm-btn-arrow" />
-                </button>
-              </div>
-               </>
+                  {/* Bottom Enquiry Section */}
+                  <div className="bsm-enquiry-section">
+                    <div className="bsm-enquiry-header">
+                      {/* <h4 className="bsm-enquiry-title">Not ready to book yet?</h4> */}
+                      <p className="bsm-enquiry-text">Get service details for your requirement</p>
+                    </div>
+
+                    <button className="bsm-btn bsm-btn-secondary" onClick={handleInspectionNo}>
+                      Enquiry for Service
+                      <FaArrowRight className="bsm-btn-arrow" />
+                    </button>
+                  </div>
+                </>
               )}
 
               {/* Trust */}

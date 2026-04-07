@@ -762,6 +762,7 @@ export default function ServiceCards() {
         selectedService={selectedService}
         serviceTypeDetail="Package"
         serviceIdCollect= {selectedService ? selectedService.id : 0}
+        redirectInspectionToPage={true}
       />
     </section>
   );
