@@ -262,7 +262,7 @@ const InspectionPage = () => {
     },
   ];
 
-  const buildLeadPayload = (withInspection, offerIndexOverride) => {
+  const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
     const services = [];
@@ -303,7 +303,7 @@ const InspectionPage = () => {
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
       services,
-      leadId: leadId,
+      leadId: leadIdOverride ?? leadId,
     };
   };
 
@@ -340,7 +340,7 @@ const InspectionPage = () => {
       const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
       setLeadId(res.data.leadId);
       const orderId = res.data.razorpayOrderID;
-      // const leadId = res.data.leadId;
+      const LeadId = res.data.leadId;
       const razorKey = res.data.razorpayKey;
       const amount = leadPayload.amount;
 
@@ -357,7 +357,7 @@ const InspectionPage = () => {
           setTimeout(async () => {
             try {
               const confirmRes = await axios.post(`${baseUrl}Leads/confirm-Payment`, {
-                LeadId: leadId,
+                LeadId: LeadId,
                 amountPaid: amount,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,

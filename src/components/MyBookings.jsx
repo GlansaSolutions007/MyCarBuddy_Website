@@ -866,11 +866,24 @@ const MyBookings = () => {
   };
 
   const handleSubmitReview = async (bookingID) => {
+    if (!selectedBooking) {
+      showAlert("No booking is selected for feedback.", "warning");
+      return;
+    }
+
+    if (!serviceQuality && !technicianRating && !feedback.trim()) {
+      showAlert(
+        "Please add a rating or feedback before submitting your review.",
+        "warning",
+      );
+      return;
+    }
+
     try {
       const payload = {
         bookingID: bookingID,
         custID: selectedBooking.CustID, // from selected booking
-        techID: selectedBooking.TechID, // from selected booking
+        techID: selectedBooking?.TechID ?? 0, // fallback when no technician is assigned
         techReview: "",
         serviceReview: feedback,
         techRating: String(technicianRating), // convert to string
@@ -885,13 +898,23 @@ const MyBookings = () => {
       });
 
       if (response.status === 200) {
-        alert("Feedback submitted successfully!");
+        setFeedbackExists(true);
+        Swal.fire({
+          icon: "success",
+          title: "Thank You!",
+          text: "Feedback submitted successfully!",
+          confirmButtonColor: "#088178",
+        });
       } else {
-        alert("Failed to submit feedback. Please try again.");
+        showAlert("Failed to submit feedback. Please try again.", "error");
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      alert("Something went wrong while submitting feedback.");
+      const backendMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        "Something went wrong while submitting feedback.";
+      showAlert(backendMessage, "error");
     }
   };
 
@@ -1375,12 +1398,15 @@ const MyBookings = () => {
                               {booking.BookingsTempAddons.length})
                             </button>
                           )}
-                        <button
-                          className="mb-view-btn"
-                          onClick={() => setSelectedBooking(booking)}
-                        >
-                          <FaEye /> View
-                        </button>
+                        {!(booking.BookingsTempAddons?.length > 0) ||
+                        booking.BookingAddOns?.length > 0 ? (
+                          <button
+                            className="mb-view-btn"
+                            onClick={() => setSelectedBooking(booking)}
+                          >
+                            <FaEye /> View
+                          </button>
+                        ) : null}
                       </div>
                     </div>
 

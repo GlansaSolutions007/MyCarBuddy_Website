@@ -170,7 +170,8 @@ const ServiceAreaTwo = () => {
         onClose={() => setIsModalOpen(false)}
         selectedService={selectedService}
         serviceTypeDetail="Category"
-        serviceIdCollect= {selectedService ? selectedService.id : 0}
+        serviceIdCollect={selectedService ? selectedService.id : 0}
+        redirectInspectionToPage={true}
       />
     </div>
   );
