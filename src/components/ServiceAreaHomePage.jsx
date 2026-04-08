@@ -289,7 +289,7 @@ const ServiceAreaHomePage = () => {
             <div className="title-area text-center mb-4">
               <span className="sub-title" id="services">Our Services</span>
               <h2 className="sec-title">
-                Trusted Car Repair Professionalsssss
+                Trusted Car Repair Professionals
                 <img
                   className="title-bg-shape shape-center d-none d-md-inline"
                   src="assets/img/bg/title-bg-shape.png"
