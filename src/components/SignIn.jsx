@@ -402,7 +402,8 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 										<input
 											type="text"
 											inputMode="numeric"
-											className={`si-input si-otp-input ${otpError ? "si-input-error" : ""}`} placeholder="Enter 6-digit OTP"
+											className={`si-input si-otp-input ${otpError ? "si-input-error" : ""}`} 
+											placeholder="Enter 6-digit OTP"
 											value={otp}
 											onChange={(e) => {
 												const value = e.target.value.replace(/\D/g, "").slice(0, 6);

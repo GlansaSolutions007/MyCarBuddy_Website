@@ -115,7 +115,7 @@
 
 .inspection-page .ip-row {
   display: flex;
-  gap: 12px;
+  gap: 18px;
 }
 
 .inspection-page .ip-row .half {
@@ -138,12 +138,14 @@
 }
 
 .inspection-page .ip-input {
-  padding: 10px 14px;
+  min-height: 52px;
+  padding: 12px 15px;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #1a1a2e;
   font-size: 0.9rem;
   transition: all 0.2s ease;
+  background: #fcfdfd;
 }
 
 .inspection-page .ip-input:focus {
@@ -237,7 +239,7 @@
 
 .inspection-page .ip-trust span {
   color: #6b7280;
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   font-weight: 500;
 }
 
@@ -257,6 +259,14 @@
   gap: 12px;
 }
 
+.inspection-page .ip-otp-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .inspection-page .ip-otp-label {
   color: #0a6264;
   font-size: 0.85rem;
@@ -273,20 +283,20 @@
 }
 
 .inspection-page .ip-otp-expired {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   color: #ef4444;
   font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .inspection-page .ip-otp-resend {
   display: inline-flex;
   align-items: center;
-  padding: 4px 8px;
-  border: none;
-  border-radius: 6px;
-  background: none;
+  justify-content: center;
+  min-width: 124px;
+  padding: 8px 12px;
+  border: 1px solid rgba(10, 98, 100, 0.15);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
   color: #0a6264;
   font-size: 0.8rem;
   font-weight: 600;
@@ -295,13 +305,20 @@
 }
 
 .inspection-page .ip-otp-resend:hover {
-  background: rgba(10, 98, 100, 0.1);
+  background: rgba(10, 98, 100, 0.08);
+  border-color: rgba(10, 98, 100, 0.28);
+}
+
+.inspection-page .ip-otp-resend:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .inspection-page .ip-otp-input {
   padding: 14px;
   border: 2px solid #0a6264;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
   color: #0a6264;
   font-family: monospace;
@@ -456,6 +473,14 @@ body.page-inspection #tawkchat-minimized-container {
   padding-bottom: 8px;
 }
 
+.inspection-page-booking--details .ip-card-header-content,
+.inspection-page-booking--details .ip-form,
+.inspection-page-booking--details .ip-trust--after-actions {
+  width: min(100%, 980px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .inspection-page-intro.ip-left-panel,
 .inspection-page-booking.ip-right-panel {
   border-radius: 28px;
@@ -484,6 +509,7 @@ body.page-inspection #tawkchat-minimized-container {
   position: relative;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .inspection-page .ip-form-actions {
@@ -493,10 +519,12 @@ body.page-inspection #tawkchat-minimized-container {
   flex-shrink: 0;
   position: relative;
   z-index: 2;
+  margin-top: 4px;
 }
 
 .inspection-page .ip-form-actions .ip-btn {
   align-self: stretch;
+  width: 100%;
   min-height: 48px;
   cursor: pointer;
   position: relative;
@@ -1036,6 +1064,12 @@ body.page-inspection #tawkchat-minimized-container {
     flex-direction: column;
   }
 
+  .inspection-page-booking--details .ip-card-header-content,
+  .inspection-page-booking--details .ip-form,
+  .inspection-page-booking--details .ip-trust--after-actions {
+    width: 100%;
+  }
+
   .inspection-benefits-showcase {
     padding: 24px 18px;
     border-radius: 24px;
@@ -1059,7 +1093,8 @@ body.page-inspection #tawkchat-minimized-container {
 
 @media (max-width: 600px) {
   .inspection-page .ip-row,
-  .inspection-page .ip-otp-header {
+  .inspection-page .ip-otp-header,
+  .inspection-page .ip-otp-controls {
     flex-direction: column;
     align-items: stretch;
   }

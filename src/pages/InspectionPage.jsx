@@ -522,6 +522,13 @@ const InspectionPage = () => {
     }
   };
 
+  const handleResendOTP = async () => {
+    if (loading || timer > 0) return;
+    setOtp("");
+    setOtpError("");
+    await handleSendOTP();
+  };
+
   const handleVerifyOTP = async () => {
     const otpErr = validateOTP(otp);
     setOtpError(otpErr);
@@ -885,19 +892,24 @@ const InspectionPage = () => {
                       <div className="ip-otp-section">
                         <div className="ip-otp-header">
                           <span className="ip-otp-label">Enter OTP Code</span>
-                          {timer > 0 ? (
-                            <span className="ip-otp-timer">
-                              Expires in <strong>{timer}s</strong>
-                            </span>
-                          ) : (
-                            <span className="ip-otp-expired">
-                              Expired -
-                              <button type="button" className="ip-otp-resend" onClick={handleSendOTP}>
-                                <FaRedo style={{ marginRight: 4 }} />
-                                Resend
-                              </button>
-                            </span>
-                          )}
+                          <div className="ip-otp-controls">
+                            {timer > 0 ? (
+                              <span className="ip-otp-timer">
+                                Resend in <strong>{timer}s</strong>
+                              </span>
+                            ) : (
+                              <span className="ip-otp-expired">OTP expired</span>
+                            )}
+                            <button
+                              type="button"
+                              className="ip-otp-resend"
+                              onClick={handleResendOTP}
+                              disabled={loading || timer > 0}
+                            >
+                              <FaRedo style={{ marginRight: 4 }} />
+                              {loading && otpStep ? "Sending..." : "Resend OTP"}
+                            </button>
+                          </div>
                         </div>
                         <input
                           type="text"
