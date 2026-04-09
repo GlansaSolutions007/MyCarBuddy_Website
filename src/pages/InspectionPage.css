@@ -410,6 +410,29 @@ body.page-inspection #tawkchat-minimized-container {
 .ip-card-header-content {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ip-card-header-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 24px rgba(5, 23, 33, 0.14);
+}
+
+.ip-card-header-kicker span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .ip-card-header-badge {
@@ -430,21 +453,43 @@ body.page-inspection #tawkchat-minimized-container {
 }
 
 .ip-card-header-title {
-  margin: 0 0 6px;
-  font-size: 1.5rem;
+  margin: 0;
+  max-width: 14ch;
+  font-size: clamp(1.8rem, 2.8vw, 2.5rem);
   font-weight: 900;
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, #ffffff 0%, #b2f0f1 100%);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #ffffff 0%, #dffcfb 45%, #9ee6f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 10px 30px rgba(4, 25, 36, 0.18);
+}
+
+.ip-card-header-title-accent {
+  position: relative;
+  display: inline-block;
+  color: #fff;
+  background: linear-gradient(135deg, #ffe29f 0%, #ffc857 35%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .ip-card-header-sub {
-  margin: 2px 0 0;
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.75);
+  margin: 8px 0 0;
+  max-width: 38rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
+  text-align: center;
+}
+
+.ip-card-header-sub--lead {
+  margin-top: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.94);
 }
 
 /* Remove top border-radius on the card body since header now owns it */
@@ -1043,7 +1088,25 @@ body.page-inspection #tawkchat-minimized-container {
   }
 
   .ip-card-header-title {
-    font-size: 1.25rem;
+    max-width: 100%;
+    font-size: 1.7rem;
+  }
+
+  .ip-card-header-kicker {
+    margin-bottom: 10px;
+    padding: 5px 12px;
+  }
+
+  .ip-card-header-kicker span {
+    font-size: 0.7rem;
+  }
+
+  .ip-card-header-sub {
+    font-size: 0.9rem;
+  }
+
+  .ip-card-header-sub--lead {
+    font-size: 0.95rem;
   }
 
   .inspection-pricing-board.inspection-pricing-board--standalone,

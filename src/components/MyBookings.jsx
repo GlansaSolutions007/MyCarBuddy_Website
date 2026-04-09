@@ -1033,6 +1033,33 @@ const MyBookings = () => {
     0,
   );
 
+  const inspectionTrackings = Array.isArray(selectedBooking?.InspectionTracking)
+    ? selectedBooking.InspectionTracking.filter(Boolean)
+    : [];
+
+  const inspectionTotalPrice = inspectionTrackings.reduce(
+    (sum, inspection) => sum + Number(inspection?.TotalPrice || 0),
+    0,
+  );
+
+  const renderInspectionSummaryRows = (formatPrice) => {
+    if (!inspectionTotalPrice) return null;
+
+    return inspectionTrackings.map((inspection) => (
+      <div
+        key={`inspection-summary-${inspection.Id || inspection.ServiceId || inspection.ServiceName}`}
+        className="d-flex justify-content-between mb-2"
+      >
+        <div className="fw-semibold">
+          {inspection.ServiceName || "Inspection"} Total
+        </div>
+        <div className="fw-bold text-primary">
+          ₹{formatPrice(inspection.TotalPrice)}
+        </div>
+      </div>
+    ));
+  };
+
   return (
     <div className="mb-section">
       <div className="container py-4">
@@ -1399,7 +1426,7 @@ const MyBookings = () => {
                             </button>
                           )}
                         {!(booking.BookingsTempAddons?.length > 0) ||
-                        booking.BookingAddOns?.length > 0 ? (
+                          booking.BookingAddOns?.length > 0 ? (
                           <button
                             className="mb-view-btn"
                             onClick={() => setSelectedBooking(booking)}
@@ -2195,7 +2222,7 @@ const MyBookings = () => {
                           >
                             <div className="accordion-body p-1 pt-3">
                               <div className="mb-addons-grid">
-                                {selectedBooking.BookingAddOns.map(
+                                {(selectedBooking.BookingAddOns || []).map(
                                   (addOn, idx) => (
                                     <div key={idx} className="mb-addon-card">
                                       {/* Header */}
@@ -2311,6 +2338,66 @@ const MyBookings = () => {
                                     </div>
                                   ),
                                 )}
+
+                                {inspectionTrackings.map((inspection) => (
+                                  <div
+                                    key={`inspection-card-${inspection.Id || inspection.ServiceId || inspection.ServiceName}`}
+                                    className="mb-addon-card"
+                                  >
+                                    <div className="mb-addon-header">
+                                      <h6 className="mb-addon-title">
+                                        {inspection.ServiceName || "Inspection"}
+                                      </h6>
+                                    </div>
+
+                                    <div className="mb-addon-body">
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">
+                                          Inspection Charges
+                                        </span>
+                                        <span className="mb-addon-value">
+                                          ₹
+                                          {Number(
+                                            inspection.LabourCharges || 0,
+                                          ).toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">
+                                          SGST ({Number(inspection.GSTPercent || 0) / 2}%)
+                                        </span>
+                                        <span className="mb-addon-value">
+                                          ₹
+                                          {Number(
+                                            Number(inspection.GSTAmount || 0) / 2,
+                                          ).toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="mb-addon-row">
+                                        <span className="mb-addon-label">
+                                          CGST ({Number(inspection.GSTPercent || 0) / 2}%)
+                                        </span>
+                                        <span className="mb-addon-value">
+                                          ₹
+                                          {Number(
+                                            Number(inspection.GSTAmount || 0) / 2,
+                                          ).toLocaleString()}
+                                        </span>
+                                      </div>
+                                      <div className="mb-addon-row mb-addon-row-total border-top pt-2">
+                                        <span className="mb-addon-label text-dark fw-bold">
+                                          Total Amount
+                                        </span>
+                                        <span className="mb-addon-total">
+                                          ₹
+                                          {Number(
+                                            inspection.TotalPrice || 0,
+                                          ).toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           </div>
@@ -2430,7 +2517,7 @@ const MyBookings = () => {
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">Parts Total</div>
                                   <div className="fw-bold text-primary">
-                                    ₹{formatPrice(selectedBooking.TotalPrice)}
+                                    ₹{formatPrice(selectedBooking.PartsPrice)}
                                   </div>
                                 </div>
 
@@ -2443,6 +2530,8 @@ const MyBookings = () => {
                                     {formatPrice(selectedBooking.LabourCharges)}
                                   </div>
                                 </div>
+
+                                {/* {renderInspectionSummaryRows(formatPrice)} */}
 
                                 <div className="d-flex justify-content-between mb-2">
                                   <div className="fw-semibold">SGST (9%)</div>
@@ -2464,9 +2553,11 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
+                                {renderInspectionSummaryRows(formatPrice)}
+
                                 {getVal(selectedBooking.CouponAmount) > 0 && (
                                   <div className="d-flex justify-content-between mb-2">
-                                    <div className="fw-semibold">Coupon</div>
+                                    <div className="fw-semibold">Discount</div>
                                     <div className="fw-bold text-danger">
                                       -₹
                                       {formatPrice(
@@ -2488,10 +2579,7 @@ const MyBookings = () => {
                                   <div className="fw-bold text-danger">
                                     ₹
                                     {formatPrice(
-                                      getVal(selectedBooking.TotalPrice) +
-                                      getVal(selectedBooking.GSTAmount) +
-                                      getVal(selectedBooking.LabourCharges) -
-                                      getVal(selectedBooking.CouponAmount) -
+                                      getVal(selectedBooking.TotalPrice) -
                                       getVal(totalPaidAmount),
                                     )}
                                   </div>
@@ -2503,10 +2591,8 @@ const MyBookings = () => {
                                   <div className="fw-bold text-success fs-5">
                                     ₹
                                     {formatPrice(
-                                      getVal(selectedBooking.TotalPrice) +
-                                      getVal(selectedBooking.GSTAmount) +
-                                      getVal(selectedBooking.LabourCharges) -
-                                      getVal(selectedBooking.CouponAmount),
+                                      getVal(selectedBooking.TotalPrice)
+
                                     )}
                                   </div>
                                 </div>
@@ -2561,9 +2647,11 @@ const MyBookings = () => {
                                   </div>
                                 </div>
 
+                                {renderInspectionSummaryRows(formatPrice)}
+
                                 {getVal(selectedBooking.CouponAmount) > 0 && (
                                   <div className="d-flex justify-content-between mb-2">
-                                    <div className="fw-semibold">Coupon</div>
+                                    <div className="fw-semibold">Discount</div>
                                     <div className="fw-bold text-danger">
                                       -₹
                                       {formatPrice(
@@ -2652,9 +2740,11 @@ const MyBookings = () => {
                                 </div>
                               </div>
 
+                              {renderInspectionSummaryRows(formatPrice)}
+
                               {getVal(selectedBooking.CouponAmount) > 0 && (
                                 <div className="d-flex justify-content-between mb-2">
-                                  <div className="fw-semibold">Coupon</div>
+                                  <div className="fw-semibold">Discount</div>
                                   <div className="fw-bold text-danger">
                                     -₹
                                     {formatPrice(selectedBooking.CouponAmount)}
@@ -2709,7 +2799,7 @@ const MyBookings = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <div className="fw-semibold">Parts Total</div>
                               <div className="fw-bold text-primary">
-                                ₹{formatPrice(selectedBooking.TotalPrice)}
+                                ₹{formatPrice(selectedBooking.PartsPrice)}
                               </div>
                             </div>
 
@@ -2720,9 +2810,11 @@ const MyBookings = () => {
                               </div>
                             </div>
 
+                            {renderInspectionSummaryRows(formatPrice)}
+
                             {getVal(selectedBooking.CouponAmount) > 0 && (
                               <div className="d-flex justify-content-between mb-2">
-                                <div className="fw-semibold">Coupon</div>
+                                <div className="fw-semibold">Discount</div>
                                 <div className="fw-bold text-danger">
                                   -₹{formatPrice(selectedBooking.CouponAmount)}
                                 </div>
@@ -2767,10 +2859,7 @@ const MyBookings = () => {
                               <div className="fw-bold text-danger">
                                 ₹
                                 {formatPrice(
-                                  getVal(selectedBooking.TotalPrice) +
-                                  getVal(selectedBooking.GSTAmount) +
-                                  getVal(selectedBooking.LabourCharges) -
-                                  getVal(selectedBooking.CouponAmount) -
+                                  getVal(selectedBooking.TotalPrice) -
                                   getVal(totalPaidAmount),
                                 )}
                               </div>
@@ -2791,10 +2880,7 @@ const MyBookings = () => {
                               <div className="fw-bold text-success fs-5">
                                 ₹
                                 {formatPrice(
-                                  getVal(selectedBooking.TotalPrice) +
-                                  getVal(selectedBooking.LabourCharges) +
-                                  getVal(selectedBooking.GSTAmount) -
-                                  getVal(selectedBooking.CouponAmount),
+                                  getVal(selectedBooking.TotalPrice)
                                   // addOnTotal
                                 )}
                               </div>

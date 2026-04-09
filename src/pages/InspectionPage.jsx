@@ -693,12 +693,18 @@ const InspectionPage = () => {
                       <span>Back</span>
                     </button>
                     <div className="ip-card-header-content">
-                      <div className="ip-card-header-title mb-4">
-                        <span>Inspection Required?</span>
+                      <div className="ip-card-header-kicker">
+                        <span>Need a Car Check?</span>
                       </div>
-                      <h2 className="ip-card-header-title">Book Your Inspection</h2>
-                      <p className="ip-card-header-sub">Mandatory step for accurate service</p>
-                      <p className="ip-card-header-sub">Select your car category to choose the right plan.</p>
+                      <h2 className="ip-card-header-title">
+                        Book Your <span className="ip-card-header-title-accent">Inspection</span>
+                      </h2>
+                      <p className="ip-card-header-sub ip-card-header-sub--lead">
+                        Premium car inspection, simplified for your schedule.
+                      </p>
+                      <p className="ip-card-header-sub">
+                        Choose a package and let our experts inspect your car with confidence.
+                      </p>
                     </div>
                   </div>
 
