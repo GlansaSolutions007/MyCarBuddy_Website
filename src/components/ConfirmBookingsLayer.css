@@ -299,7 +299,7 @@
 
 .aos-summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 16px;
 }
 
@@ -498,6 +498,13 @@
 .aos-select-toggle.selected {
   background-color: #0a6264;
   color: #ffffff;
+}
+
+.aos-select-toggle.rejected {
+  background-color: #ffffff;
+  border-color: #dc3545;
+  color: #dc3545;
+  font-weight: 800;
 }
 /* ===== Responsive ===== */
 @media (max-width: 991px) {

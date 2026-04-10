@@ -18,11 +18,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
     const [openIncludes, setOpenIncludes] = useState(null);
+    const [checkboxError, setCheckboxError] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedServiceIds, setSelectedServiceIds] = useState([]);
-    const [isRejectMode, setIsRejectMode] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState("");
-    const [checkboxError, setCheckboxError] = useState(false);
+    // Per-service approval state: true = approved (✓), false = rejected (✗)
+    const [serviceApprovalMap, setServiceApprovalMap] = useState({});
+    // Per-service rejection reason
+    const [rejectionReasons, setRejectionReasons] = useState({});
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -51,7 +53,6 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
 
             try {
                 setIsLoading(true);
-                // We still fetch by CustID to get the list (assuming you don't have a GetBookingById endpoint)
                 const res = await axios.get(`${BaseURL}Bookings/${custId}`, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -73,6 +74,10 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         setServices(tempAddons);
                         setConfirmedAddons(matchedBooking.BookingAddOns || []);
                         setSelectedServiceIds(tempAddons.map((a) => a.Id));
+                        // Default all services to approved (true)
+                        const approvalMap = {};
+                        tempAddons.forEach((a) => { approvalMap[a.Id] = true; });
+                        setServiceApprovalMap(approvalMap);
                     }
                 }
             } catch (error) {
@@ -141,32 +146,17 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         };
     }, [tempTotals, confirmedTotals]);
 
-    const toggleServiceSelection = (id) => {
-        setSelectedServiceIds((prev) =>
-            prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
-        );
+    const toggleServiceApproval = (id) => {
+        setServiceApprovalMap((prev) => ({ ...prev, [id]: !prev[id] }));
     };
 
     // ---------------------------------------------------------
-    //  HANDLE SUBMIT
+    //  HANDLE SUBMIT — single Confirm action
+    //  Services with serviceApprovalMap[id] === true  → "Confirmed"
+    //  Services with serviceApprovalMap[id] === false → "Reject"
     // ---------------------------------------------------------
-    const handleSubmit = async (action = "approve") => {
+    const handleSubmit = async () => {
         if (!bookingDetails) return;
-
-        // For approve, validate checkbox
-        if (action === "approve" && services.length > 0 && !isChecked) {
-            setCheckboxError(true);
-            // Scroll to checkbox section
-            const el = document.getElementById("confirm-checkbox-section");
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
-        }
-
-        // For reject, validate reason
-        if (action === "reject" && !rejectionReason.trim()) {
-            Swal.fire("Error", "Please provide a reason for rejection.", "error");
-            return;
-        }
 
         const custIdToSend = custId ?? bookingDetails?.CustID;
         if (!custIdToSend) {
@@ -174,107 +164,78 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             return;
         }
 
-        const effectiveSelectedIds =
-            selectedServiceIds && selectedServiceIds.length > 0
-                ? selectedServiceIds
-                : [];
+        if (services.length === 0) return;
 
-        if (services.length > 0 && effectiveSelectedIds.length === 0) {
-            Swal.fire(
-                "No Services Selected",
-                "Please select at least one service to proceed.",
-                "warning"
-            );
+        const approvedIds = services.filter((srv) => serviceApprovalMap[srv.Id] !== false).map((srv) => srv.Id);
+        const rejectedIds = services.filter((srv) => serviceApprovalMap[srv.Id] === false).map((srv) => srv.Id);
+
+        // Validate that all rejected services have a reason
+        const missingReason = rejectedIds.find((id) => !rejectionReasons[id]?.trim());
+        if (missingReason) {
+            const srv = services.find((s) => s.Id === missingReason);
+            Swal.fire("Reason Required", `Please provide a rejection reason for "${srv?.ServiceName || "the rejected service"}".`, "warning");
             return;
         }
-
-        const addOnIds = effectiveSelectedIds.join(",");
 
         try {
             setIsSubmitting(true);
 
-            const requestBody = {
-                status: action === "approve" ? "Confirmed" : "Reject",
-                reason: action === "reject" ? rejectionReason : ""
-            };
-
-            const response = await axios.post(
-                `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${addOnIds}&custId=${custIdToSend}`,
-                requestBody,
-                {
-                    headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-
-            if (response.status === 200 || response.status === 201) {
-                const isApprove = action === "approve";
-                const title = isApprove ? "Booking Confirmed!" : "Booking Rejected!";
-                const message = isApprove
-                    ? `Selected services have been successfully confirmed for Booking #${bookingDetails.BookingTrackID}.`
-                    : `Selected services for Booking #${bookingDetails.BookingTrackID} have been rejected.`;
-                const icon = isApprove ? "success" : "warning";
-
-                // local state update for partial approve/reject
-                const selectedSet = new Set(effectiveSelectedIds.map((id) => String(id)));
-                const updatedRemainingServices = services.filter((srv) => !selectedSet.has(String(srv.Id)));
-
-                if (isApprove) {
-                    const newlyConfirmed = services.filter((srv) => selectedSet.has(String(srv.Id)));
-                    setConfirmedAddons((prev) => [...prev, ...newlyConfirmed]);
-                }
-
-                setServices(updatedRemainingServices);
-                setSelectedServiceIds(updatedRemainingServices.map((srv) => srv.Id));
-                setIsChecked(false);
-                setRejectionReason("");
-                setIsRejectMode(false);
-
-                const allDone = updatedRemainingServices.length === 0;
-
-                Swal.fire({
-                    title: title,
-                    text: message + (allDone ? "" : " You still have remaining services to process."),
-                    icon: icon,
-                    confirmButtonColor: "#0a6264",
-                }).then(() => {
-                    if (allDone) {
-                        if (user) {
-                            navigate("/profile?tab=mybookings", { replace: true });
-                        } else {
-                            navigate("/", { replace: true });
-                        }
-                    }
-                });
-                // Swal.fire({
-                // title: title,
-                // text: message,
-                // icon: icon,
-                // confirmButtonColor: "#0a6264",
-                // }).then(() => {
-
-                //     // 🔥 MAIN CONDITION
-                //     if (services.length === 0) {
-                //         navigate("/", { replace: true });
-                //     } else {
-                //         window.location.reload();
-                //     }
-
-                // });
-            } else {
-                throw new Error("Unexpected response code");
+            // Fire approved batch if any
+            if (approvedIds.length > 0) {
+                await axios.post(
+                    `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${approvedIds.join(",")}&custId=${custIdToSend}`,
+                    { status: "Confirmed", reason: "" },
+                    { headers: { Authorization: `Bearer ${user?.token}`, "Content-Type": "application/json" } }
+                );
             }
+
+            // Fire rejected batch if any
+            if (rejectedIds.length > 0) {
+                const combinedReason = rejectedIds
+                    .map((id) => {
+                        const srv = services.find((s) => s.Id === id);
+                        return `${srv?.ServiceName || id}: ${rejectionReasons[id] || ""}`;
+                    })
+                    .join("; ");
+                await axios.post(
+                    `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${rejectedIds.join(",")}&custId=${custIdToSend}`,
+                    { status: "Reject", reason: combinedReason },
+                    { headers: { Authorization: `Bearer ${user?.token}`, "Content-Type": "application/json" } }
+                );
+            }
+
+            // Update local state
+            const approvedSet = new Set(approvedIds.map(String));
+            const newlyConfirmed = services.filter((srv) => approvedSet.has(String(srv.Id)));
+            setConfirmedAddons((prev) => [...prev, ...newlyConfirmed]);
+            setServices([]);
+            setSelectedServiceIds([]);
+            setServiceApprovalMap({});
+            setRejectionReasons({});
+            setIsChecked(false);
+
+            const approvedCount = approvedIds.length;
+            const rejectedCount = rejectedIds.length;
+            const summaryParts = [];
+            if (approvedCount > 0) summaryParts.push(`${approvedCount} service${approvedCount !== 1 ? "s" : ""} confirmed`);
+            if (rejectedCount > 0) summaryParts.push(`${rejectedCount} service${rejectedCount !== 1 ? "s" : ""} rejected`);
+
+            Swal.fire({
+                title: "Done!",
+                text: `${summaryParts.join(" and ")} for Booking #${bookingDetails.BookingTrackID}.`,
+                icon: rejectedCount > 0 && approvedCount === 0 ? "warning" : "success",
+                confirmButtonColor: "#0a6264",
+            }).then(() => {
+                if (user) {
+                    navigate("/profile?tab=mybookings", { replace: true });
+                } else {
+                    navigate("/", { replace: true });
+                }
+            });
 
         } catch (error) {
             console.error("Error processing booking:", error);
-            const actionText = action === "approve" ? "confirm" : "reject";
-            Swal.fire(
-                "Submission Failed",
-                `Could not ${actionText} services. Please try again.`,
-                "error"
-            );
+            Swal.fire("Submission Failed", "Could not process services. Please try again.", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -515,10 +476,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                     {/* Pending Confirmation Temp Addons Section */}
                     {services.length > 0 && (
                         <div className="mb-4">
-                            <h3 className="mb-3" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
+                            <h3 className="mb-2" style={{ fontSize: "1.25rem", fontWeight: "600", color: "#0a6264" }}>
                                 <FaExclamationCircle className="me-2" style={{ color: "#ffc107" }} />
                                 Added Services (Approval Pending)
                             </h3>
+                            <p className="mb-3" style={{ fontSize: "0.875rem", color: "#555", lineHeight: "1.5", margin: "0 0 14px 0" }}>
+                                Review each service below — the checkbox is <strong style={{ color: "#0a6264" }}>✓ green by default (approved)</strong>. Click it to toggle to <strong style={{ color: "#dc3545" }}>✕ red (rejected)</strong> for any service you want to decline, then click <strong>Confirm</strong> to submit.
+                            </p>
                             {/* Mobile Cards View - Temp Addons */}
                             <div className="aos-grid">
                                 {services.map((srv, index) => {
@@ -528,16 +492,17 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                     const total = price + gst + labourCharge;
                                     const isSelected = selectedServiceIds.includes(srv.Id);
                                     return (
-                                        <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: "4px solid #ffc107" }}>
+                                        <div key={`temp-${index}`} className="aos-card" style={{ borderLeft: `4px solid ${serviceApprovalMap[srv.Id] === false ? "#dc3545" : "#ffc107"}` }}>
                                             <div className="aos-card-header-approve">
                                                 <div className="aos-card-select">
                                                     <button
                                                         type="button"
-                                                        className={`aos-select-toggle ${isSelected ? "selected" : ""}`}
-                                                        onClick={() => toggleServiceSelection(srv.Id)}
+                                                        className={`aos-select-toggle ${serviceApprovalMap[srv.Id] === false ? "rejected" : "selected"}`}
+                                                        onClick={() => toggleServiceApproval(srv.Id)}
                                                         disabled={isSubmitting}
+                                                        title={serviceApprovalMap[srv.Id] === false ? "Rejected — click to approve" : "Approved — click to reject"}
                                                     >
-                                                        {isSelected ? "✓" : ""}
+                                                        {serviceApprovalMap[srv.Id] === false ? "✕" : "✓"}
                                                     </button>
                                                 </div>
                                                 <div className="aos-card-info">
@@ -647,15 +612,16 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                             const total = price + gst + labourCharge;
                                             const isSelected = selectedServiceIds.includes(srv.Id);
                                             return (
-                                                <tr key={`temp-${idx}`} style={{ backgroundColor: "#fffbf0" }}>
+                                                <tr key={`temp-${idx}`} style={{ backgroundColor: serviceApprovalMap[srv.Id] === false ? "#fff0f0" : "#fffbf0" }}>
                                                     <td className="aos-select-col">
                                                         <button
                                                             type="button"
-                                                            className={`aos-select-toggle ${isSelected ? "selected" : ""}`}
-                                                            onClick={() => toggleServiceSelection(srv.Id)}
+                                                            className={`aos-select-toggle ${serviceApprovalMap[srv.Id] === false ? "rejected" : "selected"}`}
+                                                            onClick={() => toggleServiceApproval(srv.Id)}
                                                             disabled={isSubmitting}
+                                                            title={serviceApprovalMap[srv.Id] === false ? "Rejected — click to approve" : "Approved — click to reject"}
                                                         >
-                                                            {isSelected ? "✓" : ""}
+                                                            {serviceApprovalMap[srv.Id] === false ? "✕" : "✓"}
                                                         </button>
                                                     </td>
                                                     <td>{idx + 1}</td>
@@ -725,9 +691,17 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <div className="aos-summary-label">CGST</div>
                                 <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2) / 2}</div>
                             </div>
+                            {bookingDetails?.CouponAmount > 0 && (
+                                <div className="aos-summary-item" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
+                                    <div className="aos-summary-label">Discount</div>
+                                    <div className="aos-summary-value" style={{ color: "#ffe066" }}>- ₹{Number(bookingDetails.CouponAmount).toFixed(2)}</div>
+                                </div>
+                            )}
                             <div className="aos-summary-item bg-warning text-dark">
                                 <div className="aos-summary-label">Grand Total</div>
-                                <div className="aos-summary-value">₹{totals.totalAmount.toFixed(2)}</div>
+                                <div className="aos-summary-value">
+                                    ₹{Math.max(0, totals.totalAmount - (bookingDetails?.CouponAmount > 0 ? Number(bookingDetails.CouponAmount) : 0)).toFixed(2)}
+                                </div>
                             </div>
                         </div>
                         {services.length > 0 && (
@@ -740,52 +714,61 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                         )}
                     </div>
 
-                    {/* Rejection Reason Textarea - Hidden until reject mode */}
-                    {isRejectMode && (
-                        <div className="mb-3 p-3" style={{ backgroundColor: "#ffe6e6", borderRadius: "8px", border: "1px solid #ff6b6b" }}>
-                            <label className="form-label" style={{ fontWeight: "600", color: "#c92a2a", marginBottom: "10px" }}>
-                                Reason for Rejection <span style={{ color: "#ff0000" }}>*</span>
-                            </label>
-                            <textarea
-                                className="form-control"
-                                placeholder="Please provide a detailed reason for rejecting this booking..."
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                disabled={isSubmitting}
-                                rows="4"
-                                style={{ borderColor: "#ff6b6b" }}
-                            />
-                            <small style={{ color: "#c92a2a" }}>
-                                Required field - Please be specific about the reason for rejection.
-                            </small>
+
+                    {/* Rejection Reasons — shown per rejected service */}
+                    {services.some((srv) => serviceApprovalMap[srv.Id] === false) && (
+                        <div className="mb-3 p-3" style={{ backgroundColor: "#fff5f5", borderRadius: "10px", border: "1px solid #f5c2c7" }}>
+                            <div className="mb-2" style={{ fontWeight: "600", color: "#c92a2a", fontSize: "0.9rem" }}>
+                                <FaExclamationCircle className="me-1" />
+                                Rejection Reason{services.filter((s) => serviceApprovalMap[s.Id] === false).length > 1 ? "s" : ""} Required
+                            </div>
+                            {services
+                                .filter((srv) => serviceApprovalMap[srv.Id] === false)
+                                .map((srv) => (
+                                    <div key={`reason-${srv.Id}`} className="mb-3">
+                                        <label style={{ fontSize: "0.82rem", fontWeight: "600", color: "#555", marginBottom: "6px", display: "block" }}>
+                                            {srv.ServiceName} <span style={{ color: "#dc3545" }}>*</span>
+                                        </label>
+                                        <textarea
+                                            className="form-control"
+                                            rows={2}
+                                            placeholder={`Reason for rejecting "${srv.ServiceName}"…`}
+                                            value={rejectionReasons[srv.Id] || ""}
+                                            onChange={(e) =>
+                                                setRejectionReasons((prev) => ({ ...prev, [srv.Id]: e.target.value }))
+                                            }
+                                            disabled={isSubmitting}
+                                            style={{ fontSize: "0.85rem", borderColor: rejectionReasons[srv.Id]?.trim() ? "#adb5bd" : "#dc3545", borderRadius: "8px", resize: "vertical" }}
+                                        />
+                                    </div>
+                                ))}
                         </div>
                     )}
 
-                    {!isRejectMode && services.length > 0 && (
+                    {/* Confirmation Checkbox */}
+                    {services.length > 0 && (
                         <div
-                            id="confirm-checkbox-section"
                             className={`form-check-a mb-3${checkboxError ? " form-check-a--error" : ""}`}
                             onClick={() => {
                                 setIsChecked((prev) => !prev);
                                 setCheckboxError(false);
                             }}
-                            disabled={isSubmitting}
+                            style={{ cursor: "pointer" }}
                         >
                             <button
                                 type="button"
-                                className={`aos-select-toggle ${isChecked ? "selected" : ""}${checkboxError ? " aos-select-toggle--error" : ""}`}
-
+                                className={`aos-select-toggle${isChecked ? " selected" : ""}${checkboxError ? " aos-select-toggle--error" : ""}`}
                             >
                                 {isChecked ? "✓" : ""}
                             </button>
                             <div className="form-check-label-wrap">
                                 <span className="form-check-label">
-                                    I have carefully checked and verified all booking added services and agree to proceed with the confirmation.
+                                    I have carefully reviewed all the services and agree to proceed with confirmation.
                                 </span>
                                 {checkboxError && (
                                     <span className="form-check-error-msg">
                                         <FaExclamationCircle className="me-1" />
-                                        Please check this box before approving services.
+                                        Please check this box before confirming services.
                                     </span>
                                 )}
                             </div>
@@ -811,7 +794,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                         : `All ${confirmedAddons.length} services for this booking have already been approved.`}
                                 </span>
                             </div>
-                        ) : !isRejectMode ? (
+                        ) : (
                             <>
                                 <button
                                     className="aos-btn aos-btn-secondary me-3"
@@ -821,9 +804,18 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                     Cancel
                                 </button>
                                 <button
-                                    className="aos-btn aos-btn-primary me-3"
-                                    onClick={() => handleSubmit("approve")}
+                                    className="aos-btn aos-btn-primary"
+                                    onClick={() => {
+                                        if (!isChecked) {
+                                            setCheckboxError(true);
+                                            const el = document.getElementById("confirm-checkbox-section");
+                                            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                                            return;
+                                        }
+                                        handleSubmit();
+                                    }}
                                     disabled={isSubmitting}
+                                    style={{ opacity: isChecked ? 1 : 0.5 }}
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -835,42 +827,8 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                         </>
                                     ) : (
                                         <>
-                                            <FaCheck /> Approve Services
+                                            <FaCheck /> Confirm
                                         </>
-                                    )}
-                                </button>
-                                <button
-                                    className="aos-btn aos-btn-danger"
-                                    onClick={() => setIsRejectMode(true)}
-                                    disabled={isSubmitting}
-                                >
-                                    Reject
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    className="aos-btn aos-btn-secondary me-3"
-                                    onClick={() => setIsRejectMode(false)}
-                                    disabled={isSubmitting}
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    className="aos-btn aos-btn-danger"
-                                    onClick={() => handleSubmit("reject")}
-                                    disabled={isSubmitting || !rejectionReason.trim()}
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <span
-                                                className="spinner-border spinner-border-sm me-2"
-                                                aria-hidden="true"
-                                            ></span>
-                                            Processing...
-                                        </>
-                                    ) : (
-                                        <>Confirm Rejection</>
                                     )}
                                 </button>
                             </>
