@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -75,8 +75,28 @@ const InspectionPage = () => {
   const [otpError, setOtpError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [leadId, setLeadId] = useState(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const payActionsRef = useRef(null);
+   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
-  const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  useEffect(() => {
+    if (currentStep !== "offer") {
+      setShowStickyBar(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky bar the moment the Pay buttons scroll out of view
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
+    );
+    const el = payActionsRef.current;
+    if (el) observer.observe(el);
+    return () => { if (el) observer.unobserve(el); };
+  }, [currentStep]);
+
+
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = user && user.token;
@@ -748,7 +768,7 @@ const InspectionPage = () => {
                           </div>
 
                           {/* CTA button — right below the header, always visible */}
-                          <div className="inspection-plan-action">
+                          <div className="inspection-plan-action" ref={index === 0 ? payActionsRef : null}>
                             <button
                               type="button"
                               className={`inspection-plan-btn ${buttonClass}`}
@@ -1035,6 +1055,55 @@ const InspectionPage = () => {
           </div>
         </section>
       </main>
+
+      {/* Sticky Pay Bar — shown on offer step when Pay buttons scroll out of view */}
+      {currentStep === "offer" && (
+        <div className={`inspection-sticky-bar ${showStickyBar ? "inspection-sticky-bar--visible" : ""}`}>
+          <div className="inspection-sticky-bar__inner">
+            <div className="inspection-sticky-bar__plans">
+              <div className="inspection-sticky-bar__plan">
+                <span className="inspection-sticky-bar__plan-name">
+                  <FaCar className="inspection-sticky-bar__car-icon" />
+                  {offer1.packageName}
+                </span>
+                <div className="inspection-sticky-bar__price-group">
+                  <span className="inspection-sticky-bar__old-price">₹{offer1.oldPrice}</span>
+                  <strong className="inspection-sticky-bar__new-price">₹{offer1.totalPrice}</strong>
+                </div>
+                <button
+                  type="button"
+                  className="inspection-sticky-bar__btn inspection-sticky-bar__btn--pro"
+                  onClick={() => handlePackagePayNow(1)}
+                >
+                  <FaCreditCard />
+                  Pay ₹{offer1.totalPrice}
+                </button>
+              </div>
+
+              <div className="inspection-sticky-bar__divider" />
+
+              <div className="inspection-sticky-bar__plan">
+                <span className="inspection-sticky-bar__plan-name">
+                  <FaCar className="inspection-sticky-bar__car-icon" />
+                  {offer2.packageName}
+                </span>
+                <div className="inspection-sticky-bar__price-group">
+                  <span className="inspection-sticky-bar__old-price">₹{offer2.oldPrice}</span>
+                  <strong className="inspection-sticky-bar__new-price">₹{offer2.totalPrice}</strong>
+                </div>
+                <button
+                  type="button"
+                  className="inspection-sticky-bar__btn inspection-sticky-bar__btn--pro"
+                  onClick={() => handlePackagePayNow(2)}
+                >
+                  <FaCreditCard />
+                  Pay ₹{offer2.totalPrice}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <FooterAreaOne />
     </>
