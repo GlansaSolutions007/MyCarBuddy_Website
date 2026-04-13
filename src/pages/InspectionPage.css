@@ -454,7 +454,7 @@ body.page-inspection #tawkchat-minimized-container {
 
 .ip-card-header-title {
   margin: 0;
-  max-width: 14ch;
+  max-width: 24ch;
   font-size: clamp(1.8rem, 2.8vw, 2.5rem);
   font-weight: 900;
   line-height: 1.02;
@@ -467,8 +467,8 @@ body.page-inspection #tawkchat-minimized-container {
 }
 
 .ip-card-header-title-accent {
-  position: relative;
-  display: inline-block;
+  /* position: relative; */
+  /* display: inline-block; */
   color: #fff;
   background: linear-gradient(135deg, #ffe29f 0%, #ffc857 35%, #ffffff 100%);
   -webkit-background-clip: text;
