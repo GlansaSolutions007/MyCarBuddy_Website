@@ -25,6 +25,33 @@ import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
 
+const getSelectedCarPayload = () => {
+  try {
+    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
+
+    return {
+      registrationNumber: selectedCar ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || "") : "",
+      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
+      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
+      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
+      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
+      kmDriven: Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0,
+      yearOfPurchase: Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0,
+    };
+  } catch (error) {
+    console.error("Error reading selectedCarDetails:", error);
+    return {
+      registrationNumber: "",
+      vehicleID: 0,
+      brandID: 0,
+      modelID: 0,
+      fuelTypeID: 0,
+      kmDriven: 0,
+      yearOfPurchase: 0,
+    };
+  }
+};
+
 const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly, startInEnquiry = false, redirectInspectionToPage = false }) => {
   // --- STATES ---
   const [currentStep, setCurrentStep] = useState("inspection"); // "inspection" or "booking"
@@ -244,6 +271,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const services = [];
     // Get the selected inspection offer
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
+    const selectedCarPayload = getSelectedCarPayload();
 
     if (withInspection) {
       // Add inspection service first (the selected package)
@@ -281,6 +309,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: selectedOfferData.totalPrice,
+      ...selectedCarPayload,
       // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
       // description: `${selectedOfferData.packageName} - ${description || "No description provided"}`,
       description: withInspection

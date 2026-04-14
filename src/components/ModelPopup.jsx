@@ -22,7 +22,7 @@ const ModelPopup = ({ models, selected, onSelect, onClose, loading }) => {
           placeholder="Search models..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-control mb-3"
+          className="brand-search mb-3"
           onClick={(e) => e.stopPropagation()}
         />
         <div className="brand-scroll-container">

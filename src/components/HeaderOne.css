@@ -1415,3 +1415,242 @@
   }
 }
 
+
+/* ============================
+   Choose Car Chip
+   ============================ */
+.mcb-car-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--mcb-white);
+  border: 1.5px solid var(--mcb-border);
+  border-radius: 50px;
+  padding: 5px 14px 5px 5px;
+  cursor: pointer;
+  transition: var(--mcb-transition);
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.mcb-car-chip:hover {
+  border-color: var(--mcb-primary);
+  box-shadow: 0 3px 12px rgba(17, 109, 110, 0.15);
+  transform: translateY(-1px);
+}
+
+.mcb-car-chip-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(17, 109, 110, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.mcb-car-chip-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.mcb-car-chip-fallback {
+  color: var(--mcb-primary);
+}
+
+.mcb-car-chip-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.mcb-car-chip-label {
+  font-size: 10px;
+  color: var(--mcb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 500;
+}
+
+.mcb-car-chip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mcb-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+}
+
+@media (max-width: 991px) {
+  .mcb-car-chip {
+    display: none;
+  }
+}
+/* ============================
+   Mobile Car Chip
+   ============================ */
+.mcb-mobile-car-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(17, 109, 110, 0.06);
+  border: 1.5px solid rgba(17, 109, 110, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0 0 16px 0;
+  cursor: pointer;
+  transition: var(--mcb-transition);
+}
+
+.mcb-mobile-car-chip:hover,
+.mcb-mobile-car-chip:active {
+  background: rgba(17, 109, 110, 0.12);
+  border-color: var(--mcb-primary);
+}
+
+.mcb-mobile-car-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--mcb-white);
+  border: 1.5px solid rgba(17, 109, 110, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  color: var(--mcb-primary);
+}
+
+.mcb-mobile-car-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.mcb-mobile-car-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.mcb-mobile-car-label {
+  font-size: 10px;
+  color: var(--mcb-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.mcb-mobile-car-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mcb-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mcb-mobile-car-arrow {
+  color: var(--mcb-text-muted);
+  flex-shrink: 0;
+}
+/* ============================
+   Header Car Chip - Mobile Only
+   ============================ */
+.mcb-header-car-chip-mobile {
+  display: none; /* hidden on desktop */
+}
+
+@media (max-width: 991px) {
+  .mcb-header-car-chip-mobile {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--mcb-white);
+    border: 1.5px solid rgba(17, 109, 110, 0.25);
+    border-radius: 50px;
+    padding: 4px 10px 4px 4px;
+    cursor: pointer;
+    transition: var(--mcb-transition);
+    max-width: 150px;
+    overflow: hidden;
+  }
+
+  .mcb-header-car-chip-mobile:hover,
+  .mcb-header-car-chip-mobile:active {
+    border-color: var(--mcb-primary);
+    background: rgba(17, 109, 110, 0.05);
+  }
+
+  .mcb-header-car-avatar-mobile {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(17, 109, 110, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    color: var(--mcb-primary);
+  }
+
+  .mcb-header-car-avatar-mobile img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+  }
+
+  .mcb-header-car-text-mobile {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 0;
+  }
+
+  .mcb-header-car-label-mobile {
+    font-size: 9px;
+    color: var(--mcb-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+  }
+
+  .mcb-header-car-name-mobile {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mcb-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+  }
+}
+
+@media (max-width: 575px) {
+  .mcb-header-car-chip-mobile {
+    max-width: 120px;
+    padding: 3px 8px 3px 3px;
+  }
+
+  .mcb-header-car-avatar-mobile {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mcb-header-car-name-mobile {
+    font-size: 11px;
+    max-width: 70px;
+  }
+}

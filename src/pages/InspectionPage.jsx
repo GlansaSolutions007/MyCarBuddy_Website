@@ -26,25 +26,58 @@ import { saveUserFromVerifyOtp } from "../helper/authHelper";
 import "./InspectionPage.css";
 
 const DEFAULT_OFFER_1 = {
-  oldPrice: 599,
-  newPrice: 399,
+  // oldPrice: 599,
+  // newPrice: 399,
+  oldPrice: null,
+  newPrice: null,
   gstPrice: 0,
   gstPercent: 0,
-  totalPrice: 399,
+  // totalPrice: 399,
+  totalPrice: null,
   packageId: 174,
   packageName: "5-Seater Car",
   inspectionIncludes: [],
 };
 
 const DEFAULT_OFFER_2 = {
-  oldPrice: 999,
-  newPrice: 699,
+  // oldPrice: 999,
+  // newPrice: 699,
+  oldPrice: null,
+  newPrice: null,
   gstPrice: 0,
   gstPercent: 0,
-  totalPrice: 699,
+  // totalPrice: 699,
+  totalPrice: null,
   packageId: 175,
   packageName: "7-Seater Car",
   inspectionIncludes: [],
+};
+
+const getSelectedCarPayload = () => {
+  try {
+    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
+
+    return {
+      registrationNumber: selectedCar ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || "") : "",
+      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
+      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
+      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
+      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
+      kmDriven: Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0,
+      yearOfPurchase: Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0,
+    };
+  } catch (error) {
+    console.error("Error reading selectedCarDetails:", error);
+    return {
+      registrationNumber: "",
+      vehicleID: 0,
+      brandID: 0,
+      modelID: 0,
+      fuelTypeID: 0,
+      kmDriven: 0,
+      yearOfPurchase: 0,
+    };
+  }
 };
 
 const InspectionPage = () => {
@@ -64,6 +97,7 @@ const InspectionPage = () => {
   const [otpExpired, setOtpExpired] = useState(false);
   const [loading, setLoading] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [offer1, setOffer1] = useState(DEFAULT_OFFER_1);
   const [offer2, setOffer2] = useState(DEFAULT_OFFER_2);
   const [selectedOffer, setSelectedOffer] = useState(1);
@@ -84,16 +118,21 @@ const InspectionPage = () => {
       setShowStickyBar(false);
       return;
     }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Show sticky bar the moment the Pay buttons scroll out of view
-        setShowStickyBar(!entry.isIntersecting);
-      },
-      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
-    );
-    const el = payActionsRef.current;
-    if (el) observer.observe(el);
-    return () => { if (el) observer.unobserve(el); };
+
+    const checkVisibility = () => {
+      const el = payActionsRef.current;
+      if (!el) return;
+      // Show sticky bar the moment the bottom of the pay button row scrolls above the viewport
+      setShowStickyBar(el.getBoundingClientRect().bottom < 0);
+    };
+
+    const timerId = setTimeout(checkVisibility, 0);
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+
+    return () => {
+      clearTimeout(timerId);
+      window.removeEventListener("scroll", checkVisibility);
+    };
   }, [currentStep]);
 
 
@@ -159,6 +198,7 @@ const InspectionPage = () => {
     };
 
     const fetchInspectionPackages = async () => {
+      setPackagesLoading(true);
       try {
         const [response1, response2] = await Promise.all([
           axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`),
@@ -168,11 +208,11 @@ const InspectionPage = () => {
         if (response1.data && response1.data.length > 0) {
           const package1 = response1.data[0];
           setOffer1({
-            oldPrice: package1.Serv_Reg_Price || DEFAULT_OFFER_1.oldPrice,
-            newPrice: package1.Serv_Off_Price || DEFAULT_OFFER_1.newPrice,
+            oldPrice: package1.Serv_Reg_Price ?? null,
+            newPrice: package1.Serv_Off_Price ?? null,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: package1.inc_gstamt || DEFAULT_OFFER_1.totalPrice,
+            totalPrice: package1.inc_gstamt ?? null,
             packageId: 174,
             packageName: package1.PackageName || DEFAULT_OFFER_1.packageName,
             inspectionIncludes: package1.InspectionIncludes || [],
@@ -182,11 +222,11 @@ const InspectionPage = () => {
         if (response2.data && response2.data.length > 0) {
           const package2 = response2.data[0];
           setOffer2({
-            oldPrice: package2.Serv_Reg_Price || DEFAULT_OFFER_2.oldPrice,
-            newPrice: package2.Serv_Off_Price || DEFAULT_OFFER_2.newPrice,
+            oldPrice: package2.Serv_Reg_Price ?? null,
+            newPrice: package2.Serv_Off_Price ?? null,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: package2.inc_gstamt || DEFAULT_OFFER_2.totalPrice,
+            totalPrice: package2.inc_gstamt ?? null,
             packageId: 175,
             packageName: package2.PackageName || DEFAULT_OFFER_2.packageName,
             inspectionIncludes: package2.InspectionIncludes || [],
@@ -194,6 +234,8 @@ const InspectionPage = () => {
         }
       } catch (err) {
         console.error("Failed to fetch inspection packages:", err);
+      } finally {
+        setPackagesLoading(false);
       }
     };
 
@@ -286,6 +328,7 @@ const InspectionPage = () => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
     const services = [];
+    const selectedCarPayload = getSelectedCarPayload();
 
     if (withInspection) {
       services.push({
@@ -322,6 +365,7 @@ const InspectionPage = () => {
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      ...selectedCarPayload,
       services,
       leadId: leadIdOverride ?? leadId,
     };
@@ -330,7 +374,8 @@ const InspectionPage = () => {
   const handlePayment = async (offerIndexOverride) => {
     try {
       const leadPayload = buildLeadPayload(true, offerIndexOverride);
-
+      console.log("PayLOadddd----",leadPayload);
+      
       const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
@@ -729,7 +774,27 @@ const InspectionPage = () => {
                   </div>
 
                   <div className="inspection-pricing-board inspection-pricing-board--standalone">
-                    {packageColumns.map(({ offer, groupedIncludes, accentClass, buttonClass }, index) => {
+                    {packagesLoading ? (
+                      [1, 2].map((item) => (
+                        <article key={item} className="inspection-plan-card inspection-plan-card--skeleton" aria-hidden="true">
+                          <div className="inspection-plan-top inspection-plan-top--skeleton">
+                            <div className="inspection-skeleton inspection-skeleton-pill" />
+                            <div className="inspection-skeleton inspection-skeleton-title" />
+                            <div className="inspection-skeleton inspection-skeleton-subtitle" />
+                            <div className="inspection-skeleton inspection-skeleton-price" />
+                          </div>
+                          <div className="inspection-plan-action">
+                            <div className="inspection-skeleton inspection-skeleton-button" />
+                          </div>
+                          <div className="inspection-plan-features inspection-plan-features--skeleton">
+                            <div className="inspection-skeleton inspection-skeleton-feature-heading" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                          </div>
+                        </article>
+                      ))
+                    ) : packageColumns.map(({ offer, groupedIncludes, accentClass, buttonClass }, index) => {
                       const meta = getOfferMeta(offer);
                       const categories = Object.entries(groupedIncludes);
                       const saving = offer.oldPrice - offer.totalPrice;
@@ -768,7 +833,7 @@ const InspectionPage = () => {
                           </div>
 
                           {/* CTA button — right below the header, always visible */}
-                          <div className="inspection-plan-action" ref={index === 0 ? payActionsRef : null}>
+                          <div className="inspection-plan-action" ref={index === 1 ? payActionsRef : null}>
                             <button
                               type="button"
                               className={`inspection-plan-btn ${buttonClass}`}
@@ -803,6 +868,7 @@ const InspectionPage = () => {
                         </article>
                       );
                     })}
+
                   </div>
 
                   <div className="ip-trust">

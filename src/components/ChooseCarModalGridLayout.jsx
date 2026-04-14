@@ -16,6 +16,56 @@ const validateVehicleNumber = (number) => {
     return regex.test(cleaned);
 };
 
+const buildSelectedCarDetails = ({ brandItem, modelItem, fuelItem, vehicle = {}, formData = {}, vehicleID = 0 }) => {
+    const registrationNumber = (
+        vehicle.registrationNumber ||
+        vehicle.vehicleNumber ||
+        vehicle.VehicleNumber ||
+        formData.registrationNumber ||
+        ""
+    ).toString().toUpperCase();
+
+    const resolvedVehicleId = Number(
+        vehicleID ||
+        vehicle.VehicleID ||
+        vehicle.vehicleID ||
+        vehicle.id ||
+        0
+    ) || 0;
+
+    return {
+        brand: brandItem || null,
+        model: modelItem || null,
+        fuel: fuelItem || null,
+        id: resolvedVehicleId,
+        VehicleID: resolvedVehicleId,
+        vehicleNumber: registrationNumber,
+        VehicleNumber: registrationNumber,
+        registrationNumber,
+        brandID: Number(vehicle.brandID || vehicle.BrandID || brandItem?.id) || 0,
+        modelID: Number(vehicle.modelID || vehicle.ModelID || modelItem?.id) || 0,
+        fuelTypeID: Number(vehicle.fuelTypeID || vehicle.FuelTypeID || fuelItem?.id) || 0,
+        kilometersDriven: Number(
+            vehicle.kilometersDriven ||
+            vehicle.KilometersDriven ||
+            formData.kilometerDriven ||
+            formData.kilometersDriven ||
+            0
+        ) || 0,
+        kilometerDriven: (
+            vehicle.kilometerDriven ||
+            vehicle.kilometersDriven ||
+            vehicle.KilometersDriven ||
+            formData.kilometerDriven ||
+            formData.kilometersDriven ||
+            ""
+        ),
+        yearOfPurchase: Number(vehicle.yearOfPurchase || vehicle.YearOfPurchase || formData.yearOfPurchase || 0) || 0,
+        engineType: vehicle.engineType || vehicle.EngineType || formData.engineType || "",
+        transmissionType: vehicle.transmissionType || vehicle.TransmissionType || formData.transmissionType || "",
+    };
+};
+
 const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	// Alert API (optional)
 	const { showAlert } = useAlert();
@@ -428,31 +478,32 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
         if (v.FuelTypeID) setFuel(v.FuelTypeID);
 
         // Prepare and store selectedCarDetails in localStorage
-        const selectedCarDetails = {
-            brand: {
+        const selectedCarDetails = buildSelectedCarDetails({
+            brandItem: {
                 id: v.BrandID,
                 name: v.BrandName,
                 logo: v.BrandLogo ? `${imageBaseURL}${v.BrandLogo}` : undefined,
             },
-            model: {
+            modelItem: {
                 id: v.ModelID,
                 name: v.ModelName,
                 logo: v.VehicleImage ? `${imageBaseURL}${v.VehicleImage}` : undefined,
             },
-            fuel: {
+            fuelItem: {
                 id: v.FuelTypeID,
                 name: v.FuelTypeName,
                 logo: v.FuelImage ? `${imageBaseURL}${v.FuelImage}` : undefined,
             },
-            VehicleID: v.VehicleID || v.vehicleID,
-            VehicleNumber: vehicleNumber,
-            // Extra fields to hydrate step 3 in SelectTimeSlotPage
-            registrationNumber: vehicleNumber,
-            yearOfPurchase: v.YearOfPurchase || "",
-            engineType: v.EngineType || "",
-            kilometerDriven: v.KilometersDriven || "",
-            transmissionType: v.TransmissionType || "",
-        };
+            vehicle: v,
+            formData: {
+                registrationNumber: vehicleNumber,
+                yearOfPurchase: v.YearOfPurchase || "",
+                engineType: v.EngineType || "",
+                kilometerDriven: v.KilometersDriven || "",
+                transmissionType: v.TransmissionType || "",
+            },
+            vehicleID: v.VehicleID || v.vehicleID,
+        });
         try {
             localStorage.setItem('selectedCarDetails', JSON.stringify(selectedCarDetails));
         } catch (_) {}
@@ -583,8 +634,8 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 		e.preventDefault();
 
 		// Required fields validation for registration number and year of purchase
-		if (!formData.registrationNumber || !formData.transmissionType) {
-			showAlert("Please enter registration number and transmission type.");
+		if (!formData.registrationNumber ) {
+			showAlert("Please enter registration number.");
 			return;
 		}
 
@@ -611,16 +662,12 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 		}
 
 		
-        const selectedCarDetails = {
-            brand: brands.find((b) => b.id === brand),
-            model: models.find((m) => m.id === model),
-            fuel: fuels.find((f) => f.id === fuel),
-            registrationNumber: formData.registrationNumber,
-            yearOfPurchase: formData.yearOfPurchase,
-            engineType: formData.engineType,
-            kilometerDriven: formData.kilometerDriven,
-            transmissionType: formData.transmissionType,
-        };
+        const selectedCarDetails = buildSelectedCarDetails({
+            brandItem: brands.find((b) => b.id === brand),
+            modelItem: models.find((m) => m.id === model),
+            fuelItem: fuels.find((f) => f.id === fuel),
+            formData,
+        });
 
 		localStorage.setItem("selectedCarDetails", JSON.stringify(selectedCarDetails));
 
@@ -673,10 +720,17 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
                 } else if (apiData?.vehicleID) {
                     // store VehicleID with selected car and persist entered details
                     let saved = JSON.parse(localStorage.getItem("selectedCarDetails")) || {};
-                    saved.VehicleID = apiData.vehicleID;
+                    saved.id = Number(apiData.vehicleID) || 0;
+                    saved.VehicleID = Number(apiData.vehicleID) || 0;
+                    saved.vehicleNumber = formData.registrationNumber;
+                    saved.VehicleNumber = formData.registrationNumber;
                     saved.registrationNumber = formData.registrationNumber;
-                    saved.yearOfPurchase = formData.yearOfPurchase;
+                    saved.brandID = Number(formData.brandID || brand) || 0;
+                    saved.modelID = Number(formData.modelID || model) || 0;
+                    saved.fuelTypeID = Number(formData.fuelTypeID || fuel) || 0;
+                    saved.yearOfPurchase = Number(formData.yearOfPurchase) || 0;
                     saved.engineType = formData.engineType;
+                    saved.kilometersDriven = Number(formData.kilometerDriven) || 0;
                     saved.kilometerDriven = formData.kilometerDriven;
                     saved.transmissionType = formData.transmissionType;
                     localStorage.setItem("selectedCarDetails", JSON.stringify(saved));
@@ -848,7 +902,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 								className="form-control"
 								value={registrationNumber}
 								onChange={(e) => setRegistrationNumber(e.target.value)}
-								placeholder="e.g. MH12AB1234"
+								placeholder="e.g. TG12AB1234"
 							/>
 						</div>
 					) : (
@@ -857,7 +911,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
                     <div className="mt-3 text-start">
                         <div className="row g-2">
                             {/* Mobile number + OTP were moved to a separate block above */}
-								<div className="col-12 col-md-6">
+								<div className="col-12 col-md-4">
 									<label className="form-label small">Registration Number <span className="text-danger">*</span></label>
 									<div className="position-relative">
 										<input
@@ -866,7 +920,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 											value={formData.registrationNumber}
 											onChange={handleVehicleNumberChange}
 											style={{ textTransform: 'uppercase' }}
-											placeholder="e.g., MH12AB1234"
+											placeholder="e.g., TG12AB1234"
 											required
 										/>
 										{isLoadingVehicleData && (
@@ -879,7 +933,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 										{regMessage && <div className="invalid-feedback">{regMessage}</div>}
 									</div>
 								</div>
-								<div className="col-12 col-md-6">
+								<div className="col-12 col-md-4">
 									<label className="form-label small">Year of Purchase</label>
 									<input
 										type="text"
@@ -902,19 +956,10 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 										}}
 										placeholder="e.g., 2020"
 									/>
-									{yearError && <div className="invalid-feedback">Enter a valid year from 1900 and {new Date().getFullYear()}.</div>}
+									{yearError && <div className="invalid-feedback">Enter a valid year.</div>}
 								</div>
-								<div className="col-12 col-md-6">
-									<label className="form-label small">Engine Type</label>
-									<input
-										type="text"
-										className="form-control"
-										value={formData.engineType}
-										onChange={(e) => setFormData((p) => ({ ...p, engineType: e.target.value }))}
-										placeholder="e.g., VVT"
-									/>
-								</div>
-								<div className="col-12 col-md-6">
+								
+								<div className="col-12 col-md-4">
 									<label className="form-label small">Kilometers Driven</label>
 									<input
 										type="text"
@@ -924,19 +969,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 										placeholder="e.g., 25000"
 									/>
 								</div>
-								<div className="col-12 col-md-6">
-                                    <label className="form-label small">Transmission Type<span className="text-danger">*</span></label>
-									<select
-										className="form-select"
-										value={formData.transmissionType}
-										onChange={(e) => setFormData((p) => ({ ...p, transmissionType: e.target.value }))}
-										required
-									>
-										<option value="">Select</option>
-										<option value="Manual">Manual</option>
-										<option value="Automatic">Automatic</option>
-									</select>
-								</div>
+								
 							</div>
 						</div>
 

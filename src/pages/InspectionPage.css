@@ -844,6 +844,10 @@ body.page-inspection #tawkchat-minimized-container {
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
+.inspection-plan-card--skeleton {
+  pointer-events: none;
+}
+
 .inspection-plan-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 48px rgba(10, 98, 100, 0.16);
@@ -867,6 +871,13 @@ body.page-inspection #tawkchat-minimized-container {
   background: linear-gradient(140deg, #0d3b3c 0%, #0a6264 55%, #1aa1a4 100%);
   color: #fff;
   text-align: center;
+}
+
+.inspection-plan-top--skeleton {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .inspection-plan-offer-badge {
@@ -967,6 +978,67 @@ body.page-inspection #tawkchat-minimized-container {
   position: relative;
   z-index: 4;
   background: #fff;
+}
+
+.inspection-plan-features--skeleton {
+  padding: 12px 18px 20px;
+}
+
+.inspection-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #e8edf1 25%, #f5f7f9 50%, #e8edf1 75%);
+  background-size: 200% 100%;
+  animation: inspection-skeleton-shimmer 1.3s ease-in-out infinite;
+}
+
+.inspection-skeleton-pill {
+  width: 132px;
+  height: 28px;
+  border-radius: 999px;
+}
+
+.inspection-skeleton-title {
+  width: 68%;
+  height: 28px;
+}
+
+.inspection-skeleton-subtitle {
+  width: 54%;
+  height: 18px;
+}
+
+.inspection-skeleton-price {
+  width: 74%;
+  height: 42px;
+}
+
+.inspection-skeleton-button {
+  width: 100%;
+  height: 54px;
+  border-radius: 12px;
+}
+
+.inspection-skeleton-feature-heading {
+  width: 40%;
+  height: 20px;
+  margin-bottom: 14px;
+}
+
+.inspection-skeleton-feature {
+  width: 100%;
+  height: 18px;
+  margin-bottom: 10px;
+}
+
+@keyframes inspection-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .inspection-plan-btn {
