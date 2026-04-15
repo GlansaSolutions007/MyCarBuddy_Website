@@ -18,6 +18,20 @@ const AddressTab = ({ custID = 0 }) => {
       const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
+  const formatAddressParts = (addr) => {
+    const locationParts = [
+      addr?.AddressLine2,
+      addr?.CityName,
+      addr?.StateName,
+      addr?.Pincode,
+    ].filter(Boolean);
+
+    return {
+      primaryAddress: addr?.AddressLine1 || "Saved Address",
+      secondaryAddress: locationParts.join(", "),
+    };
+  };
+
   useEffect(() => {
 
     const fetchAddresses = async () => {
@@ -32,16 +46,22 @@ const AddressTab = ({ custID = 0 }) => {
           }
         );
 
-        const formatted = response.data.map((addr) => ({
-          id: addr.AddressID,
-          name: "Saved Address",
-          phone: "", // API doesn't include phone, use empty or attach if available
-          address1: addr.AddressLine1,
-          address2: `${addr.AddressLine2 || ""}, ${addr.Pincode}`,
-          isPrimary: addr.IsPrimary,
-          lat: addr.Latitude,
-          lng: addr.Longitude,
-        }));
+        const formatted = response.data.map((addr, index) => {
+          const { primaryAddress, secondaryAddress } = formatAddressParts(addr);
+
+          return {
+            id: addr.AddressID,
+            name: addr.IsPrimary || addr.IsDefault ? "Primary Address" : `Saved Address ${index + 1}`,
+            phone: "",
+            address1: primaryAddress,
+            address2: secondaryAddress,
+            fullAddress: [primaryAddress, secondaryAddress].filter(Boolean).join(", "),
+            isPrimary: Boolean(addr.IsPrimary || addr.IsDefault),
+            isDefault: Boolean(addr.IsDefault),
+            lat: addr.Latitude,
+            lng: addr.Longitude,
+          };
+        });
 
         setAddresses(formatted);
       } catch (error) {
@@ -191,7 +211,7 @@ const AddressTab = ({ custID = 0 }) => {
                   <div className="at-card-body">
                     <div className="at-card-address">
                       <FaMapMarkerAlt />
-                      <span>{addr.address2}</span>
+                      <span>{addr.fullAddress || addr.address1}</span>
                     </div>
                   </div>
                 </div>
@@ -220,16 +240,23 @@ const AddressTab = ({ custID = 0 }) => {
           <div className="at-detail-body">
             <div className="at-detail-address">
               <FaMapMarkerAlt />
-              <span>{selectedAddress.address2}</span>
+              <span>{selectedAddress.fullAddress || selectedAddress.address1}</span>
             </div>
-            <div className="at-detail-map">
-              <iframe
-                src={`https://maps.google.com/maps?q=${selectedAddress.lat},${selectedAddress.lng}&z=15&output=embed`}
-                allowFullScreen
-                loading="lazy"
-                title="Google Map"
-              ></iframe>
-            </div>
+            {selectedAddress.lat && selectedAddress.lng ? (
+              <div className="at-detail-map">
+                <iframe
+                  src={`https://maps.google.com/maps?q=${selectedAddress.lat},${selectedAddress.lng}&z=15&output=embed`}
+                  allowFullScreen
+                  loading="lazy"
+                  title="Google Map"
+                ></iframe>
+              </div>
+            ) : (
+              <div className="at-detail-address">
+                <FaMapMarkerAlt />
+                <span>Map preview unavailable for this saved address.</span>
+              </div>
+            )}
           </div>
         </div>
       )}
