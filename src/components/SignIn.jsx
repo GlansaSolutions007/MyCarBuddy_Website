@@ -206,6 +206,16 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 			const primaryCar = vehicleList.find((car) => car.IsPrimary === true);
 
 			if (primaryCar) {
+				const resolvedVehicleId = Number(primaryCar.VehicleID || primaryCar.vehicleID || primaryCar.id) || 0;
+				const resolvedRegistrationNumber = (
+					primaryCar.VehicleNumber ||
+					primaryCar.VehicleRegNo ||
+					primaryCar.registrationNumber ||
+					""
+				).toString().toUpperCase();
+				const resolvedYearOfPurchase = Number(primaryCar.YearOfPurchase || primaryCar.yearOfPurchase) || 0;
+				const resolvedKilometersDriven = Number(primaryCar.KilometersDriven || primaryCar.kilometersDriven || primaryCar.kilometerDriven) || 0;
+
 				const selectedCarDetails = {
 					brand: {
 						id: primaryCar.BrandID,
@@ -222,11 +232,26 @@ const SignIn = ({ isVisible, onClose, onRegister }) => {
 						name: primaryCar.FuelTypeName,
 						logo: `${imageBaseURL}${primaryCar.FuelImage}`,
 					},
-					VehicleID: primaryCar.VehicleID,
+					id: resolvedVehicleId,
+					VehicleID: resolvedVehicleId,
+					vehicleID: resolvedVehicleId,
+					vehicleNumber: resolvedRegistrationNumber,
+					VehicleNumber: resolvedRegistrationNumber,
+					registrationNumber: resolvedRegistrationNumber,
+					yearOfPurchase: resolvedYearOfPurchase,
+					YearOfPurchase: resolvedYearOfPurchase,
+					brandID: Number(primaryCar.BrandID) || 0,
+					modelID: Number(primaryCar.ModelID) || 0,
+					fuelTypeID: Number(primaryCar.FuelTypeID) || 0,
+					kilometersDriven: resolvedKilometersDriven,
+					kilometerDriven: resolvedKilometersDriven,
+					engineType: primaryCar.EngineType || "",
+					transmissionType: primaryCar.TransmissionType || "",
 				};
 
 				localStorage.setItem("selectedCarDetails", JSON.stringify(selectedCarDetails));
 				window.dispatchEvent(new Event("userProfileUpdated"));
+				window.dispatchEvent(new CustomEvent("selectedCarUpdated"));
 			} else {
 				console.warn("No primary car found.");
 			}

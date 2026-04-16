@@ -188,7 +188,7 @@ const MainProfile = () => {
     { key: "mybookings", label: "My Services", icon: "fas fa-briefcase" },
     { key: "myinspection", label: "My Inspections", icon: "fas fa-question-circle" },
     {key: "myenquires", label: "My Enquiries", icon: "fas fa-question"},
-    { key: "addresses", label: "Addresses", icon: "fas fa-map-marker-alt" },
+    { key: "addresses", label: "My Address", icon: "fas fa-map-marker-alt" },
     { key: "mycars", label: "My Cars", icon: "fas fa-car" },
     { key: "invoices", label: "Invoices", icon: "fas fa-file-invoice" },
     { key: "tickets", label: "Tickets", icon: "fas fa-ticket-alt" },

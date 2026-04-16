@@ -252,7 +252,11 @@ const HeaderOne = () => {
     };
     loadUser();
     window.addEventListener("userProfileUpdated", loadUser);
-    return () => window.removeEventListener("userProfileUpdated", loadUser);
+    window.addEventListener("selectedCarUpdated", loadUser);
+    return () => {
+      window.removeEventListener("userProfileUpdated", loadUser);
+      window.removeEventListener("selectedCarUpdated", loadUser);
+    };
   }, []);
 
   useEffect(() => {

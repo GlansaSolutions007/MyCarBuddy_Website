@@ -28,26 +28,39 @@ import { useNavigate } from "react-router-dom";
 const getSelectedCarPayload = () => {
   try {
     const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
+    const resolvedRegistrationNumber = selectedCar
+      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
+      : "";
+    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
+    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
 
     return {
-      registrationNumber: selectedCar ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || "") : "",
+      registrationNumber: resolvedRegistrationNumber,
+      vehicleNumber: resolvedRegistrationNumber,
+      VehicleNumber: resolvedRegistrationNumber,
       vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
       brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
       modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
       fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
-      kmDriven: Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0,
-      yearOfPurchase: Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0,
+      kmDriven: resolvedKmDriven,
+      kilometersDriven: resolvedKmDriven,
+      yearOfPurchase: resolvedYearOfPurchase,
+      YearOfPurchase: resolvedYearOfPurchase,
     };
   } catch (error) {
     console.error("Error reading selectedCarDetails:", error);
     return {
       registrationNumber: "",
+      vehicleNumber: "",
+      VehicleNumber: "",
       vehicleID: 0,
       brandID: 0,
       modelID: 0,
       fuelTypeID: 0,
       kmDriven: 0,
+      kilometersDriven: 0,
       yearOfPurchase: 0,
+      YearOfPurchase: 0,
     };
   }
 };
