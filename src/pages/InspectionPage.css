@@ -492,6 +492,49 @@ body.page-inspection #tawkchat-minimized-container {
   color: rgba(255, 255, 255, 0.94);
 }
 
+.ip-card-header-sub--promo {
+  margin: 16px 0 12px;
+  max-width: 36rem;
+  padding: 18px 22px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.20);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.95);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ip-card-header-sub--promo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.ip-card-header-sub--promo:hover::before {
+  left: 100%;
+}
+
+.ip-card-header-sub--promo strong {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
 /* Remove top border-radius on the card body since header now owns it */
 .inspection-page-booking.ip-right-panel {
   border-radius: 28px;

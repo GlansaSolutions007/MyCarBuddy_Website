@@ -123,6 +123,7 @@ const InspectionPage = () => {
   const [descriptionError, setDescriptionError] = useState("");
   const [leadId, setLeadId] = useState(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [inspectionOfferDesc, setInspectionOfferDesc] = useState("");
 
   // ── Address selector state ──
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -259,7 +260,20 @@ const InspectionPage = () => {
 
     fetchSeoData();
     fetchInspectionPackages();
+    fetchCompanyInfo();
   }, [baseUrl]);
+
+  const fetchCompanyInfo = async () => {
+    try {
+      const res = await axios.get("https://dev-api.mycarsbuddy.com/api/CompanyInfo");
+      if (res.data?.status && res.data.data) {
+        const offerItem = res.data.data.find(item => item.Type === "InspectionOffer");
+        setInspectionOfferDesc(offerItem?.Description || "");
+      }
+    } catch (error) {
+      console.error("Failed to fetch company info:", error);
+    }
+  };
   // ── Fetch saved addresses if user is logged in ──
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -848,9 +862,14 @@ const InspectionPage = () => {
                       <p className="ip-card-header-sub ip-card-header-sub--lead">
                         Premium car inspection, simplified for your schedule.
                       </p>
-                      <p className="ip-card-header-sub">
+                      {inspectionOfferDesc && (
+                        <p className="ip-card-header-sub ip-card-header-sub--promo">
+                          {inspectionOfferDesc}
+                        </p>
+                      )}
+                      {/* <p className="ip-card-header-sub">
                         Choose a package and let our experts inspect your car with confidence.
-                      </p>
+                      </p> */}
                     </div>
                   </div>
 
