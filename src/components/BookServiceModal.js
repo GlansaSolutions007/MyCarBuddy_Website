@@ -114,6 +114,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [activeCategory, setActiveCategory] = useState(null); // tracks selected tab
   const shouldPreviewPackages = redirectInspectionToPage;
 
+  // ── Address selector state ──
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [useAddress, setUseAddress] = useState(false);
+
   useEffect(() => {
     if (isLoggedIn) {
       setFullName(user?.name || "");
@@ -152,6 +157,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       setEmailError("");
       setOtpError("");
       setDescriptionError("");
+      // reset address selection
+      setUseAddress(false);
+      setSelectedAddress(null);
     }
   }, [isOpen, isLoggedIn]);
 
@@ -279,6 +287,52 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     fetchInspectionPackages();
   }, []);
 
+  // ── Fetch saved addresses when modal opens and user is logged in ──
+  useEffect(() => {
+    if (!isOpen || !isLoggedIn) return;
+    const fetchAddresses = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser) return;
+
+        let resolvedCustId = null;
+        if (storedUser.id) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (decrypted && !isNaN(Number(decrypted))) resolvedCustId = decrypted;
+          } catch (_) { /* not encrypted */ }
+        }
+        if (!resolvedCustId) {
+          resolvedCustId = storedUser.custID || storedUser.custId || storedUser.CustID || storedUser.customerId || null;
+        }
+        if (!resolvedCustId) return;
+
+        const res = await axios.get(`${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`);
+        const all = Array.isArray(res.data) ? res.data : [];
+        setSavedAddresses(all);
+        const primary = all.find((a) => a.IsPrimary);
+        if (primary) setSelectedAddress(primary);
+      } catch (err) {
+        console.warn("[BookServiceModal] fetchAddresses failed (optional):", err);
+      }
+    };
+    fetchAddresses();
+  }, [isOpen, isLoggedIn, baseUrl, secretKey]);
+
+  // ── Address payload helper ──
+  const getAddressPayload = () => {
+    if (!useAddress || !selectedAddress) {
+      return { city: null, longitude: null, latitude: null, addressId: null };
+    }
+    return {
+      city: selectedAddress.AddressLine1 || null,
+      longitude: selectedAddress.Longitude ?? null,
+      latitude: selectedAddress.Latitude ?? null,
+      addressId: selectedAddress.AddressID ?? null,
+    };
+  };
+
   // Common function to build lead payload
   const buildLeadPayload = (withInspection) => {
     const services = [];
@@ -328,7 +382,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       description: withInspection
         ? `${selectedOfferData.packageName} - ${description || "No description provided"}`
         : `${selectedService?.title || "Service"} - ${description || "No description provided"}`,
-      services
+      services,
+      ...getAddressPayload(),
     };
   };
 
@@ -1081,6 +1136,64 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     {emailError && <p className="bsm-helper-text">{emailError}</p>}
                   </div>
                 </div>
+
+                {/* Address Selector — shown only for enquiry when user has saved addresses */}
+                {!inspection && savedAddresses.length > 0 && (
+                  <div className="bsm-address-selector">
+                    <button
+                      type="button"
+                      className={`bsm-address-toggle ${useAddress ? "bsm-address-toggle--active" : ""}`}
+                      onClick={() => setUseAddress((v) => !v)}
+                    >
+                      <span className={`bsm-address-toggle__icon ${useAddress ? "bsm-address-toggle__icon--active" : ""}`}>
+                        📍
+                      </span>
+                      <span className="bsm-address-toggle__text">
+                        <strong>Add Service Address</strong>
+                        <small>{useAddress ? "Address will be sent with your booking" : "Tap to attach a saved address (optional)"}</small>
+                      </span>
+                      <span className={`bsm-address-toggle__check ${useAddress ? "bsm-address-toggle__check--on" : ""}`}>
+                        {useAddress ? "✓" : "+"}
+                      </span>
+                    </button>
+
+                    {useAddress && (
+                      <div className="bsm-address-list">
+                        {savedAddresses.map((addr) => {
+                          const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                          const title = (addr.AddressLine1 || "").split("\n")[0];
+                          const rest = [
+                            addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                            addr.AddressLine2,
+                            addr.CityName,
+                            addr.StateName,
+                            addr.Pincode,
+                          ].filter(Boolean).join(", ");
+                          return (
+                            <button
+                              key={addr.AddressID}
+                              type="button"
+                              className={`bsm-address-card ${isSelected ? "bsm-address-card--selected" : ""}`}
+                              onClick={() => setSelectedAddress(addr)}
+                            >
+                              <span className="bsm-address-card__left">
+                                <span className="bsm-address-card__icon">🏠</span>
+                                <span className="bsm-address-card__body">
+                                  <span className="bsm-address-card__title">{title}</span>
+                                  {rest && <span className="bsm-address-card__sub">{rest}</span>}
+                                  {addr.IsPrimary && <span className="bsm-address-card__badge">Primary</span>}
+                                </span>
+                              </span>
+                              {isSelected && (
+                                <span className="bsm-address-card__tick">✓</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Message */}
                 <div className="bsm-form-group">

@@ -123,8 +123,13 @@ const InspectionPage = () => {
   const [descriptionError, setDescriptionError] = useState("");
   const [leadId, setLeadId] = useState(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // ── Address selector state ──
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [useAddress, setUseAddress] = useState(false);
   const payActionsRef = useRef(null);
-   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
   useEffect(() => {
     if (currentStep !== "offer") {
@@ -255,6 +260,55 @@ const InspectionPage = () => {
     fetchSeoData();
     fetchInspectionPackages();
   }, [baseUrl]);
+  // ── Fetch saved addresses if user is logged in ──
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchAddresses = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser) return;
+
+        // Resolve plain integer custID — try AES decrypt first (user.id is encrypted),
+        // then fall back to any plain custID fields authHelper may have stored directly.
+        let resolvedCustId = null;
+
+        if (storedUser.id) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (decrypted && !isNaN(Number(decrypted))) {
+              resolvedCustId = decrypted;
+            }
+          } catch (_) { /* not encrypted — fall through */ }
+        }
+
+        // Fallback: some auth helpers store the plain custID directly
+        if (!resolvedCustId) {
+          resolvedCustId =
+            storedUser.custID ||
+            storedUser.custId ||
+            storedUser.CustID ||
+            storedUser.customerId ||
+            null;
+        }
+
+        console.log("[InspectionPage] fetchAddresses → resolvedCustId:", resolvedCustId);
+        if (!resolvedCustId) return;
+
+        const res = await axios.get(
+          `${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`
+        );
+        const all = Array.isArray(res.data) ? res.data : [];
+        console.log("[InspectionPage] fetchAddresses → addresses:", all);
+        setSavedAddresses(all);
+        const primary = all.find((a) => a.IsPrimary);
+        if (primary) setSelectedAddress(primary);
+      } catch (err) {
+        console.warn("[InspectionPage] fetchAddresses failed (optional):", err);
+      }
+    };
+    fetchAddresses();
+  }, [isLoggedIn, baseUrl, secretKey]);
 
   const getDeviceId = () => {
     let deviceId = localStorage.getItem("deviceId");
@@ -337,6 +391,19 @@ const InspectionPage = () => {
     },
   ];
 
+  // Returns address fields — explicit nulls when not opted-in or no address selected
+  const getAddressPayload = () => {
+    if (!useAddress || !selectedAddress) {
+      return { city: null, longitude: null, latitude: null, addressId: null };
+    }
+    return {
+      city: selectedAddress.AddressLine1 || null,
+      longitude: selectedAddress.Longitude ?? null,
+      latitude: selectedAddress.Latitude ?? null,
+      addressId: selectedAddress.AddressID ?? null,
+    };
+  };
+
   const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
@@ -381,14 +448,15 @@ const InspectionPage = () => {
       ...selectedCarPayload,
       services,
       leadId: leadIdOverride ?? leadId,
+      ...getAddressPayload(),
     };
   };
 
   const handlePayment = async (offerIndexOverride) => {
     try {
       const leadPayload = buildLeadPayload(true, offerIndexOverride);
-      console.log("PayLOadddd----",leadPayload);
-      
+      console.log("PayLOadddd----", leadPayload);
+
       const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
@@ -974,6 +1042,7 @@ const InspectionPage = () => {
                       {emailError && <p className="bsm-helper-text">{emailError}</p>}
                     </div>
 
+
                     {!inspection && (
                       <div className="ip-form-group">
                         <label className="ip-label">
@@ -992,6 +1061,7 @@ const InspectionPage = () => {
                         {descriptionError && <p className="bsm-helper-text">{descriptionError}</p>}
                       </div>
                     )}
+
 
                     {otpStep && (
                       <div className="ip-otp-section">
@@ -1066,6 +1136,66 @@ const InspectionPage = () => {
             </div>
           </div>
         </section>
+
+        {/* ── Address Selector ── */}
+        {savedAddresses.length > 0 && (
+          <div className="ip-address-selector">
+            <div className="ip-address-selector__label">
+              <span>Service Address</span>
+              <span className="ip-address-selector__label-line" />
+            </div>
+            <button
+              type="button"
+              className={`ip-address-toggle ${useAddress ? "ip-address-toggle--active" : ""}`}
+              onClick={() => setUseAddress((v) => !v)}
+            >
+              <span className={`ip-address-toggle__icon ${useAddress ? "ip-address-toggle__icon--active" : ""}`}>
+                📍
+              </span>
+              <span className="ip-address-toggle__text">
+                <strong>Add Service Address</strong>
+                <small>{useAddress ? "Address will be sent with your booking" : "Tap to attach a saved address (optional)"}</small>
+              </span>
+              <span className={`ip-address-toggle__check ${useAddress ? "ip-address-toggle__check--on" : ""}`}>
+                {useAddress ? "✓" : "+"}
+              </span>
+            </button>
+
+            {useAddress && (
+              <div className="ip-address-list">
+                {savedAddresses.map((addr) => {
+                  const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                  const title = (addr.AddressLine1 || "").split("\n")[0];
+                  const rest = [
+                    addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                    addr.AddressLine2,
+                    addr.CityName,
+                    addr.StateName,
+                    addr.Pincode,
+                  ].filter(Boolean).join(", ");
+                  return (
+                    <button
+                      key={addr.AddressID}
+                      type="button"
+                      className={`ip-address-card ${isSelected ? "ip-address-card--selected" : ""}`}
+                      onClick={() => setSelectedAddress(addr)}
+                    >
+                      <span className="ip-address-card__left">
+                        <span className="ip-address-card__icon">🏠</span>
+                        <span className="ip-address-card__body">
+                          <span className="ip-address-card__title">{title}</span>
+                          {rest && <span className="ip-address-card__sub">{rest}</span>}
+                          {addr.IsPrimary && <span className="ip-address-card__badge">Primary</span>}
+                        </span>
+                      </span>
+                      {isSelected && <span className="ip-address-card__tick">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         <section className="inspection-benefits-section">
           <div className="inspection-page-shell">

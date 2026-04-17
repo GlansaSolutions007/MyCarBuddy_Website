@@ -1391,3 +1391,258 @@ body.page-inspection #tawkchat-minimized-container {
     font-size: 0.82rem;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ADDRESS SELECTOR — shared by InspectionPage & BookServiceModal
+   ═══════════════════════════════════════════════════════════ */
+
+/* Outer wrapper — matches the page shell width */
+.ip-address-selector {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto 28px;
+  border-radius: 18px;
+  border: 1.5px solid rgba(10, 98, 100, 0.14);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(10, 98, 100, 0.06);
+}
+
+/* Section label row above the toggle */
+.ip-address-selector__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.ip-address-selector__label-line {
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* Toggle button */
+.ip-address-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.ip-address-toggle:hover {
+  background: #f9fafb;
+}
+.ip-address-toggle--active {
+  background: linear-gradient(135deg, #f0faf9 0%, #e6f7f6 100%);
+  border-bottom: 1.5px solid rgba(10, 98, 100, 0.12);
+}
+
+.ip-address-toggle__icon {
+  font-size: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(10, 98, 100, 0.08);
+  border: 1px solid rgba(10, 98, 100, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+.ip-address-toggle__icon--active {
+  background: #0a6264;
+  border-color: #0a6264;
+}
+
+.ip-address-toggle__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ip-address-toggle__text strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+.ip-address-toggle--active .ip-address-toggle__text strong {
+  color: #0a6264;
+}
+.ip-address-toggle__text small {
+  font-size: 0.76rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.ip-address-toggle__check {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.ip-address-toggle__check--on {
+  background: #0a6264;
+  border-color: #0a6264;
+  color: #fff;
+}
+
+/* Address list container */
+.ip-address-list {
+  padding: 14px 16px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  background: #f8fafa;
+  border-top: 1px solid rgba(10, 98, 100, 0.08);
+}
+
+/* Individual address card */
+.ip-address-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+.ip-address-card:hover {
+  border-color: #6bbcbd;
+  background: #f5fcfb;
+  box-shadow: 0 3px 12px rgba(10, 98, 100, 0.1);
+}
+.ip-address-card--selected {
+  border-color: #0a6264;
+  background: rgba(10, 98, 100, 0.03);
+  box-shadow: 0 0 0 3px rgba(10, 98, 100, 0.08), 0 2px 8px rgba(10, 98, 100, 0.1);
+}
+
+.ip-address-card__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ip-address-card__icon {
+  font-size: 0.85rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #f0f4f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: background 0.18s;
+}
+.ip-address-card--selected .ip-address-card__icon {
+  background: rgba(10, 98, 100, 0.12);
+}
+
+.ip-address-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ip-address-card__title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ip-address-card--selected .ip-address-card__title {
+  color: #0a6264;
+}
+
+.ip-address-card__sub {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ip-address-card__badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #0a6264;
+  background: rgba(10, 98, 100, 0.1);
+  border-radius: 20px;
+  padding: 2px 9px;
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.ip-address-card__tick {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0a6264;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Responsive: stack to single column on small screens */
+@media (max-width: 600px) {
+  .ip-address-selector {
+    width: calc(100% - 24px);
+    border-radius: 14px;
+  }
+
+  .ip-address-toggle {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .ip-address-list {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 8px;
+  }
+}
