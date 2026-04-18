@@ -470,35 +470,37 @@ const HeaderOne = () => {
                   </div>
                 )}
 
-                {/* Choose Car Chip */}
-                <div
-                  className="mcb-car-chip"
-                  onClick={() => setCarModalVisible(true)}
-                  title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Your Car"}
-                >
-                  <div className="mcb-car-chip-avatar">
-                    {selectedCar?.model?.logo ? (
-                      <img
-                        src={selectedCar.model.logo}
-                        alt={selectedCar.model?.name}
-                        onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
-                      />
-                    ) : (
-                      <FaCar size={16} className="mcb-car-chip-fallback" />
-                    )}
+                {/* Choose Car Chip - only show if user logged in */}
+                {user?.name || user?.identifier ? (
+                  <div
+                    className="mcb-car-chip"
+                    onClick={() => setCarModalVisible(true)}
+                    title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Your Car"}
+                  >
+                    <div className="mcb-car-chip-avatar">
+                      {selectedCar?.model?.logo ? (
+                        <img
+                          src={selectedCar.model.logo}
+                          alt={selectedCar.model?.name}
+                          onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
+                        />
+                      ) : (
+                        <FaCar size={16} className="mcb-car-chip-fallback" />
+                      )}
+                    </div>
+                    <div className="mcb-car-chip-info">
+                      <span className="mcb-car-chip-label">{selectedCar
+                        ? `${selectedCar.brand?.name || ""}` 
+                        : ""}
+                      </span>
+                      <span className="mcb-car-chip-name">
+                        {selectedCar
+                          ? `${selectedCar.model?.name || ""}`.trim()
+                          : "Choose Car"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mcb-car-chip-info">
-                    <span className="mcb-car-chip-label">{selectedCar
-                      ? `${selectedCar.brand?.name || ""}` 
-                      : ""}
-                    </span>
-                    <span className="mcb-car-chip-name">
-                      {selectedCar
-                        ? `${selectedCar.model?.name || ""}`.trim()
-                        : "Choose Car"}
-                    </span>
-                  </div>
-                </div>
+                ) : null}
 
                 {/* User Button */}
                 <div className="mcb-user-wrapper">
@@ -578,32 +580,26 @@ const HeaderOne = () => {
                   )}
                 </div>
 
-                {/* Mobile Car Chip - visible only on mobile */}
-                <div
-                  className="mcb-header-car-chip-mobile"
-                  onClick={() => setCarModalVisible(true)}
-                  title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Car"}
-                >
-                  <div className="mcb-header-car-avatar-mobile">
-                    {selectedCar?.model?.logo ? (
-                      <img
-                        src={selectedCar.model.logo}
-                        alt={selectedCar.model?.name}
-                        onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
-                      />
-                    ) : (
-                      <FaCar size={15} />
-                    )}
+                {/* Mobile Car Chip - visible only on mobile if logged in */}
+                {(user?.name || user?.identifier) && (
+                  <div
+                    className="mcb-header-car-chip-mobile"
+                    onClick={() => setCarModalVisible(true)}
+                    title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Car"}
+                  >
+                    <div className="mcb-header-car-avatar-mobile">
+                      {selectedCar?.model?.logo ? (
+                        <img
+                          src={selectedCar.model.logo}
+                          alt={selectedCar.model?.name}
+                          onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
+                        />
+                      ) : (
+                        <FaCar size={15} />
+                      )}
+                    </div>
                   </div>
-                  {/* <div className="mcb-header-car-text-mobile">
-                    <span className="mcb-header-car-label-mobile">My Car</span>
-                    <span className="mcb-header-car-name-mobile">
-                      {selectedCar
-                        ? `${selectedCar.brand?.name || ""} ${selectedCar.model?.name || ""}`.trim()
-                        : "Choose Car"}
-                    </span>
-                  </div> */}
-                </div>
+                )}
 
                 {/* Mobile Toggle */}
                 <button className="mcb-mobile-toggle" onClick={() => setMobileMenuOpen(true)}>
