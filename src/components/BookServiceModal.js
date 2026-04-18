@@ -118,6 +118,9 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [useAddress, setUseAddress] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
+  const OTHER_ADDRESS = { AddressID: "__other__" };
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -160,6 +163,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       // reset address selection
       setUseAddress(false);
       setSelectedAddress(null);
+      setAddressError("");
+      setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
     }
   }, [isOpen, isLoggedIn]);
 
@@ -322,8 +327,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
 
   // ── Address payload helper ──
   const getAddressPayload = () => {
-    if (!useAddress || !selectedAddress) {
-      return { city: null, longitude: null, latitude: null, addressId: null };
+    if (!selectedAddress) return { city: null, longitude: null, latitude: null, addressId: null };
+    if (selectedAddress.AddressID === "__other__") {
+      const parts = [manualAddress.line1, manualAddress.line2, manualAddress.city, manualAddress.state, manualAddress.pincode].filter(Boolean).join(", ");
+      return { city: parts || null, longitude: null, latitude: null, addressId: null };
     }
     return {
       city: selectedAddress.AddressLine1 || null,
@@ -331,6 +338,15 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       latitude: selectedAddress.Latitude ?? null,
       addressId: selectedAddress.AddressID ?? null,
     };
+  };
+
+  // Address is required whenever saved addresses are available
+  const validateAddress = () => {
+    if (savedAddresses.length === 0) return ""; // no addresses → skip
+    if (!selectedAddress) return "Please select a service address to continue.";
+    if (selectedAddress.AddressID === "__other__" && !manualAddress.line1.trim())
+      return "Please enter at least Address Line 1.";
+    return "";
   };
 
   // Common function to build lead payload
@@ -623,16 +639,18 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const phoneErr = validatePhone(identifier);
     const emailErr = validateEmail(email);
     const descErr = validateDescription(description);
+    const addrErr = validateAddress();
 
     // set inline errors as well
     setNameError(nameErr);
     setPhoneError(phoneErr);
     setEmailError(emailErr);
     setDescriptionError(descErr);
+    setAddressError(addrErr);
 
-    if (nameErr || phoneErr || emailErr || descErr) {
+    if (nameErr || phoneErr || emailErr || descErr || addrErr) {
       // also notify user via toast for first error
-      const first = nameErr || phoneErr || emailErr || descErr;
+      const first = nameErr || phoneErr || emailErr || descErr || addrErr;
       showAlert("Error", first, 3000, "error");
       return;
     }
@@ -718,14 +736,16 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const phoneErr = validatePhone(identifier);
       const emailErr = validateEmail(email);
       const descErr = validateDescription(description);
+      const addrErr = validateAddress();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
+      setAddressError(addrErr);
 
-      if (nameErr || phoneErr || emailErr || descErr) {
-        const firstErr = nameErr || phoneErr || emailErr || descErr;
+      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+        const firstErr = nameErr || phoneErr || emailErr || descErr || addrErr;
         showAlert("Error", firstErr, 3000, "error");
         return;
       }
@@ -1137,59 +1157,115 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   </div>
                 </div>
 
-                {/* Address Selector — shown only for enquiry when user has saved addresses */}
+                {/* Address Selector — shown for enquiry when user has saved addresses */}
                 {!inspection && savedAddresses.length > 0 && (
                   <div className="bsm-address-selector">
-                    <button
-                      type="button"
-                      className={`bsm-address-toggle ${useAddress ? "bsm-address-toggle--active" : ""}`}
-                      onClick={() => setUseAddress((v) => !v)}
-                    >
-                      <span className={`bsm-address-toggle__icon ${useAddress ? "bsm-address-toggle__icon--active" : ""}`}>
-                        📍
-                      </span>
-                      <span className="bsm-address-toggle__text">
-                        <strong>Add Service Address</strong>
-                        <small>{useAddress ? "Address will be sent with your booking" : "Tap to attach a saved address (optional)"}</small>
-                      </span>
-                      <span className={`bsm-address-toggle__check ${useAddress ? "bsm-address-toggle__check--on" : ""}`}>
-                        {useAddress ? "✓" : "+"}
-                      </span>
-                    </button>
+                    <div className="bsm-address-selector__label">
+                      <span>📍 Service Address <span style={{ color: "#ef4444" }}>*</span></span>
+                      <span style={{ fontSize: "0.72rem", color: "#6b7280", fontWeight: 400 }}>Select where our technician should visit</span>
+                    </div>
 
-                    {useAddress && (
-                      <div className="bsm-address-list">
-                        {savedAddresses.map((addr) => {
-                          const isSelected = selectedAddress?.AddressID === addr.AddressID;
-                          const title = (addr.AddressLine1 || "").split("\n")[0];
-                          const rest = [
-                            addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
-                            addr.AddressLine2,
-                            addr.CityName,
-                            addr.StateName,
-                            addr.Pincode,
-                          ].filter(Boolean).join(", ");
-                          return (
-                            <button
-                              key={addr.AddressID}
-                              type="button"
-                              className={`bsm-address-card ${isSelected ? "bsm-address-card--selected" : ""}`}
-                              onClick={() => setSelectedAddress(addr)}
-                            >
-                              <span className="bsm-address-card__left">
-                                <span className="bsm-address-card__icon">🏠</span>
-                                <span className="bsm-address-card__body">
-                                  <span className="bsm-address-card__title">{title}</span>
-                                  {rest && <span className="bsm-address-card__sub">{rest}</span>}
-                                  {addr.IsPrimary && <span className="bsm-address-card__badge">Primary</span>}
-                                </span>
+                    {/* Error banner */}
+                    {addressError && (
+                      <div className="bsm-address-error-banner">
+                        <span>⚠️ {addressError}</span>
+                      </div>
+                    )}
+
+                    <div className="bsm-address-list">
+                      {savedAddresses.map((addr) => {
+                        const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                        const title = (addr.AddressLine1 || "").split("\n")[0];
+                        const rest = [
+                          addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                          addr.AddressLine2,
+                          addr.CityName,
+                          addr.StateName,
+                          addr.Pincode,
+                        ].filter(Boolean).join(", ");
+                        return (
+                          <button
+                            key={addr.AddressID}
+                            type="button"
+                            className={`bsm-address-card ${isSelected ? "bsm-address-card--selected" : ""}`}
+                            onClick={() => { setSelectedAddress(addr); setAddressError(""); }}
+                          >
+                            <span className="bsm-address-card__left">
+                              <span className="bsm-address-card__icon">🏠</span>
+                              <span className="bsm-address-card__body">
+                                <span className="bsm-address-card__title">{title}</span>
+                                {rest && <span className="bsm-address-card__sub">{rest}</span>}
+                                {addr.IsPrimary && <span className="bsm-address-card__badge">Primary</span>}
                               </span>
-                              {isSelected && (
-                                <span className="bsm-address-card__tick">✓</span>
-                              )}
-                            </button>
-                          );
-                        })}
+                            </span>
+                            {isSelected && <span className="bsm-address-card__tick">✓</span>}
+                          </button>
+                        );
+                      })}
+
+                      {/* Other option */}
+                      <button
+                        type="button"
+                        className={`bsm-address-card bsm-address-card--other ${selectedAddress?.AddressID === "__other__" ? "bsm-address-card--selected" : ""}`}
+                        onClick={() => {
+                          setSelectedAddress(OTHER_ADDRESS);
+                          setAddressError("");
+                          setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+                        }}
+                      >
+                        <span className="bsm-address-card__left">
+                          <span className="bsm-address-card__icon">✏️</span>
+                          <span className="bsm-address-card__body">
+                            <span className="bsm-address-card__title">Other</span>
+                            <span className="bsm-address-card__sub">Enter a different address</span>
+                          </span>
+                        </span>
+                        {selectedAddress?.AddressID === "__other__" && <span className="bsm-address-card__tick">✓</span>}
+                      </button>
+                    </div>
+
+                    {/* Manual address fields — shown when Other is selected */}
+                    {selectedAddress?.AddressID === "__other__" && (
+                      <div className="bsm-manual-address">
+                        <input
+                          type="text"
+                          className={`bsm-input${addressError && !manualAddress.line1.trim() ? " bsm-input-error" : ""}`}
+                          placeholder="Address Line 1 *"
+                          value={manualAddress.line1}
+                          onChange={(e) => { setManualAddress((p) => ({ ...p, line1: e.target.value })); if (e.target.value.trim()) setAddressError(""); }}
+                        />
+                        <input
+                          type="text"
+                          className="bsm-input"
+                          placeholder="Address Line 2"
+                          value={manualAddress.line2}
+                          onChange={(e) => setManualAddress((p) => ({ ...p, line2: e.target.value }))}
+                        />
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <input
+                            type="text"
+                            className="bsm-input"
+                            placeholder="City"
+                            style={{ flex: 1 }}
+                            value={manualAddress.city}
+                            onChange={(e) => setManualAddress((p) => ({ ...p, city: e.target.value }))}
+                          />
+                          <input
+                            type="text"
+                            className="bsm-input"
+                            placeholder="State"
+                            style={{ flex: 1 }}
+                            value={manualAddress.state}
+                            onChange={(e) => setManualAddress((p) => ({ ...p, state: e.target.value }))}
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          className="bsm-input"
+                          placeholder="Pincode"
+                          value={manualAddress.pincode}
+                          onChange={(e) => setManualAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                        />
                       </div>
                     )}
                   </div>

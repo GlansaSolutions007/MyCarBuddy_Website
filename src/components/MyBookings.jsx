@@ -3010,7 +3010,7 @@ const MyBookings = () => {
                         </div>
 
                         {/* Technician Rating */}
-                        <div className="review-block">
+                        {/* <div className="review-block">
                           <label className="review-label">Technician</label>
                           <p className="review-helper">
                             How would you rate the professionalism and
@@ -3020,7 +3020,7 @@ const MyBookings = () => {
                             rating={technicianRating}
                             onRatingChange={setTechnicianRating}
                           />
-                        </div>
+                        </div> */}
 
                         {/* Feedback */}
                         <div className="review-block">

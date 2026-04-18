@@ -129,6 +129,9 @@ const InspectionPage = () => {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [useAddress, setUseAddress] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
+  const OTHER_ADDRESS = { AddressID: "__other__" };
   const payActionsRef = useRef(null);
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
@@ -405,10 +408,12 @@ const InspectionPage = () => {
     },
   ];
 
-  // Returns address fields — explicit nulls when not opted-in or no address selected
+  // Returns address fields
   const getAddressPayload = () => {
-    if (!useAddress || !selectedAddress) {
-      return { city: null, longitude: null, latitude: null, addressId: null };
+    if (!selectedAddress) return { city: null, longitude: null, latitude: null, addressId: null };
+    if (selectedAddress.AddressID === "__other__") {
+      const parts = [manualAddress.line1, manualAddress.line2, manualAddress.city, manualAddress.state, manualAddress.pincode].filter(Boolean).join(", ");
+      return { city: parts || null, longitude: null, latitude: null, addressId: null };
     }
     return {
       city: selectedAddress.AddressLine1 || null,
@@ -416,6 +421,15 @@ const InspectionPage = () => {
       latitude: selectedAddress.Latitude ?? null,
       addressId: selectedAddress.AddressID ?? null,
     };
+  };
+
+  // Address is required whenever saved addresses are available
+  const validateAddress = () => {
+    if (savedAddresses.length === 0) return ""; // no addresses fetched → skip
+    if (!selectedAddress) return "Please select a service address to continue.";
+    if (selectedAddress.AddressID === "__other__" && !manualAddress.line1.trim())
+      return "Please enter at least Address Line 1.";
+    return "";
   };
 
   const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
@@ -636,6 +650,17 @@ const InspectionPage = () => {
   };
 
   const handlePackagePayNow = (offerIndex) => {
+    // Always validate address first (for both logged-in and guest)
+    const addrErr = validateAddress();
+    if (addrErr) {
+      setAddressError(addrErr);
+      // Scroll address section into view so user sees the error
+      setTimeout(() => {
+        document.querySelector(".ip-address-selector")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+      return;
+    }
+    setAddressError("");
     setSelectedOffer(offerIndex);
     setInspection(true);
     resetOtpState();
@@ -755,14 +780,16 @@ const InspectionPage = () => {
       const phoneErr = validatePhone(identifier);
       const emailErr = validateEmail(email);
       const descErr = inspection ? "" : validateDescription(description);
+      const addrErr = validateAddress();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
+      setAddressError(addrErr);
 
-      if (nameErr || phoneErr || emailErr || descErr) {
-        showAlert("Error", nameErr || phoneErr || emailErr || descErr, 3000, "error");
+      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+        showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
         return;
       }
 
@@ -774,6 +801,24 @@ const InspectionPage = () => {
       handleVerifyOTP();
       return;
     }
+
+    const nameErr = validateName(fullName);
+    const phoneErr = validatePhone(identifier);
+    const emailErr = validateEmail(email);
+    const descErr = inspection ? "" : validateDescription(description);
+    const addrErr = validateAddress();
+
+    setNameError(nameErr);
+    setPhoneError(phoneErr);
+    setEmailError(emailErr);
+    setDescriptionError(descErr);
+    setAddressError(addrErr);
+
+    if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+      showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
+      return;
+    }
+
     handleSendOTP();
   };
 
@@ -1160,57 +1205,112 @@ const InspectionPage = () => {
         {savedAddresses.length > 0 && (
           <div className="ip-address-selector">
             <div className="ip-address-selector__label">
-              <span>Service Address</span>
+              <span>📍 Service Address <span style={{ color: "#ef4444" }}>*</span></span>
               <span className="ip-address-selector__label-line" />
+              <span style={{ fontSize: "0.72rem", color: "#6b7280", fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>Select where our technician should visit</span>
             </div>
-            <button
-              type="button"
-              className={`ip-address-toggle ${useAddress ? "ip-address-toggle--active" : ""}`}
-              onClick={() => setUseAddress((v) => !v)}
-            >
-              <span className={`ip-address-toggle__icon ${useAddress ? "ip-address-toggle__icon--active" : ""}`}>
-                📍
-              </span>
-              <span className="ip-address-toggle__text">
-                <strong>Add Service Address</strong>
-                <small>{useAddress ? "Address will be sent with your booking" : "Tap to attach a saved address (optional)"}</small>
-              </span>
-              <span className={`ip-address-toggle__check ${useAddress ? "ip-address-toggle__check--on" : ""}`}>
-                {useAddress ? "✓" : "+"}
-              </span>
-            </button>
 
-            {useAddress && (
-              <div className="ip-address-list">
-                {savedAddresses.map((addr) => {
-                  const isSelected = selectedAddress?.AddressID === addr.AddressID;
-                  const title = (addr.AddressLine1 || "").split("\n")[0];
-                  const rest = [
-                    addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
-                    addr.AddressLine2,
-                    addr.CityName,
-                    addr.StateName,
-                    addr.Pincode,
-                  ].filter(Boolean).join(", ");
-                  return (
-                    <button
-                      key={addr.AddressID}
-                      type="button"
-                      className={`ip-address-card ${isSelected ? "ip-address-card--selected" : ""}`}
-                      onClick={() => setSelectedAddress(addr)}
-                    >
-                      <span className="ip-address-card__left">
-                        <span className="ip-address-card__icon">🏠</span>
-                        <span className="ip-address-card__body">
-                          <span className="ip-address-card__title">{title}</span>
-                          {rest && <span className="ip-address-card__sub">{rest}</span>}
-                          {addr.IsPrimary && <span className="ip-address-card__badge">Primary</span>}
-                        </span>
+            {/* Error banner — always visible when set */}
+            {addressError && (
+              <div className="ip-address-error-banner">
+                <span>⚠️ {addressError}</span>
+              </div>
+            )}
+
+            <div className="ip-address-list">
+              {savedAddresses.map((addr) => {
+                const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                const title = (addr.AddressLine1 || "").split("\n")[0];
+                const rest = [
+                  addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                  addr.AddressLine2,
+                  addr.CityName,
+                  addr.StateName,
+                  addr.Pincode,
+                ].filter(Boolean).join(", ");
+                return (
+                  <button
+                    key={addr.AddressID}
+                    type="button"
+                    className={`ip-address-card ${isSelected ? "ip-address-card--selected" : ""} ${addressError && !selectedAddress ? "ip-address-card--highlight-error" : ""}`}
+                    onClick={() => { setSelectedAddress(addr); setAddressError(""); }}
+                  >
+                    <span className="ip-address-card__left">
+                      <span className="ip-address-card__icon">🏠</span>
+                      <span className="ip-address-card__body">
+                        <span className="ip-address-card__title">{title}</span>
+                        {rest && <span className="ip-address-card__sub">{rest}</span>}
+                        {addr.IsPrimary && <span className="ip-address-card__badge">Primary</span>}
                       </span>
-                      {isSelected && <span className="ip-address-card__tick">✓</span>}
-                    </button>
-                  );
-                })}
+                    </span>
+                    {isSelected && <span className="ip-address-card__tick">✓</span>}
+                  </button>
+                );
+              })}
+
+              {/* Other option */}
+              <button
+                type="button"
+                className={`ip-address-card ip-address-card--other ${selectedAddress?.AddressID === "__other__" ? "ip-address-card--selected" : ""}`}
+                onClick={() => {
+                  setSelectedAddress(OTHER_ADDRESS);
+                  setAddressError("");
+                  setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+                }}
+              >
+                <span className="ip-address-card__left">
+                  <span className="ip-address-card__icon">✏️</span>
+                  <span className="ip-address-card__body">
+                    <span className="ip-address-card__title">Other</span>
+                    <span className="ip-address-card__sub">Enter a different address</span>
+                  </span>
+                </span>
+                {selectedAddress?.AddressID === "__other__" && <span className="ip-address-card__tick">✓</span>}
+              </button>
+            </div>
+
+            {/* Manual address fields — shown when Other is selected */}
+            {selectedAddress?.AddressID === "__other__" && (
+              <div className="ip-manual-address">
+                <input
+                  type="text"
+                  className={`ip-input${addressError && !manualAddress.line1.trim() ? " bsm-input-error" : ""}`}
+                  placeholder="Address Line 1 *"
+                  value={manualAddress.line1}
+                  onChange={(e) => { setManualAddress((p) => ({ ...p, line1: e.target.value })); if (e.target.value.trim()) setAddressError(""); }}
+                />
+                <input
+                  type="text"
+                  className="ip-input"
+                  placeholder="Address Line 2"
+                  value={manualAddress.line2}
+                  onChange={(e) => setManualAddress((p) => ({ ...p, line2: e.target.value }))}
+                />
+                <div className="ip-row" style={{ gap: 10 }}>
+                  <input
+                    type="text"
+                    className="ip-input"
+                    placeholder="City"
+                    value={manualAddress.city}
+                    onChange={(e) => setManualAddress((p) => ({ ...p, city: e.target.value }))}
+                    style={{ flex: 1 }}
+                  />
+                  <input
+                    type="text"
+                    className="ip-input"
+                    placeholder="State"
+                    value={manualAddress.state}
+                    onChange={(e) => setManualAddress((p) => ({ ...p, state: e.target.value }))}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                <input
+                  type="text"
+                  className="ip-input"
+                  placeholder="Pincode"
+                  value={manualAddress.pincode}
+                  onChange={(e) => setManualAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                />
               </div>
             )}
           </div>
@@ -1301,7 +1401,7 @@ const InspectionPage = () => {
                 <button
                   type="button"
                   className="inspection-sticky-bar__btn inspection-sticky-bar__btn--pro"
-                  onClick={() => handlePackagePayNow(1)}
+                  onClick={() => { handlePackagePayNow(1); }}
                 >
                   <FaCreditCard />
                   Pay ₹{offer1.totalPrice}
