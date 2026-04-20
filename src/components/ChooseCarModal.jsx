@@ -198,7 +198,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 								className="form-control"
 								value={registrationNumber}
 								onChange={(e) => setRegistrationNumber(e.target.value)}
-								placeholder="e.g. MH12AB1234"
+								placeholder="e.g. MH12AB123456"
 							/>
 						</div>
 					) : (

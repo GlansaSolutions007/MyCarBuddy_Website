@@ -25,6 +25,46 @@ import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
 
+const getSelectedCarPayload = () => {
+  try {
+    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
+    const resolvedRegistrationNumber = selectedCar
+      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
+      : "";
+    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
+    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
+
+    return {
+      registrationNumber: resolvedRegistrationNumber,
+      vehicleNumber: resolvedRegistrationNumber,
+      VehicleNumber: resolvedRegistrationNumber,
+      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
+      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
+      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
+      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
+      kmDriven: resolvedKmDriven,
+      kilometersDriven: resolvedKmDriven,
+      yearOfPurchase: resolvedYearOfPurchase,
+      YearOfPurchase: resolvedYearOfPurchase,
+    };
+  } catch (error) {
+    console.error("Error reading selectedCarDetails:", error);
+    return {
+      registrationNumber: "",
+      vehicleNumber: "",
+      VehicleNumber: "",
+      vehicleID: 0,
+      brandID: 0,
+      modelID: 0,
+      fuelTypeID: 0,
+      kmDriven: 0,
+      kilometersDriven: 0,
+      yearOfPurchase: 0,
+      YearOfPurchase: 0,
+    };
+  }
+};
+
 const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly, startInEnquiry = false, redirectInspectionToPage = false }) => {
   // --- STATES ---
   const [currentStep, setCurrentStep] = useState("inspection"); // "inspection" or "booking"
@@ -74,6 +114,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [activeCategory, setActiveCategory] = useState(null); // tracks selected tab
   const shouldPreviewPackages = redirectInspectionToPage;
 
+  // ── Address selector state ──
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [useAddress, setUseAddress] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
+  const OTHER_ADDRESS = { AddressID: "__other__" };
+
   useEffect(() => {
     if (isLoggedIn) {
       setFullName(user?.name || "");
@@ -112,6 +160,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       setEmailError("");
       setOtpError("");
       setDescriptionError("");
+      // reset address selection
+      setUseAddress(false);
+      setSelectedAddress(null);
+      setAddressError("");
+      setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
     }
   }, [isOpen, isLoggedIn]);
 
@@ -239,11 +292,69 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     fetchInspectionPackages();
   }, []);
 
+  // ── Fetch saved addresses when modal opens and user is logged in ──
+  useEffect(() => {
+    if (!isOpen || !isLoggedIn) return;
+    const fetchAddresses = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser) return;
+
+        let resolvedCustId = null;
+        if (storedUser.id) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (decrypted && !isNaN(Number(decrypted))) resolvedCustId = decrypted;
+          } catch (_) { /* not encrypted */ }
+        }
+        if (!resolvedCustId) {
+          resolvedCustId = storedUser.custID || storedUser.custId || storedUser.CustID || storedUser.customerId || null;
+        }
+        if (!resolvedCustId) return;
+
+        const res = await axios.get(`${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`);
+        const all = Array.isArray(res.data) ? res.data : [];
+        setSavedAddresses(all);
+        const primary = all.find((a) => a.IsPrimary);
+        if (primary) setSelectedAddress(primary);
+      } catch (err) {
+        console.warn("[BookServiceModal] fetchAddresses failed (optional):", err);
+      }
+    };
+    fetchAddresses();
+  }, [isOpen, isLoggedIn, baseUrl, secretKey]);
+
+  // ── Address payload helper ──
+  const getAddressPayload = () => {
+    if (!selectedAddress) return { city: null, longitude: null, latitude: null, addressId: null };
+    if (selectedAddress.AddressID === "__other__") {
+      const parts = [manualAddress.line1, manualAddress.line2, manualAddress.city, manualAddress.state, manualAddress.pincode].filter(Boolean).join(", ");
+      return { city: parts || null, longitude: null, latitude: null, addressId: null };
+    }
+    return {
+      city: selectedAddress.AddressLine1 || null,
+      longitude: selectedAddress.Longitude ?? null,
+      latitude: selectedAddress.Latitude ?? null,
+      addressId: selectedAddress.AddressID ?? null,
+    };
+  };
+
+  // Address is required whenever saved addresses are available
+  const validateAddress = () => {
+    if (savedAddresses.length === 0) return ""; // no addresses → skip
+    if (!selectedAddress) return "Please select a service address to continue.";
+    if (selectedAddress.AddressID === "__other__" && !manualAddress.line1.trim())
+      return "Please enter at least Address Line 1.";
+    return "";
+  };
+
   // Common function to build lead payload
   const buildLeadPayload = (withInspection) => {
     const services = [];
     // Get the selected inspection offer
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
+    const selectedCarPayload = getSelectedCarPayload();
 
     if (withInspection) {
       // Add inspection service first (the selected package)
@@ -281,12 +392,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: selectedOfferData.totalPrice,
+      ...selectedCarPayload,
       // description: `Doorstep Car Inspection Offer - ${selectedOfferData.packageName} - ₹${selectedOfferData.newPrice}`,
       // description: `${selectedOfferData.packageName} - ${description || "No description provided"}`,
       description: withInspection
         ? `${selectedOfferData.packageName} - ${description || "No description provided"}`
         : `${selectedService?.title || "Service"} - ${description || "No description provided"}`,
-      services
+      services,
+      ...getAddressPayload(),
     };
   };
 
@@ -526,16 +639,18 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const phoneErr = validatePhone(identifier);
     const emailErr = validateEmail(email);
     const descErr = validateDescription(description);
+    const addrErr = validateAddress();
 
     // set inline errors as well
     setNameError(nameErr);
     setPhoneError(phoneErr);
     setEmailError(emailErr);
     setDescriptionError(descErr);
+    setAddressError(addrErr);
 
-    if (nameErr || phoneErr || emailErr || descErr) {
+    if (nameErr || phoneErr || emailErr || descErr || addrErr) {
       // also notify user via toast for first error
-      const first = nameErr || phoneErr || emailErr || descErr;
+      const first = nameErr || phoneErr || emailErr || descErr || addrErr;
       showAlert("Error", first, 3000, "error");
       return;
     }
@@ -621,14 +736,16 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const phoneErr = validatePhone(identifier);
       const emailErr = validateEmail(email);
       const descErr = validateDescription(description);
+      const addrErr = validateAddress();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
+      setAddressError(addrErr);
 
-      if (nameErr || phoneErr || emailErr || descErr) {
-        const firstErr = nameErr || phoneErr || emailErr || descErr;
+      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+        const firstErr = nameErr || phoneErr || emailErr || descErr || addrErr;
         showAlert("Error", firstErr, 3000, "error");
         return;
       }
@@ -1039,6 +1156,120 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     {emailError && <p className="bsm-helper-text">{emailError}</p>}
                   </div>
                 </div>
+
+                {/* Address Selector — shown for enquiry when user has saved addresses */}
+                {!inspection && savedAddresses.length > 0 && (
+                  <div className="bsm-address-selector">
+                    <div className="bsm-address-selector__label">
+                      <span>📍 Service Address <span style={{ color: "#ef4444" }}>*</span></span>
+                      <span style={{ fontSize: "0.72rem", color: "#6b7280", fontWeight: 400 }}>Select where our technician should visit</span>
+                    </div>
+
+                    {/* Error banner */}
+                    {addressError && (
+                      <div className="bsm-address-error-banner">
+                        <span>⚠️ {addressError}</span>
+                      </div>
+                    )}
+
+                    <div className="bsm-address-list">
+                      {savedAddresses.map((addr) => {
+                        const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                        const title = (addr.AddressLine1 || "").split("\n")[0];
+                        const rest = [
+                          addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                          addr.AddressLine2,
+                          addr.CityName,
+                          addr.StateName,
+                          addr.Pincode,
+                        ].filter(Boolean).join(", ");
+                        return (
+                          <button
+                            key={addr.AddressID}
+                            type="button"
+                            className={`bsm-address-card ${isSelected ? "bsm-address-card--selected" : ""}`}
+                            onClick={() => { setSelectedAddress(addr); setAddressError(""); }}
+                          >
+                            <span className="bsm-address-card__left">
+                              <span className="bsm-address-card__icon">🏠</span>
+                              <span className="bsm-address-card__body">
+                                <span className="bsm-address-card__title">{title}</span>
+                                {rest && <span className="bsm-address-card__sub">{rest}</span>}
+                                {addr.IsPrimary && <span className="bsm-address-card__badge">Primary</span>}
+                              </span>
+                            </span>
+                            {isSelected && <span className="bsm-address-card__tick">✓</span>}
+                          </button>
+                        );
+                      })}
+
+                      {/* Other option */}
+                      <button
+                        type="button"
+                        className={`bsm-address-card bsm-address-card--other ${selectedAddress?.AddressID === "__other__" ? "bsm-address-card--selected" : ""}`}
+                        onClick={() => {
+                          setSelectedAddress(OTHER_ADDRESS);
+                          setAddressError("");
+                          setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+                        }}
+                      >
+                        <span className="bsm-address-card__left">
+                          <span className="bsm-address-card__icon">✏️</span>
+                          <span className="bsm-address-card__body">
+                            <span className="bsm-address-card__title">Other</span>
+                            <span className="bsm-address-card__sub">Enter a different address</span>
+                          </span>
+                        </span>
+                        {selectedAddress?.AddressID === "__other__" && <span className="bsm-address-card__tick">✓</span>}
+                      </button>
+                    </div>
+
+                    {/* Manual address fields — shown when Other is selected */}
+                    {selectedAddress?.AddressID === "__other__" && (
+                      <div className="bsm-manual-address">
+                        <input
+                          type="text"
+                          className={`bsm-input${addressError && !manualAddress.line1.trim() ? " bsm-input-error" : ""}`}
+                          placeholder="Address Line 1 *"
+                          value={manualAddress.line1}
+                          onChange={(e) => { setManualAddress((p) => ({ ...p, line1: e.target.value })); if (e.target.value.trim()) setAddressError(""); }}
+                        />
+                        <input
+                          type="text"
+                          className="bsm-input"
+                          placeholder="Address Line 2"
+                          value={manualAddress.line2}
+                          onChange={(e) => setManualAddress((p) => ({ ...p, line2: e.target.value }))}
+                        />
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <input
+                            type="text"
+                            className="bsm-input"
+                            placeholder="City"
+                            style={{ flex: 1 }}
+                            value={manualAddress.city}
+                            onChange={(e) => setManualAddress((p) => ({ ...p, city: e.target.value }))}
+                          />
+                          <input
+                            type="text"
+                            className="bsm-input"
+                            placeholder="State"
+                            style={{ flex: 1 }}
+                            value={manualAddress.state}
+                            onChange={(e) => setManualAddress((p) => ({ ...p, state: e.target.value }))}
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          className="bsm-input"
+                          placeholder="Pincode"
+                          value={manualAddress.pincode}
+                          onChange={(e) => setManualAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Message */}
                 <div className="bsm-form-group">

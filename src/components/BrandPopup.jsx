@@ -24,7 +24,7 @@ const BrandPopup = ({ brands, selected, onSelect, onClose, loading }) => {
           placeholder="Search brands..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-control mb-3"
+          className=" mb-3 brand-search"
           onClick={(e) => e.stopPropagation()}
         />
         <div className="brand-scroll-container">

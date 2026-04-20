@@ -26,25 +26,71 @@ import { saveUserFromVerifyOtp } from "../helper/authHelper";
 import "./InspectionPage.css";
 
 const DEFAULT_OFFER_1 = {
-  oldPrice: 599,
-  newPrice: 399,
+  // oldPrice: 599,
+  // newPrice: 399,
+  oldPrice: null,
+  newPrice: null,
   gstPrice: 0,
   gstPercent: 0,
-  totalPrice: 399,
+  // totalPrice: 399,
+  totalPrice: null,
   packageId: 174,
   packageName: "5-Seater Car",
   inspectionIncludes: [],
 };
 
 const DEFAULT_OFFER_2 = {
-  oldPrice: 999,
-  newPrice: 699,
+  // oldPrice: 999,
+  // newPrice: 699,
+  oldPrice: null,
+  newPrice: null,
   gstPrice: 0,
   gstPercent: 0,
-  totalPrice: 699,
+  // totalPrice: 699,
+  totalPrice: null,
   packageId: 175,
   packageName: "7-Seater Car",
   inspectionIncludes: [],
+};
+
+const getSelectedCarPayload = () => {
+  try {
+    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
+    const resolvedRegistrationNumber = selectedCar
+      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
+      : "";
+    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
+    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
+
+    return {
+      registrationNumber: resolvedRegistrationNumber,
+      vehicleNumber: resolvedRegistrationNumber,
+      VehicleNumber: resolvedRegistrationNumber,
+      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
+      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
+      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
+      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
+      kmDriven: resolvedKmDriven,
+      kilometersDriven: resolvedKmDriven,
+      yearOfPurchase: resolvedYearOfPurchase,
+      YearOfPurchase: resolvedYearOfPurchase,
+    };
+  } catch (error) {
+    console.error("Error reading selectedCarDetails:", error);
+    return {
+      registrationNumber: "",
+      vehicleNumber: "",
+      VehicleNumber: "",
+      vehicleID: 0,
+      brandID: 0,
+      modelID: 0,
+      fuelTypeID: 0,
+      kmDriven: 0,
+      kilometersDriven: 0,
+      yearOfPurchase: 0,
+      YearOfPurchase: 0,
+    };
+  }
 };
 
 const InspectionPage = () => {
@@ -64,6 +110,7 @@ const InspectionPage = () => {
   const [otpExpired, setOtpExpired] = useState(false);
   const [loading, setLoading] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [offer1, setOffer1] = useState(DEFAULT_OFFER_1);
   const [offer2, setOffer2] = useState(DEFAULT_OFFER_2);
   const [selectedOffer, setSelectedOffer] = useState(1);
@@ -76,24 +123,38 @@ const InspectionPage = () => {
   const [descriptionError, setDescriptionError] = useState("");
   const [leadId, setLeadId] = useState(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [inspectionOfferDesc, setInspectionOfferDesc] = useState("");
+
+  // ── Address selector state ──
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [useAddress, setUseAddress] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
+  const OTHER_ADDRESS = { AddressID: "__other__" };
   const payActionsRef = useRef(null);
-   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+  const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
   useEffect(() => {
     if (currentStep !== "offer") {
       setShowStickyBar(false);
       return;
     }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Show sticky bar the moment the Pay buttons scroll out of view
-        setShowStickyBar(!entry.isIntersecting);
-      },
-      { threshold: 0, rootMargin: "0px 0px 0px 0px" }
-    );
-    const el = payActionsRef.current;
-    if (el) observer.observe(el);
-    return () => { if (el) observer.unobserve(el); };
+
+    const checkVisibility = () => {
+      const el = payActionsRef.current;
+      if (!el) return;
+      // Show sticky bar the moment the bottom of the pay button row scrolls above the viewport
+      setShowStickyBar(el.getBoundingClientRect().bottom < 0);
+    };
+
+    const timerId = setTimeout(checkVisibility, 0);
+    window.addEventListener("scroll", checkVisibility, { passive: true });
+
+    return () => {
+      clearTimeout(timerId);
+      window.removeEventListener("scroll", checkVisibility);
+    };
   }, [currentStep]);
 
 
@@ -159,6 +220,7 @@ const InspectionPage = () => {
     };
 
     const fetchInspectionPackages = async () => {
+      setPackagesLoading(true);
       try {
         const [response1, response2] = await Promise.all([
           axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`),
@@ -168,11 +230,11 @@ const InspectionPage = () => {
         if (response1.data && response1.data.length > 0) {
           const package1 = response1.data[0];
           setOffer1({
-            oldPrice: package1.Serv_Reg_Price || DEFAULT_OFFER_1.oldPrice,
-            newPrice: package1.Serv_Off_Price || DEFAULT_OFFER_1.newPrice,
+            oldPrice: package1.Serv_Reg_Price ?? null,
+            newPrice: package1.Serv_Off_Price ?? null,
             gstPrice: package1.gst_amt || 0,
             gstPercent: package1.gst_p || 0,
-            totalPrice: package1.inc_gstamt || DEFAULT_OFFER_1.totalPrice,
+            totalPrice: package1.inc_gstamt ?? null,
             packageId: 174,
             packageName: package1.PackageName || DEFAULT_OFFER_1.packageName,
             inspectionIncludes: package1.InspectionIncludes || [],
@@ -182,11 +244,11 @@ const InspectionPage = () => {
         if (response2.data && response2.data.length > 0) {
           const package2 = response2.data[0];
           setOffer2({
-            oldPrice: package2.Serv_Reg_Price || DEFAULT_OFFER_2.oldPrice,
-            newPrice: package2.Serv_Off_Price || DEFAULT_OFFER_2.newPrice,
+            oldPrice: package2.Serv_Reg_Price ?? null,
+            newPrice: package2.Serv_Off_Price ?? null,
             gstPrice: package2.gst_amt || 0,
             gstPercent: package2.gst_p || 0,
-            totalPrice: package2.inc_gstamt || DEFAULT_OFFER_2.totalPrice,
+            totalPrice: package2.inc_gstamt ?? null,
             packageId: 175,
             packageName: package2.PackageName || DEFAULT_OFFER_2.packageName,
             inspectionIncludes: package2.InspectionIncludes || [],
@@ -194,12 +256,76 @@ const InspectionPage = () => {
         }
       } catch (err) {
         console.error("Failed to fetch inspection packages:", err);
+      } finally {
+        setPackagesLoading(false);
       }
     };
 
     fetchSeoData();
     fetchInspectionPackages();
+    fetchCompanyInfo();
   }, [baseUrl]);
+
+  const fetchCompanyInfo = async () => {
+    try {
+      const res = await axios.get("https://dev-api.mycarsbuddy.com/api/CompanyInfo");
+      if (res.data?.status && res.data.data) {
+        const offerItem = res.data.data.find(item => item.Type === "InspectionOffer");
+        setInspectionOfferDesc(offerItem?.Description || "");
+      }
+    } catch (error) {
+      console.error("Failed to fetch company info:", error);
+    }
+  };
+  // ── Fetch saved addresses if user is logged in ──
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchAddresses = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (!storedUser) return;
+
+        // Resolve plain integer custID — try AES decrypt first (user.id is encrypted),
+        // then fall back to any plain custID fields authHelper may have stored directly.
+        let resolvedCustId = null;
+
+        if (storedUser.id) {
+          try {
+            const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            if (decrypted && !isNaN(Number(decrypted))) {
+              resolvedCustId = decrypted;
+            }
+          } catch (_) { /* not encrypted — fall through */ }
+        }
+
+        // Fallback: some auth helpers store the plain custID directly
+        if (!resolvedCustId) {
+          resolvedCustId =
+            storedUser.custID ||
+            storedUser.custId ||
+            storedUser.CustID ||
+            storedUser.customerId ||
+            null;
+        }
+
+        console.log("[InspectionPage] fetchAddresses → resolvedCustId:", resolvedCustId);
+        if (!resolvedCustId) return;
+
+        const res = await axios.get(
+          `${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`
+        );
+        const all = Array.isArray(res.data) ? res.data : [];
+        console.log("[InspectionPage] fetchAddresses → addresses:", all);
+        setSavedAddresses(all);
+        const primary = all.find((a) => a.IsPrimary);
+        if (primary) setSelectedAddress(primary);
+      } catch (err) {
+        console.warn("[InspectionPage] fetchAddresses failed (optional):", err);
+      }
+    };
+    fetchAddresses();
+  }, [isLoggedIn, baseUrl, secretKey]);
 
   const getDeviceId = () => {
     let deviceId = localStorage.getItem("deviceId");
@@ -282,10 +408,35 @@ const InspectionPage = () => {
     },
   ];
 
+  // Returns address fields
+  const getAddressPayload = () => {
+    if (!selectedAddress) return { city: null, longitude: null, latitude: null, addressId: null };
+    if (selectedAddress.AddressID === "__other__") {
+      const parts = [manualAddress.line1, manualAddress.line2, manualAddress.city, manualAddress.state, manualAddress.pincode].filter(Boolean).join(", ");
+      return { city: parts || null, longitude: null, latitude: null, addressId: null };
+    }
+    return {
+      city: selectedAddress.AddressLine1 || null,
+      longitude: selectedAddress.Longitude ?? null,
+      latitude: selectedAddress.Latitude ?? null,
+      addressId: selectedAddress.AddressID ?? null,
+    };
+  };
+
+  // Address is required whenever saved addresses are available
+  const validateAddress = () => {
+    if (savedAddresses.length === 0) return ""; // no addresses fetched → skip
+    if (!selectedAddress) return "Please select a service address to continue.";
+    if (selectedAddress.AddressID === "__other__" && !manualAddress.line1.trim())
+      return "Please enter at least Address Line 1.";
+    return "";
+  };
+
   const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
     const services = [];
+    const selectedCarPayload = getSelectedCarPayload();
 
     if (withInspection) {
       services.push({
@@ -322,14 +473,17 @@ const InspectionPage = () => {
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
       totalPrice: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      ...selectedCarPayload,
       services,
       leadId: leadIdOverride ?? leadId,
+      ...getAddressPayload(),
     };
   };
 
   const handlePayment = async (offerIndexOverride) => {
     try {
       const leadPayload = buildLeadPayload(true, offerIndexOverride);
+      console.log("PayLOadddd----", leadPayload);
 
       const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
@@ -496,6 +650,17 @@ const InspectionPage = () => {
   };
 
   const handlePackagePayNow = (offerIndex) => {
+    // Always validate address first (for both logged-in and guest)
+    const addrErr = validateAddress();
+    if (addrErr) {
+      setAddressError(addrErr);
+      // Scroll address section into view so user sees the error
+      setTimeout(() => {
+        document.querySelector(".ip-address-selector")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+      return;
+    }
+    setAddressError("");
     setSelectedOffer(offerIndex);
     setInspection(true);
     resetOtpState();
@@ -615,14 +780,16 @@ const InspectionPage = () => {
       const phoneErr = validatePhone(identifier);
       const emailErr = validateEmail(email);
       const descErr = inspection ? "" : validateDescription(description);
+      const addrErr = validateAddress();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
+      setAddressError(addrErr);
 
-      if (nameErr || phoneErr || emailErr || descErr) {
-        showAlert("Error", nameErr || phoneErr || emailErr || descErr, 3000, "error");
+      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+        showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
         return;
       }
 
@@ -634,6 +801,24 @@ const InspectionPage = () => {
       handleVerifyOTP();
       return;
     }
+
+    const nameErr = validateName(fullName);
+    const phoneErr = validatePhone(identifier);
+    const emailErr = validateEmail(email);
+    const descErr = inspection ? "" : validateDescription(description);
+    const addrErr = validateAddress();
+
+    setNameError(nameErr);
+    setPhoneError(phoneErr);
+    setEmailError(emailErr);
+    setDescriptionError(descErr);
+    setAddressError(addrErr);
+
+    if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+      showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
+      return;
+    }
+
     handleSendOTP();
   };
 
@@ -722,14 +907,39 @@ const InspectionPage = () => {
                       <p className="ip-card-header-sub ip-card-header-sub--lead">
                         Premium car inspection, simplified for your schedule.
                       </p>
-                      <p className="ip-card-header-sub">
+                      {inspectionOfferDesc && (
+                        <p className="ip-card-header-sub ip-card-header-sub--promo">
+                          {inspectionOfferDesc}
+                        </p>
+                      )}
+                      {/* <p className="ip-card-header-sub">
                         Choose a package and let our experts inspect your car with confidence.
-                      </p>
+                      </p> */}
                     </div>
                   </div>
 
                   <div className="inspection-pricing-board inspection-pricing-board--standalone">
-                    {packageColumns.map(({ offer, groupedIncludes, accentClass, buttonClass }, index) => {
+                    {packagesLoading ? (
+                      [1, 2].map((item) => (
+                        <article key={item} className="inspection-plan-card inspection-plan-card--skeleton" aria-hidden="true">
+                          <div className="inspection-plan-top inspection-plan-top--skeleton">
+                            <div className="inspection-skeleton inspection-skeleton-pill" />
+                            <div className="inspection-skeleton inspection-skeleton-title" />
+                            <div className="inspection-skeleton inspection-skeleton-subtitle" />
+                            <div className="inspection-skeleton inspection-skeleton-price" />
+                          </div>
+                          <div className="inspection-plan-action">
+                            <div className="inspection-skeleton inspection-skeleton-button" />
+                          </div>
+                          <div className="inspection-plan-features inspection-plan-features--skeleton">
+                            <div className="inspection-skeleton inspection-skeleton-feature-heading" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                            <div className="inspection-skeleton inspection-skeleton-feature" />
+                          </div>
+                        </article>
+                      ))
+                    ) : packageColumns.map(({ offer, groupedIncludes, accentClass, buttonClass }, index) => {
                       const meta = getOfferMeta(offer);
                       const categories = Object.entries(groupedIncludes);
                       const saving = offer.oldPrice - offer.totalPrice;
@@ -768,7 +978,7 @@ const InspectionPage = () => {
                           </div>
 
                           {/* CTA button — right below the header, always visible */}
-                          <div className="inspection-plan-action" ref={index === 0 ? payActionsRef : null}>
+                          <div className="inspection-plan-action" ref={index === 1 ? payActionsRef : null}>
                             <button
                               type="button"
                               className={`inspection-plan-btn ${buttonClass}`}
@@ -803,6 +1013,7 @@ const InspectionPage = () => {
                         </article>
                       );
                     })}
+
                   </div>
 
                   <div className="ip-trust">
@@ -895,6 +1106,7 @@ const InspectionPage = () => {
                       {emailError && <p className="bsm-helper-text">{emailError}</p>}
                     </div>
 
+
                     {!inspection && (
                       <div className="ip-form-group">
                         <label className="ip-label">
@@ -913,6 +1125,7 @@ const InspectionPage = () => {
                         {descriptionError && <p className="bsm-helper-text">{descriptionError}</p>}
                       </div>
                     )}
+
 
                     {otpStep && (
                       <div className="ip-otp-section">
@@ -987,6 +1200,121 @@ const InspectionPage = () => {
             </div>
           </div>
         </section>
+
+        {/* ── Address Selector ── */}
+        {savedAddresses.length > 0 && (
+          <div className="ip-address-selector">
+            <div className="ip-address-selector__label">
+              <span>📍 Service Address <span style={{ color: "#ef4444" }}>*</span></span>
+              <span className="ip-address-selector__label-line" />
+              <span style={{ fontSize: "0.72rem", color: "#6b7280", fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>Select where our technician should visit</span>
+            </div>
+
+            {/* Error banner — always visible when set */}
+            {addressError && (
+              <div className="ip-address-error-banner">
+                <span>⚠️ {addressError}</span>
+              </div>
+            )}
+
+            <div className="ip-address-list">
+              {savedAddresses.map((addr) => {
+                const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                const title = (addr.AddressLine1 || "").split("\n")[0];
+                const rest = [
+                  addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                  addr.AddressLine2,
+                  addr.CityName,
+                  addr.StateName,
+                  addr.Pincode,
+                ].filter(Boolean).join(", ");
+                return (
+                  <button
+                    key={addr.AddressID}
+                    type="button"
+                    className={`ip-address-card ${isSelected ? "ip-address-card--selected" : ""} ${addressError && !selectedAddress ? "ip-address-card--highlight-error" : ""}`}
+                    onClick={() => { setSelectedAddress(addr); setAddressError(""); }}
+                  >
+                    <span className="ip-address-card__left">
+                      <span className="ip-address-card__icon">🏠</span>
+                      <span className="ip-address-card__body">
+                        <span className="ip-address-card__title">{title}</span>
+                        {rest && <span className="ip-address-card__sub">{rest}</span>}
+                        {addr.IsPrimary && <span className="ip-address-card__badge">Primary</span>}
+                      </span>
+                    </span>
+                    {isSelected && <span className="ip-address-card__tick">✓</span>}
+                  </button>
+                );
+              })}
+
+              {/* Other option */}
+              <button
+                type="button"
+                className={`ip-address-card ip-address-card--other ${selectedAddress?.AddressID === "__other__" ? "ip-address-card--selected" : ""}`}
+                onClick={() => {
+                  setSelectedAddress(OTHER_ADDRESS);
+                  setAddressError("");
+                  setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+                }}
+              >
+                <span className="ip-address-card__left">
+                  <span className="ip-address-card__icon">✏️</span>
+                  <span className="ip-address-card__body">
+                    <span className="ip-address-card__title">Other</span>
+                    <span className="ip-address-card__sub">Enter a different address</span>
+                  </span>
+                </span>
+                {selectedAddress?.AddressID === "__other__" && <span className="ip-address-card__tick">✓</span>}
+              </button>
+            </div>
+
+            {/* Manual address fields — shown when Other is selected */}
+            {selectedAddress?.AddressID === "__other__" && (
+              <div className="ip-manual-address">
+                <input
+                  type="text"
+                  className={`ip-input${addressError && !manualAddress.line1.trim() ? " bsm-input-error" : ""}`}
+                  placeholder="Address Line 1 *"
+                  value={manualAddress.line1}
+                  onChange={(e) => { setManualAddress((p) => ({ ...p, line1: e.target.value })); if (e.target.value.trim()) setAddressError(""); }}
+                />
+                <input
+                  type="text"
+                  className="ip-input"
+                  placeholder="Address Line 2"
+                  value={manualAddress.line2}
+                  onChange={(e) => setManualAddress((p) => ({ ...p, line2: e.target.value }))}
+                />
+                <div className="ip-row" style={{ gap: 10 }}>
+                  <input
+                    type="text"
+                    className="ip-input"
+                    placeholder="City"
+                    value={manualAddress.city}
+                    onChange={(e) => setManualAddress((p) => ({ ...p, city: e.target.value }))}
+                    style={{ flex: 1 }}
+                  />
+                  <input
+                    type="text"
+                    className="ip-input"
+                    placeholder="State"
+                    value={manualAddress.state}
+                    onChange={(e) => setManualAddress((p) => ({ ...p, state: e.target.value }))}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                <input
+                  type="text"
+                  className="ip-input"
+                  placeholder="Pincode"
+                  value={manualAddress.pincode}
+                  onChange={(e) => setManualAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <section className="inspection-benefits-section">
           <div className="inspection-page-shell">
@@ -1073,7 +1401,7 @@ const InspectionPage = () => {
                 <button
                   type="button"
                   className="inspection-sticky-bar__btn inspection-sticky-bar__btn--pro"
-                  onClick={() => handlePackagePayNow(1)}
+                  onClick={() => { handlePackagePayNow(1); }}
                 >
                   <FaCreditCard />
                   Pay ₹{offer1.totalPrice}

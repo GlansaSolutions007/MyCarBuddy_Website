@@ -23,8 +23,8 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
     const [selectedServiceIds, setSelectedServiceIds] = useState([]);
     // Per-service approval state: true = approved (✓), false = rejected (✗)
     const [serviceApprovalMap, setServiceApprovalMap] = useState({});
-    // Per-service rejection reason
-    const [rejectionReasons, setRejectionReasons] = useState({});
+    // Single rejection reason for all rejected services
+    const [rejectionReason, setRejectionReason] = useState("");
 
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -169,11 +169,9 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         const approvedIds = services.filter((srv) => serviceApprovalMap[srv.Id] !== false).map((srv) => srv.Id);
         const rejectedIds = services.filter((srv) => serviceApprovalMap[srv.Id] === false).map((srv) => srv.Id);
 
-        // Validate that all rejected services have a reason
-        const missingReason = rejectedIds.find((id) => !rejectionReasons[id]?.trim());
-        if (missingReason) {
-            const srv = services.find((s) => s.Id === missingReason);
-            Swal.fire("Reason Required", `Please provide a rejection reason for "${srv?.ServiceName || "the rejected service"}".`, "warning");
+        // Validate that a reason is provided if any services are rejected
+        if (rejectedIds.length > 0 && !rejectionReason.trim()) {
+            Swal.fire("Reason Required", "Please provide a rejection reason for the rejected service(s).", "warning");
             return;
         }
 
@@ -191,15 +189,9 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
 
             // Fire rejected batch if any
             if (rejectedIds.length > 0) {
-                const combinedReason = rejectedIds
-                    .map((id) => {
-                        const srv = services.find((s) => s.Id === id);
-                        return `${srv?.ServiceName || id}: ${rejectionReasons[id] || ""}`;
-                    })
-                    .join("; ");
                 await axios.post(
                     `${BaseURL}Supervisor/MoveSupervisorBookings?addOnIds=${rejectedIds.join(",")}&custId=${custIdToSend}`,
-                    { status: "Reject", reason: combinedReason },
+                    { status: "Reject", reason: rejectionReason.trim() },
                     { headers: { Authorization: `Bearer ${user?.token}`, "Content-Type": "application/json" } }
                 );
             }
@@ -211,7 +203,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             setServices([]);
             setSelectedServiceIds([]);
             setServiceApprovalMap({});
-            setRejectionReasons({});
+            setRejectionReason("");
             setIsChecked(false);
 
             const approvedCount = approvedIds.length;
@@ -715,33 +707,22 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                     </div>
 
 
-                    {/* Rejection Reasons — shown per rejected service */}
+                    {/* Single Rejection Reason — shown once when any service is rejected */}
                     {services.some((srv) => serviceApprovalMap[srv.Id] === false) && (
                         <div className="mb-3 p-3" style={{ backgroundColor: "#fff5f5", borderRadius: "10px", border: "1px solid #f5c2c7" }}>
                             <div className="mb-2" style={{ fontWeight: "600", color: "#c92a2a", fontSize: "0.9rem" }}>
                                 <FaExclamationCircle className="me-1" />
-                                Rejection Reason{services.filter((s) => serviceApprovalMap[s.Id] === false).length > 1 ? "s" : ""} Required
+                                Rejection Reason Required <span style={{ color: "#dc3545" }}>*</span>
                             </div>
-                            {services
-                                .filter((srv) => serviceApprovalMap[srv.Id] === false)
-                                .map((srv) => (
-                                    <div key={`reason-${srv.Id}`} className="mb-3">
-                                        <label style={{ fontSize: "0.82rem", fontWeight: "600", color: "#555", marginBottom: "6px", display: "block" }}>
-                                            {srv.ServiceName} <span style={{ color: "#dc3545" }}>*</span>
-                                        </label>
-                                        <textarea
-                                            className="form-control"
-                                            rows={2}
-                                            placeholder={`Reason for rejecting "${srv.ServiceName}"…`}
-                                            value={rejectionReasons[srv.Id] || ""}
-                                            onChange={(e) =>
-                                                setRejectionReasons((prev) => ({ ...prev, [srv.Id]: e.target.value }))
-                                            }
-                                            disabled={isSubmitting}
-                                            style={{ fontSize: "0.85rem", borderColor: rejectionReasons[srv.Id]?.trim() ? "#adb5bd" : "#dc3545", borderRadius: "8px", resize: "vertical" }}
-                                        />
-                                    </div>
-                                ))}
+                            <textarea
+                                className="form-control"
+                                rows={3}
+                                placeholder="Provide a reason for rejecting the selected service(s)…"
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                disabled={isSubmitting}
+                                style={{ fontSize: "0.85rem", borderColor: rejectionReason.trim() ? "#adb5bd" : "#dc3545", borderRadius: "8px", resize: "vertical" }}
+                            />
                         </div>
                     )}
 

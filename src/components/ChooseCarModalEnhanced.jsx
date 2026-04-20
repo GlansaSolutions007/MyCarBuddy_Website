@@ -197,102 +197,104 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
     }
   };
 
-  const extractCarInfoFromOCR = (ocrText) => {
-    const text = ocrText.toLowerCase();
+  // const extractCarInfoFromOCR = (ocrText) => {
+  //   const text = ocrText.toLowerCase();
 
-    // Common car brands in India with variations and common misspellings
-    const carBrands = [
-      {
-        name: 'maruti',
-        variations: ['maruti suzuki', 'maruti-suzuki', 'suzuki', 'maruti udyog'],
-        commonMisspellings: ['maruthi', 'maruti', 'marut', 'marooti']
-      },
-      {
-        name: 'hyundai',
-        variations: ['hyndai', 'hundai', 'hyundai motor', 'hyundai motors'],
-        commonMisspellings: ['hyndai', 'hundai', 'hyundi', 'hyundia']
-      },
-      {
-        name: 'tata',
-        variations: ['tata motors', 'tata motor', 'telco'],
-        commonMisspellings: ['tata', 'tata motors']
-      },
-      {
-        name: 'mahindra',
-        variations: ['mahindra & mahindra', 'm&m', 'mahindra mahindra'],
-        commonMisspellings: ['mahindra', 'mahendra', 'mahinder']
-      },
-      {
-        name: 'toyota',
-        variations: ['toyota kirloskar', 'toyota india'],
-        commonMisspellings: ['toyota', 'toyata']
-      },
-      {
-        name: 'honda',
-        variations: ['honda cars', 'honda india'],
-        commonMisspellings: ['honda', 'hond']
-      },
-      {
-        name: 'ford',
-        variations: ['ford india', 'ford motors'],
-        commonMisspellings: ['ford', 'frod']
-      },
-      {
-        name: 'volkswagen',
-        variations: ['vw', 'volkswagon', 'volkswagen india'],
-        commonMisspellings: ['volkswagen', 'volkswagon', 'vw', 'volkswagan']
-      },
-      {
-        name: 'nissan',
-        variations: ['nissan motor', 'nissan india'],
-        commonMisspellings: ['nissan', 'nison']
-      },
-      {
-        name: 'renault',
-        variations: ['renault india', 'renault nissan'],
-        commonMisspellings: ['renault', 'renalt', 'renolt']
-      },
-      {
-        name: 'skoda',
-        variations: ['skoda auto', 'skoda india'],
-        commonMisspellings: ['skoda', 'skod']
-      },
-      {
-        name: 'fiat',
-        variations: ['fiat india', 'fiat automobiles'],
-        commonMisspellings: ['fiat', 'fiate']
-      },
-      {
-        name: 'chevrolet',
-        variations: ['chevy', 'gm', 'general motors'],
-        commonMisspellings: ['chevrolet', 'chevy', 'chevrolate']
-      },
-      {
-        name: 'audi',
-        variations: ['audi ag', 'audi india'],
-        commonMisspellings: ['audi', 'aud']
-      },
-      {
-        name: 'bmw',
-        variations: ['bmw india', 'bmw group'],
-        commonMisspellings: ['bmw', 'bmv']
-      },
-      {
-        name: 'mercedes',
-        variations: ['mercedes-benz', 'benz', 'mercedes benz'],
-        commonMisspellings: ['mercedes', 'mercedez', 'merceds']
-      },
-      {
-        name: 'jaguar',
-        variations: ['jaguar land rover', 'jaguar india'],
-        commonMisspellings: ['jaguar', 'jaguar']
-      },
-      {
-        name: 'land rover',
-        variations: ['landrover', 'lr', 'land rover india'],
-        commonMisspellings: ['land rover', 'landrover', 'land rover']
-      },
-      {
-        name: 'volvo',
-        variations: ['volvo cars', 'volvo india'],
-        commonMisspellings: ['volvo', 'volvo']
+  //   // Common car brands in India with variations and common misspellings
+  //   const carBrands = [
+  //     {
+  //       name: 'maruti',
+  //       variations: ['maruti suzuki', 'maruti-suzuki', 'suzuki', 'maruti udyog'],
+  //       commonMisspellings: ['maruthi', 'maruti', 'marut', 'marooti']
+  //     },
+  //     {
+  //       name: 'hyundai',
+  //       variations: ['hyndai', 'hundai', 'hyundai motor', 'hyundai motors'],
+  //       commonMisspellings: ['hyndai', 'hundai', 'hyundi', 'hyundia']
+  //     },
+  //     {
+  //       name: 'tata',
+  //       variations: ['tata motors', 'tata motor', 'telco'],
+  //       commonMisspellings: ['tata', 'tata motors']
+  //     },
+  //     {
+  //       name: 'mahindra',
+  //       variations: ['mahindra & mahindra', 'm&m', 'mahindra mahindra'],
+  //       commonMisspellings: ['mahindra', 'mahendra', 'mahinder']
+  //     },
+  //     {
+  //       name: 'toyota',
+  //       variations: ['toyota kirloskar', 'toyota india'],
+  //       commonMisspellings: ['toyota', 'toyata']
+  //     },
+  //     {
+  //       name: 'honda',
+  //       variations: ['honda cars', 'honda india'],
+  //       commonMisspellings: ['honda', 'hond']
+  //     },
+  //     {
+  //       name: 'ford',
+  //       variations: ['ford india', 'ford motors'],
+  //       commonMisspellings: ['ford', 'frod']
+  //     },
+  //     {
+  //       name: 'volkswagen',
+  //       variations: ['vw', 'volkswagon', 'volkswagen india'],
+  //       commonMisspellings: ['volkswagen', 'volkswagon', 'vw', 'volkswagan']
+  //     },
+  //     {
+  //       name: 'nissan',
+  //       variations: ['nissan motor', 'nissan india'],
+  //       commonMisspellings: ['nissan', 'nison']
+  //     },
+  //     {
+  //       name: 'renault',
+  //       variations: ['renault india', 'renault nissan'],
+  //       commonMisspellings: ['renault', 'renalt', 'renolt']
+  //     },
+  //     {
+  //       name: 'skoda',
+  //       variations: ['skoda auto', 'skoda india'],
+  //       commonMisspellings: ['skoda', 'skod']
+  //     },
+  //     {
+  //       name: 'fiat',
+  //       variations: ['fiat india', 'fiat automobiles'],
+  //       commonMisspellings: ['fiat', 'fiate']
+  //     },
+  //     {
+  //       name: 'chevrolet',
+  //       variations: ['chevy', 'gm', 'general motors'],
+  //       commonMisspellings: ['chevrolet', 'chevy', 'chevrolate']
+  //     },
+  //     {
+  //       name: 'audi',
+  //       variations: ['audi ag', 'audi india'],
+  //       commonMisspellings: ['audi', 'aud']
+  //     },
+  //     {
+  //       name: 'bmw',
+  //       variations: ['bmw india', 'bmw group'],
+  //       commonMisspellings: ['bmw', 'bmv']
+  //     },
+  //     {
+  //       name: 'mercedes',
+  //       variations: ['mercedes-benz', 'benz', 'mercedes benz'],
+  //       commonMisspellings: ['mercedes', 'mercedez', 'merceds']
+  //     },
+  //     {
+  //       name: 'jaguar',
+  //       variations: ['jaguar land rover', 'jaguar india'],
+  //       commonMisspellings: ['jaguar', 'jaguar']
+  //     },
+  //     {
+  //       name: 'land rover',
+  //       variations: ['landrover', 'lr', 'land rover india'],
+  //       commonMisspellings: ['land rover', 'landrover', 'land rover']
+  //     },
+  //     {
+  //       name: 'volvo',
+  //       variations: ['volvo cars', 'volvo india'],
+  //       commonMisspellings: ['volvo', 'volvo'],
+  //     }
+  //   ];
