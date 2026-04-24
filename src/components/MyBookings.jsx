@@ -1696,7 +1696,7 @@ const MyBookings = () => {
                       {selectedBooking.BookingsTempAddons.length > 1 ? "s" : ""}
                     </button>
                   )}
-                  {selectedBooking.BookingStatus !== "Cancelled" && (!selectedBooking.Tickets || selectedBooking.Tickets.some(ticket => ticket.StatusName === "closed")) && (
+                  {selectedBooking.BookingStatus !== "Cancelled" && (!selectedBooking.Tickets || selectedBooking.Tickets.some(ticket => ticket.StatusName === "Closed")) && (
                     <button
                       className="mb-detail-action-btn warning"
                       onClick={() => setShowNewTicket(true)}
