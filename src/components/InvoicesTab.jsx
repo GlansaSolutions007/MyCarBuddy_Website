@@ -34,7 +34,7 @@ const InvoicesTab = () => {
           (payment) => payment.InvoiceNumber !== null && payment.InvoiceNumber !== ""
         );
 
-        setInvoices(invoicesWithNumbers);
+          setInvoices(invoicesWithNumbers);
         setError(null);
       } catch (err) {
         console.error("Error fetching invoices:", err);
