@@ -1,7 +1,7 @@
 import React from "react";
 import { SiAppstore, SiGoogleplay } from "react-icons/si";
 import AppStoreBadges from "./AppStoreBadges";
-import homePageImg from "../images/homepagess.png";
+import homePageImg from "../images/homepage.jpeg";
 import "./AppDownloadSection.css";
 
 const PLAY_STORE_URL =

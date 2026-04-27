@@ -145,14 +145,14 @@ const AddressTab = ({ custID = 0 }) => {
           <span className="at-title-icon">
             <FaMapMarkerAlt />
           </span>
-          Your Addresses
+          My Address
         </h2>
       </div>
 
       {loading ? (
         <div className="at-loading">
           <div className="at-spinner"></div>
-          <span className="at-loading-text">Loading addresses...</span>
+          <span className="at-loading-text">Loading address...</span>
         </div>
       ) : !selectedAddress ? (
         <>
@@ -163,7 +163,7 @@ const AddressTab = ({ custID = 0 }) => {
                 alt="No Addresses"
                 className="at-empty-img"
               />
-              <h4>No addresses yet</h4>
+              <h4>No address yet</h4>
               <p>Looks like you haven't added any addresses yet. Add your first address!</p>
             </div>
           ) : (
