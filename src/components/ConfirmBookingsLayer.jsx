@@ -70,13 +70,26 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
 
                     if (matchedBooking) {
                         setBookingDetails(matchedBooking);
-                        const tempAddons = matchedBooking.BookingsTempAddons || [];
-                        setServices(tempAddons);
-                        setConfirmedAddons(matchedBooking.BookingAddOns || []);
-                        setSelectedServiceIds(tempAddons.map((a) => a.Id));
+
+                        const tempAddonsRaw = matchedBooking.BookingsTempAddons || [];
+                        const confirmedAddonsRaw = matchedBooking.BookingAddOns || [];
+                        const isReworkBooking = matchedBooking.IsRework === true || matchedBooking.IsRework === 1;
+
+                        const filteredTempAddons = isReworkBooking
+                            ? tempAddonsRaw.filter((addon) => addon.AfterRework === true)
+                            : tempAddonsRaw;
+
+                        const filteredConfirmedAddons = isReworkBooking
+                            ? confirmedAddonsRaw.filter((addon) => addon.AfterRework === true)
+                            : confirmedAddonsRaw;
+
+                        setServices(filteredTempAddons);
+                        setConfirmedAddons(filteredConfirmedAddons);
+                        setSelectedServiceIds(filteredTempAddons.map((a) => a.Id));
+
                         // Default all services to approved (true)
                         const approvalMap = {};
-                        tempAddons.forEach((a) => { approvalMap[a.Id] = true; });
+                        filteredTempAddons.forEach((a) => { approvalMap[a.Id] = true; });
                         setServiceApprovalMap(approvalMap);
                     }
                 }
@@ -145,6 +158,9 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             labourCharge: tempTotals.labourCharge + confirmedTotals.labourCharge
         };
     }, [tempTotals, confirmedTotals]);
+
+    const isReworkBooking = bookingDetails?.IsRework === true || bookingDetails?.IsRework === 1;
+    const couponAmountToApply = isReworkBooking ? 0 : Number(bookingDetails?.CouponAmount || 0);
 
     const toggleServiceApproval = (id) => {
         setServiceApprovalMap((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -683,16 +699,16 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <div className="aos-summary-label">CGST</div>
                                 <div className="aos-summary-value">₹{totals.gstAmount.toFixed(2) / 2}</div>
                             </div>
-                            {bookingDetails?.CouponAmount > 0 && (
+                            {!isReworkBooking && bookingDetails?.CouponAmount > 0 && (
                                 <div className="aos-summary-item" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}>
                                     <div className="aos-summary-label">Discount</div>
-                                    <div className="aos-summary-value" style={{ color: "#ffe066" }}>- ₹{Number(bookingDetails.CouponAmount).toFixed(2)}</div>
+                                    <div className="aos-summary-value" style={{ color: "#ffe066" }}>- ₹{couponAmountToApply.toFixed(2)}</div>
                                 </div>
                             )}
                             <div className="aos-summary-item bg-warning text-dark">
                                 <div className="aos-summary-label">Grand Total</div>
                                 <div className="aos-summary-value">
-                                    ₹{Math.max(0, totals.totalAmount - (bookingDetails?.CouponAmount > 0 ? Number(bookingDetails.CouponAmount) : 0)).toFixed(2)}
+                                    ₹{Math.max(0, totals.totalAmount - couponAmountToApply).toFixed(2)}
                                 </div>
                             </div>
                         </div>

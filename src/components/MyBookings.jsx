@@ -1379,7 +1379,7 @@ const MyBookings = () => {
                         </div>
                       </div>
 
-                      {(booking.CompletedOTP || booking.BookingOTP) &&
+                      {/* {(booking.CompletedOTP || booking.BookingOTP) &&
                         booking.BookingStatus !== "Completed" &&
                         booking.BookingStatus !== "Cancelled" &&
                         booking.BookingStatus !== "Failed" && (
@@ -1388,7 +1388,7 @@ const MyBookings = () => {
                               OTP: {booking.CompletedOTP || booking.BookingOTP}
                             </span>
                           </div>
-                        )}
+                        )} */}
 
                       {/* Payment Status */}
                       {
@@ -2467,9 +2467,9 @@ const MyBookings = () => {
                           selectedBooking.Payments.length - 1
                         ]?.PaymentStatus || "Pending"}
                       </span>
-                      <span className="mb-booking-info-value">
+                      {/* <span className="mb-booking-info-value">
                         Method: {selectedBooking?.PaymentMethod || "N/A"}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
 
