@@ -649,6 +649,61 @@ const InspectionPage = () => {
     setTimer(60);
   };
 
+  // Returns true if the logged-in user is missing name or email
+  const isProfileIncomplete = () => {
+    const nameOk = fullName.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(fullName.trim());
+    const emailOk = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    return !nameOk || !emailOk;
+  };
+
+  // Submit handler for the complete-profile step (logged-in user missing name/email)
+  const handleCompleteProfileSubmit = async (e) => {
+    e.preventDefault();
+    const nameErr = validateName(fullName);
+    const emailErr = !email.trim()
+      ? "Email is required"
+      : validateEmail(email);
+
+    setNameError(nameErr);
+    setEmailError(emailErr);
+
+    if (nameErr || emailErr) {
+      showAlert("Error", nameErr || emailErr, 3000, "error");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+      const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("custID", decryptedCustId);
+      formDataToSend.append("FullName", fullName);
+      formDataToSend.append("PhoneNumber", identifier);
+      formDataToSend.append("Email", email);
+      formDataToSend.append("ProfileImageFile", "");
+      formDataToSend.append("IsActive", true);
+
+      await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const updatedUser = { ...user, name: fullName, email };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event("userProfileUpdated"));
+
+      setCurrentStep("offer");
+      // Proceed to payment with the selected offer
+      handlePayment(selectedOffer);
+    } catch (error) {
+      console.error("Profile update error:", error);
+      showAlert("Error", "Failed to update profile. Please try again.", 3000, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePackagePayNow = (offerIndex) => {
     // Always validate address first (for both logged-in and guest)
     const addrErr = validateAddress();
@@ -665,6 +720,12 @@ const InspectionPage = () => {
     setInspection(true);
     resetOtpState();
     if (isLoggedIn) {
+      // If logged-in user has incomplete profile, ask them to fill it first
+      if (isProfileIncomplete()) {
+        setCurrentStep("complete-profile");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
       handlePayment(offerIndex);
       return;
     }
@@ -1023,6 +1084,104 @@ const InspectionPage = () => {
                   </div>
                 </>
               )}
+              {currentStep === "complete-profile" && (
+                <>
+                  <div className="ip-card-header">
+                    <button
+                      type="button"
+                      className="ip-card-back-btn"
+                      onClick={() => { setCurrentStep("offer"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <FaArrowLeft />
+                      <span>Back</span>
+                    </button>
+                    <div className="ip-card-header-content">
+                      <h2 className="ip-card-header-title">Complete Your Profile</h2>
+                      <p className="ip-card-header-sub">
+                        Please fill in the missing details before booking your inspection.
+                      </p>
+                    </div>
+                  </div>
+
+                  <form className="ip-form" onSubmit={handleCompleteProfileSubmit} noValidate>
+                    <div className="ip-row">
+                      <div className="ip-form-group half">
+                        <label className="ip-label">
+                          <FaUser style={{ marginRight: 6 }} />
+                          Your Name <span style={{ color: "#ef4444" }}>*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={`ip-input ${nameError ? "bsm-input-error" : ""}`}
+                          placeholder="Enter full name"
+                          value={fullName}
+                          onChange={(e) => {
+                            const value = e.target.value
+                              ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                              : "";
+                            setFullName(value);
+                            setNameError(validateName(value));
+                          }}
+                        />
+                        {nameError && <p className="bsm-helper-text">{nameError}</p>}
+                      </div>
+
+                      <div className="ip-form-group half">
+                        <label className="ip-label">
+                          <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          className="ip-input"
+                          value={identifier}
+                          disabled
+                        />
+                      </div>
+                    </div>
+
+                    <div className="ip-form-group">
+                      <label className="ip-label">
+                        <FaEnvelope style={{ marginRight: 6 }} />
+                        Email <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
+                      <input
+                        type="email"
+                        className={`ip-input ${emailError ? "bsm-input-error" : ""}`}
+                        placeholder="yourname@example.com"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailError(validateEmail(e.target.value));
+                        }}
+                      />
+                      {emailError && <p className="bsm-helper-text">{emailError}</p>}
+                    </div>
+
+                    <div className="ip-form-actions">
+                      <button
+                        type="submit"
+                        className="ip-btn ip-btn-primary"
+                        disabled={loading}
+                      >
+                        <span className={loading ? "ip-text-blur" : ""}>
+                          {loading ? "Saving..." : (
+                            <>
+                              Save & Pay ₹{activeOffer.totalPrice}
+                              <FaArrowRight className="ip-btn-arrow" />
+                            </>
+                          )}
+                        </span>
+                      </button>
+                    </div>
+                    <div className="ip-trust ip-trust--after-actions">
+                      <span>✓ Secure & Private</span>
+                      <span>✓ No Spam Calls</span>
+                    </div>
+                  </form>
+                </>
+              )}
+
               {currentStep === "details" && (
                 <>
                   <div className="ip-card-header">

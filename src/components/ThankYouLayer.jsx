@@ -1,25 +1,3 @@
-// import React from "react";
-
-// const ThankYouLayer = () => {
-//     return (
-//         <div
-//             className="w-full h-screen"
-//             style={{
-//                 height: "100vh",
-//                 backgroundImage: "url('/assets/img/laptopthankyou.png')",
-//                 backgroundSize: "cover",
-//                 backgroundPosition: "center",
-//                 backgroundRepeat: "no-repeat",
-//             }}
-//         >
-//         </div>
-//     );
-// };
-
-// export default ThankYouLayer;
-
-////////////////////////////////////////////////
-
 import React from "react";
 
 const ThankYouLayer = () => {
