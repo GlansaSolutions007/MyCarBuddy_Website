@@ -142,7 +142,7 @@ const Profile = () => {
     }));
     return;
   }
-  
+
     setAccountDetails((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -202,7 +202,7 @@ const Profile = () => {
       ifscCode: accountDetails.ifscCode.replace(/\s/g, "").toUpperCase(),
       branch: accountDetails.branch.trim(),
       upiId: "",
-      userId: 0,
+      // userId: 0,
     };
 
     const config = token
