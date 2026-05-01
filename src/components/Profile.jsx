@@ -115,6 +115,9 @@ const Profile = () => {
     }
   }, []);
 
+  const capitalizeFirst = (value) =>
+    value.charAt(0).toUpperCase() + value.slice(1);
+
   const handleAccountInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "accountNumber" || name === "confirmAccountNumber") {
@@ -131,6 +134,15 @@ const Profile = () => {
       }));
       return;
     }
+
+    if (name === "accountHolderName" || name === "bankName" || name === "branch") {
+    setAccountDetails((prev) => ({
+      ...prev,
+      [name]: capitalizeFirst(value),
+    }));
+    return;
+  }
+  
     setAccountDetails((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -179,29 +191,31 @@ const Profile = () => {
       throw new Error(validationMessage);
     }
 
+    const isUpdate = accountDetails.id > 0;
+
     const payload = {
-      Id: accountDetails.id || 0,
-      CustomerId: Number(decryptedCustId),
-      AccountHolderName: accountDetails.accountHolderName.trim(),
-      AccountNumber: accountDetails.accountNumber.trim(),
-      IFSCCode: accountDetails.ifscCode.replace(/\s/g, "").toUpperCase(),
-      BankName: accountDetails.bankName.trim(),
-      Branch: accountDetails.branch.trim(),
+      ...(isUpdate && { id: accountDetails.id }),   // only include id on update
+      customerId: Number(decryptedCustId),
+      accountHolderName: accountDetails.accountHolderName.trim(),
+      bankName: accountDetails.bankName.trim(),
+      accountNumber: accountDetails.accountNumber.trim(),
+      ifscCode: accountDetails.ifscCode.replace(/\s/g, "").toUpperCase(),
+      branch: accountDetails.branch.trim(),
+      upiId: "",
+      userId: 0,
     };
 
     const config = token
       ? { headers: { Authorization: `Bearer ${token}` } }
       : {};
 
-    const endpoint = payload.Id
-      ? `${API_BASE}Customer/upsert-customer-bank-details`
-      : `${API_BASE}Customer/add-customer-bank-details`;
+    const endpoint = `${API_BASE}Customer/upsert-customer-bank-details`;
 
     const response = await axios.post(endpoint, payload, config);
     if (response?.status === 200 || response?.status === 201) {
       const savedData = Array.isArray(response.data) ? response.data[0] : response.data;
-      if (savedData?.Id) {
-        setAccountDetails((prev) => ({ ...prev, id: savedData.Id }));
+      if (savedData?.id) {
+        setAccountDetails((prev) => ({ ...prev, id: savedData.id }));
       }
       return;
     }
@@ -635,127 +649,127 @@ const Profile = () => {
                           </button>
                         )}
                       </div>
-              <div className="profile-form-row" style={{ marginBottom: "14px" }}>
-                <div className="profile-form-group">
-                  <label className="profile-form-label">Account Holder Name</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-user profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="accountHolderName"
-                      value={accountDetails.accountHolderName}
-                      onChange={handleAccountInputChange}
-                      placeholder="Enter account holder name"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-                <div className="profile-form-group">
-                  <label className="profile-form-label">Bank Name</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-university profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="bankName"
-                      value={accountDetails.bankName}
-                      onChange={handleAccountInputChange}
-                      placeholder="Enter bank name"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-              </div>
+                      <div className="profile-form-row" style={{ marginBottom: "14px" }}>
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">Account Holder Name</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-user profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="accountHolderName"
+                              value={accountDetails.accountHolderName}
+                              onChange={handleAccountInputChange}
+                              placeholder="Enter account holder name"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">Bank Name</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-university profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="bankName"
+                              value={accountDetails.bankName}
+                              onChange={handleAccountInputChange}
+                              placeholder="Enter bank name"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-              <div className="profile-form-row" style={{ marginBottom: "14px" }}>
-                <div className="profile-form-group">
-                  <label className="profile-form-label">Account Number</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-credit-card profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="accountNumber"
-                      value={accountDetails.accountNumber}
-                      onChange={handleAccountInputChange}
-                      placeholder="Enter account number"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-                <div className="profile-form-group">
-                  <label className="profile-form-label">Confirm Account Number</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-credit-card profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="confirmAccountNumber"
-                      value={accountDetails.confirmAccountNumber}
-                      onChange={handleAccountInputChange}
-                      placeholder="Re-enter account number"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-              </div>
+                      <div className="profile-form-row" style={{ marginBottom: "14px" }}>
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">Account Number</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-credit-card profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="accountNumber"
+                              value={accountDetails.accountNumber}
+                              onChange={handleAccountInputChange}
+                              placeholder="Enter account number"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">Confirm Account Number</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-credit-card profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="confirmAccountNumber"
+                              value={accountDetails.confirmAccountNumber}
+                              onChange={handleAccountInputChange}
+                              placeholder="Re-enter account number"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-              <div className="profile-form-row">
-                <div className="profile-form-group">
-                  <label className="profile-form-label">IFSC Code</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-code profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="ifscCode"
-                      value={accountDetails.ifscCode}
-                      onChange={handleAccountInputChange}
-                      placeholder="Enter IFSC code"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-                <div className="profile-form-group">
-                  <label className="profile-form-label">Branch</label>
-                  <div className="profile-form-input-wrapper">
-                    <i className="fas fa-code-branch profile-form-icon" />
-                    <input
-                      type="text"
-                      className={`profile-form-input ${editingBank ? "editing" : ""}`}
-                      name="branch"
-                      value={accountDetails.branch}
-                      onChange={handleAccountInputChange}
-                      placeholder="Enter branch name"
-                      readOnly={!editingBank}
-                    />
-                  </div>
-                </div>
-              </div>
+                      <div className="profile-form-row">
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">IFSC Code</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-code profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="ifscCode"
+                              value={accountDetails.ifscCode}
+                              onChange={handleAccountInputChange}
+                              placeholder="Enter IFSC code"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                        <div className="profile-form-group">
+                          <label className="profile-form-label">Branch</label>
+                          <div className="profile-form-input-wrapper">
+                            <i className="fas fa-code-branch profile-form-icon" />
+                            <input
+                              type="text"
+                              className={`profile-form-input ${editingBank ? "editing" : ""}`}
+                              name="branch"
+                              value={accountDetails.branch}
+                              onChange={handleAccountInputChange}
+                              placeholder="Enter branch name"
+                              readOnly={!editingBank}
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Bank Action Buttons */}
-              {editingBank && (
-                <div className="profile-actions">
-                  <button
-                    className="profile-btn profile-btn-primary"
-                    onClick={handleSaveBankDetails}
-                    disabled={savingBank}
-                  >
-                    {savingBank ? (
-                      <>
-                        <i className="fas fa-spinner fa-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-check" />
-                        Save Bank Details
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+                      {/* Bank Action Buttons */}
+                      {editingBank && (
+                        <div className="profile-actions">
+                          <button
+                            className="profile-btn profile-btn-primary"
+                            onClick={handleSaveBankDetails}
+                            disabled={savingBank}
+                          >
+                            {savingBank ? (
+                              <>
+                                <i className="fas fa-spinner fa-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <i className="fas fa-check" />
+                                Save Bank Details
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
