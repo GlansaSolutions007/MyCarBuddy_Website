@@ -477,6 +477,16 @@ const InspectionPage = () => {
   };
 
   const handlePayment = async (offerIndexOverride) => {
+    const carErr = validateCar();
+    const addrErr = validateAddress();
+
+    setCarError(carErr);
+    setAddressError(addrErr);
+
+    if (carErr || addrErr) {
+      showAlert("Please select car and address", "error");
+      return;
+    }
     try {
       const leadPayload = buildLeadPayload(true, offerIndexOverride);
       console.log("PayLOadddd----", leadPayload);
@@ -593,6 +603,16 @@ const InspectionPage = () => {
   };
 
   const normalSubmit = async () => {
+    const carErr = validateCar();
+    const addrErr = validateAddress();
+
+    setCarError(carErr);
+    setAddressError(addrErr);
+
+    if (carErr || addrErr) {
+      showAlert("Please select car and address", "error");
+      return;
+    }
     const leadPayload = buildLeadPayload(false);
     const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
     const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
@@ -814,12 +834,13 @@ const InspectionPage = () => {
       setOtp("");
       setOtpSent(false);
       setOtpExpired(false);
-      if (inspection) {
-        setCurrentStep("offer");
-        handlePayment();
-      } else {
-        await normalSubmit();
-      }
+      // if (inspection) {
+      //   setCurrentStep("offer");
+      //   handlePayment();
+      // } else {
+      //   await normalSubmit();
+      // }
+      setCurrentStep("offer");
     } catch (err) {
       console.error("OTP Verify Error", err);
       const message = "Invalid OTP";
@@ -1350,7 +1371,7 @@ const InspectionPage = () => {
                             otpStep ? "Verifying..." : "Sending OTP..."
                           ) : otpStep ? (
                             <>
-                              {inspection ? `Verify & Pay Rs.${activeOffer.totalPrice}` : "Verify & Submit Enquiry"}
+                              {inspection ? `Verify` : "Verify & Submit Enquiry"}
                               <FaArrowRight className="ip-btn-arrow" />
                             </>
                           ) : (
