@@ -336,7 +336,14 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     // Get the selected inspection offer
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
     // Use state-tracked car so switches via CarSelectorSection are picked up immediately
-    const selectedCarPayload = getSelectedCarPayload(selectedCarForBooking);
+    const selectedCarPayload =
+      isLoggedIn && savedVehicles.length > 0 && selectedCarForBooking
+        ? getSelectedCarPayload(selectedCarForBooking)
+        : {
+          registrationNumber: "", vehicleNumber: "", VehicleNumber: "",
+          vehicleID: 0, brandID: 0, modelID: 0, fuelTypeID: 0,
+          kmDriven: 0, kilometersDriven: 0, yearOfPurchase: 0, YearOfPurchase: 0,
+        };
 
     if (withInspection) {
       // Add inspection service first (the selected package)
@@ -613,6 +620,12 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     return "";
   };
 
+  const validateCar = () => {
+    if (!isLoggedIn || savedVehicles.length === 0) return "";
+    if (!selectedCarForBooking) return "Please select a car to continue.";
+    return "";
+  };
+
   const handleSendOTP = async () => {
 
     // reset previous otp error if any
@@ -622,6 +635,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const emailErr = validateEmail(email);
     const descErr = validateDescription(description);
     const addrErr = validateAddress();
+    const carErr = validateCar();
 
     // set inline errors as well
     setNameError(nameErr);
@@ -629,10 +643,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     setEmailError(emailErr);
     setDescriptionError(descErr);
     setAddressError(addrErr);
+    setCarError(carErr);
 
-    if (nameErr || phoneErr || emailErr || descErr || addrErr) {
+    if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
       // also notify user via toast for first error
-      const first = nameErr || phoneErr || emailErr || descErr || addrErr;
+      const first = nameErr || phoneErr || emailErr || descErr || addrErr || carErr;
       showAlert("Error", first, 3000, "error");
       return;
     }
@@ -719,15 +734,17 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const emailErr = validateEmail(email);
       const descErr = validateDescription(description);
       const addrErr = validateAddress();
+      const carErr = validateCar(); 
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
       setAddressError(addrErr);
+      setCarError(carErr);
 
-      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
-        const firstErr = nameErr || phoneErr || emailErr || descErr || addrErr;
+      if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
+        const firstErr = nameErr || phoneErr || emailErr || descErr || addrErr || carErr;
         showAlert("Error", firstErr, 3000, "error");
         return;
       }

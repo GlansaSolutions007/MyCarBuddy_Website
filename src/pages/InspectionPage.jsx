@@ -413,13 +413,26 @@ const InspectionPage = () => {
     return "";
   };
 
+  const validateCar = () => {
+    if (!isLoggedIn || savedVehicles.length === 0) return ""; // no cars → skip, send empty
+    if (!selectedCarForBooking) return "Please select a car to continue.";
+    return "";
+  };
+
   const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
     const services = [];
     // Prefer the state-tracked car (user may have switched via CarSelectorSection);
     // fall back to whatever is in localStorage for non-logged-in flows.
-    const selectedCarPayload = getSelectedCarPayload(selectedCarForBooking);
+    const selectedCarPayload =
+      isLoggedIn && savedVehicles.length > 0 && selectedCarForBooking
+        ? getSelectedCarPayload(selectedCarForBooking)
+        : {
+          registrationNumber: "", vehicleNumber: "", VehicleNumber: "",
+          vehicleID: 0, brandID: 0, modelID: 0, fuelTypeID: 0,
+          kmDriven: 0, kilometersDriven: 0, yearOfPurchase: 0, YearOfPurchase: 0,
+        };
 
     if (withInspection) {
       services.push({
@@ -688,6 +701,17 @@ const InspectionPage = () => {
   };
 
   const handlePackagePayNow = (offerIndex) => {
+
+    const carErr = validateCar();
+    if (carErr) {
+      setCarError(carErr);
+      setTimeout(() => {
+        document.querySelector(".ip-car-selector")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+      return;
+    }
+    setCarError("");
+
     // Always validate address first (for both logged-in and guest)
     const addrErr = validateAddress();
     if (addrErr) {
@@ -722,14 +746,18 @@ const InspectionPage = () => {
     const phoneErr = validatePhone(identifier);
     const emailErr = validateEmail(email);
     const descErr = inspection ? "" : validateDescription(description);
+    const addrErr = validateAddress();
+    const carErr = validateCar();
 
     setNameError(nameErr);
     setPhoneError(phoneErr);
     setEmailError(emailErr);
     setDescriptionError(descErr);
+    setAddressError(addrErr);
+    setCarError(carErr);
 
-    if (nameErr || phoneErr || emailErr || descErr) {
-      showAlert("Error", nameErr || phoneErr || emailErr || descErr, 3000, "error");
+    if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
+      showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr || carErr, 3000, "error");
       return;
     }
 
@@ -825,15 +853,17 @@ const InspectionPage = () => {
       const emailErr = validateEmail(email);
       const descErr = inspection ? "" : validateDescription(description);
       const addrErr = validateAddress();
+      const carErr = validateCar();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
       setAddressError(addrErr);
+      setCarError(carErr);
 
-      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
-        showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
+      if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
+        showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr || carErr, 3000, "error");
         return;
       }
 
