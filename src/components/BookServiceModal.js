@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useAlert } from "../context/AlertContext";
@@ -52,8 +52,55 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const { showAlert } = useAlert();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isLoggedIn = user && user.token;
+  /** Bumped after OTP verify so `user` / `isLoggedIn` re-read from localStorage without closing the modal */
+  const [authTick, setAuthTick] = useState(0);
+  const getSessionUser = useCallback(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+  const user = useMemo(() => getSessionUser(), [getSessionUser, authTick, isOpen]);
+  const isLoggedIn = !!(user && user.token);
+
+  const resolveCustIdFromStoredUser = useCallback(
+    (storedUser) => {
+      if (!storedUser) return null;
+      let resolvedCustId = null;
+      if (storedUser.id && secretKey) {
+        try {
+          const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+          const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+          if (decrypted && !isNaN(Number(decrypted))) resolvedCustId = decrypted;
+        } catch (_) {
+          /* not encrypted */
+        }
+      }
+      if (!resolvedCustId) {
+        resolvedCustId =
+          storedUser.custID || storedUser.custId || storedUser.CustID || storedUser.customerId || null;
+      }
+      return resolvedCustId;
+    },
+    [secretKey]
+  );
+
+  const fetchCustomerAddresses = useCallback(
+    async (storedUser) => {
+      const custId = resolveCustIdFromStoredUser(storedUser);
+      if (!custId) return [];
+      try {
+        const res = await axios.get(`${baseUrl}CustomerAddresses/custid?custid=${custId}`);
+        return Array.isArray(res.data) ? res.data : [];
+      } catch (err) {
+        console.warn("[BookServiceModal] fetchCustomerAddresses failed:", err);
+        return [];
+      }
+    },
+    [baseUrl, resolveCustIdFromStoredUser]
+  );
   const [companyInfo, setCompanyInfo] = useState({ Amount: '' });
   const navigate = useNavigate();
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -97,18 +144,29 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     }
   }, [isLoggedIn]);
 
-  // ── Load saved vehicles; respect whatever the user already chose ──
+  const refreshSavedVehicles = useCallback(async () => {
+    if (!isLoggedIn) return;
+    const sk = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+    const vehicles = await fetchSavedVehicles(baseUrl, sk);
+    const active = Array.isArray(vehicles)
+      ? vehicles.filter((v) => v.IsActive !== false)
+      : [];
+    setSavedVehicles(active);
+  }, [isLoggedIn, baseUrl]);
+
+  // ── Load saved vehicles when modal opens / login; refetch after Add New Car via onCarChange ──
   useEffect(() => {
     if (!isOpen || !isLoggedIn) return;
-    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+    refreshSavedVehicles();
+  }, [isOpen, isLoggedIn, refreshSavedVehicles]);
 
-    const init = async () => {
-      const vehicles = await fetchSavedVehicles(baseUrl, secretKey);
-      setSavedVehicles(vehicles);
-      // Do NOT auto-select — the user must choose their car explicitly
+  useEffect(() => {
+    const onSelectedCarUpdated = () => {
+      if (isOpen && isLoggedIn) refreshSavedVehicles();
     };
-    init();
-  }, [isOpen, isLoggedIn, baseUrl]);
+    window.addEventListener("selectedCarUpdated", onSelectedCarUpdated);
+    return () => window.removeEventListener("selectedCarUpdated", onSelectedCarUpdated);
+  }, [isOpen, isLoggedIn, refreshSavedVehicles]);
 
 
   // Pre-fill description based on selected service when modal opens
@@ -146,6 +204,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       setSelectedAddress(null);
       setAddressError("");
       setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+      setSavedAddresses([]);
+      setSavedVehicles([]);
+      setSelectedCarForBooking(null);
+      setCarError("");
     }
   }, [isOpen, isLoggedIn]);
 
@@ -276,26 +338,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   // ── Fetch saved addresses when modal opens and user is logged in ──
   useEffect(() => {
     if (!isOpen || !isLoggedIn) return;
-    const fetchAddresses = async () => {
+    const load = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const storedUser = getSessionUser();
         if (!storedUser) return;
-
-        let resolvedCustId = null;
-        if (storedUser.id) {
-          try {
-            const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
-            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-            if (decrypted && !isNaN(Number(decrypted))) resolvedCustId = decrypted;
-          } catch (_) { /* not encrypted */ }
-        }
-        if (!resolvedCustId) {
-          resolvedCustId = storedUser.custID || storedUser.custId || storedUser.CustID || storedUser.customerId || null;
-        }
-        if (!resolvedCustId) return;
-
-        const res = await axios.get(`${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`);
-        const all = Array.isArray(res.data) ? res.data : [];
+        const all = await fetchCustomerAddresses(storedUser);
         setSavedAddresses(all);
         const primary = all.find((a) => a.IsPrimary);
         if (primary) setSelectedAddress(primary);
@@ -303,8 +350,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
         console.warn("[BookServiceModal] fetchAddresses failed (optional):", err);
       }
     };
-    fetchAddresses();
-  }, [isOpen, isLoggedIn, baseUrl, secretKey]);
+    load();
+  }, [isOpen, isLoggedIn, fetchCustomerAddresses, getSessionUser]);
 
   // ── Address payload helper ──
   const getAddressPayload = () => {
@@ -337,7 +384,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
     // Use state-tracked car so switches via CarSelectorSection are picked up immediately
     const selectedCarPayload =
-      isLoggedIn && savedVehicles.length > 0 && selectedCarForBooking
+      isLoggedIn && selectedCarForBooking
         ? getSelectedCarPayload(selectedCarForBooking)
         : {
           registrationNumber: "", vehicleNumber: "", VehicleNumber: "",
@@ -373,7 +420,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     return {
       fullName,
       phoneNumber: identifier,
-      email: email || user?.email || "",
+      email: email || getSessionUser()?.email || "",
       description: description || "No description provided",
       platform: "Web",
       type: withInspection ? "online" : "cos",
@@ -398,11 +445,10 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       const leadPayload = buildLeadPayload(true); // true = with inspection
 
       // Update guest user details if needed
-      const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+      const sessionUser = getSessionUser();
+      const bytes = CryptoJS.AES.decrypt(sessionUser?.id || "", secretKey);
       const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
-
-      // if (user?.name === "GUEST") {
       try {
         const formDataToSend = new FormData();
         formDataToSend.append("custID", decryptedCustId);
@@ -417,8 +463,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
             "Content-Type": "multipart/form-data",
           },
         });
-        // ✅ Update user object in localStorage after success
-        const updatedUser = { ...user, email: email };
+        const updatedUser = { ...sessionUser, email: email };
         localStorage.setItem("user", JSON.stringify(updatedUser));
 
       } catch (error) {
@@ -539,8 +584,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const normalSubmit = async () => {
     const leadPayload = buildLeadPayload(false); // false = without inspection
 
-    // Update guest user details if needed
-    const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
+    const sessionUser = getSessionUser();
+    const bytes = CryptoJS.AES.decrypt(sessionUser?.id || "", secretKey);
     const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
 
     try {
@@ -557,8 +602,7 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
           "Content-Type": "multipart/form-data",
         },
       });
-      // ✅ Update user object in localStorage after success
-      const updatedUser = { ...user, email: email };
+      const updatedUser = { ...sessionUser, email: email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
     } catch (error) {
@@ -693,9 +737,47 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       window.dispatchEvent(new Event("userProfileUpdated"));
 
       if (inspection) {
+        setAuthTick((t) => t + 1);
         handlePayment();
       } else {
-        await normalSubmit();
+        try {
+          // Quick Enquiry: after login, auto-submit only if user has no saved cars and no saved addresses
+          const storedUser = getSessionUser();
+          const rawVehicles = await fetchSavedVehicles(baseUrl, secretKey);
+          const activeVehicles = rawVehicles.filter((v) => v.IsActive !== false);
+          const addresses = await fetchCustomerAddresses(storedUser);
+          const hasSavedCarOrAddress = activeVehicles.length > 0 || addresses.length > 0;
+
+          if (!hasSavedCarOrAddress) {
+            await normalSubmit();
+          } else {
+            setSavedAddresses(addresses);
+            const primaryAddr = addresses.find((a) => a.IsPrimary);
+            setSelectedAddress(primaryAddr || null);
+            setSavedVehicles(activeVehicles);
+            setSelectedCarForBooking(null);
+            setOtpStep(false);
+            setOtpSent(false);
+            setOtp("");
+            setOtpError("");
+            setOtpExpired(false);
+            setTimer(60);
+            setAuthTick((t) => t + 1);
+          }
+        } catch (postErr) {
+          console.error("[BookServiceModal] post-login cars/addresses fetch:", postErr);
+          showAlert(
+            "Warning",
+            "Could not load your saved cars or addresses. You can still submit your enquiry.",
+            4000,
+            "warning"
+          );
+          setOtpStep(false);
+          setOtpSent(false);
+          setOtp("");
+          setOtpError("");
+          setAuthTick((t) => t + 1);
+        }
       }
     } catch (err) {
       console.error("OTP Verify Error", err);
@@ -1156,12 +1238,16 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                   </div>
                 </div>
 
-                {/* Car Selector — always shown when user is logged in and has saved vehicles */}
-                {isLoggedIn && savedVehicles.length > 0 && (
+                {/* Car Selector — logged-in users (list refetches after Add New Car) */}
+                {isLoggedIn && (
                   <CarSelectorSection
                     savedVehicles={savedVehicles}
                     selectedCar={selectedCarForBooking}
-                    onCarChange={(car) => { setSelectedCarForBooking(car); setCarError(""); }}
+                    onCarChange={(car) => {
+                      setSelectedCarForBooking(car);
+                      setCarError("");
+                    }}
+                    onVehiclesMutated={refreshSavedVehicles}
                     imageBaseURL={process.env.REACT_APP_CARBUDDY_IMAGE_URL || ""}
                     error={carError}
                     variant="bsm"

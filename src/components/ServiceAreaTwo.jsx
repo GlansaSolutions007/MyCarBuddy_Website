@@ -75,7 +75,7 @@ const ServiceAreaTwo = () => {
             <div className="title-area text-center mb-4">
               <span className="sub-title">Our Services</span>
               <h2 className="sec-title">
-                Trusted Car Repair Professionalsaa
+                Trusted Car Repair Professionals
               </h2>
             </div>
           </div>

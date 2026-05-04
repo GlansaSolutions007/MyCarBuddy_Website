@@ -7,6 +7,8 @@ const CarSelectorSection = ({
   savedVehicles = [],
   selectedCar = null,
   onCarChange,
+  /** Called after a new car is saved via ChooseCarModal (parent should refetch vehicle list) */
+  onVehiclesMutated,
   imageBaseURL = "",
   error = "",
   variant = "ip",
@@ -114,6 +116,7 @@ const CarSelectorSection = ({
       window.dispatchEvent(new CustomEvent("selectedCarUpdated"));
     } catch (_) {}
     if (onCarChange) onCarChange(carDetails);
+    if (onVehiclesMutated) onVehiclesMutated();
     setShowChooseCarModal(false);
   };
 

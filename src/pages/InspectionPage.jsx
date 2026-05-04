@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -153,18 +153,29 @@ const InspectionPage = () => {
     }
   }, [isLoggedIn, user?.email, user?.name, user?.phone]);
 
-  // ── Load saved vehicles; respect whatever the user already chose ──
+  const refreshSavedVehicles = useCallback(async () => {
+    if (!isLoggedIn) return;
+    const sk = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+    const vehicles = await fetchSavedVehicles(baseUrl, sk);
+    const active = Array.isArray(vehicles)
+      ? vehicles.filter((v) => v.IsActive !== false)
+      : [];
+    setSavedVehicles(active);
+  }, [isLoggedIn, baseUrl]);
+
+  // ── Load saved vehicles; refetch after Add New Car (onVehiclesMutated / selectedCarUpdated) ──
   useEffect(() => {
     if (!isLoggedIn) return;
-    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+    refreshSavedVehicles();
+  }, [isLoggedIn, refreshSavedVehicles]);
 
-    const init = async () => {
-      const vehicles = await fetchSavedVehicles(baseUrl, secretKey);
-      setSavedVehicles(vehicles);
-      // Do NOT auto-select — the user must choose their car explicitly
+  useEffect(() => {
+    const onSelectedCarUpdated = () => {
+      if (isLoggedIn) refreshSavedVehicles();
     };
-    init();
-  }, [isLoggedIn, baseUrl]);
+    window.addEventListener("selectedCarUpdated", onSelectedCarUpdated);
+    return () => window.removeEventListener("selectedCarUpdated", onSelectedCarUpdated);
+  }, [isLoggedIn, refreshSavedVehicles]);
 
 
   useEffect(() => {
@@ -414,8 +425,9 @@ const InspectionPage = () => {
   };
 
   const validateCar = () => {
-    if (!isLoggedIn || savedVehicles.length === 0) return ""; // no cars → skip, send empty
-    if (!selectedCarForBooking) return "Please select a car to continue.";
+    if (!isLoggedIn) return "";
+    if (savedVehicles.length > 0 && !selectedCarForBooking)
+      return "Please select a car to continue.";
     return "";
   };
 
@@ -426,7 +438,7 @@ const InspectionPage = () => {
     // Prefer the state-tracked car (user may have switched via CarSelectorSection);
     // fall back to whatever is in localStorage for non-logged-in flows.
     const selectedCarPayload =
-      isLoggedIn && savedVehicles.length > 0 && selectedCarForBooking
+      isLoggedIn && selectedCarForBooking
         ? getSelectedCarPayload(selectedCarForBooking)
         : {
           registrationNumber: "", vehicleNumber: "", VehicleNumber: "",
@@ -477,16 +489,6 @@ const InspectionPage = () => {
   };
 
   const handlePayment = async (offerIndexOverride) => {
-    const carErr = validateCar();
-    const addrErr = validateAddress();
-
-    setCarError(carErr);
-    setAddressError(addrErr);
-
-    if (carErr || addrErr) {
-      showAlert("Please select car and address", "error");
-      return;
-    }
     try {
       const leadPayload = buildLeadPayload(true, offerIndexOverride);
       console.log("PayLOadddd----", leadPayload);
@@ -603,16 +605,6 @@ const InspectionPage = () => {
   };
 
   const normalSubmit = async () => {
-    const carErr = validateCar();
-    const addrErr = validateAddress();
-
-    setCarError(carErr);
-    setAddressError(addrErr);
-
-    if (carErr || addrErr) {
-      showAlert("Please select car and address", "error");
-      return;
-    }
     const leadPayload = buildLeadPayload(false);
     const bytes = CryptoJS.AES.decrypt(user?.id || "", secretKey);
     const decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
@@ -834,13 +826,12 @@ const InspectionPage = () => {
       setOtp("");
       setOtpSent(false);
       setOtpExpired(false);
-      // if (inspection) {
-      //   setCurrentStep("offer");
-      //   handlePayment();
-      // } else {
-      //   await normalSubmit();
-      // }
-      setCurrentStep("offer");
+      if (inspection) {
+        setCurrentStep("offer");
+        handlePayment();
+      } else {
+        await normalSubmit();
+      }
     } catch (err) {
       console.error("OTP Verify Error", err);
       const message = "Invalid OTP";
@@ -1371,7 +1362,7 @@ const InspectionPage = () => {
                             otpStep ? "Verifying..." : "Sending OTP..."
                           ) : otpStep ? (
                             <>
-                              {inspection ? `Verify` : "Verify & Submit Enquiry"}
+                              {inspection ? `Verify & Pay Rs.${activeOffer.totalPrice}` : "Verify & Submit Enquiry"}
                               <FaArrowRight className="ip-btn-arrow" />
                             </>
                           ) : (
@@ -1396,11 +1387,15 @@ const InspectionPage = () => {
 
         {/* ── Car Selector ── */}
         <div className="inspection-page-shell">
-          {isLoggedIn && savedVehicles.length > 0 && (
+          {isLoggedIn && (
             <CarSelectorSection
               savedVehicles={savedVehicles}
               selectedCar={selectedCarForBooking}
-              onCarChange={(car) => { setSelectedCarForBooking(car); setCarError(""); }}
+              onCarChange={(car) => {
+                setSelectedCarForBooking(car);
+                setCarError("");
+              }}
+              onVehiclesMutated={refreshSavedVehicles}
               imageBaseURL={process.env.REACT_APP_CARBUDDY_IMAGE_URL || ""}
               error={carError}
               variant="ip"
