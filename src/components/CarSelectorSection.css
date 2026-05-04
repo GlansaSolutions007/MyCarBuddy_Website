@@ -1,0 +1,149 @@
+/*
+ * CarSelectorSection.css
+ *
+ * Styles for the car-selection UI used in InspectionPage and BookServiceModal.
+ * Mirrors the address-selector pattern so both sections feel visually unified.
+ *
+ * Namespaced under:
+ *   .ip-car-selector   → InspectionPage variant
+ *   .bsm-car-selector  → BookServiceModal variant
+ */
+
+/* ─── Shared base (both variants) ─────────────────────────────────────────── */
+
+.ip-car-selector,
+.bsm-car-selector {
+  padding: 24px 28px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+/* ─── Section header label ──────────────────────────────────────────────────── */
+
+.ip-car-selector__label,
+.bsm-car-selector__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #111827;
+}
+
+/* ─── Card list ─────────────────────────────────────────────────────────────── */
+
+.ip-car-selector .ip-address-list,
+.bsm-car-selector .bsm-address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─── Individual card — inherits from .ip-address-card / .bsm-address-card ─── */
+/* Car icon column: give it more breathing room for the image */
+
+.ip-car-selector .ip-address-card__icon,
+.bsm-car-selector .bsm-address-card__icon {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Fuel / reg sub-line */
+.ip-car-selector .ip-address-card__sub,
+.bsm-car-selector .bsm-address-card__sub {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Badge — e.g. "Primary" */
+.ip-car-selector .ip-address-card__badge,
+.bsm-car-selector .bsm-address-card__badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Selected card highlight ──────────────────────────────────────────────── */
+
+.ip-car-selector .ip-address-card--selected,
+.bsm-car-selector .bsm-address-card--selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+/* ─── "Add New Car" card (styled like "Other" address card) ────────────────── */
+
+.ip-car-selector .ip-address-card--other,
+.bsm-car-selector .bsm-address-card--other {
+  border-style: dashed;
+  color: #2563eb;
+}
+
+.ip-car-selector .ip-address-card--other:hover,
+.bsm-car-selector .bsm-address-card--other:hover {
+  background: #eff6ff;
+}
+
+/* ─── InspectionPage-specific wrapper ─────────────────────────────────────── */
+
+.ip-car-selector {
+  /* Sits outside the main booking card, same as the address selector */
+  /* max-width: 680px; */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── BookServiceModal-specific wrapper ────────────────────────────────────── */
+
+.bsm-car-selector {
+  /* Inside the modal, full width */
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+  margin-bottom: 14px;
+}
+
+/* Tighter label inside modal */
+.bsm-car-selector .bsm-car-selector__label {
+  font-size: 0.78rem;
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .ip-car-selector,
+  .bsm-car-selector {
+    padding: 14px 12px;
+  }
+
+  .ip-car-selector .ip-address-card__icon,
+  .bsm-car-selector .bsm-address-card__icon {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+  }
+}

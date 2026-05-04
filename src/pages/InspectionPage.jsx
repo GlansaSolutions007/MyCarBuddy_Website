@@ -23,6 +23,8 @@ import FooterAreaOne from "../components/FooterAreaOne";
 import Preloader from "../helper/Preloader";
 import { useAlert } from "../context/AlertContext";
 import { saveUserFromVerifyOtp } from "../helper/authHelper";
+import { getSelectedCarPayload, fetchSavedVehicles } from "../helper/carHelper";
+import CarSelectorSection from "../components/CarSelectorSection";
 import "./InspectionPage.css";
 
 const DEFAULT_OFFER_1 = {
@@ -51,46 +53,6 @@ const DEFAULT_OFFER_2 = {
   packageId: 175,
   packageName: "7-Seater Car",
   inspectionIncludes: [],
-};
-
-const getSelectedCarPayload = () => {
-  try {
-    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
-    const resolvedRegistrationNumber = selectedCar
-      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
-      : "";
-    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
-    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
-
-    return {
-      registrationNumber: resolvedRegistrationNumber,
-      vehicleNumber: resolvedRegistrationNumber,
-      VehicleNumber: resolvedRegistrationNumber,
-      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
-      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
-      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
-      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
-      kmDriven: resolvedKmDriven,
-      kilometersDriven: resolvedKmDriven,
-      yearOfPurchase: resolvedYearOfPurchase,
-      YearOfPurchase: resolvedYearOfPurchase,
-    };
-  } catch (error) {
-    console.error("Error reading selectedCarDetails:", error);
-    return {
-      registrationNumber: "",
-      vehicleNumber: "",
-      VehicleNumber: "",
-      vehicleID: 0,
-      brandID: 0,
-      modelID: 0,
-      fuelTypeID: 0,
-      kmDriven: 0,
-      kilometersDriven: 0,
-      yearOfPurchase: 0,
-      YearOfPurchase: 0,
-    };
-  }
 };
 
 const InspectionPage = () => {
@@ -132,6 +94,11 @@ const InspectionPage = () => {
   const [addressError, setAddressError] = useState("");
   const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
   const OTHER_ADDRESS = { AddressID: "__other__" };
+
+  // ── Car selector state ──
+  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [selectedCarForBooking, setSelectedCarForBooking] = useState(null);
+  const [carError, setCarError] = useState("");
   const payActionsRef = useRef(null);
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
@@ -185,6 +152,20 @@ const InspectionPage = () => {
       setEmail(user?.email || "");
     }
   }, [isLoggedIn, user?.email, user?.name, user?.phone]);
+
+  // ── Load saved vehicles; respect whatever the user already chose ──
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+
+    const init = async () => {
+      const vehicles = await fetchSavedVehicles(baseUrl, secretKey);
+      setSavedVehicles(vehicles);
+      // Do NOT auto-select — the user must choose their car explicitly
+    };
+    init();
+  }, [isLoggedIn, baseUrl]);
+
 
   useEffect(() => {
     if (selectedService?.title) {
@@ -436,7 +417,9 @@ const InspectionPage = () => {
     const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
     const selectedOfferData = resolvedOffer;
     const services = [];
-    const selectedCarPayload = getSelectedCarPayload();
+    // Prefer the state-tracked car (user may have switched via CarSelectorSection);
+    // fall back to whatever is in localStorage for non-logged-in flows.
+    const selectedCarPayload = getSelectedCarPayload(selectedCarForBooking);
 
     if (withInspection) {
       services.push({
@@ -1360,6 +1343,19 @@ const InspectionPage = () => {
           </div>
         </section>
 
+        {/* ── Car Selector ── */}
+        <div className="inspection-page-shell">
+          {isLoggedIn && savedVehicles.length > 0 && (
+            <CarSelectorSection
+              savedVehicles={savedVehicles}
+              selectedCar={selectedCarForBooking}
+              onCarChange={(car) => { setSelectedCarForBooking(car); setCarError(""); }}
+              imageBaseURL={process.env.REACT_APP_CARBUDDY_IMAGE_URL || ""}
+              error={carError}
+              variant="ip"
+            />
+          )}
+        </div>
         {/* ── Address Selector ── */}
         {savedAddresses.length > 0 && (
           <div className="ip-address-selector">

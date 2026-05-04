@@ -5,6 +5,8 @@ import { useAlert } from "../context/AlertContext";
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 import { saveUserFromVerifyOtp } from "../helper/authHelper";
+import { getSelectedCarPayload, fetchSavedVehicles } from "../helper/carHelper";
+import CarSelectorSection from "./CarSelectorSection";
 import {
   FaTimes,
   FaTools,
@@ -24,46 +26,6 @@ import {
 import "./BookServiceModal.css";
 import { platform } from "process";
 import { useNavigate } from "react-router-dom";
-
-const getSelectedCarPayload = () => {
-  try {
-    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
-    const resolvedRegistrationNumber = selectedCar
-      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
-      : "";
-    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
-    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
-
-    return {
-      registrationNumber: resolvedRegistrationNumber,
-      vehicleNumber: resolvedRegistrationNumber,
-      VehicleNumber: resolvedRegistrationNumber,
-      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
-      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
-      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
-      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
-      kmDriven: resolvedKmDriven,
-      kilometersDriven: resolvedKmDriven,
-      yearOfPurchase: resolvedYearOfPurchase,
-      YearOfPurchase: resolvedYearOfPurchase,
-    };
-  } catch (error) {
-    console.error("Error reading selectedCarDetails:", error);
-    return {
-      registrationNumber: "",
-      vehicleNumber: "",
-      VehicleNumber: "",
-      vehicleID: 0,
-      brandID: 0,
-      modelID: 0,
-      fuelTypeID: 0,
-      kmDriven: 0,
-      kilometersDriven: 0,
-      yearOfPurchase: 0,
-      YearOfPurchase: 0,
-    };
-  }
-};
 
 const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail, serviceIdCollect, inspectionOnly, startInEnquiry = false, redirectInspectionToPage = false }) => {
   // --- STATES ---
@@ -122,6 +84,11 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
   const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
   const OTHER_ADDRESS = { AddressID: "__other__" };
 
+  // ── Car selector state ──
+  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [selectedCarForBooking, setSelectedCarForBooking] = useState(null);
+  const [carError, setCarError] = useState("");
+
   useEffect(() => {
     if (isLoggedIn) {
       setFullName(user?.name || "");
@@ -129,6 +96,20 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
       setEmail(user?.email || "");
     }
   }, [isLoggedIn]);
+
+  // ── Load saved vehicles; respect whatever the user already chose ──
+  useEffect(() => {
+    if (!isOpen || !isLoggedIn) return;
+    const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+
+    const init = async () => {
+      const vehicles = await fetchSavedVehicles(baseUrl, secretKey);
+      setSavedVehicles(vehicles);
+      // Do NOT auto-select — the user must choose their car explicitly
+    };
+    init();
+  }, [isOpen, isLoggedIn, baseUrl]);
+
 
   // Pre-fill description based on selected service when modal opens
   useEffect(() => {
@@ -354,7 +335,8 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
     const services = [];
     // Get the selected inspection offer
     const selectedOfferData = selectedOffer === 1 ? offer1 : offer2;
-    const selectedCarPayload = getSelectedCarPayload();
+    // Use state-tracked car so switches via CarSelectorSection are picked up immediately
+    const selectedCarPayload = getSelectedCarPayload(selectedCarForBooking);
 
     if (withInspection) {
       // Add inspection service first (the selected package)
@@ -1156,6 +1138,18 @@ const BookServiceModal = ({ isOpen, onClose, selectedService, serviceTypeDetail,
                     {emailError && <p className="bsm-helper-text">{emailError}</p>}
                   </div>
                 </div>
+
+                {/* Car Selector — always shown when user is logged in and has saved vehicles */}
+                {isLoggedIn && savedVehicles.length > 0 && (
+                  <CarSelectorSection
+                    savedVehicles={savedVehicles}
+                    selectedCar={selectedCarForBooking}
+                    onCarChange={(car) => { setSelectedCarForBooking(car); setCarError(""); }}
+                    imageBaseURL={process.env.REACT_APP_CARBUDDY_IMAGE_URL || ""}
+                    error={carError}
+                    variant="bsm"
+                  />
+                )}
 
                 {/* Address Selector — shown for enquiry when user has saved addresses */}
                 {!inspection && savedAddresses.length > 0 && (
