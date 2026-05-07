@@ -23,6 +23,7 @@ import {
   FaBoxOpen,
   FaCartPlus,
   FaChevronDown,
+  FaDownload,
   FaInfoCircle,
   FaPhone,
   FaTicketAlt,
@@ -38,6 +39,7 @@ import {
   FaTruck,
   FaWarehouse,
   FaHome,
+  FaClipboardList,
 } from "react-icons/fa";
 
 const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
@@ -98,6 +100,7 @@ const MyBookings = () => {
   const [ticketDescription, setTicketDescription] = useState("");
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
   const [isAddOnsOpen, setIsAddOnsOpen] = useState(false);
+  const [showInspectionResults, setShowInspectionResults] = useState(false);
   // State to track which includes are expanded (e.g., { 0: true, 1: false })
   const [expandedIncludes, setExpandedIncludes] = React.useState({});
 
@@ -1036,6 +1039,14 @@ const MyBookings = () => {
   const inspectionTrackings = Array.isArray(selectedBooking?.InspectionTracking)
     ? selectedBooking.InspectionTracking.filter(Boolean)
     : [];
+
+  const inspectionResults = Array.isArray(selectedBooking?.Inspection_Results)
+    ? selectedBooking.Inspection_Results
+    : [];
+
+  useEffect(() => {
+    setShowInspectionResults(false);
+  }, [selectedBooking]);
 
   const inspectionTotalPrice = inspectionTrackings.reduce(
     (sum, inspection) => sum + Number(inspection?.TotalPrice || 0),
@@ -2403,6 +2414,98 @@ const MyBookings = () => {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {inspectionResults.length > 0 && (
+                    <div className="mb-inspection-results mt-4 mb-4">
+                      <div className="mb-inspection-results-header mb-3">
+
+                        {/* Toggle Button */}
+                        <button
+                          className="inspection-results-toggle-modern"
+                          type="button"
+                          onClick={() => setShowInspectionResults(prev => !prev)}
+                        >
+                          <div className="d-flex align-items-center gap-2">
+                            <div className="icon-circle">
+                              <FaClipboardList />
+                            </div>
+                            <span>
+                              Inspection Results
+                              <span className="count-badge">
+                                {inspectionResults.length}
+                              </span>
+                            </span>
+                          </div>
+
+                          <FaChevronDown
+                            className={`chevron ${showInspectionResults ? "rotate" : ""}`}
+                          />
+                        </button>
+
+                        {/* Download Button */}
+                        <a
+                          className="inspection-download-btn-modern"
+                          href={`${BaseURL}ServiceImages/InspectionChecklistPdf/${selectedBooking?.BookingID}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FaDownload />
+                          <span>Download PDF</span>
+                        </a>
+
+                      </div>
+
+                      {showInspectionResults && (
+                        <div className="mt-3 table-responsive inspection-results-table-wrapper">
+                          <table className="table table-bordered table-sm inspection-results-table mb-0">
+                            <thead className="table-light">
+                              <tr>
+                                <th>#</th>
+                                <th>Category</th>
+                                <th>Includes</th>
+                                <th>Checked</th>
+                                <th>Remarks</th>
+                                {/* <th>Technician</th> */}
+                                {/* <th>Date</th> */}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {inspectionResults.map(
+                                (result, index) => (
+                                  <tr
+                                    key={
+                                      result.Id ||
+                                      `${result.Checklist_id}-${index}`
+                                    }
+                                  >
+                                    <td>{index + 1}</td>
+                                    <td>{result.Category || "-"}</td>
+                                    <td>{result.Includes || "-"}</td>
+                                    <td>{result.Is_Checked ? "Yes" : "No"}</td>
+                                    <td>{result.Remarks || "-"}</td>
+                                    {/* <td>{result.TechnicianName || "-"}</td> */}
+                                    {/* <td>
+                                      {result.Created_at
+                                        ? new Date(
+                                          result.Created_at,
+                                        ).toLocaleString("en-GB", {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })
+                                        : "-"}
+                                    </td> */}
+                                  </tr>
+                                ),
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   )}
 
