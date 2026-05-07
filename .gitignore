@@ -6,6 +6,9 @@
 .env
 .env.production
 .env.staging
+.env.development.local
+
+
 .pnp.js
 
 # testing
