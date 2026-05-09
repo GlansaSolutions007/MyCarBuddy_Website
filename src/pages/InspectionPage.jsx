@@ -535,7 +535,7 @@ const InspectionPage = () => {
       phoneNumber: identifier,
       email: email || user?.email || "",
       description: withInspection
-        ? `Rs.${selectedOfferData.newPrice + selectedOfferData.gstPrice} - ${selectedOfferData.packageName} `
+        ? `${selectedOfferData.packageName} `
         : `${selectedService?.title || "Service"} - ${description || "No description provided"}`,
       platform: "Web",
       type: withInspection ? "online" : "cos",

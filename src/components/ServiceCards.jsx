@@ -78,6 +78,8 @@ export default function ServiceCards() {
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
 
+  const [openFAQs, setOpenFAQs] = useState({});
+
 
   const { cartItems, addToCart, removeFromCart, updateQuantity } = useCart();
 
@@ -546,27 +548,29 @@ export default function ServiceCards() {
                   Frequently Asked Questions
                 </h3>
                 <div className="sc-faq-grid sc-faq-scrollable">
-                  {faqs.map((faq, idx) => (
-                    <div key={faq.FAQID || idx} className="sc-faq-card">
-                      <button
-                        className="sc-faq-question"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target={`#scFaqCollapse${idx}`}
-                      >
-                        <span className="sc-faq-number">{String(idx + 1).padStart(2, '0')}</span>
-                        <span className="sc-faq-question-text">
-                          {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
-                        </span>
-                        <span className="sc-faq-chevron">
-                          <i className="fas fa-chevron-down" />
-                        </span>
-                      </button>
-                      <div id={`scFaqCollapse${idx}`} className="collapse sc-faq-answer">
-                        <p>{faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}</p>
+                  {faqs.map((faq, idx) => {
+                    const isOpen = openFAQs[idx] || false;
+                    return (
+                      <div key={faq.FAQID || idx} className="sc-faq-card">
+                        <button
+                          className="sc-faq-question"
+                          type="button"
+                          onClick={() => setOpenFAQs(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                        >
+                          <span className="sc-faq-number">{String(idx + 1).padStart(2, '0')}</span>
+                          <span className="sc-faq-question-text">
+                            {faq.Question.charAt(0).toUpperCase() + faq.Question.slice(1)}
+                          </span>
+                          <span className="sc-faq-chevron">
+                            <i className={`fas ${isOpen ? 'fa-chevron-down' : 'fa-chevron-up'}`} />
+                          </span>
+                        </button>
+                        <div className={`collapse sc-faq-answer ${isOpen ? 'show' : ''}`}>
+                          <p>{faq.Answer.charAt(0).toUpperCase() + faq.Answer.slice(1)}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

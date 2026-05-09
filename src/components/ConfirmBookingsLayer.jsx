@@ -104,10 +104,13 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
         fetchBookings();
     }, [custId, bookingId, user?.token]);
 
-    // Calculate Totals for temp addons (pending confirmation)
+    // Calculate Totals for temp addons (pending confirmation) — excludes rejected services
     const tempTotals = useMemo(() => {
         return services.reduce(
             (acc, srv) => {
+                // Skip rejected services — their cost should not appear in the summary
+                if (serviceApprovalMap[srv.Id] === false) return acc;
+
                 const qty = Number(srv.Quantity || 1);
                 const price = Number(srv.ServicePrice || srv.BasePrice || 0);
                 const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
@@ -124,7 +127,7 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
             },
             { price: 0, gstAmount: 0, totalAmount: 0, quantity: 0, labourCharge: 0 }
         );
-    }, [services]);
+    }, [services, serviceApprovalMap]);
 
     // Calculate Totals for confirmed addons
     const confirmedTotals = useMemo(() => {
@@ -683,6 +686,29 @@ const ConfirmBookingsLayer = ({ custId: custIdProp, bookingId, booking }) => {
                                 <div className="aos-summary-label">Total Items</div>
                                 <div className="aos-summary-value">{totals.quantity}</div>
                             </div>
+                            {/* Rejected services deduction notice */}
+                            {services.some((srv) => serviceApprovalMap[srv.Id] === false) && (() => {
+                                const rejectedCount = services.filter((srv) => serviceApprovalMap[srv.Id] === false).length;
+                                const rejectedTotal = services
+                                    .filter((srv) => serviceApprovalMap[srv.Id] === false)
+                                    .reduce((sum, srv) => {
+                                        const qty = Number(srv.Quantity || 1);
+                                        const price = Number(srv.ServicePrice || srv.BasePrice || 0);
+                                        const gst = Number(srv.GSTPrice || srv.GSTAmount || 0);
+                                        const labour = Number(srv.LabourCharges || 0);
+                                        return sum + (price + gst + labour) * qty;
+                                    }, 0);
+                                return (
+                                    <div className="aos-summary-item" style={{ background: "rgba(220,53,69,0.08)", border: "1px solid rgba(220,53,69,0.3)" }}>
+                                        <div className="aos-summary-label">
+                                            Rejected ({rejectedCount} service{rejectedCount !== 1 ? "s" : ""})
+                                        </div>
+                                        <div className="aos-summary-value" style={{ color: "#dc3545" }}>
+                                            - ₹{rejectedTotal.toFixed(2)}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                             <div className="aos-summary-item">
                                 <div className="aos-summary-label">Parts Subtotal</div>
                                 <div className="aos-summary-value">₹{totals.price.toFixed(2)}</div>
