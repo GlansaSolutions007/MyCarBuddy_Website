@@ -7,6 +7,7 @@ import { useCart } from "../context/CartContext";
 import Swal from "sweetalert2";
 import NewTicket from "./NewTicket";
 import "./MyBookings.css";
+import TicketDrawer from "./TicketDrawer";
 import {
   FaReceipt,
   FaFilter,
@@ -136,6 +137,18 @@ const MyBookings = () => {
     setTicketDescription("");
   };
 
+  const handleTicketCreated = async () => {
+    const data = await fetchBookings();
+    if (selectedBooking && Array.isArray(data)) {
+      const updated = data.find(
+        (b) => b.BookingID === selectedBooking.BookingID,
+      );
+      if (updated) {
+        setSelectedBooking(updated);
+      }
+    }
+  };
+
   const handleSubmitTicket = async () => {
     if (!ticketDescription.trim()) {
       showAlert("Please enter a description for the ticket.", "warning");
@@ -161,6 +174,15 @@ const MyBookings = () => {
         showAlert("Ticket raised successfully!", "success");
         setShowRaisedTicketModal(false);
         setTicketDescription("");
+        const data = await fetchBookings();
+        if (selectedBooking && Array.isArray(data)) {
+          const updated = data.find(
+            (b) => b.BookingID === selectedBooking.BookingID,
+          );
+          if (updated) {
+            setSelectedBooking(updated);
+          }
+        }
       } else {
         showAlert("Failed to raise ticket. Please try again.", "error");
       }
@@ -188,8 +210,11 @@ const MyBookings = () => {
       } else {
         setBookings([]);
       }
+
+      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      return [];
     } finally {
       setIsLoading(false);
     }
@@ -992,6 +1017,31 @@ const MyBookings = () => {
     })
     : [];
 
+ const canRaiseTicket = (booking) => {
+  if (!booking) return false;
+
+  if (
+    booking.BookingStatus !== "Completed" ||
+    booking.PaymentStatus !== "Success"
+  ) {
+    return false;
+  }
+
+  const tickets = booking.Tickets;
+
+  if (!tickets || !Array.isArray(tickets) || tickets.length === 0) {
+    return true;
+  }
+
+  const latestTicket = [...tickets].sort(
+    (a, b) => new Date(b.CreatedDate) - new Date(a.CreatedDate)
+  )[0];
+
+  const status = latestTicket?.StatusName?.toLowerCase();
+
+  return status === "closed" || status === "cancelled";
+};
+
   let leadVehicle = null;
 
   if (Array.isArray(selectedBooking?.Leads)) {
@@ -1707,7 +1757,7 @@ const MyBookings = () => {
                       {selectedBooking.BookingsTempAddons.length > 1 ? "s" : ""}
                     </button>
                   )}
-                  {selectedBooking.BookingStatus !== "Cancelled" && (!selectedBooking.Tickets || selectedBooking.Tickets.some(ticket => ticket.StatusName === "Closed")) && (
+                  {canRaiseTicket(selectedBooking) && (
                     <button
                       className="mb-detail-action-btn warning"
                       onClick={() => setShowNewTicket(true)}
@@ -1783,13 +1833,20 @@ const MyBookings = () => {
             <div className="mb-detail-body">
               {/* NewTicket Component */}
               {showNewTicket && (
-                <NewTicket
+                <TicketDrawer
                   onClose={() => setShowNewTicket(false)}
-                  onTicketCreated={() => {
-                    setShowNewTicket(false);
-                  }}
-                  selectedTicketBookingId={selectedBooking?.BookingID}
-                />
+                  title={
+                    selectedBooking
+                      ? `Raise Ticket — #${selectedBooking.BookingTrackID}`
+                      : "Raise a Ticket"
+                  }
+                >
+                  <NewTicket
+                    onClose={() => setShowNewTicket(false)}
+                    onTicketCreated={handleTicketCreated}
+                    selectedTicketBookingId={selectedBooking?.BookingID}
+                  />
+                </TicketDrawer>
               )}
 
               {/* Resume Booking Form or Details */}
