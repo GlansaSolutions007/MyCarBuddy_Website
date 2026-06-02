@@ -727,6 +727,12 @@
   position: relative;
 }
 
+.mcb-user-wrapper--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .mcb-user-dropdown {
   position: absolute;
   top: calc(100% + 10px);

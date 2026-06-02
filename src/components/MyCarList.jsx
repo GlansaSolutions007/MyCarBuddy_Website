@@ -251,12 +251,13 @@ const MyCarList = () => {
   if (viewCar) {
     return (
       <div className="mc-section">
+        <div className="mc-container">
         <div className="mc-detail">
           <div className="mc-detail-header">
             <h3 className="mc-detail-title">
               <FaCar /> {viewCar.BrandName} {viewCar.ModelName}
             </h3>
-            <button className="mc-detail-back" onClick={() => setViewCar(null)}>
+            <button type="button" className="mc-detail-back" onClick={() => setViewCar(null)}>
               <FaArrowLeft /> Back to Cars
             </button>
           </div>
@@ -314,6 +315,7 @@ const MyCarList = () => {
             </div>
           </div>
         </div>
+        </div>
       </div>
     );
   }
@@ -322,12 +324,13 @@ const MyCarList = () => {
   if (showAddForm) {
     return (
       <div className="mc-section">
+        <div className="mc-container">
         <div className="mc-form">
           <h3 className="mc-form-title">
             <FaPlus /> Add New Car
           </h3>
 
-          <div style={{ marginBottom: '20px' }}>
+          <div className="mc-brand-row">
             <div
               onClick={() => setShowBrandPopup(true)}
               className={`mc-brand-box ${brand ? "selected" : ""}`}
@@ -414,16 +417,18 @@ const MyCarList = () => {
           </div>
 
           <div className="mc-form-actions">
-            <button className="mc-form-btn save" onClick={handleSaveCar}>
+            <button type="button" className="mc-form-btn save" onClick={handleSaveCar}>
               Save Car
             </button>
             <button
+              type="button"
               className="mc-form-btn cancel"
               onClick={() => setShowAddForm(false)}
             >
               Cancel
             </button>
           </div>
+        </div>
         </div>
       </div>
     );
@@ -432,6 +437,7 @@ const MyCarList = () => {
   // 📍 Car list mode
   return (
     <div className="mc-section">
+      <div className="mc-container">
       {/* Header */}
       <div className="mc-header">
         <h2 className="mc-title">
@@ -440,6 +446,13 @@ const MyCarList = () => {
           </span>
           My Cars
         </h2>
+        <button
+          type="button"
+          className="mc-add-btn"
+          onClick={() => setShowAddForm(true)}
+        >
+          <FaPlus /> Add car
+        </button>
       </div>
 
       {loading ? (
@@ -455,22 +468,40 @@ const MyCarList = () => {
             className="mc-empty-img"
           />
           <h4>No cars yet</h4>
-          <p>Looks like you haven't added any cars yet. Add your first car!</p>
+          <p>Looks like you haven&apos;t added any cars yet. Add your first car!</p>
+          <button
+            type="button"
+            className="mc-add-btn mc-empty-cta"
+            onClick={() => setShowAddForm(true)}
+          >
+            <FaPlus /> Add your first car
+          </button>
         </div>
       ) : (
         <div className="mc-grid">
           {carList.map((car) => (
-            <div key={car.VehicleID} className={`mc-card ${car.IsPrimary ? "primary" : ""}`}>
+            // <div key={car.VehicleID} className={`mc-card ${car.IsPrimary ? "primary" : ""}`}>
+            <div key={car.VehicleID} className={`mc-card `}>
+
               <div className="mc-card-header">
-                <span
+                {/* <span
                   className={`mc-primary-badge ${car.IsPrimary ? "active" : "inactive"}`}
                   onClick={() => handleSetPrimary(car.VehicleID)}
                   title="Set as Primary"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleSetPrimary(car.VehicleID);
+                    }
+                  }}
                 >
                   <FaStar /> Primary
-                </span>
+                </span> */}
                 <div className="mc-card-actions">
                   <button
+                    type="button"
                     className="mc-action-btn view"
                     onClick={() => setViewCar(car)}
                     title="View Details"
@@ -478,6 +509,7 @@ const MyCarList = () => {
                     <FaEye />
                   </button>
                   <button
+                    type="button"
                     className="mc-action-btn delete"
                     onClick={() => handleDelete(car.VehicleID)}
                     title="Delete Car"
@@ -500,9 +532,23 @@ const MyCarList = () => {
                     )}
                   </div>
                   <div className="mc-car-details">
-                    <div className="mc-car-brand">{car.BrandName} <span className="mc-car-model">{car.ModelName}</span></div>
-                    {/* <div className="mc-car-model">{car.ModelName}</div> */}
-                    <div className="mc-car-fuel">
+                    <div className="mc-car-text">
+                      <div className="mc-car-brand">{car.BrandName}</div>
+                      <div className="mc-car-model">{car.ModelName}</div>
+                    </div>
+                   
+                    {/* //addd car year of purchase and kilometers driven if not null */}
+                    {car.YearOfPurchase && (
+                      <div className="mc-car-year-of-purchase">
+                        <FaCalendarAlt /> {car.YearOfPurchase}
+                      </div>
+                    )}
+                    {car.KilometersDriven && (
+                      <div className="mc-car-kilometers-driven">
+                        <FaTachometerAlt /> {car.KilometersDriven}
+                      </div>
+                    )}
+                     <div className="mc-car-fuel">
                       <FaGasPump /> {car.FuelTypeName}
                     </div>
                   </div>
@@ -512,6 +558,7 @@ const MyCarList = () => {
           ))}
         </div>
       )}
+      </div>
 
       {showBrandPopup && (
         <BrandPopup

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -23,6 +23,8 @@ import FooterAreaOne from "../components/FooterAreaOne";
 import Preloader from "../helper/Preloader";
 import { useAlert } from "../context/AlertContext";
 import { saveUserFromVerifyOtp } from "../helper/authHelper";
+import { getSelectedCarPayload, fetchSavedVehicles } from "../helper/carHelper";
+import CarSelectorSection from "../components/CarSelectorSection";
 import "./InspectionPage.css";
 
 const DEFAULT_OFFER_1 = {
@@ -51,46 +53,6 @@ const DEFAULT_OFFER_2 = {
   packageId: 175,
   packageName: "7-Seater Car",
   inspectionIncludes: [],
-};
-
-const getSelectedCarPayload = () => {
-  try {
-    const selectedCar = JSON.parse(localStorage.getItem("selectedCarDetails") || "null");
-    const resolvedRegistrationNumber = selectedCar
-      ? (selectedCar.vehicleNumber || selectedCar.VehicleNumber || selectedCar.registrationNumber || selectedCar.VehicleRegNo || "")
-      : "";
-    const resolvedYearOfPurchase = Number(selectedCar?.yearOfPurchase || selectedCar?.YearOfPurchase) || 0;
-    const resolvedKmDriven = Number(selectedCar?.kilometersDriven || selectedCar?.KilometersDriven || selectedCar?.kilometerDriven) || 0;
-
-    return {
-      registrationNumber: resolvedRegistrationNumber,
-      vehicleNumber: resolvedRegistrationNumber,
-      VehicleNumber: resolvedRegistrationNumber,
-      vehicleID: selectedCar ? Number(selectedCar.id || selectedCar.VehicleID || selectedCar.vehicleID) || 0 : 0,
-      brandID: Number(selectedCar?.brandID || selectedCar?.BrandID || selectedCar?.brand?.id) || 0,
-      modelID: Number(selectedCar?.modelID || selectedCar?.ModelID || selectedCar?.model?.id) || 0,
-      fuelTypeID: Number(selectedCar?.fuelTypeID || selectedCar?.FuelTypeID || selectedCar?.fuel?.id) || 0,
-      kmDriven: resolvedKmDriven,
-      kilometersDriven: resolvedKmDriven,
-      yearOfPurchase: resolvedYearOfPurchase,
-      YearOfPurchase: resolvedYearOfPurchase,
-    };
-  } catch (error) {
-    console.error("Error reading selectedCarDetails:", error);
-    return {
-      registrationNumber: "",
-      vehicleNumber: "",
-      VehicleNumber: "",
-      vehicleID: 0,
-      brandID: 0,
-      modelID: 0,
-      fuelTypeID: 0,
-      kmDriven: 0,
-      kilometersDriven: 0,
-      yearOfPurchase: 0,
-      YearOfPurchase: 0,
-    };
-  }
 };
 
 const InspectionPage = () => {
@@ -130,8 +92,19 @@ const InspectionPage = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [useAddress, setUseAddress] = useState(false);
   const [addressError, setAddressError] = useState("");
-  const [manualAddress, setManualAddress] = useState({ line1: "", line2: "", city: "", state: "", pincode: "" });
+  const [manualAddress, setManualAddress] = useState({
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
   const OTHER_ADDRESS = { AddressID: "__other__" };
+
+  // ── Car selector state ──
+  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [selectedCarForBooking, setSelectedCarForBooking] = useState(null);
+  const [carError, setCarError] = useState("");
   const payActionsRef = useRef(null);
   const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
@@ -157,14 +130,15 @@ const InspectionPage = () => {
     };
   }, [currentStep]);
 
-
   const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
   const user = JSON.parse(localStorage.getItem("user"));
   const isLoggedIn = user && user.token;
   const selectedService = location.state?.selectedService || null;
   const serviceTypeDetail = location.state?.serviceTypeDetail || "Package";
-  const serviceIdCollect = location.state?.serviceIdCollect || selectedService?.id || 0;
-  const backPath = location.state?.backPath || (selectedService ? "/service" : "/");
+  const serviceIdCollect =
+    location.state?.serviceIdCollect || selectedService?.id || 0;
+  const backPath =
+    location.state?.backPath || (selectedService ? "/service" : "/");
 
   useEffect(() => {
     const timerId = setTimeout(() => setActive(false), 500);
@@ -185,6 +159,31 @@ const InspectionPage = () => {
       setEmail(user?.email || "");
     }
   }, [isLoggedIn, user?.email, user?.name, user?.phone]);
+
+  const refreshSavedVehicles = useCallback(async () => {
+    if (!isLoggedIn) return;
+    const sk = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
+    const vehicles = await fetchSavedVehicles(baseUrl, sk);
+    const active = Array.isArray(vehicles)
+      ? vehicles.filter((v) => v.IsActive !== false)
+      : [];
+    setSavedVehicles(active);
+  }, [isLoggedIn, baseUrl]);
+
+  // ── Load saved vehicles; refetch after Add New Car (onVehiclesMutated / selectedCarUpdated) ──
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    refreshSavedVehicles();
+  }, [isLoggedIn, refreshSavedVehicles]);
+
+  useEffect(() => {
+    const onSelectedCarUpdated = () => {
+      if (isLoggedIn) refreshSavedVehicles();
+    };
+    window.addEventListener("selectedCarUpdated", onSelectedCarUpdated);
+    return () =>
+      window.removeEventListener("selectedCarUpdated", onSelectedCarUpdated);
+  }, [isLoggedIn, refreshSavedVehicles]);
 
   useEffect(() => {
     if (selectedService?.title) {
@@ -210,7 +209,9 @@ const InspectionPage = () => {
   useEffect(() => {
     const fetchSeoData = async () => {
       try {
-        const res = await axios.get(`${baseUrl}Seometa/page_slug?page_slug=home`);
+        const res = await axios.get(
+          `${baseUrl}Seometa/page_slug?page_slug=home`,
+        );
         if (res.data) {
           setSeoMeta(res.data[0]);
         }
@@ -223,8 +224,12 @@ const InspectionPage = () => {
       setPackagesLoading(true);
       try {
         const [response1, response2] = await Promise.all([
-          axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`),
-          axios.get(`${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=175`),
+          axios.get(
+            `${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=174`,
+          ),
+          axios.get(
+            `${baseUrl}PlanPackage/GetPlanPackagesByCategoryAndSubCategory?PackageID=175`,
+          ),
         ]);
 
         if (response1.data && response1.data.length > 0) {
@@ -268,9 +273,13 @@ const InspectionPage = () => {
 
   const fetchCompanyInfo = async () => {
     try {
-      const res = await axios.get("https://dev-api.mycarsbuddy.com/api/CompanyInfo");
+      const res = await axios.get(
+        "https://dev-api.mycarsbuddy.com/api/CompanyInfo",
+      );
       if (res.data?.status && res.data.data) {
-        const offerItem = res.data.data.find(item => item.Type === "InspectionOffer");
+        const offerItem = res.data.data.find(
+          (item) => item.Type === "InspectionOffer",
+        );
         setInspectionOfferDesc(offerItem?.Description || "");
       }
     } catch (error) {
@@ -296,7 +305,9 @@ const InspectionPage = () => {
             if (decrypted && !isNaN(Number(decrypted))) {
               resolvedCustId = decrypted;
             }
-          } catch (_) { /* not encrypted — fall through */ }
+          } catch (_) {
+            /* not encrypted — fall through */
+          }
         }
 
         // Fallback: some auth helpers store the plain custID directly
@@ -309,11 +320,14 @@ const InspectionPage = () => {
             null;
         }
 
-        console.log("[InspectionPage] fetchAddresses → resolvedCustId:", resolvedCustId);
+        console.log(
+          "[InspectionPage] fetchAddresses → resolvedCustId:",
+          resolvedCustId,
+        );
         if (!resolvedCustId) return;
 
         const res = await axios.get(
-          `${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`
+          `${baseUrl}CustomerAddresses/custid?custid=${resolvedCustId}`,
         );
         const all = Array.isArray(res.data) ? res.data : [];
         console.log("[InspectionPage] fetchAddresses → addresses:", all);
@@ -339,14 +353,16 @@ const InspectionPage = () => {
   const validateName = (name) => {
     if (!name.trim()) return "Name is required";
     if (name.trim().length < 2) return "Name must be at least 2 characters";
-    if (!/^[a-zA-Z\s]+$/.test(name.trim())) return "Name can only contain letters and spaces";
+    if (!/^[a-zA-Z\s]+$/.test(name.trim()))
+      return "Name can only contain letters and spaces";
     return "";
   };
 
   const validatePhone = (phone) => {
     if (!phone.trim()) return "Mobile number is required";
     if (!/^\d+$/.test(phone)) return "Mobile number must contain only digits";
-    if (!/^[6-9]/.test(phone)) return "Mobile number must start with 6, 7, 8, or 9";
+    if (!/^[6-9]/.test(phone))
+      return "Mobile number must start with 6, 7, 8, or 9";
     if (phone.length !== 10) return "Mobile number must be exactly 10 digits";
     return "";
   };
@@ -354,7 +370,8 @@ const InspectionPage = () => {
   const validateEmail = (value) => {
     if (!value.trim()) return "";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value.trim())) return "Please enter a valid email address";
+    if (!emailRegex.test(value.trim()))
+      return "Please enter a valid email address";
     return "";
   };
 
@@ -367,7 +384,8 @@ const InspectionPage = () => {
 
   const validateDescription = (value) => {
     if (!value.trim()) return "Description is required";
-    if (value.trim().length < 10) return "Description must be at least 10 characters";
+    if (value.trim().length < 10)
+      return "Description must be at least 10 characters";
     return "";
   };
 
@@ -410,10 +428,24 @@ const InspectionPage = () => {
 
   // Returns address fields
   const getAddressPayload = () => {
-    if (!selectedAddress) return { city: null, longitude: null, latitude: null, addressId: null };
+    if (!selectedAddress)
+      return { city: null, longitude: null, latitude: null, addressId: null };
     if (selectedAddress.AddressID === "__other__") {
-      const parts = [manualAddress.line1, manualAddress.line2, manualAddress.city, manualAddress.state, manualAddress.pincode].filter(Boolean).join(", ");
-      return { city: parts || null, longitude: null, latitude: null, addressId: null };
+      const parts = [
+        manualAddress.line1,
+        manualAddress.line2,
+        manualAddress.city,
+        manualAddress.state,
+        manualAddress.pincode,
+      ]
+        .filter(Boolean)
+        .join(", ");
+      return {
+        city: parts || null,
+        longitude: null,
+        latitude: null,
+        addressId: null,
+      };
     }
     return {
       city: selectedAddress.AddressLine1 || null,
@@ -427,16 +459,54 @@ const InspectionPage = () => {
   const validateAddress = () => {
     if (savedAddresses.length === 0) return ""; // no addresses fetched → skip
     if (!selectedAddress) return "Please select a service address to continue.";
-    if (selectedAddress.AddressID === "__other__" && !manualAddress.line1.trim())
+    if (
+      selectedAddress.AddressID === "__other__" &&
+      !manualAddress.line1.trim()
+    )
       return "Please enter at least Address Line 1.";
     return "";
   };
 
-  const buildLeadPayload = (withInspection, offerIndexOverride, leadIdOverride = null) => {
-    const resolvedOffer = offerIndexOverride === 1 ? offer1 : offerIndexOverride === 2 ? offer2 : (selectedOffer === 1 ? offer1 : offer2);
+  const validateCar = () => {
+    if (!isLoggedIn) return "";
+    if (savedVehicles.length > 0 && !selectedCarForBooking)
+      return "Please select a car to continue.";
+    return "";
+  };
+
+  const buildLeadPayload = (
+    withInspection,
+    offerIndexOverride,
+    leadIdOverride = null,
+  ) => {
+    const resolvedOffer =
+      offerIndexOverride === 1
+        ? offer1
+        : offerIndexOverride === 2
+          ? offer2
+          : selectedOffer === 1
+            ? offer1
+            : offer2;
     const selectedOfferData = resolvedOffer;
     const services = [];
-    const selectedCarPayload = getSelectedCarPayload();
+    // Prefer the state-tracked car (user may have switched via CarSelectorSection);
+    // fall back to whatever is in localStorage for non-logged-in flows.
+    const selectedCarPayload =
+      isLoggedIn && selectedCarForBooking
+        ? getSelectedCarPayload(selectedCarForBooking)
+        : {
+            registrationNumber: "",
+            vehicleNumber: "",
+            VehicleNumber: "",
+            vehicleID: 0,
+            brandID: 0,
+            modelID: 0,
+            fuelTypeID: 0,
+            kmDriven: 0,
+            kilometersDriven: 0,
+            yearOfPurchase: 0,
+            YearOfPurchase: 0,
+          };
 
     if (withInspection) {
       services.push({
@@ -444,7 +514,7 @@ const InspectionPage = () => {
         serviceName: selectedOfferData.packageName,
         serviceType: "Inspection",
         isUserClicked: true,
-        price: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
+        price: selectedOfferData.newPrice + selectedOfferData.gstPrice,
         gstPrice: selectedOfferData.gstPrice,
         gstPercent: selectedOfferData.gstPercent,
         totalPrice: selectedOfferData.newPrice,
@@ -465,14 +535,14 @@ const InspectionPage = () => {
       phoneNumber: identifier,
       email: email || user?.email || "",
       description: withInspection
-        ? `Rs.${selectedOfferData.newPrice + selectedOfferData.gstPrice} - ${selectedOfferData.packageName} `
+        ? `${selectedOfferData.packageName} `
         : `${selectedService?.title || "Service"} - ${description || "No description provided"}`,
       platform: "Web",
       type: withInspection ? "online" : "cos",
       amount: selectedOfferData.newPrice + selectedOfferData.gstPrice,
       gstPrice: selectedOfferData.gstPrice,
       gstPercent: selectedOfferData.gstPercent,
-      totalPrice: (selectedOfferData.newPrice + selectedOfferData.gstPrice),
+      totalPrice: selectedOfferData.newPrice + selectedOfferData.gstPrice,
       ...selectedCarPayload,
       services,
       leadId: leadIdOverride ?? leadId,
@@ -498,11 +568,15 @@ const InspectionPage = () => {
           formDataToSend.append("ProfileImageFile", "");
           formDataToSend.append("IsActive", true);
 
-          await axios.post(`${baseUrl}Customer/update-customer`, formDataToSend, {
-            headers: {
-              "Content-Type": "multipart/form-data",
+          await axios.post(
+            `${baseUrl}Customer/update-customer`,
+            formDataToSend,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
             },
-          });
+          );
 
           const updatedUser = { ...user, email };
           localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -511,7 +585,10 @@ const InspectionPage = () => {
         }
       }
 
-      const res = await axios.post(`${baseUrl}Leads/MultipleLeads`, leadPayload);
+      const res = await axios.post(
+        `${baseUrl}Leads/MultipleLeads`,
+        leadPayload,
+      );
       setLeadId(res.data.leadId);
       const orderId = res.data.razorpayOrderID;
       const LeadId = res.data.leadId;
@@ -530,13 +607,16 @@ const InspectionPage = () => {
 
           setTimeout(async () => {
             try {
-              const confirmRes = await axios.post(`${baseUrl}Leads/confirm-Payment`, {
-                LeadId: LeadId,
-                amountPaid: amount,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                razorpayOrderId: response.razorpay_order_id,
-              });
+              const confirmRes = await axios.post(
+                `${baseUrl}Leads/confirm-Payment`,
+                {
+                  LeadId: LeadId,
+                  amountPaid: amount,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                  razorpayOrderId: response.razorpay_order_id,
+                },
+              );
 
               if (confirmRes?.data?.success || confirmRes?.status === 200) {
                 navigate("/payment-successful");
@@ -651,8 +731,10 @@ const InspectionPage = () => {
 
   // Returns true if the logged-in user is missing name or email
   const isProfileIncomplete = () => {
-    const nameOk = fullName.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(fullName.trim());
-    const emailOk = email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    const nameOk =
+      fullName.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(fullName.trim());
+    const emailOk =
+      email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     return !nameOk || !emailOk;
   };
 
@@ -660,9 +742,7 @@ const InspectionPage = () => {
   const handleCompleteProfileSubmit = async (e) => {
     e.preventDefault();
     const nameErr = validateName(fullName);
-    const emailErr = !email.trim()
-      ? "Email is required"
-      : validateEmail(email);
+    const emailErr = !email.trim() ? "Email is required" : validateEmail(email);
 
     setNameError(nameErr);
     setEmailError(emailErr);
@@ -698,20 +778,39 @@ const InspectionPage = () => {
       handlePayment(selectedOffer);
     } catch (error) {
       console.error("Profile update error:", error);
-      showAlert("Error", "Failed to update profile. Please try again.", 3000, "error");
+      showAlert(
+        "Error",
+        "Failed to update profile. Please try again.",
+        3000,
+        "error",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handlePackagePayNow = (offerIndex) => {
+    const carErr = validateCar();
+    if (carErr) {
+      setCarError(carErr);
+      setTimeout(() => {
+        document
+          .querySelector(".ip-car-selector")
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+      return;
+    }
+    setCarError("");
+
     // Always validate address first (for both logged-in and guest)
     const addrErr = validateAddress();
     if (addrErr) {
       setAddressError(addrErr);
       // Scroll address section into view so user sees the error
       setTimeout(() => {
-        document.querySelector(".ip-address-selector")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        document
+          .querySelector(".ip-address-selector")
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 50);
       return;
     }
@@ -739,14 +838,23 @@ const InspectionPage = () => {
     const phoneErr = validatePhone(identifier);
     const emailErr = validateEmail(email);
     const descErr = inspection ? "" : validateDescription(description);
+    const addrErr = validateAddress();
+    const carErr = validateCar();
 
     setNameError(nameErr);
     setPhoneError(phoneErr);
     setEmailError(emailErr);
     setDescriptionError(descErr);
+    setAddressError(addrErr);
+    setCarError(carErr);
 
-    if (nameErr || phoneErr || emailErr || descErr) {
-      showAlert("Error", nameErr || phoneErr || emailErr || descErr, 3000, "error");
+    if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
+      showAlert(
+        "Error",
+        nameErr || phoneErr || emailErr || descErr || addrErr || carErr,
+        3000,
+        "error",
+      );
       return;
     }
 
@@ -796,7 +904,11 @@ const InspectionPage = () => {
         deviceId,
       });
 
-      saveUserFromVerifyOtp(res.data, { phone: identifier, name: fullName, email });
+      saveUserFromVerifyOtp(res.data, {
+        phone: identifier,
+        name: fullName,
+        email,
+      });
       window.dispatchEvent(new Event("userProfileUpdated"));
 
       setOtpStep(false);
@@ -828,7 +940,12 @@ const InspectionPage = () => {
       }
     } catch (err) {
       console.error("Logged-in submission error:", err);
-      showAlert("Error", inspection ? "Failed to start payment" : "Failed to submit enquiry", 3000, "error");
+      showAlert(
+        "Error",
+        inspection ? "Failed to start payment" : "Failed to submit enquiry",
+        3000,
+        "error",
+      );
     } finally {
       setLoading(false);
     }
@@ -842,15 +959,22 @@ const InspectionPage = () => {
       const emailErr = validateEmail(email);
       const descErr = inspection ? "" : validateDescription(description);
       const addrErr = validateAddress();
+      const carErr = validateCar();
 
       setNameError(nameErr);
       setPhoneError(phoneErr);
       setEmailError(emailErr);
       setDescriptionError(descErr);
       setAddressError(addrErr);
+      setCarError(carErr);
 
-      if (nameErr || phoneErr || emailErr || descErr || addrErr) {
-        showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
+      if (nameErr || phoneErr || emailErr || descErr || addrErr || carErr) {
+        showAlert(
+          "Error",
+          nameErr || phoneErr || emailErr || descErr || addrErr || carErr,
+          3000,
+          "error",
+        );
         return;
       }
 
@@ -876,7 +1000,12 @@ const InspectionPage = () => {
     setAddressError(addrErr);
 
     if (nameErr || phoneErr || emailErr || descErr || addrErr) {
-      showAlert("Error", nameErr || phoneErr || emailErr || descErr || addrErr, 3000, "error");
+      showAlert(
+        "Error",
+        nameErr || phoneErr || emailErr || descErr || addrErr,
+        3000,
+        "error",
+      );
       return;
     }
 
@@ -924,7 +1053,10 @@ const InspectionPage = () => {
           <title>Doorstep Inspection | MyCarBuddy</title>
           <meta
             name="description"
-            content={seoMeta.seo_description || "Compare inspection packages and book doorstep car inspection."}
+            content={
+              seoMeta.seo_description ||
+              "Compare inspection packages and book doorstep car inspection."
+            }
           />
           <meta name="keywords" content={seoMeta.seo_keywords || ""} />
           <link rel="canonical" href="https://mycarbuddy.in/inspection" />
@@ -933,7 +1065,7 @@ const InspectionPage = () => {
 
       {active && <Preloader />}
 
-      <HeaderOne />
+      <HeaderOne disableSignIn={currentStep === "details" && !isLoggedIn} />
 
       {paymentProcessing && (
         <div className="payment-processing-overlay">
@@ -943,18 +1075,23 @@ const InspectionPage = () => {
       )}
 
       <main className="inspection-page">
-
         <section className="inspection-page-hero">
           <div className="inspection-page-shell">
-
             <div
-              className={`inspection-page-booking inspection-page-booking--full ip-right-panel ${currentStep === "details" ? "inspection-page-booking--details" : ""
-                }`}
+              className={`inspection-page-booking inspection-page-booking--full ip-right-panel ${
+                currentStep === "details"
+                  ? "inspection-page-booking--details"
+                  : ""
+              }`}
             >
               {currentStep === "offer" && (
                 <>
                   <div className="ip-card-header">
-                    <button type="button" className="ip-card-back-btn" onClick={handleBack}>
+                    <button
+                      type="button"
+                      className="ip-card-back-btn"
+                      onClick={handleBack}
+                    >
                       <FaArrowLeft />
                       <span>Back</span>
                     </button>
@@ -963,7 +1100,10 @@ const InspectionPage = () => {
                         <span>Need a Car Check?</span>
                       </div>
                       <h2 className="ip-card-header-title">
-                        Book Your <span className="ip-card-header-title-accent">Inspection</span>
+                        Book Your{" "}
+                        <span className="ip-card-header-title-accent">
+                          Inspection
+                        </span>
                       </h2>
                       <p className="ip-card-header-sub ip-card-header-sub--lead">
                         Premium car inspection, simplified for your schedule.
@@ -980,101 +1120,135 @@ const InspectionPage = () => {
                   </div>
 
                   <div className="inspection-pricing-board inspection-pricing-board--standalone">
-                    {packagesLoading ? (
-                      [1, 2].map((item) => (
-                        <article key={item} className="inspection-plan-card inspection-plan-card--skeleton" aria-hidden="true">
-                          <div className="inspection-plan-top inspection-plan-top--skeleton">
-                            <div className="inspection-skeleton inspection-skeleton-pill" />
-                            <div className="inspection-skeleton inspection-skeleton-title" />
-                            <div className="inspection-skeleton inspection-skeleton-subtitle" />
-                            <div className="inspection-skeleton inspection-skeleton-price" />
-                          </div>
-                          <div className="inspection-plan-action">
-                            <div className="inspection-skeleton inspection-skeleton-button" />
-                          </div>
-                          <div className="inspection-plan-features inspection-plan-features--skeleton">
-                            <div className="inspection-skeleton inspection-skeleton-feature-heading" />
-                            <div className="inspection-skeleton inspection-skeleton-feature" />
-                            <div className="inspection-skeleton inspection-skeleton-feature" />
-                            <div className="inspection-skeleton inspection-skeleton-feature" />
-                          </div>
-                        </article>
-                      ))
-                    ) : packageColumns.map(({ offer, groupedIncludes, accentClass, buttonClass }, index) => {
-                      const meta = getOfferMeta(offer);
-                      const categories = Object.entries(groupedIncludes);
-                      const saving = offer.oldPrice - offer.totalPrice;
-
-                      return (
-                        <article
-                          key={offer.packageId}
-                          className={`inspection-plan-card ${accentClass}`}
-                        >
-                          {/* Header: dark gradient band with name, badge, price */}
-                          <div className="inspection-plan-top">
-                            <div className="inspection-plan-offer-badge">
-                              <FaGift />
-                              {index === 0 ? " Limited Offer" : " Special Offer"}
+                    {packagesLoading
+                      ? [1, 2].map((item) => (
+                          <article
+                            key={item}
+                            className="inspection-plan-card inspection-plan-card--skeleton"
+                            aria-hidden="true"
+                          >
+                            <div className="inspection-plan-top inspection-plan-top--skeleton">
+                              <div className="inspection-skeleton inspection-skeleton-pill" />
+                              <div className="inspection-skeleton inspection-skeleton-title" />
+                              <div className="inspection-skeleton inspection-skeleton-subtitle" />
+                              <div className="inspection-skeleton inspection-skeleton-price" />
                             </div>
-
-                            <div className="inspection-plan-offer-title">
-                              <FaCar className="inspection-plan-car-icon" />
-                              <span>{meta.title}</span>
+                            <div className="inspection-plan-action">
+                              <div className="inspection-skeleton inspection-skeleton-button" />
                             </div>
-
-                            {meta.subtitle && (
-                              <div className="inspection-plan-marquee">
-                                <span className="inspection-plan-marquee-text">{meta.subtitle}</span>
-                              </div>
-                            )}
-
-                            {/* Single price row: strikethrough → final price → saving pill */}
-                            <div className="inspection-plan-price-row">
-                              <span className="inspection-plan-strike">Rs.{offer.oldPrice}</span>
-                              <strong className="inspection-plan-final-price">Rs.{offer.totalPrice}</strong>
-                              {saving > 0 && (
-                                <span className="inspection-plan-saving-pill">Save Rs.{saving}</span>
-                              )}
+                            <div className="inspection-plan-features inspection-plan-features--skeleton">
+                              <div className="inspection-skeleton inspection-skeleton-feature-heading" />
+                              <div className="inspection-skeleton inspection-skeleton-feature" />
+                              <div className="inspection-skeleton inspection-skeleton-feature" />
+                              <div className="inspection-skeleton inspection-skeleton-feature" />
                             </div>
-                          </div>
+                          </article>
+                        ))
+                      : packageColumns.map(
+                          (
+                            {
+                              offer,
+                              groupedIncludes,
+                              accentClass,
+                              buttonClass,
+                            },
+                            index,
+                          ) => {
+                            const meta = getOfferMeta(offer);
+                            const categories = Object.entries(groupedIncludes);
+                            const saving = offer.oldPrice - offer.totalPrice;
 
-                          {/* CTA button — right below the header, always visible */}
-                          <div className="inspection-plan-action" ref={index === 1 ? payActionsRef : null}>
-                            <button
-                              type="button"
-                              className={`inspection-plan-btn ${buttonClass}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePackagePayNow(index + 1);
-                              }}
-                            >
-                              <FaCreditCard />
-                              Pay ₹{offer.totalPrice}
-                            </button>
-                          </div>
+                            return (
+                              <article
+                                key={offer.packageId}
+                                className={`inspection-plan-card ${accentClass}`}
+                              >
+                                {/* Header: dark gradient band with name, badge, price */}
+                                <div className="inspection-plan-top">
+                                  <div className="inspection-plan-offer-badge">
+                                    <FaGift />
+                                    {index === 0
+                                      ? " Limited Offer"
+                                      : " Special Offer"}
+                                  </div>
 
-                          {/* Features list */}
-                          {categories.length > 0 && (
-                            <div className="inspection-plan-features">
-                              {categories.map(([category, items]) => (
-                                <div key={category} className="inspection-plan-category">
-                                  <div className="inspection-plan-category-title">{category}</div>
-                                  <div className="inspection-plan-feature-list">
-                                    {items.map((item) => (
-                                      <div key={`${offer.packageId}-${category}-${item}`} className="inspection-plan-feature-row">
-                                        <FaCheckCircle className="inspection-plan-feature-check" />
-                                        {item}
+                                  <div className="inspection-plan-offer-title">
+                                    <FaCar className="inspection-plan-car-icon" />
+                                    <span>{meta.title}</span>
+                                  </div>
+
+                                  {meta.subtitle && (
+                                    <div className="inspection-plan-marquee">
+                                      <span className="inspection-plan-marquee-text">
+                                        {meta.subtitle}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {/* Single price row: strikethrough → final price → saving pill */}
+                                  <div className="inspection-plan-price-row">
+                                    <span className="inspection-plan-strike">
+                                      Rs.{offer.oldPrice}
+                                    </span>
+                                    <strong className="inspection-plan-final-price">
+                                      Rs.{offer.totalPrice}
+                                    </strong>
+                                    {saving > 0 && (
+                                      <span className="inspection-plan-saving-pill">
+                                        Save Rs.{saving}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* CTA button — right below the header, always visible */}
+                                <div
+                                  className="inspection-plan-action"
+                                  ref={index === 1 ? payActionsRef : null}
+                                >
+                                  <button
+                                    type="button"
+                                    className={`inspection-plan-btn ${buttonClass}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handlePackagePayNow(index + 1);
+                                    }}
+                                  >
+                                    <FaCreditCard />
+                                    Pay ₹{offer.totalPrice}
+                                  </button>
+                                </div>
+
+                                {/* Features list */}
+                                {categories.length > 0 && (
+                                  <div className="inspection-plan-features">
+                                    {categories.map(([category, items]) => (
+                                      <div
+                                        key={category}
+                                        className="inspection-plan-category"
+                                      >
+                                        <div className="inspection-plan-category-title">
+                                          {category}
+                                        </div>
+                                        <div className="inspection-plan-feature-list">
+                                          {items.map((item) => (
+                                            <div
+                                              key={`${offer.packageId}-${category}-${item}`}
+                                              className="inspection-plan-feature-row"
+                                            >
+                                              <FaCheckCircle className="inspection-plan-feature-check" />
+                                              {item}
+                                            </div>
+                                          ))}
+                                        </div>
                                       </div>
                                     ))}
                                   </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </article>
-                      );
-                    })}
-
+                                )}
+                              </article>
+                            );
+                          },
+                        )}
                   </div>
 
                   <div className="ip-trust">
@@ -1090,20 +1264,30 @@ const InspectionPage = () => {
                     <button
                       type="button"
                       className="ip-card-back-btn"
-                      onClick={() => { setCurrentStep("offer"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      onClick={() => {
+                        setCurrentStep("offer");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                     >
                       <FaArrowLeft />
                       <span>Back</span>
                     </button>
                     <div className="ip-card-header-content">
-                      <h2 className="ip-card-header-title">Complete Your Profile</h2>
+                      <h2 className="ip-card-header-title">
+                        Complete Your Profile
+                      </h2>
                       <p className="ip-card-header-sub">
-                        Please fill in the missing details before booking your inspection.
+                        Please fill in the missing details before booking your
+                        inspection.
                       </p>
                     </div>
                   </div>
 
-                  <form className="ip-form" onSubmit={handleCompleteProfileSubmit} noValidate>
+                  <form
+                    className="ip-form"
+                    onSubmit={handleCompleteProfileSubmit}
+                    noValidate
+                  >
                     <div className="ip-row">
                       <div className="ip-form-group half">
                         <label className="ip-label">
@@ -1117,18 +1301,23 @@ const InspectionPage = () => {
                           value={fullName}
                           onChange={(e) => {
                             const value = e.target.value
-                              ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                              ? e.target.value[0].toUpperCase() +
+                                e.target.value.slice(1)
                               : "";
                             setFullName(value);
                             setNameError(validateName(value));
                           }}
                         />
-                        {nameError && <p className="bsm-helper-text">{nameError}</p>}
+                        {nameError && (
+                          <p className="bsm-helper-text">{nameError}</p>
+                        )}
                       </div>
 
                       <div className="ip-form-group half">
                         <label className="ip-label">
-                          <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
+                          <FaPhone
+                            style={{ marginRight: 6, transform: "scaleX(-1)" }}
+                          />
                           Phone Number
                         </label>
                         <input
@@ -1155,7 +1344,9 @@ const InspectionPage = () => {
                           setEmailError(validateEmail(e.target.value));
                         }}
                       />
-                      {emailError && <p className="bsm-helper-text">{emailError}</p>}
+                      {emailError && (
+                        <p className="bsm-helper-text">{emailError}</p>
+                      )}
                     </div>
 
                     <div className="ip-form-actions">
@@ -1165,7 +1356,9 @@ const InspectionPage = () => {
                         disabled={loading}
                       >
                         <span className={loading ? "ip-text-blur" : ""}>
-                          {loading ? "Saving..." : (
+                          {loading ? (
+                            "Saving..."
+                          ) : (
                             <>
                               Save & Pay ₹{activeOffer.totalPrice}
                               <FaArrowRight className="ip-btn-arrow" />
@@ -1185,19 +1378,31 @@ const InspectionPage = () => {
               {currentStep === "details" && (
                 <>
                   <div className="ip-card-header">
-                    <button type="button" className="ip-card-back-btn" onClick={handleDetailsBack}>
+                    <button
+                      type="button"
+                      className="ip-card-back-btn"
+                      onClick={handleDetailsBack}
+                    >
                       <FaArrowLeft />
                       <span>Back</span>
                     </button>
                     <div className="ip-card-header-content">
-                      <h2 className="ip-card-header-title">{otpStep ? "Verify OTP" : "Your Details"}</h2>
+                      <h2 className="ip-card-header-title">
+                        {otpStep ? "Verify OTP" : "Your Details"}
+                      </h2>
                       <p className="ip-card-header-sub">
-                        {otpStep ? `Enter OTP sent to +91 ${identifier}` : "Fill in your details to continue with booking."}
+                        {otpStep
+                          ? `Enter OTP sent to +91 ${identifier}`
+                          : "Fill in your details to continue with booking."}
                       </p>
                     </div>
                   </div>
 
-                  <form className="ip-form" onSubmit={handleFormSubmit} noValidate>
+                  <form
+                    className="ip-form"
+                    onSubmit={handleFormSubmit}
+                    noValidate
+                  >
                     <div className="ip-row">
                       <div className="ip-form-group half">
                         <label className="ip-label">
@@ -1211,19 +1416,25 @@ const InspectionPage = () => {
                           value={fullName}
                           onChange={(e) => {
                             const value = e.target.value
-                              ? e.target.value[0].toUpperCase() + e.target.value.slice(1)
+                              ? e.target.value[0].toUpperCase() +
+                                e.target.value.slice(1)
                               : "";
                             setFullName(value);
                             setNameError(validateName(value));
                           }}
                         />
-                        {nameError && <p className="bsm-helper-text">{nameError}</p>}
+                        {nameError && (
+                          <p className="bsm-helper-text">{nameError}</p>
+                        )}
                       </div>
 
                       <div className="ip-form-group half">
                         <label className="ip-label">
-                          <FaPhone style={{ marginRight: 6, transform: "scaleX(-1)" }} />
-                          Phone Number <span style={{ color: "#ef4444" }}>*</span>
+                          <FaPhone
+                            style={{ marginRight: 6, transform: "scaleX(-1)" }}
+                          />
+                          Phone Number{" "}
+                          <span style={{ color: "#ef4444" }}>*</span>
                         </label>
                         <input
                           type="tel"
@@ -1235,7 +1446,9 @@ const InspectionPage = () => {
                             if (
                               value === "" ||
                               (value.length === 1 && /^[6-9]$/.test(value)) ||
-                              (value.length > 1 && value.length <= 10 && /^[6-9]/.test(value[0]))
+                              (value.length > 1 &&
+                                value.length <= 10 &&
+                                /^[6-9]/.test(value[0]))
                             ) {
                               setIdentifier(value);
                               setPhoneError(validatePhone(value));
@@ -1243,7 +1456,9 @@ const InspectionPage = () => {
                           }}
                           disabled={otpStep}
                         />
-                        {phoneError && <p className="bsm-helper-text">{phoneError}</p>}
+                        {phoneError && (
+                          <p className="bsm-helper-text">{phoneError}</p>
+                        )}
                       </div>
                     </div>
 
@@ -1262,14 +1477,16 @@ const InspectionPage = () => {
                           setEmailError(validateEmail(e.target.value));
                         }}
                       />
-                      {emailError && <p className="bsm-helper-text">{emailError}</p>}
+                      {emailError && (
+                        <p className="bsm-helper-text">{emailError}</p>
+                      )}
                     </div>
-
 
                     {!inspection && (
                       <div className="ip-form-group">
                         <label className="ip-label">
-                          Service Requirement <span style={{ color: "#ef4444" }}>*</span>
+                          Service Requirement{" "}
+                          <span style={{ color: "#ef4444" }}>*</span>
                         </label>
                         <textarea
                           className={`ip-input inspection-page-textarea ${descriptionError ? "bsm-input-error" : ""}`}
@@ -1277,14 +1494,17 @@ const InspectionPage = () => {
                           value={description}
                           onChange={(e) => {
                             setDescription(e.target.value);
-                            setDescriptionError(validateDescription(e.target.value));
+                            setDescriptionError(
+                              validateDescription(e.target.value),
+                            );
                           }}
                           rows={4}
                         />
-                        {descriptionError && <p className="bsm-helper-text">{descriptionError}</p>}
+                        {descriptionError && (
+                          <p className="bsm-helper-text">{descriptionError}</p>
+                        )}
                       </div>
                     )}
-
 
                     {otpStep && (
                       <div className="ip-otp-section">
@@ -1296,7 +1516,9 @@ const InspectionPage = () => {
                                 Resend in <strong>{timer}s</strong>
                               </span>
                             ) : (
-                              <span className="ip-otp-expired">OTP expired</span>
+                              <span className="ip-otp-expired">
+                                OTP expired
+                              </span>
                             )}
                             <button
                               type="button"
@@ -1315,14 +1537,22 @@ const InspectionPage = () => {
                           placeholder="• • • • • •"
                           value={otp}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                            const value = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 6);
                             setOtp(value);
-                            setOtpError(value.length === 6 ? "" : "OTP must be exactly 6 digits");
+                            setOtpError(
+                              value.length === 6
+                                ? ""
+                                : "OTP must be exactly 6 digits",
+                            );
                           }}
                           maxLength={6}
                           autoFocus
                         />
-                        {otpError && <p className="bsm-helper-text">{otpError}</p>}
+                        {otpError && (
+                          <p className="bsm-helper-text">{otpError}</p>
+                        )}
                       </div>
                     )}
 
@@ -1330,14 +1560,23 @@ const InspectionPage = () => {
                       <button
                         type="submit"
                         className="ip-btn ip-btn-primary"
-                        disabled={loading || (otpStep && (otpExpired || otp.length !== 6))}
+                        disabled={
+                          loading ||
+                          (otpStep && (otpExpired || otp.length !== 6))
+                        }
                       >
                         <span className={loading ? "ip-text-blur" : ""}>
                           {loading ? (
-                            otpStep ? "Verifying..." : "Sending OTP..."
+                            otpStep ? (
+                              "Verifying..."
+                            ) : (
+                              "Sending OTP..."
+                            )
                           ) : otpStep ? (
                             <>
-                              {inspection ? `Verify & Pay Rs.${activeOffer.totalPrice}` : "Verify & Submit Enquiry"}
+                              {inspection
+                                ? `Verify & Pay Rs.${activeOffer.totalPrice}`
+                                : "Verify & Submit Enquiry"}
                               <FaArrowRight className="ip-btn-arrow" />
                             </>
                           ) : (
@@ -1360,13 +1599,42 @@ const InspectionPage = () => {
           </div>
         </section>
 
+        {/* ── Car Selector ── */}
+        <div className="inspection-page-shell">
+          {isLoggedIn && (
+            <CarSelectorSection
+              savedVehicles={savedVehicles}
+              selectedCar={selectedCarForBooking}
+              onCarChange={(car) => {
+                setSelectedCarForBooking(car);
+                setCarError("");
+              }}
+              onVehiclesMutated={refreshSavedVehicles}
+              imageBaseURL={process.env.REACT_APP_CARBUDDY_IMAGE_URL || ""}
+              error={carError}
+              variant="ip"
+            />
+          )}
+        </div>
         {/* ── Address Selector ── */}
         {savedAddresses.length > 0 && (
           <div className="ip-address-selector">
             <div className="ip-address-selector__label">
-              <span>📍 Service Address <span style={{ color: "#ef4444" }}>*</span></span>
+              <span>
+                📍 Service Address <span style={{ color: "#ef4444" }}>*</span>
+              </span>
               <span className="ip-address-selector__label-line" />
-              <span style={{ fontSize: "0.72rem", color: "#6b7280", fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>Select where our technician should visit</span>
+              <span
+                style={{
+                  fontSize: "0.72rem",
+                  color: "#6b7280",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  letterSpacing: 0,
+                }}
+              >
+                Select where our technician should visit
+              </span>
             </div>
 
             {/* Error banner — always visible when set */}
@@ -1378,31 +1646,46 @@ const InspectionPage = () => {
 
             <div className="ip-address-list">
               {savedAddresses.map((addr) => {
-                const isSelected = selectedAddress?.AddressID === addr.AddressID;
+                const isSelected =
+                  selectedAddress?.AddressID === addr.AddressID;
                 const title = (addr.AddressLine1 || "").split("\n")[0];
                 const rest = [
-                  addr.AddressLine1?.includes("\n") && addr.AddressLine1.split("\n").slice(1).join(", "),
+                  addr.AddressLine1?.includes("\n") &&
+                    addr.AddressLine1.split("\n").slice(1).join(", "),
                   addr.AddressLine2,
                   addr.CityName,
                   addr.StateName,
                   addr.Pincode,
-                ].filter(Boolean).join(", ");
+                ]
+                  .filter(Boolean)
+                  .join(", ");
                 return (
                   <button
                     key={addr.AddressID}
                     type="button"
                     className={`ip-address-card ${isSelected ? "ip-address-card--selected" : ""} ${addressError && !selectedAddress ? "ip-address-card--highlight-error" : ""}`}
-                    onClick={() => { setSelectedAddress(addr); setAddressError(""); }}
+                    onClick={() => {
+                      setSelectedAddress(addr);
+                      setAddressError("");
+                    }}
                   >
                     <span className="ip-address-card__left">
                       <span className="ip-address-card__icon">🏠</span>
                       <span className="ip-address-card__body">
                         <span className="ip-address-card__title">{title}</span>
-                        {rest && <span className="ip-address-card__sub">{rest}</span>}
-                        {addr.IsPrimary && <span className="ip-address-card__badge">Primary</span>}
+                        {rest && (
+                          <span className="ip-address-card__sub">{rest}</span>
+                        )}
+                        {addr.IsPrimary && (
+                          <span className="ip-address-card__badge">
+                            Primary
+                          </span>
+                        )}
                       </span>
                     </span>
-                    {isSelected && <span className="ip-address-card__tick">✓</span>}
+                    {isSelected && (
+                      <span className="ip-address-card__tick">✓</span>
+                    )}
                   </button>
                 );
               })}
@@ -1414,17 +1697,27 @@ const InspectionPage = () => {
                 onClick={() => {
                   setSelectedAddress(OTHER_ADDRESS);
                   setAddressError("");
-                  setManualAddress({ line1: "", line2: "", city: "", state: "", pincode: "" });
+                  setManualAddress({
+                    line1: "",
+                    line2: "",
+                    city: "",
+                    state: "",
+                    pincode: "",
+                  });
                 }}
               >
                 <span className="ip-address-card__left">
                   <span className="ip-address-card__icon">✏️</span>
                   <span className="ip-address-card__body">
                     <span className="ip-address-card__title">Other</span>
-                    <span className="ip-address-card__sub">Enter a different address</span>
+                    <span className="ip-address-card__sub">
+                      Enter a different address
+                    </span>
                   </span>
                 </span>
-                {selectedAddress?.AddressID === "__other__" && <span className="ip-address-card__tick">✓</span>}
+                {selectedAddress?.AddressID === "__other__" && (
+                  <span className="ip-address-card__tick">✓</span>
+                )}
               </button>
             </div>
 
@@ -1436,14 +1729,19 @@ const InspectionPage = () => {
                   className={`ip-input${addressError && !manualAddress.line1.trim() ? " bsm-input-error" : ""}`}
                   placeholder="Address Line 1 *"
                   value={manualAddress.line1}
-                  onChange={(e) => { setManualAddress((p) => ({ ...p, line1: e.target.value })); if (e.target.value.trim()) setAddressError(""); }}
+                  onChange={(e) => {
+                    setManualAddress((p) => ({ ...p, line1: e.target.value }));
+                    if (e.target.value.trim()) setAddressError("");
+                  }}
                 />
                 <input
                   type="text"
                   className="ip-input"
                   placeholder="Address Line 2"
                   value={manualAddress.line2}
-                  onChange={(e) => setManualAddress((p) => ({ ...p, line2: e.target.value }))}
+                  onChange={(e) =>
+                    setManualAddress((p) => ({ ...p, line2: e.target.value }))
+                  }
                 />
                 <div className="ip-row" style={{ gap: 10 }}>
                   <input
@@ -1451,7 +1749,9 @@ const InspectionPage = () => {
                     className="ip-input"
                     placeholder="City"
                     value={manualAddress.city}
-                    onChange={(e) => setManualAddress((p) => ({ ...p, city: e.target.value }))}
+                    onChange={(e) =>
+                      setManualAddress((p) => ({ ...p, city: e.target.value }))
+                    }
                     style={{ flex: 1 }}
                   />
                   <input
@@ -1459,7 +1759,9 @@ const InspectionPage = () => {
                     className="ip-input"
                     placeholder="State"
                     value={manualAddress.state}
-                    onChange={(e) => setManualAddress((p) => ({ ...p, state: e.target.value }))}
+                    onChange={(e) =>
+                      setManualAddress((p) => ({ ...p, state: e.target.value }))
+                    }
                     style={{ flex: 1 }}
                   />
                 </div>
@@ -1468,7 +1770,12 @@ const InspectionPage = () => {
                   className="ip-input"
                   placeholder="Pincode"
                   value={manualAddress.pincode}
-                  onChange={(e) => setManualAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                  onChange={(e) =>
+                    setManualAddress((p) => ({
+                      ...p,
+                      pincode: e.target.value.replace(/\D/g, "").slice(0, 6),
+                    }))
+                  }
                 />
               </div>
             )}
@@ -1479,15 +1786,20 @@ const InspectionPage = () => {
           <div className="inspection-page-shell">
             <div className="inspection-benefits-showcase">
               <div className="inspection-benefits-copy">
-                <div className="inspection-benefits-kicker">Why Book With MyCarBuddy</div>
+                <div className="inspection-benefits-kicker">
+                  Why Book With MyCarBuddy
+                </div>
                 <div className="inspection-benefits-heading-row">
                   <div className="inspection-benefits-icon">
                     <FaCarSide />
                   </div>
                   <div>
-                    <h2 className="inspection-benefits-title">Doorstep Car Inspection</h2>
+                    <h2 className="inspection-benefits-title">
+                      Doorstep Car Inspection
+                    </h2>
                     <p className="inspection-benefits-subtitle">
-                      A cleaner, faster way to compare inspection packages and book with confidence from your home.
+                      A cleaner, faster way to compare inspection packages and
+                      book with confidence from your home.
                     </p>
                   </div>
                 </div>
@@ -1513,28 +1825,40 @@ const InspectionPage = () => {
                   <FaCheckCircle />
                   <div>
                     <h3>Trusted inspection review</h3>
-                    <p>Get a structured checkup with practical findings you can actually use.</p>
+                    <p>
+                      Get a structured checkup with practical findings you can
+                      actually use.
+                    </p>
                   </div>
                 </div>
                 <div className="inspection-benefit-card">
                   <FaCheckCircle />
                   <div>
                     <h3>Transparent diagnosis</h3>
-                    <p>Understand the condition of your car with clear observations and expert recommendations.</p>
+                    <p>
+                      Understand the condition of your car with clear
+                      observations and expert recommendations.
+                    </p>
                   </div>
                 </div>
                 <div className="inspection-benefit-card">
                   <FaCheckCircle />
                   <div>
                     <h3>Convenient doorstep visit</h3>
-                    <p>Skip workshop hassle and get your inspection done at your preferred location.</p>
+                    <p>
+                      Skip workshop hassle and get your inspection done at your
+                      preferred location.
+                    </p>
                   </div>
                 </div>
                 <div className="inspection-benefit-card">
                   <FaCheckCircle />
                   <div>
                     <h3>Right plan for your car</h3>
-                    <p>Compare both packages in one place and choose the option that fits your car category.</p>
+                    <p>
+                      Compare both packages in one place and choose the option
+                      that fits your car category.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1545,7 +1869,9 @@ const InspectionPage = () => {
 
       {/* Sticky Pay Bar — shown on offer step when Pay buttons scroll out of view */}
       {currentStep === "offer" && (
-        <div className={`inspection-sticky-bar ${showStickyBar ? "inspection-sticky-bar--visible" : ""}`}>
+        <div
+          className={`inspection-sticky-bar ${showStickyBar ? "inspection-sticky-bar--visible" : ""}`}
+        >
           <div className="inspection-sticky-bar__inner">
             <div className="inspection-sticky-bar__plans">
               <div className="inspection-sticky-bar__plan">
@@ -1554,13 +1880,19 @@ const InspectionPage = () => {
                   {offer1.packageName}
                 </span>
                 <div className="inspection-sticky-bar__price-group">
-                  <span className="inspection-sticky-bar__old-price">₹{offer1.oldPrice}</span>
-                  <strong className="inspection-sticky-bar__new-price">₹{offer1.totalPrice}</strong>
+                  <span className="inspection-sticky-bar__old-price">
+                    ₹{offer1.oldPrice}
+                  </span>
+                  <strong className="inspection-sticky-bar__new-price">
+                    ₹{offer1.totalPrice}
+                  </strong>
                 </div>
                 <button
                   type="button"
                   className="inspection-sticky-bar__btn inspection-sticky-bar__btn--pro"
-                  onClick={() => { handlePackagePayNow(1); }}
+                  onClick={() => {
+                    handlePackagePayNow(1);
+                  }}
                 >
                   <FaCreditCard />
                   Pay ₹{offer1.totalPrice}
@@ -1575,8 +1907,12 @@ const InspectionPage = () => {
                   {offer2.packageName}
                 </span>
                 <div className="inspection-sticky-bar__price-group">
-                  <span className="inspection-sticky-bar__old-price">₹{offer2.oldPrice}</span>
-                  <strong className="inspection-sticky-bar__new-price">₹{offer2.totalPrice}</strong>
+                  <span className="inspection-sticky-bar__old-price">
+                    ₹{offer2.oldPrice}
+                  </span>
+                  <strong className="inspection-sticky-bar__new-price">
+                    ₹{offer2.totalPrice}
+                  </strong>
                 </div>
                 <button
                   type="button"

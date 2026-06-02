@@ -6,14 +6,21 @@ import ProfileModal from "./ProfileModal";
 import { useCart } from "../context/CartContext";
 import { useAlert } from "../context/AlertContext";
 import axios from "axios";
-import { FaSearch, FaCar, FaChevronDown, FaTimes, FaBars, FaHeadset } from "react-icons/fa";
+import {
+  FaSearch,
+  FaCar,
+  FaChevronDown,
+  FaTimes,
+  FaBars,
+  FaHeadset,
+} from "react-icons/fa";
 import { Phone, MapPin, Mail } from "lucide-react";
 import "./HeaderOne.css";
 import NotificationDropdown from "./NotificationDropdown";
 
 const API_URL = process.env.REACT_APP_CARBUDDY_BASE_URL;
 
-const HeaderOne = () => {
+const HeaderOne = ({ disableSignIn = false }) => {
   // States
   const [scroll, setScroll] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,7 +41,7 @@ const HeaderOne = () => {
   const [categories, setCategories] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [serviceSearchTerm, setServiceSearchTerm] = useState("");
-  const [companyInfo, setCompanyInfo] = useState({ email: '', phone: '' });
+  const [companyInfo, setCompanyInfo] = useState({ email: "", phone: "" });
 
   // Hooks
   const { showAlert } = useAlert();
@@ -65,7 +72,7 @@ const HeaderOne = () => {
         navigate(`/search?q=${encodeURIComponent(value.trim())}`);
       }
     }, 500),
-    [navigate]
+    [navigate],
   );
 
   // Handlers
@@ -87,7 +94,9 @@ const HeaderOne = () => {
     return phone;
   };
 
-  const isMobileDevice = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+  const isMobileDevice = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent,
+  );
 
   const handleContactClick = () => {
     if (!companyInfo.phone) return;
@@ -118,14 +127,17 @@ const HeaderOne = () => {
           localStorage.setItem("locationModalShown", "true");
           setShowLocationModal(false);
 
-          const result = await getCityAndStateFromCoords(coords.latitude, coords.longitude);
+          const result = await getCityAndStateFromCoords(
+            coords.latitude,
+            coords.longitude,
+          );
           if (result) {
             const { city, state } = result;
             setLocationText(`${city}, ${state}`);
             setIsServiceAvailable(true);
           }
         },
-        () => { }
+        () => {},
       );
     } else {
       showAlert("Geolocation is not supported by this browser.");
@@ -139,18 +151,23 @@ const HeaderOne = () => {
   const getCityAndStateFromCoords = async (lat, lon) => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`,
       );
       const data = await response.json();
 
       if (data.status === "OK") {
-        let city = "", district = "", state = "", pincode = "";
+        let city = "",
+          district = "",
+          state = "",
+          pincode = "";
         const components = data.results[0].address_components;
 
         for (let comp of components) {
           if (comp.types.includes("locality")) city = comp.long_name;
-          if (comp.types.includes("administrative_area_level_2")) district = comp.long_name;
-          if (comp.types.includes("administrative_area_level_1")) state = comp.long_name;
+          if (comp.types.includes("administrative_area_level_2"))
+            district = comp.long_name;
+          if (comp.types.includes("administrative_area_level_1"))
+            state = comp.long_name;
           if (comp.types.includes("postal_code")) pincode = comp.long_name;
         }
         return { city: city || district, state, pincode };
@@ -179,7 +196,9 @@ const HeaderOne = () => {
   const handleCitySearch = (e) => {
     const value = e.target.value.toLowerCase();
     setCitySearchTerm(value);
-    setFilteredCities(cityList.filter((c) => c.CityName.toLowerCase().includes(value)));
+    setFilteredCities(
+      cityList.filter((c) => c.CityName.toLowerCase().includes(value)),
+    );
   };
 
   const handleSelectCity = (city) => {
@@ -192,7 +211,11 @@ const HeaderOne = () => {
 
   const renderUserInitials = () => {
     const name = user?.name || user?.identifier || "U";
-    return name.split(" ").map((word) => word.charAt(0).toUpperCase()).slice(0, 2).join("");
+    return name
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join("");
   };
 
   // Effects
@@ -219,7 +242,9 @@ const HeaderOne = () => {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileMenuOpen]);
 
   useEffect(() => {
@@ -280,21 +305,20 @@ const HeaderOne = () => {
         const data = response.data.data || [];
 
         // ✅ keep only active records
-        const activeData = data.filter(item => item.IsActive === true);
+        const activeData = data.filter((item) => item.IsActive === true);
 
         const email =
-          activeData.find(item => item.Type === 'E-mail')?.Description || '';
+          activeData.find((item) => item.Type === "E-mail")?.Description || "";
 
-        const phones =
-          activeData
-            .filter(item => item.Type === 'PhoneNumber')
-            .map(item => item.Description);
+        const phones = activeData
+          .filter((item) => item.Type === "PhoneNumber")
+          .map((item) => item.Description);
 
-        const phone = phones.length > 0 ? phones[0] : '';
+        const phone = phones.length > 0 ? phones[0] : "";
 
         setCompanyInfo({ email, phone });
       } catch (error) {
-        console.error('Failed to fetch company info:', error);
+        console.error("Failed to fetch company info:", error);
       }
     };
 
@@ -308,7 +332,10 @@ const HeaderOne = () => {
         setIsSearchOpen(false);
       }
     };
-    const id = setTimeout(() => document.addEventListener("mousedown", onDocClick), 0);
+    const id = setTimeout(
+      () => document.addEventListener("mousedown", onDocClick),
+      0,
+    );
     return () => {
       clearTimeout(id);
       document.removeEventListener("mousedown", onDocClick);
@@ -333,7 +360,7 @@ const HeaderOne = () => {
               <div className="mcb-top-item">
                 <Mail size={13} />
                 <a href={`mailto:${companyInfo.email}`}>
-                  {companyInfo.email || 'Loading...'}
+                  {companyInfo.email || "Loading..."}
                 </a>
               </div>
               <div className="mcb-top-divider" />
@@ -341,17 +368,40 @@ const HeaderOne = () => {
                 {isMobileDevice ? (
                   <Phone size={18} className="mcb-contact-icon" />
                 ) : (
-                  <i className="fab fa-whatsapp mcb-contact-icon" style={{ fontSize: 18 }}></i>
+                  <i
+                    className="fab fa-whatsapp mcb-contact-icon"
+                    style={{ fontSize: 18 }}
+                  ></i>
                 )}
                 <span>
-                  {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                  {companyInfo.phone
+                    ? `+91 ${formatPhoneNumber(companyInfo.phone)}`
+                    : "Loading..."}
                 </span>
               </div>
             </div>
             <div className="mcb-social-links">
-              <a href="https://www.facebook.com/people/Mycarbuddyin/61578291056729/" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook-f" /></a>
-              <a href="https://www.instagram.com/mycarbuddy.in/" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram" /></a>
-              <a href="https://www.linkedin.com/company/108159284/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in" /></a>
+              <a
+                href="https://www.facebook.com/people/Mycarbuddyin/61578291056729/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-facebook-f" />
+              </a>
+              <a
+                href="https://www.instagram.com/mycarbuddy.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-instagram" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/108159284/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-linkedin-in" />
+              </a>
             </div>
           </div>
         </div>
@@ -370,8 +420,8 @@ const HeaderOne = () => {
                   src="/assets/img/MyCarBuddy-Logo1.webp"
                   alt="MyCarBuddy"
                   style={{
-                    height: "50px",     // FIXED SIZE
-                    width: "auto",      // ALWAYS KEEP ASPECT RATIO
+                    height: "50px", // FIXED SIZE
+                    width: "auto", // ALWAYS KEEP ASPECT RATIO
                     objectFit: "contain",
                     transition: "none", // STOP AUTO SHRINK/GROW ON SCROLL
                   }}
@@ -382,10 +432,24 @@ const HeaderOne = () => {
               <nav className="mcb-nav">
                 <ul className="mcb-nav-list">
                   <li className="mcb-nav-item">
-                    <NavLink to="/" className={({ isActive }) => `mcb-nav-link ${isActive ? "active" : ""}`}>Home</NavLink>
+                    <NavLink
+                      to="/"
+                      className={({ isActive }) =>
+                        `mcb-nav-link ${isActive ? "active" : ""}`
+                      }
+                    >
+                      Home
+                    </NavLink>
                   </li>
                   <li className="mcb-nav-item">
-                    <NavLink to="/about" className={({ isActive }) => `mcb-nav-link ${isActive ? "active" : ""}`}>About Us</NavLink>
+                    <NavLink
+                      to="/about"
+                      className={({ isActive }) =>
+                        `mcb-nav-link ${isActive ? "active" : ""}`
+                      }
+                    >
+                      About Us
+                    </NavLink>
                   </li>
                   <li className="mcb-nav-item">
                     <Link to="/service" className="mcb-nav-link">
@@ -394,9 +458,15 @@ const HeaderOne = () => {
                     <div className="mcb-dropdown">
                       <div className="mcb-dropdown-grid">
                         {categories
-                          .filter(cat => cat.CategoryName !== "Custom Category") // <-- exclude this title
+                          .filter(
+                            (cat) => cat.CategoryName !== "Custom Category",
+                          ) // <-- exclude this title
                           .map((cat) => (
-                            <Link key={cat.CategoryID} to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`} className="mcb-dropdown-link">
+                            <Link
+                              key={cat.CategoryID}
+                              to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`}
+                              className="mcb-dropdown-link"
+                            >
                               <i className="fas fa-wrench" />
                               <span>{cat.CategoryName}</span>
                             </Link>
@@ -405,7 +475,14 @@ const HeaderOne = () => {
                     </div>
                   </li>
                   <li className="mcb-nav-item">
-                    <NavLink to="/contact" className={({ isActive }) => `mcb-nav-link ${isActive ? "active" : ""}`}>Contact</NavLink>
+                    <NavLink
+                      to="/contact"
+                      className={({ isActive }) =>
+                        `mcb-nav-link ${isActive ? "active" : ""}`
+                      }
+                    >
+                      Contact
+                    </NavLink>
                   </li>
                 </ul>
               </nav>
@@ -413,7 +490,10 @@ const HeaderOne = () => {
               {/* Actions */}
               <div className="mcb-actions">
                 {/* Search */}
-                <div ref={searchRef} className={`mcb-search ${isSearchOpen ? "active" : ""}`}>
+                <div
+                  ref={searchRef}
+                  className={`mcb-search ${isSearchOpen ? "active" : ""}`}
+                >
                   <input
                     type="text"
                     className="mcb-search-input"
@@ -422,7 +502,10 @@ const HeaderOne = () => {
                     onChange={handleSearchChange}
                     onFocus={() => setIsSearchOpen(true)}
                   />
-                  <button className="mcb-search-btn" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                  <button
+                    className="mcb-search-btn"
+                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  >
                     <FaSearch size={14} />
                   </button>
                 </div>
@@ -433,7 +516,10 @@ const HeaderOne = () => {
                     {isMobileDevice ? (
                       <Phone size={18} className="mcb-contact-icon" />
                     ) : (
-                      <i className="fab fa-whatsapp mcb-contact-icon" style={{ fontSize: 18 }}></i>
+                      <i
+                        className="fab fa-whatsapp mcb-contact-icon"
+                        style={{ fontSize: 18 }}
+                      ></i>
                     )}
 
                     <div className="mcb-contact-text">
@@ -441,7 +527,9 @@ const HeaderOne = () => {
                         {isMobileDevice ? "Call Support" : "WhatsApp Support"}
                       </span>
                       <span className="mcb-contact-number">
-                        {companyInfo.phone ? `+91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                        {companyInfo.phone
+                          ? `+91 ${formatPhoneNumber(companyInfo.phone)}`
+                          : "Loading..."}
                       </span>
                     </div>
                   </div>
@@ -453,8 +541,13 @@ const HeaderOne = () => {
                         <span className="mcb-tooltip-pulse"></span>
                       </div>
                       <div className="mcb-tooltip-info">
-                        <span className="mcb-tooltip-title">Get Our Expert Help?</span>
-                        <span className="mcb-tooltip-desc">One tap to connect with our <br />car care specialists!</span>
+                        <span className="mcb-tooltip-title">
+                          Get Our Expert Help?
+                        </span>
+                        <span className="mcb-tooltip-desc">
+                          One tap to connect with our <br />
+                          car care specialists!
+                        </span>
                         {/* <span className="mcb-tooltip-badge">
                           <span className="mcb-badge-dot"></span>
                           Always Here to Help • Free Consultation</span> */}
@@ -475,23 +568,29 @@ const HeaderOne = () => {
                   <div
                     className="mcb-car-chip"
                     onClick={() => setCarModalVisible(true)}
-                    title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Your Car"}
+                    title={
+                      selectedCar
+                        ? `${selectedCar.brand?.name} ${selectedCar.model?.name}`
+                        : "Choose Your Car"
+                    }
                   >
                     <div className="mcb-car-chip-avatar">
                       {selectedCar?.model?.logo ? (
                         <img
                           src={selectedCar.model.logo}
                           alt={selectedCar.model?.name}
-                          onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <FaCar size={16} className="mcb-car-chip-fallback" />
                       )}
                     </div>
                     <div className="mcb-car-chip-info">
-                      <span className="mcb-car-chip-label">{selectedCar
-                        ? `${selectedCar.brand?.name || ""}` 
-                        : ""}
+                      <span className="mcb-car-chip-label">
+                        {selectedCar ? `${selectedCar.brand?.name || ""}` : ""}
                       </span>
                       <span className="mcb-car-chip-name">
                         {selectedCar
@@ -503,24 +602,38 @@ const HeaderOne = () => {
                 ) : null}
 
                 {/* User Button */}
-                <div className="mcb-user-wrapper">
-                  <div className="mcb-user-btn" onClick={handleUserClick}>
+                <div
+                  className={`mcb-user-wrapper${disableSignIn ? " mcb-user-wrapper--disabled" : ""}`}
+                >
+                  <div
+                    className="mcb-user-btn"
+                    onClick={!disableSignIn ? handleUserClick : undefined}
+                  >
                     <div className="mcb-user-avatar">
                       {user?.name || user?.identifier ? (
                         profileImage ? (
                           <img
                             src={`${process.env.REACT_APP_CARBUDDY_IMAGE_URL}${profileImage}`}
                             alt="Profile"
-                            onError={(e) => { e.target.onerror = null; e.target.src = "/assets/img/avatar.png"; }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/assets/img/avatar.png";
+                            }}
                           />
-                        ) : renderUserInitials()
+                        ) : (
+                          renderUserInitials()
+                        )
                       ) : (
                         <i className="fas fa-user" style={{ fontSize: 12 }} />
                       )}
                     </div>
                     <div className="mcb-user-info">
-                      <span className="mcb-user-label">{user?.name || user?.identifier ? "Hello," : "Sign In"}</span>
-                      <span className="mcb-user-name">{user?.name || user?.identifier || "Account"}</span>
+                      <span className="mcb-user-label">
+                        {user?.name || user?.identifier ? "Hello," : "Sign In"}
+                      </span>
+                      <span className="mcb-user-name">
+                        {user?.name || user?.identifier || "Account"}
+                      </span>
                     </div>
                   </div>
 
@@ -533,23 +646,36 @@ const HeaderOne = () => {
                             <img
                               src={`${process.env.REACT_APP_CARBUDDY_IMAGE_URL}${profileImage}`}
                               alt="Profile"
-                              onError={(e) => { e.target.onerror = null; e.target.src = "/assets/img/avatar.png"; }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/assets/img/avatar.png";
+                              }}
                             />
                           ) : (
                             <span>{renderUserInitials()}</span>
                           )}
                         </div>
                         <div className="mcb-dropdown-user-info">
-                          <span className="mcb-dropdown-name">{user?.name || "User"}</span>
-                          <span className="mcb-dropdown-phone">{user?.phone || user?.identifier}</span>
+                          <span className="mcb-dropdown-name">
+                            {user?.name || "User"}
+                          </span>
+                          <span className="mcb-dropdown-phone">
+                            {user?.phone || user?.identifier}
+                          </span>
                         </div>
                       </div>
                       <div className="mcb-user-dropdown-body">
-                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile")}>
+                        <button
+                          className="mcb-dropdown-item"
+                          onClick={() => navigate("/profile")}
+                        >
                           <i className="fas fa-user-circle"></i>
                           <span>My Profile</span>
                         </button>
-                        <button className="mcb-dropdown-item" onClick={() => navigate("/profile?tab=mybookings")}>
+                        <button
+                          className="mcb-dropdown-item"
+                          onClick={() => navigate("/profile?tab=mybookings")}
+                        >
                           <i className="fas fa-calendar-check"></i>
                           <span>My Services</span>
                         </button>
@@ -567,8 +693,15 @@ const HeaderOne = () => {
                             localStorage.removeItem("selectedCarDetails");
                             setUser(null);
                             setSelectedCar(null);
-                            window.dispatchEvent(new Event("userProfileUpdated"));
-                            showAlert("Success", "Logged out successfully", 2000, "success");
+                            window.dispatchEvent(
+                              new Event("userProfileUpdated"),
+                            );
+                            showAlert(
+                              "Success",
+                              "Logged out successfully",
+                              2000,
+                              "success",
+                            );
                             navigate("/");
                           }}
                         >
@@ -585,14 +718,21 @@ const HeaderOne = () => {
                   <div
                     className="mcb-header-car-chip-mobile"
                     onClick={() => setCarModalVisible(true)}
-                    title={selectedCar ? `${selectedCar.brand?.name} ${selectedCar.model?.name}` : "Choose Car"}
+                    title={
+                      selectedCar
+                        ? `${selectedCar.brand?.name} ${selectedCar.model?.name}`
+                        : "Choose Car"
+                    }
                   >
                     <div className="mcb-header-car-avatar-mobile">
                       {selectedCar?.model?.logo ? (
                         <img
                           src={selectedCar.model.logo}
                           alt={selectedCar.model?.name}
-                          onError={(e) => { e.target.onerror = null; e.target.style.display = "none"; }}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <FaCar size={15} />
@@ -602,7 +742,10 @@ const HeaderOne = () => {
                 )}
 
                 {/* Mobile Toggle */}
-                <button className="mcb-mobile-toggle" onClick={() => setMobileMenuOpen(true)}>
+                <button
+                  className="mcb-mobile-toggle"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
                   <FaBars />
                 </button>
               </div>
@@ -611,13 +754,23 @@ const HeaderOne = () => {
         </div>
 
         {/* Mobile Menu */}
-        <div className={`mcb-mobile-overlay ${mobileMenuOpen ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+        <div
+          className={`mcb-mobile-overlay ${mobileMenuOpen ? "active" : ""}`}
+          onClick={() => setMobileMenuOpen(false)}
+        >
           <div className="mcb-mobile-menu" onClick={(e) => e.stopPropagation()}>
             <div className="mcb-mobile-header">
-              <Link to="/" className="mcb-mobile-logo" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/"
+                className="mcb-mobile-logo"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <img src="/assets/img/MyCarBuddy-Logo1.png" alt="MyCarBuddy" />
               </Link>
-              <button className="mcb-mobile-close" onClick={() => setMobileMenuOpen(false)}>
+              <button
+                className="mcb-mobile-close"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <FaTimes />
               </button>
             </div>
@@ -625,49 +778,114 @@ const HeaderOne = () => {
             <div className="mcb-mobile-body">
               <ul className="mcb-mobile-nav">
                 <li className="mcb-mobile-nav-item">
-                  <NavLink to="/" className={({ isActive }) => `mcb-mobile-nav-link ${isActive ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>Home</NavLink>
+                  <NavLink
+                    to="/"
+                    className={({ isActive }) =>
+                      `mcb-mobile-nav-link ${isActive ? "active" : ""}`
+                    }
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Home
+                  </NavLink>
                 </li>
                 <li className="mcb-mobile-nav-item">
-                  <NavLink to="/about" className={({ isActive }) => `mcb-mobile-nav-link ${isActive ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>About Us</NavLink>
+                  <NavLink
+                    to="/about"
+                    className={({ isActive }) =>
+                      `mcb-mobile-nav-link ${isActive ? "active" : ""}`
+                    }
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About Us
+                  </NavLink>
                 </li>
-                <li className={`mcb-mobile-nav-item ${mobileSubmenuOpen ? "open" : ""}`}>
-                  <div className="mcb-mobile-nav-link" onClick={() => setMobileSubmenuOpen(!mobileSubmenuOpen)}>
+                <li
+                  className={`mcb-mobile-nav-item ${mobileSubmenuOpen ? "open" : ""}`}
+                >
+                  <div
+                    className="mcb-mobile-nav-link"
+                    onClick={() => setMobileSubmenuOpen(!mobileSubmenuOpen)}
+                  >
                     <span>Services</span>
                     <i className="fas fa-chevron-down" />
                   </div>
                   <div className="mcb-mobile-submenu">
-                    <Link to="/service" className="mcb-mobile-submenu-link" onClick={() => setMobileMenuOpen(false)}>All Services</Link>
+                    <Link
+                      to="/service"
+                      className="mcb-mobile-submenu-link"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      All Services
+                    </Link>
                     {categories.map((cat) => (
-                      <Link key={cat.CategoryID} to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`} className="mcb-mobile-submenu-link" onClick={() => setMobileMenuOpen(false)}>
+                      <Link
+                        key={cat.CategoryID}
+                        to={`/service/${slugify(cat.CategoryName)}/${cat.CategoryID}`}
+                        className="mcb-mobile-submenu-link"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
                         {cat.CategoryName}
                       </Link>
                     ))}
                   </div>
                 </li>
                 <li className="mcb-mobile-nav-item">
-                  <NavLink to="/contact" className={({ isActive }) => `mcb-mobile-nav-link ${isActive ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>Contact</NavLink>
+                  <NavLink
+                    to="/contact"
+                    className={({ isActive }) =>
+                      `mcb-mobile-nav-link ${isActive ? "active" : ""}`
+                    }
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </NavLink>
                 </li>
               </ul>
             </div>
 
             <div className="mcb-mobile-footer">
               <div className="mcb-mobile-contact">
-                <a href={`mailto:${companyInfo.email}`} className="mcb-mobile-contact-item">
+                <a
+                  href={`mailto:${companyInfo.email}`}
+                  className="mcb-mobile-contact-item"
+                >
                   <Mail size={14} />
-                  <span>{companyInfo.email || 'Loading...'}</span>
+                  <span>{companyInfo.email || "Loading..."}</span>
                 </a>
-
               </div>
-              <button className="mcb-mobile-call-btn" onClick={handleContactClick}>
+              <button
+                className="mcb-mobile-call-btn"
+                onClick={handleContactClick}
+              >
                 <Phone size={16} />
                 <span>
-                  {companyInfo.phone ? `Call +91 ${formatPhoneNumber(companyInfo.phone)}` : 'Loading...'}
+                  {companyInfo.phone
+                    ? `Call +91 ${formatPhoneNumber(companyInfo.phone)}`
+                    : "Loading..."}
                 </span>
               </button>
               <div className="mcb-mobile-social">
-                <a href="https://www.facebook.com/people/Mycarbuddyin/61578291056729/" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook-f" /></a>
-                <a href="https://www.instagram.com/mycarbuddy.in/" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram" /></a>
-                <a href="https://www.linkedin.com/company/108159284/" target="_blank" rel="noopener noreferrer"><i className="fab fa-linkedin-in" /></a>
+                <a
+                  href="https://www.facebook.com/people/Mycarbuddyin/61578291056729/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="fab fa-facebook-f" />
+                </a>
+                <a
+                  href="https://www.instagram.com/mycarbuddy.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="fab fa-instagram" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/108159284/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className="fab fa-linkedin-in" />
+                </a>
               </div>
             </div>
           </div>
@@ -679,7 +897,10 @@ const HeaderOne = () => {
         <div className="mcb-modal-overlay">
           <div className="mcb-modal mcb-location-modal">
             <div className="mcb-location-icon">
-              <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Location" />
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/684/684908.png"
+                alt="Location"
+              />
             </div>
             <h4>Allow Location Access</h4>
             <p>We use your location to show services near you.</p>
@@ -693,11 +914,17 @@ const HeaderOne = () => {
 
       {/* City Search Modal */}
       {showCityModal && (
-        <div className="mcb-modal-overlay" onClick={() => setShowCityModal(false)}>
+        <div
+          className="mcb-modal-overlay"
+          onClick={() => setShowCityModal(false)}
+        >
           <div className="mcb-modal" onClick={(e) => e.stopPropagation()}>
             <div className="mcb-modal-header">
               <h5>Select Your City</h5>
-              <button className="mcb-modal-close" onClick={() => setShowCityModal(false)}>
+              <button
+                className="mcb-modal-close"
+                onClick={() => setShowCityModal(false)}
+              >
                 <FaTimes />
               </button>
             </div>
@@ -715,7 +942,11 @@ const HeaderOne = () => {
               <div className="mcb-city-list">
                 {filteredCities.length > 0 ? (
                   filteredCities.map((city) => (
-                    <button key={city.CityID} className="mcb-city-item" onClick={() => handleSelectCity(city)}>
+                    <button
+                      key={city.CityID}
+                      className="mcb-city-item"
+                      onClick={() => handleSelectCity(city)}
+                    >
                       {city.CityName}, {city.StateName}
                     </button>
                   ))
@@ -752,7 +983,10 @@ const HeaderOne = () => {
       <SignIn
         isVisible={signInVisible}
         onClose={() => setSignInVisible(false)}
-        onRegister={() => { setSignInVisible(false); setRegisterVisible(true); }}
+        onRegister={() => {
+          setSignInVisible(false);
+          setRegisterVisible(true);
+        }}
         onForgotPassword={() => setSignInVisible(false)}
       />
 
@@ -769,7 +1003,10 @@ const HeaderOne = () => {
       <ProfileModal
         isVisible={profileVisible}
         onClose={() => setProfileVisible(false)}
-        onRegister={() => { setProfileVisible(false); setRegisterVisible(true); }}
+        onRegister={() => {
+          setProfileVisible(false);
+          setRegisterVisible(true);
+        }}
       />
     </>
   );

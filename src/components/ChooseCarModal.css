@@ -1,3 +1,4 @@
+/* Above BookServiceModal / other overlays (.bsm-overlay uses 9999) — modal is portaled to body */
 .choose-car-modal {
   position: fixed;
   top: 0;
@@ -9,7 +10,7 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.5s ease, opacity 0.5s ease;
-  z-index: 999;
+  z-index: 10050;
 }
 
 .choose-car-modal.hidden {

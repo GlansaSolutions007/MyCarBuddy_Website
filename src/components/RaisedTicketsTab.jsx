@@ -3,6 +3,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { useAlert } from "../context/AlertContext";
 import NewTicket from "./NewTicket";
+import TicketDrawer from "./TicketDrawer";
 import Swal from "sweetalert2";
 import "./RaisedTicketsTab.css";
 import { 
@@ -342,12 +343,22 @@ const RaisedTicketsTab = () => {
         </button>
       </div>
 
-      {showNewTicket ? (
-        <NewTicket
+      {showNewTicket && (
+        <TicketDrawer
           onClose={() => setShowNewTicket(false)}
-          onTicketCreated={fetchTickets}
-        />
-      ) : tickets.length === 0 ? (
+          title="Raise a Ticket"
+        >
+          <NewTicket
+            onClose={() => setShowNewTicket(false)}
+            onTicketCreated={() => {
+              setShowNewTicket(false);
+              fetchTickets();
+            }}
+          />
+        </TicketDrawer>
+      )}
+
+      {tickets.length === 0 ? (
         <div className="rt-empty">
           <img
             src="/assets/img/no-tickets.png"

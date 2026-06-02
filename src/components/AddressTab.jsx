@@ -65,7 +65,7 @@ const AddressTab = ({ custID = 0 }) => {
 
         setAddresses(formatted);
       } catch (error) {
-        console.error("Error fetching addresses:", error);
+        // console.error("Error fetching addresses:", error);
        } finally {
         setLoading(false);
       }
@@ -91,7 +91,7 @@ const AddressTab = ({ custID = 0 }) => {
       }));
       setAddresses(updatedAddresses);
     } catch (error) {
-      console.error("Error setting primary address:", error);
+      // console.error("Error setting primary address:", error);
     }
   };   
   

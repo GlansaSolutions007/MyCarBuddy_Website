@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./ChooseCarModal.css";
 import BrandPopup from "./BrandPopup"; // new popup component
 import ModelPopup from "./ModelPopup";
@@ -120,6 +121,8 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
     const [yearError, setYearError] = useState(false);
 	const [regError, setRegError] = useState(false);
 	const [regMessage, setRegMessage] = useState("");
+	/** Shown when user tries Save without Brand + Model + Fuel (all required for new car) */
+	const [selectionError, setSelectionError] = useState("");
 
 	// Bind IDs on selection
 	useEffect(() => {
@@ -129,6 +132,10 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 			modelID: model || "",
 			fuelTypeID: fuel || "",
 		}));
+	}, [brand, model, fuel]);
+
+	useEffect(() => {
+		if (brand && model && fuel) setSelectionError("");
 	}, [brand, model, fuel]);
 
 	// Reset modal form when it is opened from header
@@ -150,6 +157,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 				modelID: "",
 				fuelTypeID: "",
 			});
+			setSelectionError("");
 		} catch (_) { /* no-op */ }
 	}, [isVisible]);
 
@@ -631,29 +639,48 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	};
 
 	const handleSubmit = async (e) => {
-		e.preventDefault();
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 
 		// Required fields validation for registration number and year of purchase
-		if (!formData.registrationNumber ) {
-			showAlert("Please enter registration number.");
+		if (!formData.registrationNumber) {
+			if (showAlert) showAlert("Error", "Please enter registration number.", 3000, "error");
 			return;
 		}
 
-		// Validate registration number
 		if (regError) {
 			return;
 		}
 
 		if (!brand || !model || !fuel) {
+			const parts = [
+				!brand ? "Brand" : null,
+				!model ? "Model" : null,
+				!fuel ? "Fuel type" : null,
+			].filter(Boolean);
+			const msg = `Choose ${parts.join(", ")} — all three are required to save a new car.`;
+			setSelectionError(msg);
 			if (showAlert) {
-				showAlert( "Please select brand, model, and fuel type.");
+				showAlert("Required", msg, 4500, "error");
 			} else {
-				alert("Please select brand, model, and fuel type.");
+				alert(msg);
 			}
 			return;
 		}
+		setSelectionError("");
 
-		// Validate year of purchase
+		const bid = Number(formData.brandID || brand);
+		const mid = Number(formData.modelID || model);
+		const fid = Number(formData.fuelTypeID || fuel);
+		if (!bid || !mid || !fid) {
+			const msg = "Brand, Model, and Fuel must all be selected (valid choices) before saving.";
+			setSelectionError(msg);
+			if (showAlert) showAlert("Required", msg, 4500, "error");
+			return;
+		}
+
 		const currentYear = new Date().getFullYear();
 		const year = parseInt(formData.yearOfPurchase, 10);
 		if (isNaN(year) || year < 1900 || year > currentYear) {
@@ -661,95 +688,114 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 			return;
 		}
 
-		
-        const selectedCarDetails = buildSelectedCarDetails({
-            brandItem: brands.find((b) => b.id === brand),
-            modelItem: models.find((m) => m.id === model),
-            fuelItem: fuels.find((f) => f.id === fuel),
-            formData,
-        });
+		const selectedCarDetails = buildSelectedCarDetails({
+			brandItem: brands.find((b) => b.id === brand),
+			modelItem: models.find((m) => m.id === model),
+			fuelItem: fuels.find((f) => f.id === fuel),
+			formData,
+		});
 
-		localStorage.setItem("selectedCarDetails", JSON.stringify(selectedCarDetails));
-
-		const user = JSON.parse(localStorage.getItem("user"));
-		if (user?.identifier) {
-			const userCarKey = `selectedCar_${user.identifier}`;
-			localStorage.setItem(userCarKey, JSON.stringify(selectedCarDetails));
-		}
-		if (onCarSaved) {
-			onCarSaved(selectedCarDetails);
-		}
-		// Insert vehicle via API only if user is signed-in
-		try {
-			const user = JSON.parse(localStorage.getItem("user"));
-			const token = user?.token || "";
-			let decryptedCustId = null;
-
-			if (token && user?.id) {
-				try {
-					const secretKey = process.env.REACT_APP_ENCRYPT_SECRET_KEY;
-					const bytes = CryptoJS.AES.decrypt(user.id, secretKey);
-					decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
-				} catch (err) {
-					console.warn("Failed to decrypt customer id", err);
-				}
+		const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+		const token = storedUser?.token || "";
+		let decryptedCustId = null;
+		if (token && storedUser?.id && secretKey) {
+			try {
+				const bytes = CryptoJS.AES.decrypt(storedUser.id, secretKey);
+				decryptedCustId = bytes.toString(CryptoJS.enc.Utf8);
+			} catch (err) {
+				console.warn("Failed to decrypt customer id", err);
 			}
+		}
 
-			if (token && decryptedCustId) {
-				const payload = {
-					custID: decryptedCustId,
-					brandID: formData.brandID || brand,
-					modelID: formData.modelID || model,
-					fuelTypeID: formData.fuelTypeID || fuel,
+		// Logged-in: save via API first, then notify parent (never submit outer BookServiceModal form)
+		if (token && decryptedCustId) {
+			const payload = {
+				custID: decryptedCustId,
+				brandID: formData.brandID || brand,
+				modelID: formData.modelID || model,
+				fuelTypeID: formData.fuelTypeID || fuel,
+				VehicleNumber: formData.registrationNumber,
+				yearOfPurchase: formData.yearOfPurchase,
+				engineType: formData.engineType,
+				kilometersDriven: formData.kilometerDriven,
+				transmissionType: formData.transmissionType,
+				CreatedBy: decryptedCustId,
+			};
+
+			try {
+				const resp = await axios.post(`${BaseURL}CustomerVehicles/InsertCustomerVehicle`, payload);
+				const apiData = resp?.data ?? {};
+				const newVehicleId = Number(
+					apiData.vehicleID ?? apiData.VehicleID ?? apiData.vehicleId ?? apiData.data?.vehicleID ?? 0
+				);
+
+				if (apiData?.status === false || apiData?.vehicleID === -1 || newVehicleId < 0) {
+					const errorMessage = apiData?.message || "Unable to save vehicle. Please check details.";
+					if (showAlert) showAlert("Error", errorMessage, 4000, "error");
+					return;
+				}
+
+				const saved = {
+					...selectedCarDetails,
+					id: newVehicleId || selectedCarDetails.id || 0,
+					VehicleID: newVehicleId || selectedCarDetails.VehicleID || 0,
+					vehicleID: newVehicleId || selectedCarDetails.vehicleID || 0,
+					vehicleNumber: formData.registrationNumber,
 					VehicleNumber: formData.registrationNumber,
-					yearOfPurchase: formData.yearOfPurchase,
+					registrationNumber: formData.registrationNumber,
+					brandID: Number(formData.brandID || brand) || 0,
+					modelID: Number(formData.modelID || model) || 0,
+					fuelTypeID: Number(formData.fuelTypeID || fuel) || 0,
+					yearOfPurchase: Number(formData.yearOfPurchase) || 0,
+					YearOfPurchase: Number(formData.yearOfPurchase) || 0,
 					engineType: formData.engineType,
-					kilometersDriven: formData.kilometerDriven,
+					kilometersDriven: Number(formData.kilometerDriven) || 0,
+					KilometersDriven: Number(formData.kilometerDriven) || 0,
+					kilometerDriven: formData.kilometerDriven,
 					transmissionType: formData.transmissionType,
-					CreatedBy: decryptedCustId,
 				};
 
-				const resp = await axios.post(`${BaseURL}CustomerVehicles/InsertCustomerVehicle`, payload);
-				const apiData = resp?.data || {};
-				if (apiData?.status === false || apiData?.vehicleID === -1) {
-					const errorMessage = apiData?.message || "Unable to save vehicle. Please check details.";
-					console.error(errorMessage);
-					if (showAlert) {
-						showAlert(errorMessage);
-					}
-                } else if (apiData?.vehicleID) {
-                    // store VehicleID with selected car and persist entered details
-                    let saved = JSON.parse(localStorage.getItem("selectedCarDetails")) || {};
-                    saved.id = Number(apiData.vehicleID) || 0;
-                    saved.VehicleID = Number(apiData.vehicleID) || 0;
-                    saved.vehicleNumber = formData.registrationNumber;
-                    saved.VehicleNumber = formData.registrationNumber;
-                    saved.registrationNumber = formData.registrationNumber;
-                    saved.brandID = Number(formData.brandID || brand) || 0;
-                    saved.modelID = Number(formData.modelID || model) || 0;
-                    saved.fuelTypeID = Number(formData.fuelTypeID || fuel) || 0;
-                    saved.yearOfPurchase = Number(formData.yearOfPurchase) || 0;
-                    saved.engineType = formData.engineType;
-                    saved.kilometersDriven = Number(formData.kilometerDriven) || 0;
-                    saved.kilometerDriven = formData.kilometerDriven;
-                    saved.transmissionType = formData.transmissionType;
-                    localStorage.setItem("selectedCarDetails", JSON.stringify(saved));
-					fetchSavedVehicles();
-                }
-			} else {
-				showAlert && showAlert("Please sign in to save your vehicle.", "warning");
-				return;
+				localStorage.setItem("selectedCarDetails", JSON.stringify(saved));
+				if (storedUser?.identifier) {
+					const userCarKey = `selectedCar_${storedUser.identifier}`;
+					localStorage.setItem(userCarKey, JSON.stringify(saved));
+				}
+				try {
+					window.dispatchEvent(new CustomEvent("selectedCarUpdated"));
+				} catch (_) {}
+
+				fetchSavedVehicles();
+				if (onCarSaved) onCarSaved(saved);
+				if (onClose) onClose();
+			} catch (err) {
+				console.error("Error inserting customer vehicle:", err);
+				const msg =
+					err?.response?.data?.message ||
+					err?.message ||
+					"Failed to save vehicle. Please try again.";
+				if (showAlert) showAlert("Error", msg, 4000, "error");
 			}
-		} catch (err) {
-			console.error("Error inserting customer vehicle:", err);
+			return;
 		}
 
-        console.log("Saved Car:", selectedCarDetails);
-        try { window.dispatchEvent(new CustomEvent('selectedCarUpdated')); } catch (_) {}
-        if (onCarSaved) {
-            onCarSaved(selectedCarDetails);
-        }
-        if (onClose) onClose();
+		// Guest (no token): keep selection locally only
+		if (!token) {
+			localStorage.setItem("selectedCarDetails", JSON.stringify(selectedCarDetails));
+			if (storedUser?.identifier) {
+				const userCarKey = `selectedCar_${storedUser.identifier}`;
+				localStorage.setItem(userCarKey, JSON.stringify(selectedCarDetails));
+			}
+			try {
+				window.dispatchEvent(new CustomEvent("selectedCarUpdated"));
+			} catch (_) {}
+			if (onCarSaved) onCarSaved(selectedCarDetails);
+			if (onClose) onClose();
+			return;
+		}
+
+		if (showAlert) {
+			showAlert("Error", "Could not read your account. Please sign in again.", 4000, "error");
+		}
 	};
 
 
@@ -758,6 +804,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 
 
 	const handleBrandSelect = (id) => {
+		setSelectionError("");
 		setBrand(id);
 		setModel("");
 		setShowBrandPopup(false);
@@ -768,6 +815,7 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	};
 
 	const handleModelSelect = (id) => {
+		setSelectionError("");
 		setModel(id);
 		setShowModelPopup(false);
 		setTimeout(() => {
@@ -776,12 +824,27 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 	};
 
 	const handleFuelSelect = (id) => {
+		setSelectionError("");
 		setFuel(id);
 		setShowFuelPopup(false);
 	};
 
-	return (
-		<div className={`choose-car-modal ${isVisible ? "visible" : "hidden"}`}>
+	const triadIncomplete = !brand || !model || !fuel;
+	const savePrimaryBlocked =
+		!String(formData.registrationNumber || "").trim() || !!regError || triadIncomplete;
+	const savePrimaryTitle = !String(formData.registrationNumber || "").trim()
+		? "Enter registration number first"
+		: regError
+			? "Fix registration number errors"
+			: triadIncomplete
+				? "Select Brand, Model & Fuel — all three are required to save"
+				: "";
+
+	if (!isVisible) return null;
+
+	/* Portal keeps this UI outside parent forms (e.g. BookServiceModal) so Save cannot submit the enquiry form */
+	return createPortal(
+		<div className="choose-car-modal visible">
 			<div className="modal-content" ref={modalRef}>
 				<button className="modal-close" onClick={onClose}>
 					×
@@ -790,7 +853,13 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 				{!isLoggedIn && (
 				<div className="mb-3 p-3 rounded  bg-white">
 					<h6 className="mb-3">Please Verify Your Mobile Number</h6>
-					<form onSubmit={otpSent ? handleVerifyOTP : handleSendOTP}>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							return otpSent ? handleVerifyOTP(e) : handleSendOTP(e);
+						}}
+					>
 						<div className="mb-3 text-start">
 							<label className="form-label">Mobile Number</label>
 							<div className="input-group">
@@ -893,7 +962,13 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 					</div>
 				)}
 				<h6>Or Add New Car</h6>
-				<form onSubmit={handleSubmit}>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						handleSubmit(e);
+					}}
+				>
 					{selectionMethod === "registration" ? (
 						<div className="mb-4">
 							<label className="form-label">Enter Vehicle Registration Number</label>
@@ -973,9 +1048,17 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 							</div>
 						</div>
 
-						{/* THEN: Choose Brand, Model & Fuel */}
+						{/* THEN: Choose Brand, Model & Fuel (all required to save) */}
             <div className="mb-4 mt-4">
-						<label className="form-label">Choose Brand, Model & Fuel</label>
+						<label className="form-label fw-semibold d-block text-center">
+							Choose Brand, Model & Fuel{" "}
+							<span className="text-danger" title="All three are required to save">
+								*
+							</span>
+						</label>
+						<p className="text-muted small mb-3 text-center px-1" style={{ maxWidth: 420, marginLeft: "auto", marginRight: "auto" }}>
+							Select <strong>Brand</strong>, then <strong>Model</strong>, then <strong>Fuel</strong>. All three are required before you can save a new car.
+						</p>
 						<div className="d-flex gap-3 flex-wrap justify-content-center">
 							{/* Brand Card */}
 							<div
@@ -983,7 +1066,11 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 									if (!loadingBrands) setShowBrandPopup(true);
 								}}
 								className={`rounded shadow-sm text-center p-3 car-box ${
-									brand ? "border-primary border-2" : "border"
+									brand
+										? "border-primary border-2"
+										: selectionError && !brand
+											? "border-danger border-2"
+											: "border"
 								} bg-white hover-shadow`}
 								style={{
 									width: 120,
@@ -1026,7 +1113,11 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 									if (!loadingModels && brand) setShowModelPopup(true);
 								}}
 								className={`rounded shadow-sm text-center p-3 car-box ${
-									model ? "border-primary border-2" : "border"
+									model
+										? "border-primary border-2"
+										: selectionError && !model
+											? "border-danger border-2"
+											: "border"
 								} bg-white hover-shadow`}
 								style={{
 									width: 120,
@@ -1069,7 +1160,11 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 									if (model) setShowFuelPopup(true);
 								}}
 								className={`rounded shadow-sm text-center p-3 car-box ${
-									fuel ? "border-primary border-2" : "border"
+									fuel
+										? "border-primary border-2"
+										: selectionError && !fuel
+											? "border-danger border-2"
+											: "border"
 								} bg-white hover-shadow`}
 								style={{
 									width: 120,
@@ -1123,6 +1218,15 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 								{fuel && fuels.find((f) => f.id === fuel)?.name}
 							</div>
 						)}
+						{selectionError && (
+							<div
+								className="alert alert-danger py-2 px-3 small mt-3 mb-0 text-center"
+								role="alert"
+								style={{ maxWidth: 420, marginLeft: "auto", marginRight: "auto" }}
+							>
+								{selectionError}
+							</div>
+						)}
 					</div>
             </>
 					)}
@@ -1137,7 +1241,17 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 						<button type="button" className="btn btn-warning py-2 px-4" onClick={onClose}>
 							Cancel
 						</button>
-						<button type="submit" className="btn btn-primary py-2 px-4">
+						<button
+							type="button"
+							className="btn btn-primary py-2 px-4"
+							disabled={savePrimaryBlocked}
+							title={savePrimaryTitle || undefined}
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								handleSubmit(e);
+							}}
+						>
 							Save
 						</button>
 					</div>
@@ -1173,7 +1287,8 @@ const ChooseCarModal = ({ isVisible, onClose, onCarSaved }) => {
 					onClose={() => setShowFuelPopup(false)}
 				/>
 			)}
-		</div>
+		</div>,
+		document.body
 	);
 };
 

@@ -146,7 +146,7 @@ const BookingAddressDetails = ({
         }
       }
     } catch (error) {
-      console.error("Error reverse geocoding:", error);
+      // console.error("Error reverse geocoding:", error);
     }
   };
 
@@ -181,7 +181,7 @@ const BookingAddressDetails = ({
         setLocating(false);
       },
       (error) => {
-        console.error("Error using current location:", error);
+        // console.error("Error using current location:", error);
         setLocating(false);
         Swal.fire({
           icon: "error",
@@ -269,7 +269,7 @@ const BookingAddressDetails = ({
 
 
       } catch (error) {
-        console.error("Error fetching addresses:", error);
+        // console.error("Error fetching addresses:", error);
       }
     };
 
@@ -387,7 +387,7 @@ const BookingAddressDetails = ({
         handleMapClick(loc.lat, loc.lng);
       }
     } catch (e) {
-      console.error("Geocoding on address blur failed", e);
+      // console.error("Geocoding on address blur failed", e);
     }
   };
 
