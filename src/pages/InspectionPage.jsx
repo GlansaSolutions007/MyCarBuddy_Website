@@ -426,10 +426,10 @@ const InspectionPage = () => {
     },
   ];
 
-  // Returns address fields
   const getAddressPayload = () => {
     if (!selectedAddress)
       return { city: null, longitude: null, latitude: null, addressId: null };
+
     if (selectedAddress.AddressID === "__other__") {
       const parts = [
         manualAddress.line1,
@@ -440,6 +440,7 @@ const InspectionPage = () => {
       ]
         .filter(Boolean)
         .join(", ");
+
       return {
         city: parts || null,
         longitude: null,
@@ -447,6 +448,7 @@ const InspectionPage = () => {
         addressId: null,
       };
     }
+
     return {
       city: selectedAddress.AddressLine1 || null,
       longitude: selectedAddress.Longitude ?? null,
@@ -455,9 +457,8 @@ const InspectionPage = () => {
     };
   };
 
-  // Address is required whenever saved addresses are available
   const validateAddress = () => {
-    if (savedAddresses.length === 0) return ""; // no addresses fetched → skip
+    if (savedAddresses.length === 0) return "";
     if (!selectedAddress) return "Please select a service address to continue.";
     if (
       selectedAddress.AddressID === "__other__" &&
@@ -465,6 +466,63 @@ const InspectionPage = () => {
     )
       return "Please enter at least Address Line 1.";
     return "";
+  };
+
+  const RAZORPAY_CHECKOUT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+
+  const loadRazorpayCheckout = () => {
+    if (window.Razorpay) {
+      return Promise.resolve(window.Razorpay);
+    }
+
+    const existingScript = document.querySelector(
+      `script[src="${RAZORPAY_CHECKOUT_URL}"]`,
+    );
+
+    if (existingScript) {
+      return new Promise((resolve, reject) => {
+        if (window.Razorpay) {
+          resolve(window.Razorpay);
+          return;
+        }
+
+        existingScript.addEventListener("load", () => {
+          if (window.Razorpay) {
+            resolve(window.Razorpay);
+          } else {
+            reject(
+              new Error(
+                "Razorpay script loaded but window.Razorpay is unavailable.",
+              ),
+            );
+          }
+        });
+
+        existingScript.addEventListener("error", () => {
+          reject(new Error("Failed to load Razorpay checkout script."));
+        });
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = RAZORPAY_CHECKOUT_URL;
+      script.async = true;
+      script.onload = () => {
+        if (window.Razorpay) {
+          resolve(window.Razorpay);
+        } else {
+          reject(
+            new Error(
+              "Razorpay script loaded but window.Razorpay is unavailable.",
+            ),
+          );
+        }
+      };
+      script.onerror = () =>
+        reject(new Error("Failed to load Razorpay checkout script."));
+      document.body.appendChild(script);
+    });
   };
 
   const validateCar = () => {
@@ -658,7 +716,8 @@ const InspectionPage = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options);
+      const RazorpayConstructor = await loadRazorpayCheckout();
+      const rzp = new RazorpayConstructor(options);
 
       rzp.on("payment.failed", function (response) {
         Swal.fire({
