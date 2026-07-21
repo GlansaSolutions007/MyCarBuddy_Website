@@ -35,6 +35,9 @@ import ThankYouPage from "./pages/ThankYouPage";
 import InspectionPage from "./pages/InspectionPage";
 import NotificationPopup from "./components/NotificationPopup";
 import OfferScreenPopUp from "./components/OfferScreenPopUp";
+import Corporate from "./components/Corporate";
+import HeaderOne from "./components/HeaderOne";
+import FooterAreaOne from "./components/FooterAreaOne";
 // import AIChatWidget from "./components/AIChatWidget";
 import FeedbackPage from "./pages/FeedbackPage"
 function App() {
@@ -57,6 +60,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<><HomePageThree /> <OfferScreenPopUp/></>} />
           <Route exact path="/about" element={<AboutPage />} />
+          <Route exact path="/corporate" element={<><HeaderOne /><Corporate /><FooterAreaOne /></>} />
           <Route exact path="/service" element={<ServicePage />} />
           {/* <Route exact path="/service-details/:categoryId" element={<ServiceDetailsPage />} /> */}
            <Route path="/service/:categoryname/:categoryId" element={<ServiceDetailsPage />} />

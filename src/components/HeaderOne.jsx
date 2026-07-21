@@ -441,6 +441,7 @@ const HeaderOne = ({ disableSignIn = false }) => {
                       Home
                     </NavLink>
                   </li>
+                  
                   <li className="mcb-nav-item">
                     <NavLink
                       to="/about"
@@ -473,6 +474,16 @@ const HeaderOne = ({ disableSignIn = false }) => {
                           ))}
                       </div>
                     </div>
+                  </li>
+                  <li className="mcb-nav-item">
+                    <NavLink
+                      to="/corporate"
+                      className={({ isActive }) =>
+                        `mcb-nav-link ${isActive ? "active" : ""}`
+                      }
+                    >
+                      Corporate
+                    </NavLink>
                   </li>
                   <li className="mcb-nav-item">
                     <NavLink
@@ -788,6 +799,7 @@ const HeaderOne = ({ disableSignIn = false }) => {
                     Home
                   </NavLink>
                 </li>
+                
                 <li className="mcb-mobile-nav-item">
                   <NavLink
                     to="/about"
@@ -828,6 +840,17 @@ const HeaderOne = ({ disableSignIn = false }) => {
                       </Link>
                     ))}
                   </div>
+                </li>
+                <li className="mcb-mobile-nav-item">
+                  <NavLink
+                    to="/corporate"
+                    className={({ isActive }) =>
+                      `mcb-mobile-nav-link ${isActive ? "active" : ""}`
+                    }
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Corporate
+                  </NavLink>
                 </li>
                 <li className="mcb-mobile-nav-item">
                   <NavLink
