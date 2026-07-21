@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useAlert } from "../context/AlertContext";
 import {
   BadgeCheck,
   BriefcaseBusiness,
@@ -28,6 +30,15 @@ import {
   Send,
 } from "lucide-react";
 import "./corporate.css";
+import itIndustryImage from "../images/it.png";
+import corporateIndustryImage from "../images/corp.png";
+import hospitalIndustryImage from "../images/hosp.png";
+import educationIndustryImage from "../images/col.png";
+import bankingIndustryImage from "../images/bank.png";
+import logisticsIndustryImage from "../images/log.png";
+import hotelIndustryImage from "../images/htl.png";
+import businessIndustryImage from "../images/biz.png";
+import corpimg from "../images/corpimg.png";
 
 const services = [
   {
@@ -157,14 +168,14 @@ const steps = [
 ];
 
 const industries = [
-  [Computer, "IT Companies"],
-  [Building2, "Corporate Offices"],
-  [Building2, "Hospitals"],
-  [GraduationCap, "Educational Institutions"],
-  [Landmark, "Banks & Financial Services"],
-  [BriefcaseBusiness, "Logistics & Fleet Operators"],
-  [Hotel, "Hotels"],
-  [Hotel, "Small & Medium Businesses"],
+  { icon: Computer, label: "IT Companies", image: itIndustryImage },
+  { icon: Building2, label: "Corporate Offices", image: corporateIndustryImage },
+  { icon: Building2, label: "Hospitals", image: hospitalIndustryImage },
+  { icon: GraduationCap, label: "Educational Institutions", image: educationIndustryImage },
+  { icon: Landmark, label: "Banks & Financial Services", image: bankingIndustryImage },
+  { icon: BriefcaseBusiness, label: "Logistics & Fleet Operators", image: logisticsIndustryImage },
+  { icon: Hotel, label: "Hotels", image: hotelIndustryImage },
+  { icon: BriefcaseBusiness, label: "Small & Medium Businesses", image: businessIndustryImage },
 ];
 
 const organizationBenefits = [
@@ -203,6 +214,9 @@ const planPricing = {
 
 const Corporate = () => {
   const [showProposalForm, setShowProposalForm] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showAlert } = useAlert();
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -220,6 +234,7 @@ const Corporate = () => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setShowProposalForm(false);
+        setFormErrors({});
       }
     };
 
@@ -232,38 +247,142 @@ const Corporate = () => {
     };
   }, [showProposalForm]);
 
-  const openProposalForm = () => setShowProposalForm(true);
-  const closeProposalForm = () => setShowProposalForm(false);
+  const openProposalForm = () => {
+    setShowProposalForm(true);
+  };
+  const closeProposalForm = () => {
+    setShowProposalForm(false);
+    setFormErrors({});
+  };
+
+  const validateName = (value) => /^[A-Z][A-Za-z]*(?: [A-Z][A-Za-z]*)*$/.test(value.trim());
+
+  const formatNameValue = (value) => {
+    const sanitizedValue = value.replace(/[^A-Za-z ]/g, "");
+    return sanitizedValue
+      .split(" ")
+      .map((word) => {
+        if (!word) return "";
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    const companyName = formData.companyName.trim();
+    const contactPerson = formData.contactPerson.trim();
+    const phone = formData.phone.trim();
+    const businessEmail = formData.email.trim();
+    const servicesRequired = formData.message.trim();
+
+    if (!companyName) {
+      errors.companyName = "Company name is required.";
+    } else if (!validateName(companyName)) {
+      errors.companyName =
+        "Company name must start with a capital letter and each word after a space must also start with a capital letter.";
+    }
+
+    if (!contactPerson) {
+      errors.contactPerson = "Contact person is required.";
+    } else if (!validateName(contactPerson)) {
+      errors.contactPerson =
+        "Contact person name must start with a capital letter and each word after a space must also start with a capital letter.";
+    }
+
+    if (!businessEmail) {
+      errors.email = "Business email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessEmail)) {
+      errors.email = "Enter a valid business email address.";
+    }
+
+    if (!phone) {
+      errors.phone = "Phone number is required.";
+    } else if (!/^\d{10}$/.test(phone)) {
+      errors.phone = "Mobile number must be exactly 10 digits.";
+    }
+
+if (!servicesRequired) {
+      errors.message = "Please tell us which services you require.";
+    }
+
+    return errors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let nextValue = value;
+
+    if (name === "phone") {
+      nextValue = value.replace(/\D/g, "").slice(0, 10);
+    } else if (name === "companyName" || name === "contactPerson") {
+      nextValue = formatNameValue(value);
+    }
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nextValue,
     }));
+
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Proposal Request:", formData);
+    const validationErrors = validateForm();
 
-    // Here you can call your backend API
-    alert("Thank you! We will contact you soon.");
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
+      return;
+    }
 
-    setFormData({
-      companyName: "",
-      contactPerson: "",
-      email: "",
-      phone: "",
-      companySize: "",
-      fleetSize: "",
-      services: "",
-      message: "",
-    });
+    const baseUrl = process.env.REACT_APP_CARBUDDY_BASE_URL;
+    if (!baseUrl) {
+      showAlert("Unable to submit request", "Please try again later.", 4000, "error");
+      return;
+    }
 
-    setShowProposalForm(false);
+    setIsSubmitting(true);
+
+    try {
+      await axios.post(`${baseUrl}Contact/SendCorporateProposal`, {
+        companyName: formData.companyName.trim(),
+        contactPerson: formData.contactPerson.trim(),
+        businessEmail: formData.email.trim(),
+        phoneNumber: formData.phone.trim(),
+        servicesRequired: formData.message.trim(),
+      });
+
+      showAlert("Proposal request sent", "Thank you! We will contact you soon.", 6000, "success");
+      setFormData({
+        companyName: "",
+        contactPerson: "",
+        email: "",
+        phone: "",
+        companySize: "",
+        fleetSize: "",
+        services: "",
+        message: "",
+      });
+      setFormErrors({});
+      setShowProposalForm(false);
+} catch (error) {
+      showAlert(
+        "Unable to submit request",
+        error.response?.data?.message ||
+          "We couldn't submit your request. Please try again or contact us on WhatsApp.",
+        5000,
+        "error"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -288,7 +407,7 @@ const Corporate = () => {
               className="corporate-btn corporate-btn--orange"
               onClick={openProposalForm}
             >
-              Request a Proposal
+              Request an Enquiry
             </button>
             <a className="corporate-btn corporate-btn--teal" href={corporateWhatsappLink} target="_blank" rel="noreferrer">
               Contact Us
@@ -399,7 +518,7 @@ const Corporate = () => {
           </div>
           <div className="corporate-photo-card">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAtcV9-ow05f_EFeomlvkm0W7k9bt2D4Dkv6NTAjPN_LYlqTOKVjVYHQgSUDhZltDlfHZBUkzSL9cR1rirSPrNPzXvowxOmy7W9qHi6koZ_9VwKysGcp3oYBSHTKuqBt-RmG_nXsiBOgEMf6KtGP64PKlUXAa1sWu705WA6brxmucio7enJbzY-1aO02l2laVqSFmQ83AH0pCNgbXyDghHTRDJDHUZujw1GZk3E1i7Ivsew3IGSrV2VQ"
+              src={corpimg}
               alt="Professional technician servicing a car"
             />
             <div className="corporate-stat">
@@ -460,10 +579,15 @@ const Corporate = () => {
             <span />
           </div>
           <div className="corporate-industries">
-            {industries.map(([Icon, label]) => (
+            {industries.map(({ icon: Icon, label, image }) => (
               <div className="corporate-industry" key={label}>
-                <Icon size={28} />
-                <span>{label}</span>
+                <img src={image} alt="" aria-hidden="true" />
+                <div className="corporate-industry__content">
+                  <div className="corporate-industry__icon">
+                    <Icon size={22} />
+                  </div>
+                  <span>{label}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -483,9 +607,9 @@ const Corporate = () => {
                 <Phone size={20} />
                 <strong>+91 707-524-3939</strong>
               </a>
-              <a href="mailto:corporate@mycarbuddy.in">
+              <a href="mailto:info@mycarbuddy.in">
                 <Mail size={20} />
-                <strong>corporate@mycarbuddy.in</strong>
+                <strong>info@mycarbuddy.in</strong>
               </a>
             </div>
             <button
@@ -493,7 +617,7 @@ const Corporate = () => {
               className="corporate-btn corporate-btn--orange"
               onClick={openProposalForm}
             >
-              Request a Corporate Proposal
+              Request a Corporate Enquiry
             </button>
           </div>
         </div>
@@ -527,16 +651,21 @@ const Corporate = () => {
             >
               <X size={22} />
             </button>
-
             <div className="proposal-modal-header">
-              <h2 id="proposal-modal-title">Request a Corporate Proposal</h2>
+              <span className="proposal-modal-kicker">
+                <ShieldCheck size={15} /> Priority corporate support
+              </span>
+              <h2 id="proposal-modal-title">Request a Corporate Enquiry</h2>
               <p>
                 Tell us about your organization and we'll create a customized
                 vehicle care solution for you.
               </p>
+              {/* <div className="proposal-modal-trust">
+                <CheckCircle2 size={16} /> Usually responds within one business day
+              </div> */}
             </div>
 
-            <form onSubmit={handleSubmit} className="proposal-form">
+            <form onSubmit={handleSubmit} className="proposal-form" noValidate>
               <div className="proposal-form-grid">
                 <div className="proposal-form-group">
                   <label htmlFor="companyName">Company Name *</label>
@@ -549,6 +678,11 @@ const Corporate = () => {
                     onChange={handleChange}
                     required
                   />
+                  {formErrors.companyName && (
+                    <small style={{ color: "#dc2626", display: "block", marginTop: "0.25rem" }}>
+                      {formErrors.companyName}
+                    </small>
+                  )}
                 </div>
 
                 <div className="proposal-form-group">
@@ -562,6 +696,11 @@ const Corporate = () => {
                     onChange={handleChange}
                     required
                   />
+                  {formErrors.contactPerson && (
+                    <small style={{ color: "#dc2626", display: "block", marginTop: "0.25rem" }}>
+                      {formErrors.contactPerson}
+                    </small>
+                  )}
                 </div>
 
                 <div className="proposal-form-group">
@@ -575,6 +714,11 @@ const Corporate = () => {
                     onChange={handleChange}
                     required
                   />
+                  {formErrors.email && (
+                    <small style={{ color: "#dc2626", display: "block", marginTop: "0.25rem" }}>
+                      {formErrors.email}
+                    </small>
+                  )}
                 </div>
 
                 <div className="proposal-form-group">
@@ -583,14 +727,20 @@ const Corporate = () => {
                     id="phone"
                     type="tel"
                     name="phone"
-                    placeholder="+91 XXXXX XXXXX"
+                    placeholder="Enter 10 digit mobile number"
                     value={formData.phone}
                     onChange={handleChange}
+                    maxLength={10}
                     required
                   />
+                  {formErrors.phone && (
+                    <small style={{ color: "#dc2626", display: "block", marginTop: "0.25rem" }}>
+                      {formErrors.phone}
+                    </small>
+                  )}
                 </div>
 
-                <div className="proposal-form-group">
+                {/* <div className="proposal-form-group">
                   <label htmlFor="companySize">Company Size</label>
                   <select
                     id="companySize"
@@ -616,10 +766,10 @@ const Corporate = () => {
                     value={formData.fleetSize}
                     onChange={handleChange}
                   />
-                </div>
+                </div> */}
               </div>
 
-              <div className="proposal-form-group">
+              {/* <div className="proposal-form-group">
                 <label htmlFor="services">Services Required</label>
                 <select
                   id="services"
@@ -634,10 +784,10 @@ const Corporate = () => {
                   <option value="amc">Annual Maintenance Contract</option>
                   <option value="multiple">Multiple Services</option>
                 </select>
-              </div>
+              </div> */}
 
               <div className="proposal-form-group">
-                <label htmlFor="message">Additional Requirements</label>
+                <label htmlFor="message">Enquiry Details *</label>
                 <textarea
                   id="message"
                   name="message"
@@ -646,14 +796,19 @@ const Corporate = () => {
                   value={formData.message}
                   onChange={handleChange}
                 />
+                  {formErrors.message && (
+                    <small style={{ color: "#dc2626", display: "block", marginTop: "0.25rem" }}>
+                      {formErrors.message}
+                    </small>
+                  )}
               </div>
-
               <button
                 type="submit"
                 className="corporate-btn corporate-btn--orange proposal-submit-btn"
+                disabled={isSubmitting}
               >
                 <Send size={18} />
-                Submit Proposal Request
+                {isSubmitting ? "Submitting..." : "Submit Enquiry Request"}
               </button>
             </form>
           </div>
